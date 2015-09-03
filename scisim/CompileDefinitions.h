@@ -26,6 +26,6 @@ namespace CompileDefinitions
   // Fortran compiler used for this build
   extern const std::string FortranCompiler;
 
-};
+}
 
 #endif
