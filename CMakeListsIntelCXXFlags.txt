@@ -1,0 +1,59 @@
+# Add warning flags, if desired
+if( STRICT_BUILD )
+  # Note: Intel makes one remove unwanted flags
+
+  # Enable as many warnings as possible
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror-all -Wcheck -w3" )
+
+  # Remove warnings that cause issues with my code
+  #    869: parameter was never referenced
+  #  13368: loop was not vectorized with "vector always assert"
+  #  15527: loop was not vectorized
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -wd869,13368,15527" )
+
+  # Remove warnings that causes issues with Eigen
+  #   1418: external function definition with no prior declaration
+  #    304: access control not specified ("public" by default)
+  #    981: operands are evaluated in unspecified order
+  #    522: function "Eigen::internal::aligned_malloc" redeclared "inline" after being called
+  #    383: value copied to temporary, reference to temporary used
+  #   1572: floating-point equality and inequality comparisons are unreliable
+  #    367: duplicate friend declaration
+  #    280: selector expression is constant
+  #     68: integer conversion resulted in a change of sign
+  #   1599: declaration hides variable "i"
+  #    444: destructor for base class is not virtual
+  #    239: floating point underflow
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -wd1418,304,981,522,383,1572,367,280,68,1599,444,239" )
+
+  # Remove warnigns that cause issues with So-bogus
+  #    111: statement is unreachable
+  #   2259: non-pointer conversion from "double" to "unsigned char" may lose significant bits
+  #  11074: Inlining inhibited by limit max-size
+  #  11076: To get full report use -qopt-report=4 -qopt-report-phase ipo
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -wd111,2259,11074,11076" )
+
+  # Remove warnings that cause issues with RapidXML
+  #  3346: dynamic exception specifications are deprecated
+  #   185: dynamic initialization in unreachable code
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -wd3346,185" )
+
+  # Remove warnings that cause issues with HDF5
+  #   2282: unrecognized GCC pragma
+  if( USE_HDF5 )
+    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -wd2282" )
+  endif()
+
+  # Remove warnings that cause issues with QHull
+  #  193: zero used for undefined preprocessing identifier
+  if( USE_QHULL )
+    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -wd193" )
+  endif()
+
+endif()
+
+# N.B. Explicit -std=c++11 to work around lack of support for compiler features for Intel in CMake
+set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
+# N.B. Significant performance degradation with So-bogus with -xHost and without -fp-model strict
+# N.B. -xHost -fp-model strict seems slower on all platforms with Sobogus
+set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -ip" )
