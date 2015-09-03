@@ -1,0 +1,105 @@
+set( Sources
+  ConstrainedMaps/bogus/FrictionProblem.cpp
+  ConstrainedMaps/bogus/RigidBody3DSobogusInterface.cpp
+  ConstrainedMaps/bogus/RigidBody2DSobogusInterface.cpp
+  ConstrainedMaps/bogus/Ball2DSobogusInterface.cpp
+  ConstrainedMaps/ImpactMaps/GaussSeidelOperator.cpp
+  ConstrainedMaps/ImpactMaps/ImpactMap.cpp
+  ConstrainedMaps/ImpactMaps/ImpactOperator.cpp
+  ConstrainedMaps/ImpactMaps/JacobiOperator.cpp
+  ConstrainedMaps/ImpactMaps/LCPOperatorQL.cpp
+  ConstrainedMaps/ImpactMaps/LCPOperatorQLVP.cpp
+  ConstrainedMaps/ImpactMaps/LCPOperatorIpopt.cpp
+  ConstrainedMaps/ImpactMaps/GROperator.cpp
+  ConstrainedMaps/ImpactMaps/GRROperator.cpp
+  ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.cpp
+  ConstrainedMaps/ImpactMaps/ImpactSolution.cpp
+  ConstrainedMaps/FrictionMaps/BoundConstrainedMDPOperatorQL.cpp
+  ConstrainedMaps/FrictionMaps/BoundConstrainedMDPOperatorIpopt.cpp
+  ConstrainedMaps/FrictionMaps/FrictionOperator.cpp
+  ConstrainedMaps/FrictionMaps/LinearMDPOperatorQL.cpp
+  ConstrainedMaps/FrictionMaps/FrictionOperatorUtilities.cpp
+  ConstrainedMaps/FrictionMaps/LinearMDPOperatorIpopt.cpp
+  ConstrainedMaps/FrictionMaps/RestrictedSampleMDPOperatorIpopt.cpp
+  ConstrainedMaps/FrictionMaps/SmoothMDPOperatorIpopt.cpp
+  ConstrainedMaps/ConstrainedMapUtilities.cpp
+  ConstrainedMaps/ImpactFrictionMap.cpp
+  ConstrainedMaps/GeometricImpactFrictionMap.cpp
+  ConstrainedMaps/StabilizedImpactFrictionMap.cpp
+  ConstrainedMaps/StaggeredProjections.cpp
+  ConstrainedMaps/GRRFriction.cpp
+  Constraints/ConstrainedSystem.cpp
+  Constraints/Constraint.cpp
+  ConstrainedMaps/IpoptUtilities.cpp
+  ConstrainedMaps/Sobogus.cpp
+  ConstrainedMaps/FrictionSolver.cpp
+  ConstrainedMaps/QPTerminationOperator.cpp
+  Math/MathUtilities.cpp
+  Math/SparseMatrixUtilities.cpp
+  Timer/TimeUtils.cpp
+  ScriptingCallback.cpp
+  StringUtilities.cpp
+  Utilities.cpp
+  UnConstrainedMaps/FlowableSystem.cpp
+  UnConstrainedMaps/UnconstrainedMap.cpp
+  HDF5File.cpp
+  PythonTools.cpp
+)
+if( USE_PYTHON )
+  set( Sources "${Sources} PythonObject.cpp" )
+endif()
+
+set( Headers
+  ConstrainedMaps/bogus/FrictionProblem.hpp
+  ConstrainedMaps/bogus/FrictionProblem.impl.hpp
+  ConstrainedMaps/bogus/RigidBody3DSobogusInterface.h
+  ConstrainedMaps/bogus/RigidBody2DSobogusInterface.h
+  ConstrainedMaps/bogus/Ball2DSobogusInterface.h
+  CompileDefinitions.h
+  ConstrainedMaps/ImpactMaps/GaussSeidelOperator.h
+  ConstrainedMaps/ImpactMaps/ImpactMap.h
+  ConstrainedMaps/ImpactMaps/ImpactOperator.h
+  ConstrainedMaps/ImpactMaps/JacobiOperator.h
+  ConstrainedMaps/ImpactMaps/LCPOperatorQL.h
+  ConstrainedMaps/ImpactMaps/LCPOperatorQLVP.h
+  ConstrainedMaps/ImpactMaps/LCPOperatorIpopt.h
+  ConstrainedMaps/ImpactMaps/GROperator.h
+  ConstrainedMaps/ImpactMaps/GRROperator.h
+  ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h
+  ConstrainedMaps/ImpactMaps/ImpactSolution.h
+  ConstrainedMaps/FrictionMaps/BoundConstrainedMDPOperatorQL.h
+  ConstrainedMaps/FrictionMaps/BoundConstrainedMDPOperatorIpopt.h
+  ConstrainedMaps/FrictionMaps/FrictionOperator.h
+  ConstrainedMaps/FrictionMaps/LinearMDPOperatorQL.h
+  ConstrainedMaps/FrictionMaps/FrictionOperatorUtilities.h
+  ConstrainedMaps/FrictionMaps/LinearMDPOperatorIpopt.h
+  ConstrainedMaps/FrictionMaps/RestrictedSampleMDPOperatorIpopt.h
+  ConstrainedMaps/FrictionMaps/SmoothMDPOperatorIpopt.h
+  ConstrainedMaps/ConstrainedMapUtilities.h
+  ConstrainedMaps/ImpactFrictionMap.h
+  ConstrainedMaps/GeometricImpactFrictionMap.h
+  ConstrainedMaps/StabilizedImpactFrictionMap.h
+  ConstrainedMaps/StaggeredProjections.h
+  ConstrainedMaps/GRRFriction.h
+  Constraints/ConstrainedSystem.h
+  Constraints/Constraint.h
+  ConstrainedMaps/IpoptUtilities.h
+  ConstrainedMaps/Sobogus.h
+  ConstrainedMaps/FrictionSolver.h
+  ConstrainedMaps/QPTerminationOperator.h
+  Math/MathDefines.h
+  Math/MathUtilities.h
+  Math/SparseMatrixUtilities.h
+  Math/Rational.h
+  Timer/TimeUtils.h
+  ScriptingCallback.h
+  StringUtilities.h
+  Utilities.h
+  UnConstrainedMaps/FlowableSystem.h
+  UnConstrainedMaps/UnconstrainedMap.h
+  HDF5File.h
+  PythonTools.h
+)
+if( USE_PYTHON )
+  set( Sources "${Sources} PythonObject.h" )
+endif()

@@ -1,0 +1,288 @@
+diff -rupN sobogus/Core/BlockSolvers/ConstrainedSolverBase.hpp sobogus_patch/Core/BlockSolvers/ConstrainedSolverBase.hpp
+--- sobogus/Core/BlockSolvers/ConstrainedSolverBase.hpp	2015-07-20 15:22:27.000000000 -0700
++++ sobogus_patch/Core/BlockSolvers/ConstrainedSolverBase.hpp	2015-04-23 01:04:21.000000000 -0700
+@@ -42,9 +42,9 @@ public:
+ 	Scalar eval ( const NSLaw &law, const ResT &y, const RhsT &x ) const ;
+ 
+ 	template < typename NSLaw, typename RhsT, typename ResT >
+-	Scalar solve( const NSLaw &law, const RhsT &b, ResT &x ) const
++	Scalar solve( const NSLaw &law, const RhsT &b, ResT &x, unsigned& num_iterations ) const
+ 	{
+-		return static_cast< const Derived& >( *this ).solve( law, b, x ) ;
++		return static_cast< const Derived& >( *this ).solve( law, b, x, num_iterations ) ;
+ 	}
+ 
+ 	//! Sets the system matrix and initializes internal structures
+diff -rupN sobogus/Core/BlockSolvers/GaussSeidel.hpp sobogus_patch/Core/BlockSolvers/GaussSeidel.hpp
+--- sobogus/Core/BlockSolvers/GaussSeidel.hpp	2015-07-20 15:22:27.000000000 -0700
++++ sobogus_patch/Core/BlockSolvers/GaussSeidel.hpp	2015-04-23 01:04:21.000000000 -0700
+@@ -80,7 +80,7 @@ public:
+ 	  \param tryZeroAsWell If true, the algorithm will reset r to zero if that would result in a lower residual
+ 	  */
+ 	template < typename NSLaw, typename RhsT, typename ResT >
+-	Scalar solve( const NSLaw &law, const RhsT &b, ResT &x, bool tryZeroAsWell = true ) const ;
++	Scalar solve( const NSLaw &law, const RhsT &b, ResT &x, unsigned& num_iterations, bool tryZeroAsWell = true ) const ;
+ 
+ 
+ 	//! Access to the current Coloring. Will be reset whenever the matrix is changed.
+diff -rupN sobogus/Core/BlockSolvers/GaussSeidel.impl.hpp sobogus_patch/Core/BlockSolvers/GaussSeidel.impl.hpp
+--- sobogus/Core/BlockSolvers/GaussSeidel.impl.hpp	2015-07-20 15:22:27.000000000 -0700
++++ sobogus_patch/Core/BlockSolvers/GaussSeidel.impl.hpp	2015-04-23 01:04:21.000000000 -0700
+@@ -39,7 +39,7 @@ void GaussSeidel< BlockMatrixType >::set
+ template < typename BlockMatrixType >
+ template < typename NSLaw, typename RhsT, typename ResT >
+ typename GaussSeidel< BlockMatrixType >::Scalar GaussSeidel< BlockMatrixType >::solve( const NSLaw &law,
+-																						 const RhsT &b, ResT &x, bool tryZeroAsWell ) const
++																						 const RhsT &b, ResT &x, unsigned& num_iterations, bool tryZeroAsWell ) const
+ {
+ 	assert( m_matrix ) ;
+ 
+@@ -174,6 +174,8 @@ typename GaussSeidel< BlockMatrixType >:
+ 
+ 	if( GSIter > m_maxIters ) x = x_best ;
+ 
++  num_iterations = GSIter;
++
+ 	return err_best ;
+ 
+ }
+diff -rupN sobogus/Core/BlockSolvers/ProjectedGradient.hpp sobogus_patch/Core/BlockSolvers/ProjectedGradient.hpp
+--- sobogus/Core/BlockSolvers/ProjectedGradient.hpp	2015-07-20 15:22:27.000000000 -0700
++++ sobogus_patch/Core/BlockSolvers/ProjectedGradient.hpp	2015-04-23 01:04:21.000000000 -0700
+@@ -49,12 +49,12 @@ public:
+ 	//! Finds an approximate solution for a constrained linear problem
+ 	//! using classical Projected gradient algorithm
+ 	template < typename NSLaw, typename RhsT, typename ResT >
+-	Scalar solve( const NSLaw &law, const RhsT &b, ResT &x ) const ;
++	Scalar solve( const NSLaw &law, const RhsT &b, ResT &x, unsigned& num_iterations ) const ;
+ 
+ 	//! Finds an approximate solution for a constrained linear problem,
+ 	//! with optional conjugation of search directions
+ 	template < projected_gradient::Variant variant, typename NSLaw, typename RhsT, typename ResT >
+-	Scalar solve( const NSLaw &law, const RhsT &b, ResT &x ) const ;
++	Scalar solve( const NSLaw &law, const RhsT &b, ResT &x, unsigned& num_iterations ) const ;
+ 
+ 	void setMatrix( const BlockMatrixBase< BlockMatrixType > & matrix )
+ 	{
+diff -rupN sobogus/Core/BlockSolvers/ProjectedGradient.impl.hpp sobogus_patch/Core/BlockSolvers/ProjectedGradient.impl.hpp
+--- sobogus/Core/BlockSolvers/ProjectedGradient.impl.hpp	2015-07-20 15:22:27.000000000 -0700
++++ sobogus_patch/Core/BlockSolvers/ProjectedGradient.impl.hpp	2015-04-23 01:04:21.000000000 -0700
+@@ -22,16 +22,16 @@ template < typename BlockMatrixType >
+ template < typename NSLaw, typename RhsT, typename ResT >
+ typename ProjectedGradient< BlockMatrixType >::Scalar
+ ProjectedGradient< BlockMatrixType >::solve(
+-		const NSLaw &law, const RhsT &b, ResT &x ) const
++		const NSLaw &law, const RhsT &b, ResT &x, unsigned& num_iterations ) const
+ {
+ 	switch ( m_defaultVariant )
+ 	{
+ 	case projected_gradient::Standard:
+-		return solve< projected_gradient::Standard, NSLaw, RhsT, ResT >( law, b, x ) ;
++		return solve< projected_gradient::Standard, NSLaw, RhsT, ResT >( law, b, x, num_iterations ) ;
+ 	case projected_gradient::Conjugated:
+-		return solve< projected_gradient::Conjugated, NSLaw, RhsT, ResT >( law, b, x ) ;
++		return solve< projected_gradient::Conjugated, NSLaw, RhsT, ResT >( law, b, x, num_iterations ) ;
+ 	case projected_gradient::APGD:
+-		return solve< projected_gradient::APGD, NSLaw, RhsT, ResT >( law, b, x ) ;
++		return solve< projected_gradient::APGD, NSLaw, RhsT, ResT >( law, b, x, num_iterations ) ;
+ 	}
+ 
+ 	return -1 ;
+@@ -41,7 +41,7 @@ template < typename BlockMatrixType >
+ template < projected_gradient::Variant variant, typename NSLaw, typename RhsT, typename ResT >
+ typename ProjectedGradient< BlockMatrixType >::Scalar
+ ProjectedGradient< BlockMatrixType >::solve(
+-		const NSLaw &law, const RhsT &b, ResT &x ) const
++		const NSLaw &law, const RhsT &b, ResT &x, unsigned& num_iterations ) const
+ {
+ 
+ 	typename GlobalProblemTraits::DynVector
+diff -rupN sobogus/Core/Utils/Lock.hpp sobogus_patch/Core/Utils/Lock.hpp
+--- sobogus/Core/Utils/Lock.hpp	2015-07-20 15:22:27.000000000 -0700
++++ sobogus_patch/Core/Utils/Lock.hpp	2015-04-23 01:04:21.000000000 -0700
+@@ -61,7 +61,7 @@ public:
+ 	template< bool DoLock = true >
+ 	struct Guard {
+ 		explicit Guard( Lock& ) {}
+-		~Guard() {} ;
++		~Guard() {}
+ 	} ;
+ };
+ #else
+diff -rupN sobogus/Interfaces/FrictionProblem.cpp sobogus_patch/Interfaces/FrictionProblem.cpp
+--- sobogus/Interfaces/FrictionProblem.cpp	2015-07-20 15:22:27.000000000 -0700
++++ sobogus_patch/Interfaces/FrictionProblem.cpp	2015-07-20 22:03:59.000000000 -0700
+@@ -20,8 +20,8 @@
+ 
+ #include "FrictionProblem.impl.hpp"
+ 
+-#include "../Core/BlockSolvers/GaussSeidel.impl.hpp"
+-#include "../Core/BlockSolvers/ProjectedGradient.impl.hpp"
++#include "Core/BlockSolvers/GaussSeidel.impl.hpp"
++#include "Core/BlockSolvers/ProjectedGradient.impl.hpp"
+ 
+ 
+ namespace bogus {
+@@ -65,7 +65,7 @@ void applyPermutation(
+ template< unsigned Dimension, template <typename> class Method >
+ static double solveCadoux( const DualFrictionProblem< Dimension >& dual,
+ 		ConstrainedSolverBase< Method, typename DualFrictionProblem< Dimension >::WType > &gs,
+-		double *r, const unsigned cadouxIterations, const Signal<unsigned, double> *callback )
++		double *r, unsigned& num_iterations, const unsigned cadouxIterations, const Signal<unsigned, double> *callback )
+ {
+ 	const std::ptrdiff_t n = dual.W.rowsOfBlocks() ;
+ 
+@@ -104,7 +104,7 @@ static double solveCadoux( const DualFri
+ 
+ 		s += dual.b ;
+ 
+-		gs.solve( socLaw, s, r_map ) ;
++		gs.solve( socLaw, s, r_map, num_iterations ) ;
+ 
+ 	}
+ 
+@@ -119,21 +119,21 @@ static double solveCadoux( const DualFri
+ } //namespace fp_impl
+ 
+ template< unsigned Dimension >
+-double DualFrictionProblem< Dimension >::solveWith( GaussSeidelType &gs, double *r,
++double DualFrictionProblem< Dimension >::solveWith( GaussSeidelType &gs, double *r, unsigned& num_iterations,
+ 										 const bool staticProblem ) const
+ {
+ 	gs.setMatrix( W );
+ 
+-	return friction_problem::solve( *this, gs, r, staticProblem ) ;
++	return friction_problem::solve( *this, gs, r, num_iterations, staticProblem ) ;
+ }
+ 
+ template< unsigned Dimension >
+ double DualFrictionProblem< Dimension >::solveWith( ProjectedGradientType &pg,
+-													double *r ) const
++													double *r, unsigned& num_iterations ) const
+ {
+ 	pg.setMatrix( W );
+ 
+-	return friction_problem::solve( *this, pg, r, true ) ;
++	return friction_problem::solve( *this, pg, r, num_iterations, true ) ;
+ }
+ 
+ template< unsigned Dimension >
+@@ -153,17 +153,17 @@ double DualFrictionProblem< Dimension >:
+ 
+ 
+ template< unsigned Dimension >
+-double DualFrictionProblem< Dimension >::solveCadoux(GaussSeidelType &gs, double *r, const unsigned cadouxIterations,
++double DualFrictionProblem< Dimension >::solveCadoux(GaussSeidelType &gs, double *r, unsigned& num_iterations, const unsigned cadouxIterations,
+ 		const Signal<unsigned, double> *callback ) const
+ {
+-	return fp_impl::solveCadoux( *this, gs, r, cadouxIterations, callback ) ;
++	return fp_impl::solveCadoux( *this, gs, r, num_iterations, cadouxIterations, callback ) ;
+ }
+ 
+ template< unsigned Dimension >
+-double DualFrictionProblem< Dimension >::solveCadoux(ProjectedGradientType &pg, double *r, const unsigned cadouxIterations,
++double DualFrictionProblem< Dimension >::solveCadoux(ProjectedGradientType &pg, double *r, unsigned& num_iterations, const unsigned cadouxIterations,
+ 		const Signal<unsigned, double> *callback ) const
+ {
+-	return fp_impl::solveCadoux( *this, pg, r, cadouxIterations, callback ) ;
++	return fp_impl::solveCadoux( *this, pg, r, num_iterations, cadouxIterations, callback ) ;
+ }
+ 
+ template< unsigned Dimension >
+@@ -196,13 +196,13 @@ void DualFrictionProblem< Dimension >::u
+ 	m_permutation.clear() ;
+ }
+ 
+-#ifdef BOGUS_INSTANTIATE_2D_SOC
+ template struct DualFrictionProblem< 2u > ;
++#ifdef BOGUS_INSTANTIATE_2D_SOC
+ template struct PrimalFrictionProblem< 2u > ;
+ #endif
+ 
+-#ifdef BOGUS_INSTANTIATE_3D_SOC
+ template struct DualFrictionProblem< 3u > ;
++#ifdef BOGUS_INSTANTIATE_3D_SOC
+ template struct PrimalFrictionProblem< 3u > ;
+ #endif
+ 
+diff -rupN sobogus/Interfaces/FrictionProblem.hpp sobogus_patch/Interfaces/FrictionProblem.hpp
+--- sobogus/Interfaces/FrictionProblem.hpp	2015-07-20 15:22:27.000000000 -0700
++++ sobogus_patch/Interfaces/FrictionProblem.hpp	2015-07-20 22:03:59.000000000 -0700
+@@ -21,12 +21,12 @@
+ #ifndef BOGUS_FRICTION_PROBLEM_HPP
+ #define BOGUS_FRICTION_PROBLEM_HPP
+ 
+-#include "../Core/Block.hpp"
+-#include "../Core/BlockSolvers.fwd.hpp"
++#include "Core/Block.hpp"
++#include "Core/BlockSolvers.fwd.hpp"
+ 
+-#include "../Extra/SecondOrder.fwd.hpp"
++#include "Extra/SecondOrder.fwd.hpp"
+ 
+-#include "../Core/Utils/Signal.hpp"
++#include "Core/Utils/Signal.hpp"
+ 
+ namespace bogus
+ {
+@@ -90,8 +90,8 @@ struct DualFrictionProblem
+ 	  \param staticProblem If true, solve this problem as a \b SOCQP instead of a Coulomb Friction problem
+ 	  \returns the error as returned by the GaussSeidel::solve() function
+ 	  */
+-	double solveWith( GaussSeidelType &gs, double * r, const bool staticProblem = false ) const ;
+-	double solveWith( ProjectedGradientType &pg, double * r ) const ;
++	double solveWith( GaussSeidelType &gs, double * r, unsigned& num_iterations, const bool staticProblem = false ) const ;
++	double solveWith( ProjectedGradientType &pg, double * r, unsigned& num_iterations ) const ;
+ 
+ 	//! Evaluate a residual using the GS's error function
+ 	/*!
+@@ -113,9 +113,9 @@ struct DualFrictionProblem
+ 	  \param callback 0, or a pointer to a user-defined function that takes ( unsigned iteration, double residual ) as arguments
+ 	  \returns the error as returned by the GaussSeidel::solve() function
+ 	  */
+-	double solveCadoux( GaussSeidelType &gs, double * r, const unsigned fpIterations,
++	double solveCadoux( GaussSeidelType &gs, double * r, unsigned& num_iterations, const unsigned fpIterations,
+ 		   const Signal< unsigned, double >* callback = 0 ) const ;
+-	double solveCadoux( ProjectedGradientType &pg, double * r, const unsigned fpIterations,
++	double solveCadoux( ProjectedGradientType &pg, double * r, unsigned& num_iterations, const unsigned fpIterations,
+ 		   const Signal< unsigned, double >* callback = 0 ) const ;
+ 
+ 
+diff -rupN sobogus/Interfaces/FrictionProblem.impl.hpp sobogus_patch/Interfaces/FrictionProblem.impl.hpp
+--- sobogus/Interfaces/FrictionProblem.impl.hpp	2015-07-20 15:22:27.000000000 -0700
++++ sobogus_patch/Interfaces/FrictionProblem.impl.hpp	2015-07-20 22:03:59.000000000 -0700
+@@ -20,10 +20,10 @@
+ 
+ #include "FrictionProblem.hpp"
+ 
+-#include "../Core/Block.impl.hpp"
+-#include "../Extra/SecondOrder.impl.hpp"
++#include "Core/Block.impl.hpp"
++#include "Extra/SecondOrder.impl.hpp"
+ 
+-#include "../Extra/SecondOrder.impl.hpp"
++#include "Extra/SecondOrder.impl.hpp"
+ 
+ namespace bogus {
+ 
+@@ -44,7 +44,7 @@ void applyPermutation(
+ template< unsigned Dimension, template <typename> class Method >
+ static double solve( const DualFrictionProblem< Dimension >& dual,
+ 		const ConstrainedSolverBase< Method, typename DualFrictionProblem< Dimension >::WType > &gs,
+-		double *r, const bool staticProblem )
++		double *r, unsigned& num_iterations, const bool staticProblem )
+ {
+ 	typename Eigen::VectorXd::MapType r_map ( r, dual.W.rows() ) ;
+ 
+@@ -53,9 +53,9 @@ static double solve( const DualFrictionP
+ 
+ 	double res = staticProblem
+ 			? gs.solve( typename DualFrictionProblem< Dimension >::SOCLawType
+-						( dual.W.rowsOfBlocks(), dual.mu.data() ), dual.b, r_map )
++						( dual.W.rowsOfBlocks(), dual.mu.data() ), dual.b, r_map, num_iterations )
+ 			: gs.solve( typename DualFrictionProblem< Dimension >::CoulombLawType
+-						( dual.W.rowsOfBlocks(), dual.mu.data() ), dual.b, r_map ) ;
++						( dual.W.rowsOfBlocks(), dual.mu.data() ), dual.b, r_map, num_iterations ) ;
+ 
+ 	if( dual.permuted() )
+ 		applyPermutation< Dimension >( dual.invPermutation(), r_map, dual.W.majorIndex().innerOffsetsData() ) ;
