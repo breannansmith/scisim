@@ -34,6 +34,7 @@ set( Sources
   ConstrainedMaps/Sobogus.cpp
   ConstrainedMaps/FrictionSolver.cpp
   ConstrainedMaps/QPTerminationOperator.cpp
+  Math/QL/QLUtilities.cpp
   Math/MathUtilities.cpp
   Math/SparseMatrixUtilities.cpp
   Timer/TimeUtils.cpp
@@ -87,6 +88,7 @@ set( Headers
   ConstrainedMaps/Sobogus.h
   ConstrainedMaps/FrictionSolver.h
   ConstrainedMaps/QPTerminationOperator.h
+  Math/QL/QLUtilities.h
   Math/MathDefines.h
   Math/MathUtilities.h
   Math/SparseMatrixUtilities.h

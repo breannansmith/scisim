@@ -6,62 +6,14 @@
 #include "LCPOperatorQL.h"
 
 #include "ImpactOperatorUtilities.h"
-#include "SCISim/StringUtilities.h"
 #include "SCISim/Utilities.h"
+#include "SCISim/Math/QL/QLUtilities.h"
 
 #include <iostream>
 
 #ifndef NDEBUG
 #include <typeinfo>
 #endif
-
-// TODO: Move to a shared QL utility file
-extern "C"
-{
-  void ql_( int* m, int* me, int* mmax,
-            int* n, int* nmax,
-            int* mnn,
-            double* c, double* d,
-            double* a, double* b,
-            double* xl, double* xu,
-            double* x, double* u,
-            double* eps,
-            int* mode, int* iout, int* ifail, int* iprint,
-            double* war, int* lwar,
-            int* iwar, int* liwar );
-}
-
-// TODO: Move to a support function in a shared QL utility class
-static std::string QLReturnStatusToString( const int status )
-{
-  if( 0 == status )
-  {
-    return "The optimality conditions are satisfied";
-  }
-  else if( 1 == status )
-  {
-    return "The algorithm has been stopped after too many MAXIT iterations (40*(N+M)";
-  }
-  else if( 2 == status )
-  {
-    return "Termination accuracy insufficient to satisfy convergence criterion";
-  }
-  else if( 3 == status )
-  {
-    return "Internal inconsistency of QL, division by zero";
-  }
-  else if( 5 == status )
-  {
-    return "Length of a working array is too short";
-  }
-  else if( 100 < status )
-  {
-    return "Constraints are inconsistent and IFAIL=100+ICON, where ICON denotes a constraint causing the conflict: " + StringUtilities::convertToString( status );
-  }
-
-  std::cerr << "Unhandled error message in LCPOperatorQL::QLReturnStatusToString. Probably a bug." << std::endl;
-  std::exit( EXIT_FAILURE );
-}
 
 LCPOperatorQL::LCPOperatorQL( const scalar& eps )
 : m_tol( eps )
@@ -178,7 +130,7 @@ void LCPOperatorQL::flow( const std::vector<std::unique_ptr<Constraint>>& cons, 
   // Check for problems
   if( 0 != status )
   {
-    std::cerr << "Warning, failed to solve QP in LCPOperatorQL::flow: " << QLReturnStatusToString(status) << std::endl;
+    std::cerr << "Warning, failed to solve QP in LCPOperatorQL::flow: " << QLUtilities::QLReturnStatusToString(status) << std::endl;
   }
 
   // TODO: Sanity check the solution here

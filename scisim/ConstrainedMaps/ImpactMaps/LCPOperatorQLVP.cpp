@@ -6,30 +6,8 @@
 #include "LCPOperatorQLVP.h"
 
 #include "ImpactOperatorUtilities.h"
-#include "SCISim/StringUtilities.h"
 
 #include <iostream>
-
-// TODO: Actually add the type checks for QL below
-#ifndef NDEBUG
-#include <typeinfo>
-#endif
-
-// TODO: Move to a shared QL utility class
-extern "C"
-{
-  void ql_( int* m, int* me, int* mmax,
-            int* n, int* nmax,
-            int* mnn,
-            double* c, double* d,
-            double* a, double* b,
-            double* xl, double* xu,
-            double* x, double* u,
-            double* eps,
-            int* mode, int* iout, int* ifail, int* iprint,
-            double* war, int* lwar,
-            int* iwar, int* liwar );
-}
 
 LCPOperatorQLVP::LCPOperatorQLVP( const scalar& tol )
 : m_tol( tol )
