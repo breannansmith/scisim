@@ -116,7 +116,7 @@ endif()
 add_subdirectory( scisim )
 
 # Tests for the SCISim library
-#add_subdirectory( SCISimTests )
+add_subdirectory( scisimtests )
 
 
 # Core two dimensional ball simulation library
