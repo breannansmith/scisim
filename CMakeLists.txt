@@ -123,7 +123,7 @@ add_subdirectory( scisimtests )
 add_subdirectory( ball2D )
 
 # Tests for the two dimensional ball simulation library
-#add_subdirectory( Ball2DTests )
+add_subdirectory( ball2Dtests )
 
 # Utilities shared by the command-line and Qt4 interface
 #add_subdirectory( Ball2DUtils )
