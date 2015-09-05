@@ -120,7 +120,7 @@ add_subdirectory( scisimtests )
 
 
 # Core two dimensional ball simulation library
-#add_subdirectory( Ball2D )
+add_subdirectory( ball2D )
 
 # Tests for the two dimensional ball simulation library
 #add_subdirectory( Ball2DTests )

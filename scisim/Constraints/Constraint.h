@@ -93,7 +93,7 @@ public:
   virtual bool conservesAngularMomentumUnderImpact() const = 0;
   virtual bool conservesAngularMomentumUnderImpactAndFriction() const = 0;
 
-  virtual std::string getName() const = 0;
+  virtual std::string name() const = 0;
 
   // For binary force output
   virtual void getWorldSpaceContactPoint( const VectorXs& q, VectorXs& contact_point ) const;

@@ -1,0 +1,41 @@
+set( Sources
+  ConstraintCache.cpp
+  Constraints/BallBallConstraint.cpp
+  Constraints/BallStaticDrumConstraint.cpp
+  Constraints/BallStaticPlaneConstraint.cpp
+  Constraints/KinematicKickBallBallConstraint.cpp
+  Forces/HertzianPenaltyForce.cpp
+  Forces/Ball2DForce.cpp
+  Forces/Ball2DGravityForce.cpp
+  PythonScripting.cpp
+  Portals/PlanarPortal.cpp
+  StaticGeometry/StaticDrum.cpp
+  StaticGeometry/StaticPlane.cpp
+  Ball2DState.cpp
+  SpatialGridDetector.cpp
+  SymplecticEulerMap.cpp
+  Ball2DSim.cpp
+  Ball2DUtilities.cpp
+  VerletMap.cpp
+)
+
+set( Headers
+  ConstraintCache.h
+  Constraints/BallBallConstraint.h
+  Constraints/BallStaticDrumConstraint.h
+  Constraints/BallStaticPlaneConstraint.h
+  Constraints/KinematicKickBallBallConstraint.h
+  Forces/HertzianPenaltyForce.h
+  Forces/Ball2DForce.h
+  Forces/Ball2DGravityForce.h
+  PythonScripting.h
+  Portals/PlanarPortal.h
+  StaticGeometry/StaticDrum.h
+  StaticGeometry/StaticPlane.h
+  Ball2DState.h
+  SpatialGridDetector.h
+  SymplecticEulerMap.h
+  Ball2DSim.h
+  Ball2DUtilities.h
+  VerletMap.h
+)

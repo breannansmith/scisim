@@ -190,115 +190,115 @@ Constraint::~Constraint()
 
 void Constraint::resolveImpact( const scalar& CoR, const SparseMatrixsc& M, const VectorXs& vin, const scalar& ndotv, VectorXs& vout, scalar& alpha ) const
 {
-  std::cerr << "Constraint::resolveImpact not implemented for: " << getName() << std::endl;
+  std::cerr << "Constraint::resolveImpact not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
 void Constraint::computeGeneralizedFrictionDisk( const VectorXs& q, const VectorXs& v, const int start_column, const int num_samples, SparseMatrixsc& D, VectorXs& drel ) const
 {
-  std::cerr << "Constraint::computeGeneralizedFrictionDisk not implemented for: " << getName() << std::endl;
+  std::cerr << "Constraint::computeGeneralizedFrictionDisk not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
 void Constraint::computeSmoothGeneralizedFrictionDisk( const VectorXs& q, const VectorXs& v, const int start_column, SparseMatrixsc& D ) const
 {
-  std::cerr << "Constraint::computeSmoothGeneralizedFrictionDisk not implemented for: " << getName() << std::endl;
+  std::cerr << "Constraint::computeSmoothGeneralizedFrictionDisk not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
 void Constraint::computeGeneralizedFrictionGivenTangentSample( const VectorXs& q, const VectorXs& t, const unsigned column, SparseMatrixsc& D ) const
 {
-  std::cerr << "Constraint::computeGeneralizedFrictionGivenTangentSample not implemented for: " << getName() << std::endl;
+  std::cerr << "Constraint::computeGeneralizedFrictionGivenTangentSample not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
 int Constraint::frictionStencilSize() const
 {
-  std::cerr << "Constraint::frictionStencilSize not implemented for: " << getName() << std::endl;
+  std::cerr << "Constraint::frictionStencilSize not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
 void Constraint::getSimulatedBodyIndices( std::pair<int,int>& bodies ) const
 {
-  std::cerr << "Constraint::getSimulatedBodyIndices not implemented for: " << getName() << std::endl;
+  std::cerr << "Constraint::getSimulatedBodyIndices not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
 void Constraint::getBodyIndices( std::pair<int,int>& bodies ) const
 {
-  std::cerr << "Constraint::getBodyIndices not implemented for: " << getName() << std::endl;
+  std::cerr << "Constraint::getBodyIndices not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
 void Constraint::computeFrictionMask( const int nbodies, VectorXs& friction_mask ) const
 {
-  std::cerr << "Constraint::computeFrictionMask not implemented for: " << getName() << std::endl;
+  std::cerr << "Constraint::computeFrictionMask not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
 void Constraint::evalKinematicNormalRelVel( const VectorXs& q, const int strt_idx, VectorXs& gdotN )  const
 {
-  std::cerr << "Constraint::evalKinematicNormalRelVel not implemented for: " << getName() << std::endl;
+  std::cerr << "Constraint::evalKinematicNormalRelVel not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
 void Constraint::evalH( const VectorXs& q, const MatrixXXsc& basis, MatrixXXsc& H0, MatrixXXsc& H1 ) const
 {
-  std::cerr << "Constraint::evalH not implemented for: " << getName() << std::endl;
+  std::cerr << "Constraint::evalH not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
 void Constraint::computeContactBasis( const VectorXs& q, const VectorXs& v, MatrixXXsc& basis ) const
 {
-  std::cerr << "Constraint::computeContactBasis not implemented for: " << getName() << std::endl;
+  std::cerr << "Constraint::computeContactBasis not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
 void Constraint::getWorldSpaceContactPoint( const VectorXs& q, VectorXs& contact_point ) const
 {
-  std::cerr << "Constraint::getWorldSpaceContactPoint not implemented for: " << getName() << std::endl;
+  std::cerr << "Constraint::getWorldSpaceContactPoint not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
 void Constraint::getWorldSpaceContactNormal( const VectorXs& q, VectorXs& contact_normal ) const
 {
-  std::cerr << "Constraint::getWorldSpaceContactNormal not implemented for: " << getName() << std::endl;
+  std::cerr << "Constraint::getWorldSpaceContactNormal not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
 unsigned Constraint::getStaticObjectIndex() const
 {
-  std::cerr << "Constraint::getStaticObjectIndex not implemented for: " << getName() << std::endl;
+  std::cerr << "Constraint::getStaticObjectIndex not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
 VectorXs Constraint::computeRelativeVelocity( const VectorXs& q, const VectorXs& v ) const
 {
-  std::cerr << "Constraint::computeRelativeVelocity not implemented for: " << getName() << std::endl;
+  std::cerr << "Constraint::computeRelativeVelocity not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
 VectorXs Constraint::projectImpulseOnFrictionBasis( const VectorXs& q, const VectorXs& f ) const
 {
-  std::cerr << "Constraint::projectImpulseOnFrictionBasis not implemented for: " << getName() << std::endl;
+  std::cerr << "Constraint::projectImpulseOnFrictionBasis not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
 bool Constraint::basisSpansTangent() const
 {
-  std::cerr << "Constraint::basisSpansTangent not implemented for: " << getName() << std::endl;
+  std::cerr << "Constraint::basisSpansTangent not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
 void Constraint::setBodyIndex0( const unsigned idx )
 {
-  std::cerr << "Constraint::setBodyIndex0 not implemented for: " << getName() << std::endl;
+  std::cerr << "Constraint::setBodyIndex0 not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
 void Constraint::setBodyIndex1( const unsigned idx )
 {
-  std::cerr << "Constraint::setBodyIndex1 not implemented for: " << getName() << std::endl;
+  std::cerr << "Constraint::setBodyIndex1 not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
@@ -321,6 +321,6 @@ std::ostream& operator<<( std::ostream& output_stream, const Constraint& constra
 
 void Constraint::streamState( std::ostream& os ) const
 {
-  std::cerr << "Constraint::streamState not implemented for: " << getName() << std::endl;
+  std::cerr << "Constraint::streamState not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
