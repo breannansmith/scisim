@@ -1,0 +1,16 @@
+set( Sources
+  ContentWidget.cpp
+  GLCircleRenderer2D.cpp
+  GLWidget.cpp
+  DisplayController2D.cpp
+  Window.cpp
+  ball2d_qt4.cpp
+)
+
+set( Headers
+  ContentWidget.h
+  GLCircleRenderer2D.h
+  GLWidget.h
+  DisplayController2D.h
+  Window.h
+)

@@ -86,8 +86,6 @@ option( MKL_STATIC "Statically link against MKL" OFF )
 
 option( USE_IPOPT "Use the Ipopt solver (Fortran required)" OFF )
 
-option( USE_QHULL "Support for Qhull in the implicit toolkit" OFF )
-
 option( USE_OPENMP "OpenMP-based parallelism" OFF )
 
 option( USE_HDF5 "Serialization support with HDF5" OFF )
@@ -120,10 +118,10 @@ add_subdirectory( scisimtests )
 
 
 # Core two dimensional ball simulation library
-add_subdirectory( ball2D )
+add_subdirectory( ball2d )
 
 # Tests for the two dimensional ball simulation library
-add_subdirectory( ball2Dtests )
+add_subdirectory( ball2dtests )
 
 # Utilities shared by the command-line and Qt4 interface
 add_subdirectory( ball2dutils )
@@ -132,9 +130,9 @@ add_subdirectory( ball2dutils )
 #add_subdirectory( Ball2DCLI )
 
 # Qt4 interface for two dimensional ball simulation
-#if( USE_QT4 )
-#  add_subdirectory( Ball2DQt4 )
-#endif()
+if( USE_QT4 )
+  add_subdirectory( ball2dqt4 )
+endif()
 
 
 # Core two dimensional rigid body library
