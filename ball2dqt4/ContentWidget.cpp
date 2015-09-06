@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-ContentWidget::ContentWidget( QWidget* parent )
+ContentWidget::ContentWidget( const QString& scene_name, QWidget* parent )
 : QWidget( parent )
 , m_idle_timer( nullptr )
 , m_gl_widget( new GLWidget )
@@ -68,6 +68,12 @@ ContentWidget::ContentWidget( QWidget* parent )
   // Create a timer that triggers simulation steps when Qt4 is idle
   m_idle_timer = new QTimer( this );
   connect( m_idle_timer, SIGNAL( timeout() ), this, SLOT( takeStep() ) );
+
+
+  if( !scene_name.isEmpty() )
+  {
+    openScene( scene_name, false );
+  }
 }
 
 void ContentWidget::toggleSimulationCheckbox()
@@ -102,54 +108,16 @@ void ContentWidget::openScene()
   // Obtain a file name from the user
   const QString xml_scene_file_name{ getOpenFileNameFromUser( tr("Please Select a Scene File") ) };
 
-  // Determine whether the requested file exists
-  const bool file_exists{ QFile::exists( xml_scene_file_name ) };
-
-  // If the user provided a valid file
-  if( file_exists )
-  {
-    // Attempt to load the file
-    assert( m_gl_widget != nullptr );
-    unsigned fps;
-    bool render_at_fps;
-    bool lock_camera;
-    const bool successfully_loaded{ m_gl_widget->openScene( xml_scene_file_name, fps, render_at_fps, lock_camera ) };
-
-    // If the load was successful
-    if( successfully_loaded )
-    {
-      // Make sure the simulation isn't running when we start
-      assert( m_simulate_checkbox != nullptr );
-      if( m_simulate_checkbox->isChecked() )
-      {
-        toggleSimulationCheckbox();
-      }
-
-      // Update UI elements
-      assert( m_fps_spin_box != nullptr );
-      m_fps_spin_box->setValue( fps );
-      assert( m_render_at_fps_checkbox != nullptr );
-      m_render_at_fps_checkbox->setCheckState( render_at_fps ? Qt::Checked : Qt::Unchecked );
-      assert( m_lock_camera_button != nullptr );
-      m_lock_camera_button->setCheckState( lock_camera ? Qt::Checked : Qt::Unchecked );
-
-      m_xml_file_name = xml_scene_file_name;
-
-      disableMovieExport();
-    }
-  }
-  else
-  {
-    std::cerr << "Error, requested file " << xml_scene_file_name.toStdString() << " does not exist." << std::endl;
-  }
+  // Try to load the file
+  openScene( xml_scene_file_name, true );
 
   this->setFocus();
 }
 
-void ContentWidget::reloadScene()
+void ContentWidget::openScene( const QString& scene_file_name, const bool render_on_load )
 {
-  // Determine whether the requested file still exists
-  const bool file_exists{ QFile::exists( m_xml_file_name ) };
+  // Determine whether the requested file exists
+  const bool file_exists{ QFile::exists( scene_file_name ) };
 
   // If the user provided a valid file
   if( file_exists )
@@ -159,7 +127,7 @@ void ContentWidget::reloadScene()
     unsigned fps;
     bool render_at_fps;
     bool lock_camera;
-    const bool successfully_loaded{ m_gl_widget->openScene( m_xml_file_name, fps, render_at_fps, lock_camera ) };
+    const bool successfully_loaded{ m_gl_widget->openScene( scene_file_name, render_on_load, fps, render_at_fps, lock_camera ) };
 
     // If the load was successful
     if( successfully_loaded )
@@ -179,13 +147,21 @@ void ContentWidget::reloadScene()
       assert( m_lock_camera_button != nullptr );
       m_lock_camera_button->setCheckState( lock_camera ? Qt::Checked : Qt::Unchecked );
 
+      m_xml_file_name = scene_file_name;
+
       disableMovieExport();
     }
   }
   else
   {
-    std::cerr << "Error, file " << m_xml_file_name.toStdString() << " no longer exists." << std::endl;
+    std::cerr << "Error, requested file " << scene_file_name.toStdString() << " does not exist." << std::endl;
   }
+}
+
+void ContentWidget::reloadScene()
+{
+  // Try to load the file
+  openScene( m_xml_file_name, true );
 
   this->setFocus();
 }

@@ -11,7 +11,7 @@ class Window final : public QMainWindow
 
 public:
 
-  Window( QWidget* parent = nullptr );
+  Window( const QString& scene_name = "", QWidget* parent = nullptr );
 
   virtual void keyPressEvent( QKeyEvent* event ) override;
 

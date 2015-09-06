@@ -32,7 +32,7 @@ public:
   QSize minimumSizeHint() const;
   QSize sizeHint() const;
 
-  bool openScene( const QString& xml_scene_file_name, unsigned& fps, bool& render_at_fps, bool& lock_camera );
+  bool openScene( const QString& xml_scene_file_name, const bool& render_on_load, unsigned& fps, bool& render_at_fps, bool& lock_camera );
 
   // Methods to control the solver
   void stepSystem();
@@ -46,7 +46,7 @@ public:
   void lockCamera( const bool lock_camera );
 
   void toggleHUD();
-  void centerCamera();
+  void centerCamera( const bool update_gl = true );
 
   void saveScreenshot( const QString& file_name );
 

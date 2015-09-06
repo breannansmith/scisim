@@ -9,6 +9,8 @@
 #include "SCISim/PythonTools.h"
 #endif
 
+#include <iostream>
+
 static void centerWindow( Window& window )
 {
   const QDesktopWidget* const desktop{ QApplication::desktop() };
@@ -54,8 +56,14 @@ int main( int argc, char** argv )
   PythonScripting::initializeCallbacks();
   #endif
 
-  QApplication app( argc, argv );
-  Window window;
+  QApplication app{ argc, argv };
+  const QStringList arguments{ app.arguments() };
+  if( arguments.count() > 2 )
+  {
+    std::cerr << "Error, must provide a valid configuration file name or no argument. Exiting." << std::endl;
+    return EXIT_FAILURE;
+  }
+  Window window{ arguments.count() == 2 ? arguments[1] : "" };
   window.resize( window.sizeHint() );
   window.setWindowTitle( "2D Ball Simulation" );
   centerWindow( window );

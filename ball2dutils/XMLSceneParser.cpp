@@ -1373,12 +1373,12 @@ bool XMLSceneParser::parseXMLSceneFile( const std::string& file_name, std::strin
   }
 
   // Attempt to locate the root node
-  if( doc.first_node( "twod_ball_scene" ) == nullptr )
+  if( doc.first_node( "ball2d_scene" ) == nullptr )
   {
     std::cerr << "Failed to locate root node in xml scene file: " << file_name << std::endl;
     return false;
   }
-  const rapidxml::xml_node<>& root_node{ *doc.first_node( "twod_ball_scene" ) };
+  const rapidxml::xml_node<>& root_node{ *doc.first_node( "ball2d_scene" ) };
 
   // Attempt to determine if scirpting is enabled and if so, the coresponding callback
   if( !loadScriptingSetup( root_node, scripting_callback_name ) )

@@ -127,7 +127,7 @@ add_subdirectory( ball2dtests )
 add_subdirectory( ball2dutils )
 
 # Command line interface for two dimensional ball simulation
-#add_subdirectory( Ball2DCLI )
+add_subdirectory( ball2dcli )
 
 # Qt4 interface for two dimensional ball simulation
 if( USE_QT4 )

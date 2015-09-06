@@ -1,0 +1,22 @@
+<!--
+  Test the ability to insert new bodies from Python.
+-->
+
+<ball2d_scene>
+
+  <scripting callback="insertion_test"/>
+
+  <camera cx="0" cy="0" scale_factor="11.2642" fps="50" render_at_fps="1" locked="0"/>
+
+  <!-- So-bogus seems to die when adding particles. -->
+  <sobogus_friction_solver mu="0.3" CoR="0.7" max_iters="50000" eval_every="25" tol="1.0e-6" staggering="geometric"/>
+
+  <integrator type="verlet" dt="0.001"/>
+
+  <gravity fx="0.0" fy="-10.0"/>
+
+  <static_plane x="0.0 -10.0" n="0.0 1.0"/>
+  <static_plane x="-10.0 0.0" n="1.0 0.0"/>
+  <static_plane x=" 10.0 0.0" n="-1.0 0.0"/>
+
+</ball2d_scene>

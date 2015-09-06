@@ -8,11 +8,11 @@
 
 #include "ContentWidget.h"
 
-Window::Window( QWidget* parent )
+Window::Window( const QString& scene_name, QWidget* parent )
 : QMainWindow( parent )
 , m_content_widget( nullptr )
 {
-  m_content_widget = new ContentWidget{ this };
+  m_content_widget = new ContentWidget{ scene_name, this };
 
   QMenu* file{ menuBar()->addMenu( tr( "File" ) ) };
 

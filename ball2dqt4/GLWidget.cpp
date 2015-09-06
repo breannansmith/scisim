@@ -127,7 +127,7 @@ static int computeTimestepDisplayPrecision( const Rational<std::intmax_t>& dt, c
   }
 }
 
-bool GLWidget::openScene( const QString& xml_scene_file_name, unsigned& fps, bool& render_at_fps, bool& lock_camera )
+bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render_on_load, unsigned& fps, bool& render_at_fps, bool& lock_camera )
 {
   // TODO: Directly read state into SimulationStateBalls2D
   // State provided by config files
@@ -285,21 +285,20 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, unsigned& fps, boo
 
   if( !camera_set )
   {
-    centerCamera();
+    centerCamera( false );
   }
   else
   {
     m_camera_controller.setCenter( camera_center.x(), camera_center.y() );
     m_camera_controller.setScaleFactor( camera_scale_factor );
-    GLint width;
-    GLint height;
-    getViewportDimensions( width, height );
-    m_camera_controller.reshape( width, height );
   }
 
   m_lock_camera = lock_backup;
 
-  updateGL();
+  if( render_on_load )
+  {
+    updateGL();
+  }
 
   return true;
 }
@@ -552,7 +551,7 @@ void GLWidget::toggleHUD()
   updateGL();
 }
 
-void GLWidget::centerCamera()
+void GLWidget::centerCamera( const bool update_gl )
 {
   if( m_lock_camera )
   {
@@ -586,9 +585,11 @@ void GLWidget::centerCamera()
   m_camera_controller.setCenter( cx, cy );
   m_camera_controller.setScaleFactor( size );
 
-  m_camera_controller.reshape( width, height );
-
-  updateGL();
+  if( update_gl )
+  {
+    m_camera_controller.reshape( width, height );
+    updateGL();
+  }
 }
 
 void GLWidget::saveScreenshot( const QString& file_name )

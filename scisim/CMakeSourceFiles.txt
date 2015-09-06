@@ -47,7 +47,7 @@ set( Sources
   PythonTools.cpp
 )
 if( USE_PYTHON )
-  set( Sources "${Sources} PythonObject.cpp" )
+  list( APPEND Sources PythonObject.cpp )
 endif()
 
 set( Headers
@@ -103,5 +103,5 @@ set( Headers
   PythonTools.h
 )
 if( USE_PYTHON )
-  set( Sources "${Sources} PythonObject.h" )
+  list( APPEND Headers PythonObject.h )
 endif()

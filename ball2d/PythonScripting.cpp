@@ -8,13 +8,14 @@
 #ifdef USE_PYTHON
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include <numpy/arrayobject.h>
-#include "SCISim/Math/Rational.h"
-#include "SCISim/Constraints/Constraint.h"
+#include "scisim/Math/Rational.h"
+#include "scisim/Constraints/Constraint.h"
 #include "Ball2DState.h"
-#include "SCISim/PythonTools.h"
+#include "scisim/PythonTools.h"
 #endif
 
-#include "SCISim/StringUtilities.h"
+#include "scisim/StringUtilities.h"
+#include "ball2d/StaticGeometry/StaticPlane.h"
 #include <iostream>
 
 #ifdef USE_PYTHON
@@ -460,7 +461,7 @@ static PyObject* collisionType( PyObject* self, PyObject* args )
     std::cerr << "Invalid collision_idx parameter of " << collision_idx << " for collisionType, collision_idx must be less than " << s_active_set->size() << ". Exiting." << std::endl;
     std::exit( EXIT_FAILURE );
   }
-  return Py_BuildValue( "s", (*s_active_set)[collision_idx]->getName().c_str() );
+  return Py_BuildValue( "s", (*s_active_set)[collision_idx]->name().c_str() );
 }
 
 static PyObject* collisionIndices( PyObject* self, PyObject* args )

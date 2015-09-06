@@ -12,4 +12,4 @@ include( ${QT_USE_FILE} )
 
 target_link_libraries( ball2d_qt4 ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ball2dutils ball2d )
 
-execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_SOURCE_DIR}/assets/2DBallScenes ${CMAKE_CURRENT_BINARY_DIR}/assets )
+execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_SOURCE_DIR}/assets/ball2d ${CMAKE_CURRENT_BINARY_DIR}/assets )

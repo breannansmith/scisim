@@ -14,7 +14,7 @@ class ContentWidget : public QWidget
 
 public:
 
-  ContentWidget( QWidget* parent = nullptr );
+  ContentWidget( const QString& scene_name, QWidget* parent = nullptr );
 
   void toggleSimulationCheckbox();
   void disableMovieExport();
@@ -45,6 +45,8 @@ public slots:
   void exportCameraSettings();
 
 private:
+
+  void openScene( const QString& scene_file_name, const bool render_on_load );
 
   QString getOpenFileNameFromUser( const QString& prompt );
   QString getSaveFileNameFromUser( const QString& prompt );
