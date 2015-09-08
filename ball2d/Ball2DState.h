@@ -1,21 +1,19 @@
 // Ball2DState.h
 //
 // Breannan Smith
-// Last updated: 09/05/2015
+// Last updated: 09/07/2015
 
 #ifndef BALL_2D_STATE_H
 #define BALL_2D_STATE_H
 
 #include <memory>
 
-// TODO: Forward declare these, if possible
 #include "SCISim/Math/MathDefines.h"
 #include "Forces/Ball2DForce.h"
 
 class StaticDrum;
 class StaticPlane;
 class PlanarPortal;
-class Ball2DForce;
 
 class Ball2DState final
 {
@@ -24,11 +22,13 @@ public:
 
   friend void swap( Ball2DState& first, Ball2DState& second );
 
-  Ball2DState& operator=( const Ball2DState& other );
+  Ball2DState();
+  Ball2DState( const Ball2DState& other );
+  Ball2DState( const VectorXs& q, const VectorXs& v, const VectorXs& m, const VectorXs& r, const std::vector<bool>& fixed, const std::vector<StaticDrum>& drums, const std::vector<StaticPlane>& planes, const std::vector<PlanarPortal>& planar_portals, const std::vector<std::unique_ptr<Ball2DForce>>& forces );
+
+  Ball2DState& operator=( Ball2DState other );
 
   ~Ball2DState();
-
-  void setState( const VectorXs& q, const VectorXs& v, const VectorXs& m, const VectorXs& r, const std::vector<bool>& fixed, const std::vector<StaticDrum>& drums, const std::vector<StaticPlane>& planes, const std::vector<PlanarPortal>& planar_portals, const std::vector<std::unique_ptr<Ball2DForce>>& forces );
 
   // Configuration, velocity, mass, and geometry of the system
   unsigned nballs() const;

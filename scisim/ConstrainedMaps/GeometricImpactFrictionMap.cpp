@@ -1,7 +1,7 @@
 // GeometricImpactFrictionMap.cpp
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/07/2015
 
 #include "GeometricImpactFrictionMap.h"
 
@@ -34,25 +34,16 @@ GeometricImpactFrictionMap::GeometricImpactFrictionMap( const scalar& abs_tol, c
 }
 
 GeometricImpactFrictionMap::GeometricImpactFrictionMap( std::istream& input_stream )
-: m_use_staggered_projections()
-, m_f()
-, m_abs_tol()
-, m_max_iters()
-, m_external_warm_start_alpha()
-, m_external_warm_start_beta()
-, m_write_constraint_forces()
-, m_constraint_force_stream()
+: m_use_staggered_projections( Utilities::deserialize<bool>( input_stream ) )
+, m_f( mathutils::deserialize<VectorXs>( input_stream ) )
+, m_abs_tol( Utilities::deserialize<scalar>( input_stream ) )
+, m_max_iters( Utilities::deserialize<unsigned>( input_stream ) )
+, m_external_warm_start_alpha( Utilities::deserialize<bool>( input_stream ) )
+, m_external_warm_start_beta( Utilities::deserialize<bool>( input_stream ) )
+, m_write_constraint_forces( false )
+, m_constraint_force_stream( nullptr )
 {
-  assert( input_stream.good() );
-  Utilities::deserializeBuiltInType( m_use_staggered_projections, input_stream );
-  mathutils::deserialize( m_f, input_stream );
-  Utilities::deserializeBuiltInType( m_abs_tol, input_stream );
   assert( m_abs_tol >= 0.0 );
-  Utilities::deserializeBuiltInType( m_max_iters, input_stream );
-  Utilities::deserializeBuiltInType( m_external_warm_start_alpha, input_stream );
-  Utilities::deserializeBuiltInType( m_external_warm_start_beta, input_stream );
-  m_write_constraint_forces = false;
-  m_constraint_force_stream = nullptr;
 }
 
 void GeometricImpactFrictionMap::initializeImpulses( const std::vector<std::unique_ptr<Constraint>>& active_set, const VectorXs& q0, const SparseMatrixsc& D, ConstrainedSystem& csys, const int num_impulses_per_normal, const int ambient_space_dims, VectorXs& alpha, VectorXs& beta )

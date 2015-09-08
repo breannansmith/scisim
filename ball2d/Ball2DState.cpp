@@ -1,7 +1,7 @@
 // Ball2DState.cpp
 //
 // Breannan Smith
-// Last updated: 09/05/2015
+// Last updated: 09/07/2015
 
 #include "Ball2DState.h"
 
@@ -18,82 +18,109 @@
 
 void swap( Ball2DState& first, Ball2DState& second )
 {
-  first.m_q.swap( second.m_q );
-  first.m_v.swap( second.m_v );
-  first.m_r.swap( second.m_r );
-  std::swap( first.m_fixed, second.m_fixed );
-  first.m_M.swap( second.m_M );
-  first.m_Minv.swap( second.m_Minv );
-  std::swap( first.m_static_drums, second.m_static_drums );
-  std::swap( first.m_static_planes, second.m_static_planes );
-  std::swap( first.m_planar_portals, second.m_planar_portals );
-  std::swap( first.m_forces, second.m_forces );
+  using std::swap;
+  swap( first.m_q, second.m_q );
+  swap( first.m_v, second.m_v );
+  swap( first.m_r, second.m_r );
+  swap( first.m_fixed, second.m_fixed );
+  swap( first.m_M, second.m_M );
+  swap( first.m_Minv, second.m_Minv );
+  swap( first.m_static_drums, second.m_static_drums );
+  swap( first.m_static_planes, second.m_static_planes );
+  swap( first.m_planar_portals, second.m_planar_portals );
+  swap( first.m_forces, second.m_forces );
 }
 
-Ball2DState& Ball2DState::operator=( const Ball2DState& other )
+Ball2DState::Ball2DState()
+: m_q()
+, m_v()
+, m_r()
+, m_fixed()
+, m_M()
+, m_Minv()
+, m_static_drums()
+, m_static_planes()
+, m_planar_portals()
+, m_forces()
+{}
+
+Ball2DState::Ball2DState( const Ball2DState& other )
+: m_q( other.m_q )
+, m_v( other.m_v )
+, m_r( other.m_r )
+, m_fixed( other.m_fixed )
+, m_M( other.m_M )
+, m_Minv( other.m_Minv )
+, m_static_drums( other.m_static_drums )
+, m_static_planes( other.m_static_planes )
+, m_planar_portals( other.m_planar_portals )
+, m_forces( Utilities::cloneVector( other.m_forces ) )
+{}
+
+static SparseMatrixsc createM( const VectorXs& m )
 {
-  if( this != &other )
+  SparseMatrixsc M{ static_cast<SparseMatrixsc::Index>( m.size() ), static_cast<SparseMatrixsc::Index>( m.size() ) };
+  M.reserve( m.size() );
+  for( int col = 0; col < m.size(); ++col )
   {
-    m_q = other.m_q;
-    m_v = other.m_v;
-    m_r = other.m_r;
-    m_fixed = other.m_fixed;
-    m_M = other.m_M;
-    m_Minv = other.m_Minv;
-    m_static_drums = other.m_static_drums;
-    m_static_planes = other.m_static_planes;
-    m_planar_portals = other.m_planar_portals;
-    Utilities::cloneVector( other.m_forces, m_forces );
+    M.startVec( col );
+    const int row = col;
+    M.insertBack( row, col ) = m( col );
   }
+  M.finalize();
+  return M;
+}
+
+static SparseMatrixsc createMinv( const VectorXs& m )
+{
+  SparseMatrixsc Minv{ static_cast<SparseMatrixsc::Index>( m.size() ), static_cast<SparseMatrixsc::Index>( m.size() ) };
+  Minv.reserve( m.size() );
+  for( int col = 0; col < m.size(); ++col )
+  {
+    Minv.startVec( col );
+    const int row = col;
+    Minv.insertBack( row, col ) = 1.0 / m( col );
+  }
+  Minv.finalize();
+  return Minv;
+}
+
+Ball2DState::Ball2DState( const VectorXs& q, const VectorXs& v, const VectorXs& m, const VectorXs& r, const std::vector<bool>& fixed, const std::vector<StaticDrum>& drums, const std::vector<StaticPlane>& planes, const std::vector<PlanarPortal>& planar_portals, const std::vector<std::unique_ptr<Ball2DForce>>& forces )
+: m_q( q )
+, m_v( v )
+, m_r( r )
+, m_fixed( fixed )
+, m_M( createM( m ) )
+, m_Minv( createMinv( m ) )
+, m_static_drums( drums )
+, m_static_planes( planes )
+, m_planar_portals( planar_portals )
+, m_forces( Utilities::cloneVector( forces ) )
+{
+  assert( m_q.size() % 2 == 0 );
+  assert( m_q.size() == m_v.size() );
+  assert( m_q.size() == m_M.rows() );
+  assert( m_q.size() == m_M.cols() );
+  assert( m_q.size() == m_Minv.rows() );
+  assert( m_q.size() == m_Minv.rows() );
+  assert( m_q.size() / 2 == m_r.size() );
+  assert( m_q.size() / 2 == int( m_fixed.size() ) );
+  #ifndef NDEBUG
+  const SparseMatrixsc should_be_id = m_M * m_Minv;
+  Eigen::Map<const ArrayXs> should_be_id_data{ should_be_id.valuePtr(), should_be_id.nonZeros() };
+  assert( ( ( should_be_id_data - 1.0 ).abs() <= 1.0e-6 ).all() );
+  #endif
+}
+
+Ball2DState& Ball2DState::operator=( Ball2DState other )
+{
+  using std::swap;
+  swap( *this, other );
   return *this;
 }
 
 Ball2DState::~Ball2DState()
 {}
-
-void Ball2DState::setState( const VectorXs& q, const VectorXs& v, const VectorXs& m, const VectorXs& r, const std::vector<bool>& fixed, const std::vector<StaticDrum>& drums, const std::vector<StaticPlane>& planes, const std::vector<PlanarPortal>& planar_portals, const std::vector<std::unique_ptr<Ball2DForce>>& forces )
-{
-  assert( q.size() % 2 == 0 );
-  assert( q.size() == v.size() );
-  assert( q.size() == m.size() );
-  assert( q.size() / 2 == r.size() );
-  assert( q.size() / 2 == int( fixed.size() ) );
-
-  m_q = q;
-  m_v = v;
-  m_r = r;
-  m_fixed = fixed;
-
-  // Setup a sparse mass matrix
-  m_M.resize( m.size(), m.size() );
-  m_M.reserve( m.size() );
-  for( int col = 0; col < m.size(); ++col )
-  {
-    m_M.startVec( col );
-    const int row = col;
-    m_M.insertBack( row, col ) = m( col );
-  }
-  m_M.finalize();
-
-  // Setup a sparse inverse mass matrix
-  {
-    const VectorXs minv = m.cwiseInverse();
-    m_Minv.resize( minv.size(), minv.size() );
-    m_Minv.reserve( minv.size() );
-    for( int col = 0; col < minv.size(); ++col )
-    {
-      m_Minv.startVec( col );
-      const int row = col;
-      m_Minv.insertBack( row, col ) = minv( col );
-    }
-    m_Minv.finalize();
-  }
-
-  m_static_drums = drums;
-  m_static_planes = planes;
-  m_planar_portals = planar_portals;
-  Utilities::cloneVector( forces, m_forces );
-}
 
 unsigned Ball2DState::nballs() const
 {
@@ -269,9 +296,9 @@ void Ball2DState::deserialize( std::istream& input_stream )
 {
   assert( input_stream.good() );
 
-  mathutils::deserialize( m_q, input_stream ); assert( input_stream.good() );
-  mathutils::deserialize( m_v, input_stream ); assert( input_stream.good() );
-  mathutils::deserialize( m_r, input_stream ); assert( input_stream.good() );
+  m_q = mathutils::deserialize<VectorXs>( input_stream );
+  m_v = mathutils::deserialize<VectorXs>( input_stream );
+  m_r = mathutils::deserialize<VectorXs>( input_stream );
   assert( ( m_r.array() > 0.0 ).all() );
   Utilities::deserializeVectorBuiltInType( m_fixed, input_stream ); assert( input_stream.good() );
   mathutils::deserialize( m_M, input_stream ); assert( input_stream.good() );

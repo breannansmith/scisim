@@ -1,7 +1,7 @@
 // MathUtilities.cpp
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/07/2015
 
 #include "MathUtilities.h"
 
@@ -513,67 +513,4 @@ void mathutils::serialize( const Vector3u& a, std::ostream& stm )
 {
   assert( stm.good() );
   stm.write( (char*) a.data(), a.rows() * a.cols() * sizeof(unsigned) );
-}
-
-void mathutils::deserialize( Vector2s& a, std::istream& stm )
-{
-  assert( stm.good() );
-  stm.read( reinterpret_cast<char*>( a.data() ), a.size() * sizeof(scalar) );
-}
-
-void mathutils::deserialize( Vector3s& a, std::istream& stm )
-{
-  assert( stm.good() );
-  stm.read( reinterpret_cast<char*>( a.data() ), a.size() * sizeof(scalar) );
-}
-
-void mathutils::deserialize( VectorXs& a, std::istream& stm )
-{
-  assert( stm.good() );
-  {
-    int asize;
-    stm.read( reinterpret_cast<char*>( &asize ), sizeof(int) );
-    a.resize( asize );
-  }
-  stm.read( reinterpret_cast<char*>( a.data() ), a.size() * sizeof(scalar) );
-}
-
-void mathutils::deserialize( Array3i& a, std::istream& stm )
-{
-  assert( stm.good() );
-  stm.read( reinterpret_cast<char*>( a.data() ), a.size() * sizeof(int) );
-}
-
-void mathutils::deserialize( Matrix3s& a, std::istream& stm )
-{
-  assert( stm.good() );
-  stm.read( reinterpret_cast<char*>( a.data() ), a.rows() * a.cols() * sizeof(scalar) );
-}
-
-void mathutils::deserialize( Matrix3Xsc& a, std::istream& stm )
-{
-  assert( stm.good() );
-  {
-    int ncols;
-    stm.read( reinterpret_cast<char*>( &ncols ), sizeof(int) );
-    a.resize( 3, ncols );
-  }
-  stm.read( reinterpret_cast<char*>( a.data() ), a.rows() * a.cols() * sizeof(scalar) );
-}
-
-void mathutils::deserialize( Matrix3Xuc& a, std::istream& stm )
-{
-  assert( stm.good() );
-  {
-    int ncols;
-    stm.read( reinterpret_cast<char*>( &ncols ), sizeof(int) );
-    a.resize( 3, ncols );
-  }
-  stm.read( reinterpret_cast<char*>( a.data() ), a.rows() * a.cols() * sizeof(unsigned) );
-}
-
-void mathutils::deserialize( Vector3u& a, std::istream& stm )
-{
-  assert( stm.good() );
-  stm.read( reinterpret_cast<char*>( a.data() ), a.rows() * a.cols() * sizeof(unsigned) );
 }

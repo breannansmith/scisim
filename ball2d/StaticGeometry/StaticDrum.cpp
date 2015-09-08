@@ -1,13 +1,12 @@
 // StaticDrum.cpp
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/07/2015
 
 #include "StaticDrum.h"
 
 #include "SCISim/Math/MathUtilities.h"
-
-// TODO: Serialize/deserialize with the buil in routines, make member vars const
+#include "SCISim/Utilities.h"
 
 StaticDrum::StaticDrum( const Vector2s& x, const scalar& r )
 : m_x( x )
@@ -17,12 +16,9 @@ StaticDrum::StaticDrum( const Vector2s& x, const scalar& r )
 }
 
 StaticDrum::StaticDrum( std::istream& input_stream )
-: m_x()
-, m_r()
+: m_x( mathutils::deserialize<Vector2s>( input_stream ) )
+, m_r( Utilities::deserialize<scalar>( input_stream ) )
 {
-  assert( input_stream.good() );
-  mathutils::deserialize( m_x, input_stream );
-  input_stream.read( (char*) &m_r, sizeof(scalar) );
   assert( m_r > 0.0 );
 }
 
@@ -40,5 +36,5 @@ void StaticDrum::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
   mathutils::serialize( m_x, output_stream );
-  output_stream.write( (char*) &m_r, sizeof(scalar) );
+  Utilities::serializeBuiltInType( m_r, output_stream );
 }

@@ -1,12 +1,10 @@
 // StaticDrum.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/07/2015
 
 #ifndef STATIC_DRUM_H
 #define STATIC_DRUM_H
-
-// TODO: Make member vars const
 
 #include "SCISim/Math/MathDefines.h"
 
@@ -26,8 +24,8 @@ public:
 
 private:
 
-  Vector2s m_x;
-  scalar m_r;
+  const Vector2s m_x;
+  const scalar m_r;
 
 };
 

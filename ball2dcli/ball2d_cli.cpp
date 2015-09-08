@@ -1,7 +1,7 @@
 // twod_balls_cli.cpp
 //
 // Breannan Smith
-// Last updated: 09/05/2015
+// Last updated: 09/07/2015
 
 #ifdef USE_PYTHON
 #include <Python.h>
@@ -135,6 +135,7 @@ static bool loadXMLScene( const std::string& xml_file_name )
 
   // Copy the new state over to the simulation
   Ball2DState new_simulation_state;
+  // TODO: Move this code to a factory function
   {
     VectorXs q0{ static_cast<VectorXs::Index>( 2 * balls.size() ) };
     VectorXs v0{ static_cast<VectorXs::Index>( 2 * balls.size() ) };
@@ -150,7 +151,9 @@ static bool loadXMLScene( const std::string& xml_file_name )
       fixed0[ ball_idx ] = balls[ball_idx].fixed();
     }
 
-    new_simulation_state.setState( q0, v0, m0, r0, fixed0, drums, planes, planar_portals, forces );
+    Ball2DState new_state{ q0, v0, m0, r0, fixed0, drums, planes, planar_portals, forces };
+    using std::swap;
+    swap( new_simulation_state, new_state );
   }
   g_sim.swapState( new_simulation_state );
 

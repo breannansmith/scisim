@@ -1,7 +1,7 @@
 // StabilizedImpactFrictionMap.cpp
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/07/2015
 
 #include "StabilizedImpactFrictionMap.h"
 
@@ -27,23 +27,14 @@ StabilizedImpactFrictionMap::StabilizedImpactFrictionMap( const scalar& abs_tol,
   assert( m_abs_tol >= 0.0 );
 }
 
-// TODO: This constructor should use the utility functions to deserialize
 StabilizedImpactFrictionMap::StabilizedImpactFrictionMap( std::istream& input_stream )
-: m_f()
-, m_abs_tol()
-, m_max_iters()
-, m_write_constraint_forces()
-, m_constraint_force_stream()
+: m_f( mathutils::deserialize<VectorXs>( input_stream ) )
+, m_abs_tol( Utilities::deserialize<scalar>( input_stream ) )
+, m_max_iters( Utilities::deserialize<unsigned>( input_stream ) )
+, m_write_constraint_forces( Utilities::deserialize<bool>( input_stream ) )
+, m_constraint_force_stream( nullptr )
 {
-  assert( input_stream.good() );
-
-  mathutils::deserialize( m_f, input_stream );
-  input_stream.read( (char*) &m_abs_tol, sizeof(scalar) );
   assert( m_abs_tol >= 0.0 );
-  input_stream.read( (char*) &m_max_iters, sizeof(unsigned) );
-
-  input_stream.read( (char*) &m_write_constraint_forces, sizeof(bool) );
-  m_constraint_force_stream = nullptr;
 }
 
 StabilizedImpactFrictionMap::~StabilizedImpactFrictionMap()

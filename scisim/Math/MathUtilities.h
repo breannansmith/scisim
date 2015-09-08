@@ -1,7 +1,7 @@
 // MathUtilities.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/07/2015
 
 #ifndef MATH_UTILITIES_H
 #define MATH_UTILITIES_H
@@ -116,7 +116,7 @@ namespace mathutils
     return a;
   }
 
-  // TODO: Transition code to generic versions below
+  // TODO: Transition code to generic versions
   void serialize( const Vector2s& a, std::ostream& stm );
   void serialize( const Vector3s& a, std::ostream& stm );
   void serialize( const VectorXs& a, std::ostream& stm );
@@ -127,19 +127,9 @@ namespace mathutils
   void serialize( const Vector3u& a, std::ostream& stm );
   void serialize( const VectorXu& a, std::ostream& stm );
 
-  // TODO: Transition code to generic versions below
-  void deserialize( Vector2s& a, std::istream& stm );
-  void deserialize( Vector3s& a, std::istream& stm );
-  void deserialize( VectorXs& a, std::istream& stm );
-  void deserialize( Array3i& a, std::istream& stm );
-  void deserialize( Matrix3s& a, std::istream& stm );
-  void deserialize( Matrix3Xsc& a, std::istream& stm );
-  void deserialize( Matrix3Xuc& a, std::istream& stm );
-  void deserialize( Vector3u& a, std::istream& stm );
-
   // Deserialization for dense Eigen types of fixed row count, fixed column count
   template <typename Derived>
-  typename std::enable_if< Derived::RowsAtCompileTime != Eigen::Dynamic && Derived::ColsAtCompileTime != Eigen::Dynamic,Derived >::type
+  typename std::enable_if< Derived::RowsAtCompileTime != Eigen::Dynamic && Derived::ColsAtCompileTime != Eigen::Dynamic, Derived >::type
    deserialize( std::istream& stm )
   {
     assert( stm.good() );
@@ -147,12 +137,13 @@ namespace mathutils
     assert( output_matrix.rows() == Derived::RowsAtCompileTime );
     assert( output_matrix.cols() == Derived::ColsAtCompileTime );
     stm.read( reinterpret_cast<char*>( output_matrix.data() ), Derived::RowsAtCompileTime * Derived::ColsAtCompileTime * sizeof(typename Derived::Scalar) );
+    assert( stm.good() );
     return output_matrix;
   }
 
   // Deserialization for dense Eigen types of dynamic row count, fixed column count
   template <typename Derived>
-  typename std::enable_if< Derived::RowsAtCompileTime != Eigen::Dynamic && Derived::ColsAtCompileTime == Eigen::Dynamic,Derived >::type
+  typename std::enable_if< Derived::RowsAtCompileTime != Eigen::Dynamic && Derived::ColsAtCompileTime == Eigen::Dynamic, Derived >::type
   deserialize( std::istream& stm )
   {
     assert( stm.good() );
@@ -164,12 +155,13 @@ namespace mathutils
       output_matrix.resize( Derived::RowsAtCompileTime, ncols );
     }
     stm.read( reinterpret_cast<char*>( output_matrix.data() ), Derived::RowsAtCompileTime * output_matrix.cols() * sizeof(typename Derived::Scalar) );
+    assert( stm.good() );
     return output_matrix;
   }
 
   // Deserialization for dense Eigen types of fixed row count, dynamic col count
   template <typename Derived>
-  typename std::enable_if< Derived::RowsAtCompileTime == Eigen::Dynamic && Derived::ColsAtCompileTime != Eigen::Dynamic,Derived >::type
+  typename std::enable_if< Derived::RowsAtCompileTime == Eigen::Dynamic && Derived::ColsAtCompileTime != Eigen::Dynamic, Derived >::type
   deserialize( std::istream& stm )
   {
     assert( stm.good() );
@@ -181,6 +173,7 @@ namespace mathutils
       output_matrix.resize( nrows, Derived::ColsAtCompileTime );
     }
     stm.read( reinterpret_cast<char*>( output_matrix.data() ), output_matrix.rows() * Derived::ColsAtCompileTime * sizeof(typename Derived::Scalar) );
+    assert( stm.good() );
     return output_matrix;
   }
 

@@ -196,6 +196,7 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
 
   // Copy the new state over to the simulation
   Ball2DState new_simulation_state;
+  // TODO: Move this code to a factory function
   {
     VectorXs q0{ static_cast<VectorXs::Index>( 2 * new_balls.size() ) };
     VectorXs v0{ static_cast<VectorXs::Index>( 2 * new_balls.size() ) };
@@ -211,7 +212,9 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
       fixed0[ i ] = new_balls[i].fixed();
     }
 
-    new_simulation_state.setState( q0, v0, m0, r0, fixed0, new_drums, new_planes, new_planar_portals, new_forces );
+    Ball2DState new_state{ q0, v0, m0, r0, fixed0, new_drums, new_planes, new_planar_portals, new_forces };
+    using std::swap;
+    swap( new_simulation_state, new_state );
   }
 
   // Cache the new state locally to allow one to reset a simulation
