@@ -1,7 +1,7 @@
 // StaggeredProjections.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/07/2015
 
 #ifndef STAGGERED_PROJECTIONS_H
 #define STAGGERED_PROJECTIONS_H
@@ -10,10 +10,6 @@
 
 #include <memory>
 #include "SCISim/Math/MathDefines.h"
-
-#ifdef TIMERS_ENABLED
-#include <fstream>
-#endif
 
 class ImpactOperator;
 class FrictionOperator;

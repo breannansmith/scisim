@@ -880,16 +880,6 @@ void Sobogus::solve( const unsigned iteration, const scalar& dt, const FlowableS
   {
     unsigned num_iterations;
     sfp.solve( active_set, max_iters, m_eval_every, tol, alpha, beta, f_local, v_local_out, solve_succeeded, error, num_iterations );
-
-    #ifdef TIMERS_ENABLED
-    assert( iteration >= 1 );
-    if( ( iteration - 1 ) % 45 == 0 )
-    {
-      std::cout << "Saving SB progress log at time step number " << iteration - 1 << std::endl;
-      assert( m_progress_log.is_open() );
-      m_progress_log << iteration * dt << "\t" << num_iterations << "\t" << error << std::endl;
-    }
-    #endif
   }
 
   // TODO: Convert the following to functions like above
