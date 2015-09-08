@@ -128,7 +128,7 @@ static void serializeCache( const std::map<std::pair<unsigned,unsigned>,VectorXs
     }
     {
       const VectorXs& force{ con.second };
-      mathutils::serialize( force, output_stream );
+      MathUtilities::serialize( force, output_stream );
     }
   }
 }
@@ -145,7 +145,7 @@ static void deserializeCache( std::map<std::pair<unsigned,unsigned>,VectorXs>& c
     input_stream.read( reinterpret_cast<char*>( &first_index ), sizeof(unsigned) );
     unsigned second_index;
     input_stream.read( reinterpret_cast<char*>( &second_index ), sizeof(unsigned) );
-    const VectorXs force = mathutils::deserialize<VectorXs>( input_stream );
+    const VectorXs force = MathUtilities::deserialize<VectorXs>( input_stream );
     std::pair< std::map< std::pair<unsigned,unsigned>, VectorXs >::iterator, bool > insert_return;
     insert_return = constraint_cache.insert( std::make_pair( std::make_pair( first_index, second_index ), force ) );
     assert( insert_return.second ); // Should not re-encounter constraints

@@ -35,7 +35,7 @@ GeometricImpactFrictionMap::GeometricImpactFrictionMap( const scalar& abs_tol, c
 
 GeometricImpactFrictionMap::GeometricImpactFrictionMap( std::istream& input_stream )
 : m_use_staggered_projections( Utilities::deserialize<bool>( input_stream ) )
-, m_f( mathutils::deserialize<VectorXs>( input_stream ) )
+, m_f( MathUtilities::deserialize<VectorXs>( input_stream ) )
 , m_abs_tol( Utilities::deserialize<scalar>( input_stream ) )
 , m_max_iters( Utilities::deserialize<unsigned>( input_stream ) )
 , m_external_warm_start_alpha( Utilities::deserialize<bool>( input_stream ) )
@@ -94,7 +94,7 @@ void GeometricImpactFrictionMap::initializeImpulses( const std::vector<std::uniq
     //const VectorXs n1 = constraint->computeWorldSpaceContactNormal( q0 );
     //assert( fabs( n1.norm() - 1.0 ) <= 1.0e-6 );
     //// Parallel transport friction force from last frame to current frame
-    //const VectorXs f1 = mathutils::parallelTransport( n0, n1, f0 );
+    //const VectorXs f1 = MathUtilities::parallelTransport( n0, n1, f0 );
     //assert( fabs( f0.norm() - f1.norm() ) <= 1.0e-6 );
     //// Project the transported friction force on the current friction basis
     //const VectorXs beta0 = constraint->projectOnFrictionBasis( q0, f1 );
@@ -388,7 +388,7 @@ void GeometricImpactFrictionMap::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
   Utilities::serializeBuiltInType( m_use_staggered_projections, output_stream );
-  mathutils::serialize( m_f, output_stream );
+  MathUtilities::serialize( m_f, output_stream );
   Utilities::serializeBuiltInType( m_abs_tol, output_stream );
   Utilities::serializeBuiltInType( m_max_iters, output_stream );
   Utilities::serializeBuiltInType( m_external_warm_start_alpha, output_stream );

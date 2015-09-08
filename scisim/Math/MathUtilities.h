@@ -12,8 +12,7 @@
 
 #include "SCISim/Utilities.h"
 
-// TODO: Rename to MathUtilities
-namespace mathutils
+namespace MathUtilities
 {
 
   // A 2D cross product
@@ -116,16 +115,25 @@ namespace mathutils
     return a;
   }
 
-  // TODO: Transition code to generic versions
-  void serialize( const Vector2s& a, std::ostream& stm );
-  void serialize( const Vector3s& a, std::ostream& stm );
-  void serialize( const VectorXs& a, std::ostream& stm );
-  void serialize( const Array3i& a, std::ostream& stm );
-  void serialize( const Matrix3s& a, std::ostream& stm );
-  void serialize( const Matrix3Xsc& a, std::ostream& stm );
-  void serialize( const Matrix3Xuc& a, std::ostream& stm );
-  void serialize( const Vector3u& a, std::ostream& stm );
-  void serialize( const VectorXu& a, std::ostream& stm );
+  template <typename Derived>
+  void serialize( const Eigen::DenseBase<Derived>& eigen_variable, std::ostream& stm )
+  {
+    assert( stm.good() );
+    // If the size of either dimension is dynamic, it must be serialized
+    if( Derived::RowsAtCompileTime == Eigen::Dynamic )
+    {
+      typename Derived::Index nrows = eigen_variable.rows();
+      stm.write( reinterpret_cast<char*>( &nrows ), sizeof(typename Eigen::DenseBase<Derived>::Index) );
+    }
+    if( Derived::ColsAtCompileTime == Eigen::Dynamic )
+    {
+      typename Derived::Index ncols = eigen_variable.cols();
+      stm.write( reinterpret_cast<char*>( &ncols ), sizeof(typename Eigen::DenseBase<Derived>::Index) );
+    }
+    // Write the data
+    stm.write( const_cast<char*>( reinterpret_cast<const char*>( eigen_variable.derived().data() ) ), eigen_variable.rows() * eigen_variable.cols() * sizeof(typename Derived::Scalar) );
+    assert( stm.good() );
+  }
 
   // Deserialization for dense Eigen types of fixed row count, fixed column count
   template <typename Derived>
@@ -141,7 +149,7 @@ namespace mathutils
     return output_matrix;
   }
 
-  // Deserialization for dense Eigen types of dynamic row count, fixed column count
+  // Deserialization for dense Eigen types of dynamic col count, fixed row count
   template <typename Derived>
   typename std::enable_if< Derived::RowsAtCompileTime != Eigen::Dynamic && Derived::ColsAtCompileTime == Eigen::Dynamic, Derived >::type
   deserialize( std::istream& stm )
@@ -150,8 +158,8 @@ namespace mathutils
     Derived output_matrix;
     assert( output_matrix.rows() == Derived::RowsAtCompileTime );
     {
-      int ncols;
-      stm.read( reinterpret_cast<char*>( &ncols ), sizeof(int) );
+      typename Derived::Index ncols;
+      stm.read( reinterpret_cast<char*>( &ncols ), sizeof(typename Derived::Index) );
       output_matrix.resize( Derived::RowsAtCompileTime, ncols );
     }
     stm.read( reinterpret_cast<char*>( output_matrix.data() ), Derived::RowsAtCompileTime * output_matrix.cols() * sizeof(typename Derived::Scalar) );
@@ -159,7 +167,7 @@ namespace mathutils
     return output_matrix;
   }
 
-  // Deserialization for dense Eigen types of fixed row count, dynamic col count
+  // Deserialization for dense Eigen types of fixed col count, dynamic row count
   template <typename Derived>
   typename std::enable_if< Derived::RowsAtCompileTime == Eigen::Dynamic && Derived::ColsAtCompileTime != Eigen::Dynamic, Derived >::type
   deserialize( std::istream& stm )
@@ -168,8 +176,8 @@ namespace mathutils
     Derived output_matrix;
     assert( output_matrix.cols() == Derived::ColsAtCompileTime );
     {
-      int nrows;
-      stm.read( reinterpret_cast<char*>( &nrows ), sizeof(int) );
+      typename Derived::Index nrows;
+      stm.read( reinterpret_cast<char*>( &nrows ), sizeof(typename Derived::Index) );
       output_matrix.resize( nrows, Derived::ColsAtCompileTime );
     }
     stm.read( reinterpret_cast<char*>( output_matrix.data() ), output_matrix.rows() * Derived::ColsAtCompileTime * sizeof(typename Derived::Scalar) );

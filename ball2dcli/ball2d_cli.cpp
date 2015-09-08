@@ -687,7 +687,7 @@ int main( int argc, char** argv )
     g_steps_per_save = 1;
   }
   assert( g_end_time > 0.0 );
-  g_save_number_width = mathutils::computeNumDigits( 1 + ceil( g_end_time / scalar( g_dt ) ) / g_steps_per_save );
+  g_save_number_width = MathUtilities::computeNumDigits( 1 + ceil( g_end_time / scalar( g_dt ) ) / g_steps_per_save );
 
   printCompileInfo( std::cout );
   std::cout << "Body count: " << g_sim.state().nballs() << std::endl;

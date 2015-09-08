@@ -1,7 +1,7 @@
 // StaticPlane.cpp
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/07/2015
 
 #include "StaticPlane.h"
 
@@ -20,10 +20,10 @@ StaticPlane::StaticPlane( const Vector2s& x, const Vector2s& n )
 }
 
 StaticPlane::StaticPlane( std::istream& input_stream )
-: m_x( mathutils::deserialize<Vector2s>( input_stream ) )
-, m_v( mathutils::deserialize<Vector2s>( input_stream ) )
-, m_n( mathutils::deserialize<Vector2s>( input_stream ) )
-, m_t( mathutils::deserialize<Vector2s>( input_stream ) )
+: m_x( MathUtilities::deserialize<Vector2s>( input_stream ) )
+, m_v( MathUtilities::deserialize<Vector2s>( input_stream ) )
+, m_n( MathUtilities::deserialize<Vector2s>( input_stream ) )
+, m_t( MathUtilities::deserialize<Vector2s>( input_stream ) )
 {
   assert( fabs( m_n.norm() - 1.0 ) <= 1.0e-6 );
   assert( fabs( m_t.norm() - 1.0 ) <= 1.0e-6 );
@@ -81,8 +81,8 @@ bool StaticPlane::distanceLessThanOrEqualZero( const Vector2s& plane_dx, const V
 void StaticPlane::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
-  mathutils::serialize( m_x, output_stream );
-  mathutils::serialize( m_v, output_stream );
-  mathutils::serialize( m_n, output_stream );
-  mathutils::serialize( m_t, output_stream );
+  MathUtilities::serialize( m_x, output_stream );
+  MathUtilities::serialize( m_v, output_stream );
+  MathUtilities::serialize( m_n, output_stream );
+  MathUtilities::serialize( m_t, output_stream );
 }

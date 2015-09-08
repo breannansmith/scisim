@@ -229,7 +229,7 @@ scalar Ball2DState::computeAngularMomentum() const
   for( int i = 0; i < m_v.size(); i += 2 )
   {
     assert( m_M.valuePtr()[ i ] == m_M.valuePtr()[ i + 1 ] );
-    L += m_M.valuePtr()[ i ] * mathutils::cross( m_q.segment<2>( i ), m_v.segment<2>( i ) );
+    L += m_M.valuePtr()[ i ] * MathUtilities::cross( m_q.segment<2>( i ), m_v.segment<2>( i ) );
   }
 
   return L;
@@ -280,12 +280,12 @@ void Ball2DState::accumulateForce( const VectorXs& q, const VectorXs& v, VectorX
 void Ball2DState::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
-  mathutils::serialize( m_q, output_stream );
-  mathutils::serialize( m_v, output_stream );
-  mathutils::serialize( m_r, output_stream );
+  MathUtilities::serialize( m_q, output_stream );
+  MathUtilities::serialize( m_v, output_stream );
+  MathUtilities::serialize( m_r, output_stream );
   Utilities::serializeVectorBuiltInType( m_fixed, output_stream );
-  mathutils::serialize( m_M, output_stream );
-  mathutils::serialize( m_Minv, output_stream );
+  MathUtilities::serialize( m_M, output_stream );
+  MathUtilities::serialize( m_Minv, output_stream );
   Utilities::serializeVectorCustomType( m_static_drums, output_stream );
   Utilities::serializeVectorCustomType( m_static_planes, output_stream );
   Utilities::serializeVectorCustomType( m_planar_portals, output_stream );
@@ -296,14 +296,14 @@ void Ball2DState::deserialize( std::istream& input_stream )
 {
   assert( input_stream.good() );
 
-  m_q = mathutils::deserialize<VectorXs>( input_stream );
-  m_v = mathutils::deserialize<VectorXs>( input_stream );
-  m_r = mathutils::deserialize<VectorXs>( input_stream );
+  m_q = MathUtilities::deserialize<VectorXs>( input_stream );
+  m_v = MathUtilities::deserialize<VectorXs>( input_stream );
+  m_r = MathUtilities::deserialize<VectorXs>( input_stream );
   assert( ( m_r.array() > 0.0 ).all() );
   Utilities::deserializeVectorBuiltInType( m_fixed, input_stream ); assert( input_stream.good() );
-  mathutils::deserialize( m_M, input_stream ); assert( input_stream.good() );
+  MathUtilities::deserialize( m_M, input_stream ); assert( input_stream.good() );
   // TODO: Assert data is all positive
-  mathutils::deserialize( m_Minv, input_stream ); assert( input_stream.good() );
+  MathUtilities::deserialize( m_Minv, input_stream ); assert( input_stream.good() );
   // TODO: Assert data is all positive
   Utilities::deserializeVectorCustomType( m_static_drums, input_stream ); assert( input_stream.good() );
   Utilities::deserializeVectorCustomType( m_static_planes, input_stream ); assert( input_stream.good() );

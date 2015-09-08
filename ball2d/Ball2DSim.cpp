@@ -1,7 +1,7 @@
 // Ball2DSim.cpp
 //
 // Breannan Smith
-// Last updated: 09/05/2015
+// Last updated: 09/07/2015
 
 #include "Ball2DSim.h"
 
@@ -139,7 +139,7 @@ void Ball2DSim::computeAngularMomentum( const VectorXs& v, VectorXs& L ) const
   for( unsigned ball_idx = 0; ball_idx < nballs; ++ball_idx )
   {
     assert( m_state.M().valuePtr()[ 2 * ball_idx ] == m_state.M().valuePtr()[ 2 * ball_idx + 1 ] );
-    L(0) += m_state.M().valuePtr()[ 2 * ball_idx ] * mathutils::cross( m_state.q().segment<2>( 2 * ball_idx ), v.segment<2>( 2 * ball_idx ) );
+    L(0) += m_state.M().valuePtr()[ 2 * ball_idx ] * MathUtilities::cross( m_state.q().segment<2>( 2 * ball_idx ), v.segment<2>( 2 * ball_idx ) );
   }
 }
 

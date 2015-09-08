@@ -28,7 +28,7 @@ StabilizedImpactFrictionMap::StabilizedImpactFrictionMap( const scalar& abs_tol,
 }
 
 StabilizedImpactFrictionMap::StabilizedImpactFrictionMap( std::istream& input_stream )
-: m_f( mathutils::deserialize<VectorXs>( input_stream ) )
+: m_f( MathUtilities::deserialize<VectorXs>( input_stream ) )
 , m_abs_tol( Utilities::deserialize<scalar>( input_stream ) )
 , m_max_iters( Utilities::deserialize<unsigned>( input_stream ) )
 , m_write_constraint_forces( Utilities::deserialize<bool>( input_stream ) )
@@ -208,7 +208,7 @@ void StabilizedImpactFrictionMap::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
 
-  mathutils::serialize( m_f, output_stream );
+  MathUtilities::serialize( m_f, output_stream );
   output_stream.write( (char*) &m_abs_tol, sizeof(scalar) );
   output_stream.write( (char*) &m_max_iters, sizeof(unsigned) );
 

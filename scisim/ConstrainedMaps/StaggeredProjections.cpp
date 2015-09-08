@@ -1,7 +1,7 @@
 // StaggeredProjections.cpp
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/07/2015
 
 #include "StaggeredProjections.h"
 
@@ -225,7 +225,7 @@ static scalar computeSobogusError( const VectorXs& alpha, const VectorXs& beta, 
 // NOTE: Can't precompute linear terms as they change during the solve
 void StaggeredProjections::solve( const unsigned iteration, const scalar& dt, const FlowableSystem& fsys, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& CoR, const VectorXs& mu, const VectorXs& q0, const VectorXs& v0, std::vector<std::unique_ptr<Constraint>>& active_set, const MatrixXXsc& contact_bases, const unsigned max_iters, const scalar& tol, VectorXs& f, VectorXs& alpha, VectorXs& beta, VectorXs& vout, bool& solve_succeeded, scalar& error )
 {
-  assert( mathutils::isSquare( M ) ); assert( mathutils::isSquare( Minv ) ); assert( M.rows() == Minv.rows() );
+  assert( MathUtilities::isSquare( M ) ); assert( MathUtilities::isSquare( Minv ) ); assert( M.rows() == Minv.rows() );
   assert( CoR.size() == alpha.size() ); assert( CoR.size() == mu.size() );
   assert( active_set.size() == std::vector<std::unique_ptr<Constraint>>::size_type( mu.size() ) );
   assert( v0.size() == M.cols() ); assert( vout.size() == v0.size() );

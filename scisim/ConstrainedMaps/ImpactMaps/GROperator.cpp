@@ -1,7 +1,7 @@
 // GROperator.cpp
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/07/2015
 
 #include "GROperator.h"
 
@@ -102,7 +102,7 @@ void GROperator::flow( const std::vector<std::unique_ptr<Constraint>>& cons, con
 
     VectorXs alpha_local{ VectorXs::Zero( num_contacts_with_negative_vel ) };
     SparseMatrixsc N_local;
-    mathutils::extractColumns( N, violated_indices, N_local );
+    MathUtilities::extractColumns( N, violated_indices, N_local );
     const SparseMatrixsc Q_local = N_local.transpose() * Minv * N_local;
     // Solve the 'local' problem
     m_impact_operator->flow( cons, M, Minv, q0, v1, v1, N_local, Q_local, nrel_local, CoR_local, alpha_local );

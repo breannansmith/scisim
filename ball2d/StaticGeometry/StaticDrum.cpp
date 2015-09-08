@@ -16,7 +16,7 @@ StaticDrum::StaticDrum( const Vector2s& x, const scalar& r )
 }
 
 StaticDrum::StaticDrum( std::istream& input_stream )
-: m_x( mathutils::deserialize<Vector2s>( input_stream ) )
+: m_x( MathUtilities::deserialize<Vector2s>( input_stream ) )
 , m_r( Utilities::deserialize<scalar>( input_stream ) )
 {
   assert( m_r > 0.0 );
@@ -35,6 +35,6 @@ const scalar& StaticDrum::r() const
 void StaticDrum::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
-  mathutils::serialize( m_x, output_stream );
+  MathUtilities::serialize( m_x, output_stream );
   Utilities::serializeBuiltInType( m_r, output_stream );
 }

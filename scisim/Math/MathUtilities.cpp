@@ -13,7 +13,7 @@ static VectorXs parallelTransport2D( const VectorXs& n0, const VectorXs& n1, con
   assert( fabs( n0.norm() - 1.0 ) <= 1.0e-6 ); assert( fabs( n1.norm() - 1.0 ) <= 1.0e-6 );
 
   // x is cos of angle, y is sin of angle
-  const Vector2s r{ n0.dot( n1 ), mathutils::cross( n0, n1 ) };
+  const Vector2s r{ n0.dot( n1 ), MathUtilities::cross( n0, n1 ) };
   assert( fabs( r.norm() - 1.0 ) <= 1.0e-6 );
 
   // Rotate t0
@@ -32,7 +32,7 @@ static VectorXs parallelTransport3D( const VectorXs& n0, const VectorXs& n1, con
   return VectorXs::Constant( 3, SCALAR_NAN );
 }
 
-VectorXs mathutils::parallelTransport( const VectorXs& n0, const VectorXs& n1, const VectorXs& t0 )
+VectorXs MathUtilities::parallelTransport( const VectorXs& n0, const VectorXs& n1, const VectorXs& t0 )
 {
   assert( n0.size() == n1.size() ); assert( n0.size() == n1.size() );
   assert( n0.size() == 2 || n0.size() == 3 );
@@ -42,7 +42,7 @@ VectorXs mathutils::parallelTransport( const VectorXs& n0, const VectorXs& n1, c
   std::exit( EXIT_FAILURE );
 }
 
-void mathutils::extractTripletData( const SparseMatrixsc& matrix, VectorXi& rows, VectorXi& cols, VectorXs& vals )
+void MathUtilities::extractTripletData( const SparseMatrixsc& matrix, VectorXi& rows, VectorXi& cols, VectorXs& vals )
 {
   rows.resize( matrix.nonZeros() );
   cols.resize( matrix.nonZeros() );
@@ -60,7 +60,7 @@ void mathutils::extractTripletData( const SparseMatrixsc& matrix, VectorXi& rows
   assert( flat_index == matrix.nonZeros() );
 }
 
-bool mathutils::isRightHandedOrthoNormal( const Vector2s& a, const Vector2s& b, const scalar& tol )
+bool MathUtilities::isRightHandedOrthoNormal( const Vector2s& a, const Vector2s& b, const scalar& tol )
 {
   // All basis vectors should be unit
   if( fabs( a.norm() - 1.0 ) > tol ) { return false; }
@@ -73,7 +73,7 @@ bool mathutils::isRightHandedOrthoNormal( const Vector2s& a, const Vector2s& b, 
   return true;
 }
 
-bool mathutils::isRightHandedOrthoNormal( const Vector3s& a, const Vector3s& b, const Vector3s& c, const scalar& tol )
+bool MathUtilities::isRightHandedOrthoNormal( const Vector3s& a, const Vector3s& b, const Vector3s& c, const scalar& tol )
 {
   // All basis vectors should be unit
   if( fabs( a.norm() - 1.0 ) > tol ) { return false; }
@@ -88,12 +88,12 @@ bool mathutils::isRightHandedOrthoNormal( const Vector3s& a, const Vector3s& b, 
   return true;
 }
 
-bool mathutils::isSquare( const SparseMatrixsc& matrix )
+bool MathUtilities::isSquare( const SparseMatrixsc& matrix )
 {
   return matrix.rows() == matrix.cols();
 }
 
-bool mathutils::writeToMatlabTripletText( const SparseMatrixsc& matrix, const std::string& file_name )
+bool MathUtilities::writeToMatlabTripletText( const SparseMatrixsc& matrix, const std::string& file_name )
 {
   std::ofstream output_file( file_name );
   if( !output_file.is_open() )
@@ -111,7 +111,7 @@ bool mathutils::writeToMatlabTripletText( const SparseMatrixsc& matrix, const st
   return true;
 }
 
-void mathutils::convertDenseToSparse( const bool filter_zeros, const MatrixXXsc& dense_matrix, SparseMatrixsc& sparse_matrix )
+void MathUtilities::convertDenseToSparse( const bool filter_zeros, const MatrixXXsc& dense_matrix, SparseMatrixsc& sparse_matrix )
 {
   std::vector<Eigen::Triplet<scalar>> triplets;
   for( int row = 0; row < dense_matrix.rows(); ++row )
@@ -129,7 +129,7 @@ void mathutils::convertDenseToSparse( const bool filter_zeros, const MatrixXXsc&
   sparse_matrix.makeCompressed();
 }
 
-SparseMatrixsc mathutils::sparseIdentity( const unsigned size )
+SparseMatrixsc MathUtilities::sparseIdentity( const unsigned size )
 {
   SparseMatrixsc id_mat( size, size );
   id_mat.setIdentity();
@@ -138,7 +138,7 @@ SparseMatrixsc mathutils::sparseIdentity( const unsigned size )
 
 
 
-unsigned mathutils::computeNumDigits( unsigned n )
+unsigned MathUtilities::computeNumDigits( unsigned n )
 {
   if( n == 0 ) { return 1; }
   unsigned num_digits{ 0 };
@@ -150,7 +150,7 @@ unsigned mathutils::computeNumDigits( unsigned n )
   return num_digits;
 }
 
-int mathutils::nzLowerTriangular( const SparseMatrixsc& A )
+int MathUtilities::nzLowerTriangular( const SparseMatrixsc& A )
 {
   int num{ 0 };
   for( int col = 0; col < A.outerSize(); ++col )
@@ -166,7 +166,7 @@ int mathutils::nzLowerTriangular( const SparseMatrixsc& A )
 }
 
 // Determine which elements are non-zero
-int mathutils::sparsityPattern( const SparseMatrixsc& A, int* rows, int* cols )
+int MathUtilities::sparsityPattern( const SparseMatrixsc& A, int* rows, int* cols )
 {
   assert( rows != nullptr );
   assert( cols != nullptr );
@@ -186,7 +186,7 @@ int mathutils::sparsityPattern( const SparseMatrixsc& A, int* rows, int* cols )
   return curel;
 }
 
-int mathutils::sparsityPatternLowerTriangular( const SparseMatrixsc& A, int* rows, int* cols )
+int MathUtilities::sparsityPatternLowerTriangular( const SparseMatrixsc& A, int* rows, int* cols )
 {
   assert( rows != nullptr );
   assert( cols != nullptr );
@@ -206,7 +206,7 @@ int mathutils::sparsityPatternLowerTriangular( const SparseMatrixsc& A, int* row
   return curel;
 }
 
-int mathutils::values( const SparseMatrixsc& A, scalar* vals )
+int MathUtilities::values( const SparseMatrixsc& A, scalar* vals )
 {
   assert( vals != nullptr );
   
@@ -224,7 +224,7 @@ int mathutils::values( const SparseMatrixsc& A, scalar* vals )
   return curel;
 }
 
-int mathutils::valuesLowerTriangular( const SparseMatrixsc& A, scalar* vals )
+int MathUtilities::valuesLowerTriangular( const SparseMatrixsc& A, scalar* vals )
 {
   assert( vals != nullptr );
 
@@ -242,7 +242,7 @@ int mathutils::valuesLowerTriangular( const SparseMatrixsc& A, scalar* vals )
   return curel;
 }
 
-void mathutils::createDiagonalMatrix( const scalar& c, SparseMatrixsc& D )
+void MathUtilities::createDiagonalMatrix( const scalar& c, SparseMatrixsc& D )
 {
   assert( D.rows() == D.cols() );
   D.reserve( VectorXi::Constant( D.cols(), 1 ) );
@@ -250,7 +250,7 @@ void mathutils::createDiagonalMatrix( const scalar& c, SparseMatrixsc& D )
   D.makeCompressed();
 }
 
-void mathutils::extractDataCCS( const SparseMatrixsc& A, VectorXi& col_ptr, VectorXi& row_ind, VectorXs& val )
+void MathUtilities::extractDataCCS( const SparseMatrixsc& A, VectorXi& col_ptr, VectorXi& row_ind, VectorXs& val )
 {
   col_ptr.resize( A.cols() + 1 );
   row_ind.resize( A.nonZeros() );
@@ -274,7 +274,7 @@ void mathutils::extractDataCCS( const SparseMatrixsc& A, VectorXi& col_ptr, Vect
 }
 
 // TODO: Pull the outerIndexPtr arithmetic into a helper function
-void mathutils::extractColumns( const SparseMatrixsc& A0, const std::vector<unsigned>& cols, SparseMatrixsc& A1 )
+void MathUtilities::extractColumns( const SparseMatrixsc& A0, const std::vector<unsigned>& cols, SparseMatrixsc& A1 )
 {
   const unsigned ncols_to_extract{ static_cast<unsigned>( cols.size() ) };
 
@@ -315,7 +315,7 @@ void mathutils::extractColumns( const SparseMatrixsc& A0, const std::vector<unsi
   #endif
 }
 
-void mathutils::extractLowerTriangularMatrix( const SparseMatrixsc& A, SparseMatrixsr& B )
+void MathUtilities::extractLowerTriangularMatrix( const SparseMatrixsc& A, SparseMatrixsr& B )
 {
   std::vector< Eigen::Triplet<scalar> > triplets;
   for( int col = 0; col < A.outerSize(); ++col )
@@ -331,7 +331,7 @@ void mathutils::extractLowerTriangularMatrix( const SparseMatrixsc& A, SparseMat
   B.makeCompressed();
 }
   
-void mathutils::extractLowerTriangularMatrix( const SparseMatrixsc& A, SparseMatrixsc& B )
+void MathUtilities::extractLowerTriangularMatrix( const SparseMatrixsc& A, SparseMatrixsc& B )
 {
   std::vector< Eigen::Triplet<scalar> > triplets;
   for( int col = 0; col < A.outerSize(); ++col )
@@ -347,7 +347,7 @@ void mathutils::extractLowerTriangularMatrix( const SparseMatrixsc& A, SparseMat
   B.makeCompressed();
 }
   
-void mathutils::printSparseMathematicaMatrix( const SparseMatrixsr& A, const scalar& eps )
+void MathUtilities::printSparseMathematicaMatrix( const SparseMatrixsr& A, const scalar& eps )
 {
   std::cout << "{";
   int entry_num{ 0 };
@@ -365,7 +365,7 @@ void mathutils::printSparseMathematicaMatrix( const SparseMatrixsr& A, const sca
   std::cout << "}" << std::endl;
 }
   
-void mathutils::printSparseMathematicaMatrix( const SparseMatrixsc& A, const scalar& eps )
+void MathUtilities::printSparseMathematicaMatrix( const SparseMatrixsc& A, const scalar& eps )
 {
   std::cout << "{";
   int entry_num = 0;
@@ -383,14 +383,14 @@ void mathutils::printSparseMathematicaMatrix( const SparseMatrixsc& A, const sca
   std::cout << "}" << std::endl;
 }
 
-void mathutils::serialize( const SparseMatrixsc& A, std::ostream& stm )
+void MathUtilities::serialize( const SparseMatrixsc& A, std::ostream& stm )
 {
   assert( stm.good() );
 
   VectorXi col_ptr;
   VectorXi row_ind;
   VectorXs val;
-  mathutils::extractDataCCS( A, col_ptr, row_ind, val );
+  MathUtilities::extractDataCCS( A, col_ptr, row_ind, val );
   assert( col_ptr.size() == A.cols() + 1 ); assert( row_ind.size() == A.nonZeros() ); assert( val.size() == A.nonZeros() );
   // Size of col_ptr == A.cols() + 1
   Utilities::serializeBuiltInType( A.rows(), stm );
@@ -403,7 +403,7 @@ void mathutils::serialize( const SparseMatrixsc& A, std::ostream& stm )
 }
 
 // TODO: Use utility class here
-void mathutils::deserialize( SparseMatrixsc& A, std::istream& stm )
+void MathUtilities::deserialize( SparseMatrixsc& A, std::istream& stm )
 {
   assert( stm.good() );
 
@@ -447,70 +447,4 @@ void mathutils::deserialize( SparseMatrixsc& A, std::istream& stm )
     }
   }
   A.finalize();
-}
-
-void mathutils::serialize( const Vector2s& a, std::ostream& stm )
-{
-  assert( stm.good() );
-  stm.write( (char*) a.data(), a.size() * sizeof(scalar) );
-}
-
-void mathutils::serialize( const Vector3s& a, std::ostream& stm )
-{
-  assert( stm.good() );
-  stm.write( (char*) a.data(), a.size() * sizeof(scalar) );
-}
-
-void mathutils::serialize( const VectorXs& a, std::ostream& stm )
-{
-  assert( stm.good() );
-  const int asize = a.size();
-  stm.write( (char*) &asize, sizeof(int) );
-  stm.write( (char*) a.data(), a.size() * sizeof(scalar) );
-}
-
-void mathutils::serialize( const VectorXu& a, std::ostream& stm )
-{
-  assert( stm.good() );
-  int asize = a.size();
-  stm.write( reinterpret_cast<char*>( &asize ), sizeof(int) );
-  stm.write( const_cast<char*>( reinterpret_cast<const char*>( a.data() ) ), a.size() * sizeof(unsigned) );
-}
-
-void mathutils::serialize( const Array3i& a, std::ostream& stm )
-{
-  assert( stm.good() );
-  stm.write( (char*) a.data(), a.size() * sizeof(int) );
-}
-
-void mathutils::serialize( const Matrix3s& a, std::ostream& stm )
-{
-  assert( stm.good() );
-  stm.write( (char*) a.data(), a.rows() * a.cols() * sizeof(scalar) );
-}
-
-void mathutils::serialize( const Matrix3Xsc& a, std::ostream& stm )
-{
-  assert( stm.good() );
-  {
-    int ncols = a.cols();
-    stm.write( reinterpret_cast<char*>( &ncols ), sizeof(int) );
-  }
-  stm.write( (char*) a.data(), a.rows() * a.cols() * sizeof(scalar) );
-}
-
-void mathutils::serialize( const Matrix3Xuc& a, std::ostream& stm )
-{
-  assert( stm.good() );
-  {
-    int ncols = a.cols();
-    stm.write( reinterpret_cast<char*>( &ncols ), sizeof(int) );
-  }
-  stm.write( (char*) a.data(), a.rows() * a.cols() * sizeof(unsigned) );
-}
-
-void mathutils::serialize( const Vector3u& a, std::ostream& stm )
-{
-  assert( stm.good() );
-  stm.write( (char*) a.data(), a.rows() * a.cols() * sizeof(unsigned) );
 }

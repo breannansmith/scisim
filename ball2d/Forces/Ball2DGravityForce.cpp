@@ -1,7 +1,7 @@
 // Ball2DForce.cpp
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/07/2015
 
 #include "Ball2DGravityForce.h"
 
@@ -13,7 +13,7 @@ Ball2DGravityForce::Ball2DGravityForce( const Vector2s& g )
 {}
 
 Ball2DGravityForce::Ball2DGravityForce( std::istream& input_stream )
-: m_g( mathutils::deserialize<Vector2s>( input_stream ) )
+: m_g( MathUtilities::deserialize<Vector2s>( input_stream ) )
 {}
 
 Ball2DGravityForce::~Ball2DGravityForce()
@@ -55,5 +55,5 @@ void Ball2DGravityForce::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
   StringUtilities::serializeString( "ball2d_gravity_force", output_stream );
-  mathutils::serialize( m_g, output_stream );
+  MathUtilities::serialize( m_g, output_stream );
 }

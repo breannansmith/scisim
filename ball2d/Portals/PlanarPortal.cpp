@@ -1,7 +1,7 @@
 // PlanarPortal.cpp
 //
 // Breannan Smith
-// Last updated: 09/05/2015
+// Last updated: 09/07/2015
 
 #include "PlanarPortal.h"
 
@@ -77,8 +77,8 @@ PlanarPortal::PlanarPortal( std::istream& input_stream )
 , m_plane_b( input_stream )
 , m_v_a( Utilities::deserialize<scalar>( input_stream ) )
 , m_v_b( Utilities::deserialize<scalar>( input_stream ) )
-, m_bounds_a( mathutils::deserialize<Vector2s>( input_stream ) )
-, m_bounds_b( mathutils::deserialize<Vector2s>( input_stream ) )
+, m_bounds_a( MathUtilities::deserialize<Vector2s>( input_stream ) )
+, m_bounds_b( MathUtilities::deserialize<Vector2s>( input_stream ) )
 , m_dx_a( Utilities::deserialize<scalar>( input_stream ) )
 , m_dx_b( Utilities::deserialize<scalar>( input_stream ) )
 {
@@ -260,8 +260,8 @@ void PlanarPortal::serialize( std::ostream& output_stream ) const
   m_plane_b.serialize( output_stream );
   Utilities::serializeBuiltInType( m_v_a, output_stream );
   Utilities::serializeBuiltInType( m_v_b, output_stream );
-  mathutils::serialize( m_bounds_a, output_stream );
-  mathutils::serialize( m_bounds_b, output_stream );
+  MathUtilities::serialize( m_bounds_a, output_stream );
+  MathUtilities::serialize( m_bounds_b, output_stream );
   Utilities::serializeBuiltInType( m_dx_a, output_stream );
   Utilities::serializeBuiltInType( m_dx_b, output_stream );
 }

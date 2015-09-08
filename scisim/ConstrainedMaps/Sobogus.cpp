@@ -1,7 +1,7 @@
 // Sobogus.cpp
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/07/2015
 
 #include "Sobogus.h"
 
@@ -281,7 +281,7 @@ void SobogusFrictionProblem::solve2D( const std::vector<std::unique_ptr<Constrai
   {
     const Vector2s n{ m_H_0_store.block<1,2>( 2 * clsn_idx + 0, 0 ) };
     const Vector2s t{ m_H_0_store.block<1,2>( 2 * clsn_idx + 1, 0 ) };
-    assert( mathutils::isRightHandedOrthoNormal( n, t, 1.0e-6 ) );
+    assert( MathUtilities::isRightHandedOrthoNormal( n, t, 1.0e-6 ) );
 
     const scalar alpha_local{ r.segment<2>( 2 * clsn_idx ).dot( n ) };
     alpha( clsn_idx ) = alpha_local;
@@ -318,7 +318,7 @@ void SobogusFrictionProblem::solve2D( const std::vector<std::unique_ptr<Constrai
   {
     const Vector2s n{ m_H_0_store.block<1,2>( 2 * clsn_idx + 0, 0 ) };
     const Vector2s t{ m_H_0_store.block<1,2>( 2 * clsn_idx + 1, 0 ) };
-    assert( mathutils::isRightHandedOrthoNormal( n, t, 1.0e-6 ) );
+    assert( MathUtilities::isRightHandedOrthoNormal( n, t, 1.0e-6 ) );
     f_contact.segment<2>( 2 * clsn_idx ) += alpha( clsn_idx ) * n;
     f_contact.segment<2>( 2 * clsn_idx ) += beta( clsn_idx ) * t;
   }
@@ -345,7 +345,7 @@ void SobogusFrictionProblem::solveRigidBody2D( const std::vector<std::unique_ptr
   {
     const Vector2s n{ m_H_0_store.block<1,2>( 2 * clsn_idx + 0, 0 ) };
     const Vector2s t{ m_H_0_store.block<1,2>( 2 * clsn_idx + 1, 0 ) };
-    assert( mathutils::isRightHandedOrthoNormal( n, t, 1.0e-6 ) );
+    assert( MathUtilities::isRightHandedOrthoNormal( n, t, 1.0e-6 ) );
 
     const scalar alpha_local{ r.segment<2>( 2 * clsn_idx ).dot( n ) };
     alpha( clsn_idx ) = alpha_local;
@@ -392,7 +392,7 @@ void SobogusFrictionProblem::solveRigidBody2D( const std::vector<std::unique_ptr
   {
     const Vector2s n{ m_H_0_store.block<1,2>( 2 * clsn_idx + 0, 0 ) };
     const Vector2s t{ m_H_0_store.block<1,2>( 2 * clsn_idx + 1, 0 ) };
-    assert( mathutils::isRightHandedOrthoNormal( n, t, 1.0e-6 ) );
+    assert( MathUtilities::isRightHandedOrthoNormal( n, t, 1.0e-6 ) );
     f_contact.segment<2>( 2 * clsn_idx ) += alpha( clsn_idx ) * n;
     f_contact.segment<2>( 2 * clsn_idx ) += beta( clsn_idx ) * t;
   }
@@ -420,7 +420,7 @@ void SobogusFrictionProblem::solve3D( const std::vector<std::unique_ptr<Constrai
     const Vector3s n{ m_H_0_store.block<1,3>( 3 * clsn_idx + 0, 0 ) };
     const Vector3s s{ m_H_0_store.block<1,3>( 3 * clsn_idx + 1, 0 ) };
     const Vector3s t{ m_H_0_store.block<1,3>( 3 * clsn_idx + 2, 0 ) };
-    assert( mathutils::isRightHandedOrthoNormal( n, s, t, 1.0e-6 ) );
+    assert( MathUtilities::isRightHandedOrthoNormal( n, s, t, 1.0e-6 ) );
 
     const scalar alpha_local{ r.segment<3>( 3 * clsn_idx ).dot( n ) };
     alpha( clsn_idx ) = alpha_local;
@@ -473,7 +473,7 @@ void SobogusFrictionProblem::solve3D( const std::vector<std::unique_ptr<Constrai
     const Vector3s n{ m_H_0_store.block<1,3>( 3 * clsn_idx + 0, 0 ) };
     const Vector3s s{ m_H_0_store.block<1,3>( 3 * clsn_idx + 1, 0 ) };
     const Vector3s t{ m_H_0_store.block<1,3>( 3 * clsn_idx + 2, 0 ) };
-    assert( mathutils::isRightHandedOrthoNormal( n, s, t, 1.0e-6 ) );
+    assert( MathUtilities::isRightHandedOrthoNormal( n, s, t, 1.0e-6 ) );
     f_contact.segment<3>( 3 * clsn_idx ) += alpha( clsn_idx ) * n;
     f_contact.segment<3>( 3 * clsn_idx ) += beta( 2 * clsn_idx + 0 ) * s;
     f_contact.segment<3>( 3 * clsn_idx ) += beta( 2 * clsn_idx + 1 ) * t;
