@@ -1,0 +1,18 @@
+<!--
+  Two balls of different mass and radius colliding off center.
+-->
+
+<ball2d_scene>
+
+  <camera cx="1.17863" cy="-1.05956" scale_factor="6.09661" fps="10" render_at_fps="0" locked="0"/>
+
+  <integrator type="verlet" dt="0.1"/>
+
+  <impact_operator type="gr" CoR="1.0" v_tol="1.0e-9">
+    <solver name="ipopt" linear_solvers="ma97 ma57 mumps ma27 ma86" con_tol="1.0e-12"/>
+  </impact_operator>
+
+  <ball x="-2.0" y="+2.0" vx="+1.1" vy="-0.9" m="8.0" r="0.71" fixed="0"/>
+  <ball x="+2.0" y="-2.0" vx="-3.2" vy="+3.0" m="1.0" r="0.40" fixed="0"/>
+
+</ball2d_scene>

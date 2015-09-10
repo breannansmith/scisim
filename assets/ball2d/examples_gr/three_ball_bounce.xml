@@ -1,0 +1,19 @@
+<!--
+  Three balls, aranged along the x axis. Two outer balls collide with the middle ball. Jacobi kills all energy.
+-->
+
+<ball2d_scene>
+
+  <camera cx="0" cy="0" scale_factor="3" fps="10" render_at_fps="0" locked="0"/>
+
+  <integrator type="verlet" dt="0.1"/>
+
+  <impact_operator type="gr" CoR="1.0" v_tol="1.0e-9">
+    <solver name="ipopt" linear_solvers="ma97 ma57 mumps ma27 ma86" con_tol="1.0e-12"/>
+  </impact_operator>
+
+  <ball x="-2." y="+0." vx="+2." vy="+0." m="1.0" r="0.5" fixed="0"/>
+  <ball x="+0." y="+0." vx="+0." vy="+0." m="1.0" r="0.5" fixed="0"/>
+  <ball x="+2." y="+0." vx="-2." vy="+0." m="1.0" r="0.5" fixed="0"/>
+
+</ball2d_scene>

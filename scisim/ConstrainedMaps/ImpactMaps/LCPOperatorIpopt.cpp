@@ -1,7 +1,7 @@
 // LCPOperatorIpopt.cpp
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/08/2015
 
 #include "LCPOperatorIpopt.h"
 
@@ -14,6 +14,7 @@
 #include "SCISim/ConstrainedMaps/IpoptUtilities.h"
 #include "SCISim/Math/MathUtilities.h"
 #include "SCISim/ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h"
+#include "SCISim/ConstrainedMaps/ImpactMaps/FischerBurmeisterImpact.h"
 
 #ifdef IPOPT_FOUND
 #include "IpIpoptCalculatedQuantities.hpp"
@@ -107,14 +108,15 @@ void LCPOperatorIpopt::flow( const std::vector<std::unique_ptr<Constraint>>& con
 
   // Create the Ipopt-based QP solver
   assert( Q.rows() == Q.cols() );
-  Ipopt::SmartPtr<Ipopt::TNLP> ipopt_problem = new QPNLP( Q );
-  QPNLP& qp_nlp = *static_cast<QPNLP*>( GetRawPtr( ipopt_problem ) );
+  // Use built in termination, for now
+  Ipopt::SmartPtr<Ipopt::TNLP> ipopt_problem = new QPNLP{ Q, false, FischerBurmeisterImpact{ m_tol } };
+  QPNLP& qp_nlp{ *static_cast<QPNLP*>( GetRawPtr( ipopt_problem ) ) };
 
   // A in A^T \alpha
   ImpactOperatorUtilities::computeLCPQPLinearTerm( N, nrel, CoR, v0, v0F, qp_nlp.A() );
 
   // Backup alpha, in case we need to fall back on another solver
-  const VectorXs alpha0 = alpha;
+  const VectorXs alpha0{ alpha };
 
   assert( N.cols() == nrel.size() ); assert( alpha.size() == nrel.size() );
   qp_nlp.setAlpha( &alpha );
@@ -129,7 +131,7 @@ void LCPOperatorIpopt::flow( const std::vector<std::unique_ptr<Constraint>>& con
     ipopt_app->Options()->SetStringValue( "linear_solver", solver_name );
     // Try to solve the QP
     ipopt_app->OptimizeTNLP( ipopt_problem );
-    const Ipopt::SolverReturn solve_status = qp_nlp.getReturnStatus();
+    const Ipopt::SolverReturn solve_status{ qp_nlp.getReturnStatus() };
 
     // If the solve failed
     if( solve_status != Ipopt::SUCCESS && solve_status != Ipopt::STOP_AT_ACCEPTABLE_POINT )
@@ -164,18 +166,18 @@ void LCPOperatorIpopt::solveQP( const QPTerminationOperator& termination_operato
   Ipopt::SmartPtr<Ipopt::IpoptApplication> ipopt_app;
   createIpoptApplication( m_tol, ipopt_app );
 
-  const SparseMatrixsc Q = N.transpose() * Minv * N;
+  const SparseMatrixsc Q{ N.transpose() * Minv * N };
 
   // Create the Ipopt-based QP solver
   assert( Q.rows() == Q.cols() );
-  Ipopt::SmartPtr<Ipopt::TNLP> ipopt_problem = new QPNLP( Q, true, termination_operator );
-  QPNLP& qp_nlp = *static_cast<QPNLP*>( GetRawPtr( ipopt_problem ) );
+  Ipopt::SmartPtr<Ipopt::TNLP> ipopt_problem{ new QPNLP{ Q, true, termination_operator } };
+  QPNLP& qp_nlp{ *static_cast<QPNLP*>( GetRawPtr( ipopt_problem ) ) };
 
   // A in A^T \alpha
   qp_nlp.A() = b;
 
   // Backup alpha, in case we need to fall back on another solver
-  const VectorXs alpha0 = alpha;
+  const VectorXs alpha0{ alpha };
 
   qp_nlp.setAlpha( &alpha );
 
@@ -189,7 +191,7 @@ void LCPOperatorIpopt::solveQP( const QPTerminationOperator& termination_operato
     ipopt_app->Options()->SetStringValue( "linear_solver", solver_name );
     // Try to solve the QP
     ipopt_app->OptimizeTNLP( ipopt_problem );
-    const Ipopt::SolverReturn solve_status = qp_nlp.getReturnStatus();
+    const Ipopt::SolverReturn solve_status{ qp_nlp.getReturnStatus() };
 
     // If the solve failed
     if( solve_status != Ipopt::SUCCESS && solve_status != Ipopt::STOP_AT_ACCEPTABLE_POINT && solve_status != Ipopt::USER_REQUESTED_STOP )
@@ -265,6 +267,9 @@ QPNLP::QPNLP( const SparseMatrixsc& Q, const bool use_custom_termination, const 
 , m_achieved_tolerance( SCALAR_INFINITY )
 {}
 
+QPNLP::~QPNLP()
+{}
+
 bool QPNLP::get_nlp_info( Ipopt::Index& n, Ipopt::Index& m, Ipopt::Index& nnz_jac_g, Ipopt::Index& nnz_h_lag, TNLP::IndexStyleEnum& index_style )
 {
   assert( m_Q.rows() == m_Q.cols() );
@@ -273,7 +278,7 @@ bool QPNLP::get_nlp_info( Ipopt::Index& n, Ipopt::Index& m, Ipopt::Index& nnz_ja
   n = m_A.size();
   m = 0;
   nnz_jac_g = 0;
-  nnz_h_lag = mathutils::nzLowerTriangular( m_Q );
+  nnz_h_lag = MathUtilities::nzLowerTriangular( m_Q );
   index_style = TNLP::C_STYLE;
 
   return true;
@@ -405,7 +410,7 @@ bool QPNLP::eval_h( Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::N
     Eigen::Map< Eigen::Matrix< Ipopt::Index, Eigen::Dynamic, 1 > >{ jCol, nele_hess }.setConstant( -1 );
     #endif
 
-    mathutils::sparsityPatternLowerTriangular( m_Q, iRow, jCol );
+    MathUtilities::sparsityPatternLowerTriangular( m_Q, iRow, jCol );
   }
   else
   {
@@ -418,7 +423,7 @@ bool QPNLP::eval_h( Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::N
     Eigen::Map< Eigen::Matrix< Ipopt::Number, Eigen::Dynamic, 1 > >{ values, nele_hess }.setConstant( SCALAR_NAN );
     #endif
 
-    mathutils::valuesLowerTriangular( m_Q, values );
+    MathUtilities::valuesLowerTriangular( m_Q, values );
     Eigen::Map< Eigen::Matrix< Ipopt::Number, Eigen::Dynamic, 1 > >{ values, nele_hess } *= obj_factor;
   }
 
@@ -433,11 +438,10 @@ bool QPNLP::intermediate_callback( Ipopt::AlgorithmMode mode, Ipopt::Index iter,
     return true;
   }
 
-  Ipopt::TNLPAdapter* tnlp_adapter = nullptr;
+  Ipopt::TNLPAdapter* tnlp_adapter{ nullptr };
   if( ip_cq != nullptr )
   {
-    Ipopt::OrigIpoptNLP* orignlp;
-    orignlp = dynamic_cast<Ipopt::OrigIpoptNLP*>( GetRawPtr( ip_cq->GetIpoptNLP() ) );
+    Ipopt::OrigIpoptNLP* orignlp{ dynamic_cast<Ipopt::OrigIpoptNLP*>( GetRawPtr( ip_cq->GetIpoptNLP() ) ) };
     if( orignlp != nullptr )
     {
       tnlp_adapter = dynamic_cast<Ipopt::TNLPAdapter*>( GetRawPtr( orignlp->nlp() ) );
@@ -447,8 +451,8 @@ bool QPNLP::intermediate_callback( Ipopt::AlgorithmMode mode, Ipopt::Index iter,
   if( tnlp_adapter != nullptr )
   {
     tnlp_adapter->ResortX( *ip_data->curr()->x(), m_alpha->data() );
-    const VectorXs y = m_Q * (*m_alpha) + m_A;
-    const scalar current_tol = m_termination_operator( *m_alpha, y );
+    const VectorXs y{ m_Q * (*m_alpha) + m_A };
+    const scalar current_tol{ m_termination_operator( *m_alpha, y ) };
     if( current_tol <= m_termination_operator.tol() )
     {
       m_achieved_tolerance = current_tol;
@@ -474,7 +478,7 @@ void QPNLP::finalize_solution( Ipopt::SolverReturn status, Ipopt::Index n, const
 
   if( m_use_custom_termination )
   {
-    const VectorXs y = m_Q * (*m_alpha) + m_A;
+    const VectorXs y{ m_Q * (*m_alpha) + m_A };
     m_achieved_tolerance = m_termination_operator( *m_alpha, y );
   }
 
@@ -482,7 +486,7 @@ void QPNLP::finalize_solution( Ipopt::SolverReturn status, Ipopt::Index n, const
   #ifndef NDEBUG
   {
     const Eigen::Map<const Eigen::Matrix<Ipopt::Number,Eigen::Dynamic,1>> lower_dual{ z_L, n };
-    const VectorXs computed_dual = m_Q * (*m_alpha) + m_A;
+    const VectorXs computed_dual{ m_Q * (*m_alpha) + m_A };
     assert( ( lower_dual - computed_dual ).lpNorm<Eigen::Infinity>() <= 5.0e-6 );
   }
   #endif

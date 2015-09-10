@@ -1,7 +1,7 @@
 // SmoothMDPOperatorIpopt.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/08/2015
 
 // N.B. this solver can give quite large residuals in the friction disk constraint.
 // For the BallPlane01.xml exmaple, the residual when two contacts are active is 1e-4.
@@ -56,7 +56,7 @@ class SmoothMDPNLP final : public Ipopt::TNLP
 {
 public:
 
-  SmoothMDPNLP( const SparseMatrixsc& Q, VectorXs& beta, const bool use_custom_termination = false, const QPTerminationOperator& termination_operator = QPTerminationOperator() );
+  SmoothMDPNLP( const SparseMatrixsc& Q, VectorXs& beta, const bool use_custom_termination, const QPTerminationOperator& termination_operator );
 
   virtual ~SmoothMDPNLP() override;
 

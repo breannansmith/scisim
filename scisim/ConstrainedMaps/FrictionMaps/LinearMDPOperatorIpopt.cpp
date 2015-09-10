@@ -1,7 +1,7 @@
 // LinearMDPOperatorIpopt.cpp
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/08/2015
 
 #include "LinearMDPOperatorIpopt.h"
 
@@ -101,15 +101,15 @@ void LinearMDPOperatorIpopt::flow( const scalar& t, const SparseMatrixsc& Minv, 
 {
 #ifdef IPOPT_FOUND
   // Total number of constraints
-  const int num_constraints = alpha.size();
+  const int num_constraints{ static_cast<int>( alpha.size() ) };
   // Total number of friction impulses
-  const int num_impulses = m_disk_samples * alpha.size();
+  const int num_impulses{ static_cast<int>( m_disk_samples * alpha.size() ) };
 
   Ipopt::SmartPtr<Ipopt::IpoptApplication> ipopt_app;
   createIpoptApplication( m_tol, ipopt_app );
 
   // Create the Ipopt-based QP solver
-  Ipopt::SmartPtr<Ipopt::TNLP> ipopt_problem{ new LinearMDPNLP( Q, beta ) };
+  Ipopt::SmartPtr<Ipopt::TNLP> ipopt_problem{ new LinearMDPNLP{ Q, beta } };
   LinearMDPNLP& qp_nlp{ *static_cast<LinearMDPNLP*>( GetRawPtr( ipopt_problem ) ) };
 
   // Linear term in the objective
@@ -171,22 +171,22 @@ void LinearMDPOperatorIpopt::flow( const scalar& t, const SparseMatrixsc& Minv, 
     assert( ( lambda.array() >= -m_tol ).all() );
 
     // vrel >= -E^T \lambda
-    const ArrayXs vrel = ( Q * beta + qp_nlp.A() ).array();
-    const ArrayXs Elam = ( qp_nlp.E() * lambda ).array();
+    const ArrayXs vrel{ ( Q * beta + qp_nlp.A() ).array() };
+    const ArrayXs Elam{ ( qp_nlp.E() * lambda ).array() };
     assert( ( vrel + Elam >= - m_tol * ( vrel.abs() + Elam.abs() ) - 100.0 * m_tol ).all() );
 
     // \mu \alpha >= E^T beta
-    const ArrayXs mualpha = mu.array() * alpha.array();
-    const ArrayXs Ebet = ( qp_nlp.E().transpose() * beta ).array();
+    const ArrayXs mualpha{ mu.array() * alpha.array() };
+    const ArrayXs Ebet{ ( qp_nlp.E().transpose() * beta ).array() };
     assert( ( mualpha + Ebet >= -m_tol * ( mualpha.abs() + Ebet.abs() ) - m_tol ).all() );
 
     // \beta \perp vrel + E \lambda
-    const ArrayXs rhs_top = vrel + Elam;
+    const ArrayXs rhs_top{ vrel + Elam };
     //std::cout << ( ( beta.array() * rhs_top ).abs() - ( m_tol * beta.array().abs().max( rhs_top.abs() ) + 10000.0 * m_tol ) ).transpose()  << std::endl;
     assert( ( ( beta.array() * rhs_top ).abs() < ( m_tol * beta.array().abs().max( rhs_top.abs() ) + 100000.0 * m_tol ) ).all() );
 
     // \lambda \perp \mu \alpha - E^T \beta
-    const ArrayXs rhs_bot = mualpha - Ebet;
+    const ArrayXs rhs_bot{ mualpha - Ebet };
     assert( ( ( lambda.array() * rhs_bot ).abs() < ( 100000.0 * m_tol * lambda.array().abs().max( rhs_bot.abs() ) + m_tol ) ).all() );
   }
   #endif
@@ -268,7 +268,7 @@ bool LinearMDPNLP::get_nlp_info( Ipopt::Index& n, Ipopt::Index& m, Ipopt::Index&
   n = m_A.size();
   m = m_E.cols();
   nnz_jac_g = m_E.nonZeros();
-  nnz_h_lag = mathutils::nzLowerTriangular( m_Q );
+  nnz_h_lag = MathUtilities::nzLowerTriangular( m_Q );
   index_style = TNLP::C_STYLE;
 
   return true;
@@ -374,7 +374,7 @@ bool LinearMDPNLP::eval_jac_g( Ipopt::Index n, const Ipopt::Number* x, bool new_
 
     // We are loading in the transpose so iRow and jCol are swapped here
     {
-      const int nnz{ mathutils::sparsityPattern( m_E, jCol, iRow ) };
+      const int nnz{ MathUtilities::sparsityPattern( m_E, jCol, iRow ) };
       assert( nnz == nele_jac );
       Utilities::ignoreUnusedVariable( nnz ); // To silence warnings in release mode
     }
@@ -411,7 +411,7 @@ bool LinearMDPNLP::eval_jac_g( Ipopt::Index n, const Ipopt::Number* x, bool new_
     #endif
 
     // TODO: Just set to 1!
-    const int nnz{ mathutils::values( m_E, values ) };
+    const int nnz{ MathUtilities::values( m_E, values ) };
     assert( nnz == nele_jac );
     Utilities::ignoreUnusedVariable( nnz ); // To silence warnings in release mode
 
@@ -443,7 +443,7 @@ bool LinearMDPNLP::eval_h( Ipopt::Index n, const Ipopt::Number* x, bool new_x, I
     Eigen::Map< Eigen::Matrix< Ipopt::Index, Eigen::Dynamic, 1 > >{ jCol, nele_hess }.setConstant( -1 );
     #endif
 
-    const int nnz = mathutils::sparsityPatternLowerTriangular( m_Q, iRow, jCol );
+    const int nnz = MathUtilities::sparsityPatternLowerTriangular( m_Q, iRow, jCol );
     assert( nnz == nele_hess );
     Utilities::ignoreUnusedVariable( nnz ); // To silence warnings in release mode
   }
@@ -458,7 +458,7 @@ bool LinearMDPNLP::eval_h( Ipopt::Index n, const Ipopt::Number* x, bool new_x, I
     Eigen::Map< Eigen::Matrix< Ipopt::Number, Eigen::Dynamic, 1 > >{ values, nele_hess }.setConstant( SCALAR_NAN );
     #endif
 
-    const int nnz = mathutils::valuesLowerTriangular( m_Q, values );
+    const int nnz = MathUtilities::valuesLowerTriangular( m_Q, values );
     assert( nnz == nele_hess );
     Utilities::ignoreUnusedVariable( nnz ); // To silence warnings in release mode
     Eigen::Map< Eigen::Matrix< Ipopt::Number, Eigen::Dynamic, 1 > >{ values, nele_hess } *= obj_factor;

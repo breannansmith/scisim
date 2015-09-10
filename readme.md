@@ -174,22 +174,22 @@ Building Ipopt
 
 Some example configurations for Ipopt include:
 
-* The Intel compiler toolchain with MKL BLAS
+* MacPort GCC toolchain, OS X Accelerate framework, single threaded
+
+        ../configure CXX=g++-mp-5 CC=gcc-mp-5 F77=gfortran-mp-5 --with-blas="-framework accelerate" --prefix=$IPOPT_DIR
+
+* Intel compiler toolchain, MKL BLAS, multithreaded
 
         ../configure CXX=icpc CC=icc F77=ifort ADD_CFLAGS=-openmp ADD_FFLAGS=-openmp ADD_CXXFLAGS=-openmp --with-blas="-L$MKLROOT/lib/intel64 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core" --prefix=$IPOPT_DIR
 
-- The Intel compiler toolchain with MKL BLAS and MKL Pardiso. Note that Pardiso support in Ipopt is still experimental.
+* The Intel compiler toolchain with MKL BLAS and MKL Pardiso. Note that Pardiso support in Ipopt is still experimental.
     
         ../configure CXX=icpc CC=icc F77=ifort ADD_CXXFLAGS="-DHAVE_PARDISO_MKL -DHAVE_PARDISO_PARALLEL" --with-blas="-L${MKLROOT}/lib -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread -lpthread -lm" --with-pardiso="-L${MKLROOT}/lib -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread -lpthread -lm" --prefix=$IPOPT_DIR
 
-- The GCC compiler toolchain and MKL BLAS
+* The GCC compiler toolchain and MKL BLAS
 
         ../configure CXX=g++ CC=gcc F77=gfortran ADD_CFLAGS=-fopenmp ADD_FFLAGS=-fopenmp ADD_CXXFLAGS=-fopenmp --with-blas="-L$MKLROOT/lib/intel64 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lm" --prefix=$IPOPT_DIR
 
-- Configure Ipopt with MacPort's GCC suite and OS X's Accelerate framework
-
-        ../configure CXX=g++-mp-4.9 CC=gcc-mp-4.9 F77=gfortran-mp-4.9 ADD_CFLAGS=-fopenmp ADD_FFLAGS=-fopenmp ADD_CXXFLAGS=-fopenmp --with-blas="-framework accelerate" --prefix=$IPOPT_DIR
-
-- To build with debug support, add the following to any of the above commands
+* To build with debug support, add the following to any of the above commands
 
         --enable-debug -with-ipopt-checklevel=1

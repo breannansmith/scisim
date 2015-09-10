@@ -1,15 +1,16 @@
 // BoundConstrainedMDPOperatorIpopt.cpp
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/08/2015
 
 #include "BoundConstrainedMDPOperatorIpopt.h"
 
 #include "FrictionOperatorUtilities.h"
-#include "SCISim/Utilities.h"
-#include "SCISim/ConstrainedMaps/IpoptUtilities.h"
-#include "SCISim/Math/MathUtilities.h"
-#include "SCISim/StringUtilities.h"
+#include "scisim/Utilities.h"
+#include "scisim/ConstrainedMaps/IpoptUtilities.h"
+#include "scisim/Math/MathUtilities.h"
+#include "scisim/StringUtilities.h"
+#include "scisim/ConstrainedMaps/FrictionMaps/FischerBurmeisterBoundConstrained.h"
 
 #include <iostream>
 
@@ -96,7 +97,8 @@ void BoundConstrainedMDPOperatorIpopt::flow( const scalar& t, const SparseMatrix
   createIpoptApplication( m_tol, ipopt_app );
 
   // Create the Ipopt-based QP solver
-  Ipopt::SmartPtr<Ipopt::TNLP> ipopt_problem{ new BoundConstrainedMDPNLP( Q, beta ) };
+  // Use built in termination, for now
+  Ipopt::SmartPtr<Ipopt::TNLP> ipopt_problem{ new BoundConstrainedMDPNLP{ Q, beta, false, FischerBurmeisterBoundConstrained{ m_tol, ( mu.array() * alpha.array() ).matrix() } } };
   BoundConstrainedMDPNLP& qp_nlp{ *static_cast<BoundConstrainedMDPNLP*>( GetRawPtr( ipopt_problem ) ) };
 
   // Linear term in the objective
@@ -189,7 +191,7 @@ void BoundConstrainedMDPOperatorIpopt::solveQP( const QPTerminationOperator& ter
   const SparseMatrixsc Q{ D.transpose() * Minv * D };
 
   // Create the Ipopt-based QP solver
-  Ipopt::SmartPtr<Ipopt::TNLP> ipopt_problem{ new BoundConstrainedMDPNLP( Q, beta, true, termination_operator ) };
+  Ipopt::SmartPtr<Ipopt::TNLP> ipopt_problem{ new BoundConstrainedMDPNLP{ Q, beta, true, termination_operator } };
   BoundConstrainedMDPNLP& qp_nlp{ *static_cast<BoundConstrainedMDPNLP*>( GetRawPtr( ipopt_problem ) ) };
 
   // Linear term in the objective
@@ -279,7 +281,7 @@ bool BoundConstrainedMDPNLP::get_nlp_info( Ipopt::Index& n, Ipopt::Index& m, Ipo
   n = m_A.size();
   m = 0; // All constraints are bound constraints
   nnz_jac_g = 0;
-  nnz_h_lag = mathutils::nzLowerTriangular( m_Q );
+  nnz_h_lag = MathUtilities::nzLowerTriangular( m_Q );
   index_style = TNLP::C_STYLE;
 
   return true;
@@ -398,7 +400,7 @@ bool BoundConstrainedMDPNLP::eval_h( Ipopt::Index n, const Ipopt::Number* x, boo
       Eigen::Map< Eigen::Matrix< Ipopt::Index, Eigen::Dynamic, 1 > >( jCol, nele_hess ).setConstant( -1 );
     #endif
 
-    const int nnz = mathutils::sparsityPatternLowerTriangular( m_Q, iRow, jCol );
+    const int nnz = MathUtilities::sparsityPatternLowerTriangular( m_Q, iRow, jCol );
     assert( nnz == nele_hess );
     Utilities::ignoreUnusedVariable( nnz ); // To silence warnings in release mode
   }
@@ -412,7 +414,7 @@ bool BoundConstrainedMDPNLP::eval_h( Ipopt::Index n, const Ipopt::Number* x, boo
     Eigen::Map< Eigen::Matrix< Ipopt::Number, Eigen::Dynamic, 1 > >{ values, nele_hess }.setConstant( SCALAR_NAN );
     #endif
 
-    const int nnz = mathutils::valuesLowerTriangular( m_Q, values );
+    const int nnz = MathUtilities::valuesLowerTriangular( m_Q, values );
     assert( nnz == nele_hess );
     Utilities::ignoreUnusedVariable( nnz ); // To silence warnings in release mode
     Eigen::Map< Eigen::Matrix< Ipopt::Number, Eigen::Dynamic, 1 > >{ values, nele_hess } *= obj_factor;

@@ -1,7 +1,7 @@
 // BoundConstrainedMDPOperatorIpopt.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/08/2015
 
 #ifndef BOUND_CONSTRAINED_MDP_OPERATOR_IPOPT_H
 #define BOUND_CONSTRAINED_MDP_OPERATOR_IPOPT_H
@@ -60,7 +60,7 @@ class BoundConstrainedMDPNLP final : public Ipopt::TNLP
 
 public:
 
-  BoundConstrainedMDPNLP( const SparseMatrixsc& Q, VectorXs& beta, const bool use_custom_termination = false, const QPTerminationOperator& termination_operator = QPTerminationOperator() );
+  BoundConstrainedMDPNLP( const SparseMatrixsc& Q, VectorXs& beta, const bool use_custom_termination, const QPTerminationOperator& termination_operator );
   virtual ~BoundConstrainedMDPNLP() override;
 
   // Method to return some info about the nlp

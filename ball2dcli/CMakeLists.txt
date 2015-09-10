@@ -31,6 +31,14 @@ else()
   message( STATUS "Skipping Ball2D tests that require Python and HDF5 (USE_PYTHON or USER_HDF5 is disabled)." )
 endif()
 
+# Serialization tests for simulations that use Ipopt
+if( USE_HDF5 AND USE_IPOPT )
+  add_test( ball2d_ipopt_serialization_00 assets/shell_scripts/execute_serialization_test.sh assets/examples_gr/nine_ball_break_symmetric.xml 5.0 50 10 10 )
+  add_test( ball2d_ipopt_serialization_01 assets/shell_scripts/execute_serialization_test.sh assets/examples_gr/butterfly.xml 30.0 300 100 10 )
+else()
+  message( STATUS "Skipping Ball2D tests that require Ipopt and HDF5 (USE_IPOPT or USER_HDF5 is disabled)." )
+endif()
+
 # Friction tests against analytical solutions for static and sliding
 if( USE_HDF5 )
   # Static friction tests, plane pointing positive x

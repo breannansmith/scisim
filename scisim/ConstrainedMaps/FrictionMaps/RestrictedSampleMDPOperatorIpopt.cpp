@@ -1,7 +1,7 @@
 // RestrictedSampleMDPOperatorIpopt.cpp
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/08/2015
 
 #include "RestrictedSampleMDPOperatorIpopt.h"
 
@@ -98,7 +98,7 @@ void RestrictedSampleMDPOperatorIpopt::flow( const scalar& t, const SparseMatrix
   createIpoptApplication( m_tol, ipopt_app );
 
   // Create the Ipopt-based QP solver
-  Ipopt::SmartPtr<Ipopt::TNLP> ipopt_problem{ new RestrictedSampleLinearMDPNLP( Q, beta ) };
+  Ipopt::SmartPtr<Ipopt::TNLP> ipopt_problem{ new RestrictedSampleLinearMDPNLP{ Q, beta } };
   RestrictedSampleLinearMDPNLP& qp_nlp{ *static_cast<RestrictedSampleLinearMDPNLP*>( GetRawPtr( ipopt_problem ) ) };
 
   // Linear term in the objective
@@ -213,7 +213,7 @@ bool RestrictedSampleLinearMDPNLP::get_nlp_info( Ipopt::Index& n, Ipopt::Index& 
   n = m_A.size();
   m = 0; // All constraints are bound constraints
   nnz_jac_g = 0;
-  nnz_h_lag = mathutils::nzLowerTriangular( m_Q );
+  nnz_h_lag = MathUtilities::nzLowerTriangular( m_Q );
   index_style = TNLP::C_STYLE;
 
   return true;
@@ -326,7 +326,7 @@ bool RestrictedSampleLinearMDPNLP::eval_h( Ipopt::Index n, const Ipopt::Number* 
       Eigen::Map< Eigen::Matrix< Ipopt::Index, Eigen::Dynamic, 1 > >( iRow, nele_hess ).setConstant( -1 );
       Eigen::Map< Eigen::Matrix< Ipopt::Index, Eigen::Dynamic, 1 > >( jCol, nele_hess ).setConstant( -1 );
     #endif
-    const int nnz{ mathutils::sparsityPatternLowerTriangular( m_Q, iRow, jCol ) };
+    const int nnz{ MathUtilities::sparsityPatternLowerTriangular( m_Q, iRow, jCol ) };
     assert( nnz == nele_hess );
     Utilities::ignoreUnusedVariable( nnz ); // To silence warnings in release mode
   }
@@ -340,7 +340,7 @@ bool RestrictedSampleLinearMDPNLP::eval_h( Ipopt::Index n, const Ipopt::Number* 
     Eigen::Map< Eigen::Matrix< Ipopt::Number, Eigen::Dynamic, 1 > >{ values, nele_hess }.setConstant( SCALAR_NAN );
     #endif
     {
-      const int nnz{ mathutils::valuesLowerTriangular( m_Q, values ) };
+      const int nnz{ MathUtilities::valuesLowerTriangular( m_Q, values ) };
       assert( nnz == nele_hess );
       Utilities::ignoreUnusedVariable( nnz ); // To silence warnings in release mode
     }

@@ -1,0 +1,22 @@
+<!--
+  Four balls in a drum that, when using a spatialy-symmetry preserving impact operator, trace out a butterfly-like trajectory.
+-->
+
+<ball2d_scene>
+
+  <camera cx="0" cy="0" scale_factor="4.8" fps="10" render_at_fps="0" locked="0"/>
+
+  <integrator type="verlet" dt="0.1"/>
+
+  <impact_operator type="gr" CoR="1.0" v_tol="1.0e-9">
+    <solver name="ipopt" linear_solvers="ma97 ma57 mumps ma27 ma86" con_tol="1.0e-12"/>
+  </impact_operator>
+
+  <static_drum x="+0.0" y="+0.0" r="+4.0"/>
+
+  <ball x="+0.0" y="+1.414213562373095145474621858738828450441360473632812500000000000000" vx="+0.0" vy="+1.0" m="1.0" r="1.0" fixed="0"/>
+  <ball x="-1.414213562373095145474621858738828450441360473632812500000000000000" y="+0.0" vx="+0.0" vy="+0.0" m="1.0" r="1.0" fixed="0"/>
+  <ball x="+0.0" y="-1.414213562373095145474621858738828450441360473632812500000000000000" vx="+0.0" vy="+0.0" m="1.0" r="1.0" fixed="0"/>
+  <ball x="+1.414213562373095145474621858738828450441360473632812500000000000000" y="+0.0" vx="+0.0" vy="+0.0" m="1.0" r="1.0" fixed="0"/>
+
+</ball2d_scene>

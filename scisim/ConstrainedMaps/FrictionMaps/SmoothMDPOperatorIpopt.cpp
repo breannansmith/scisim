@@ -1,16 +1,17 @@
 // SmoothMDPOperatorIpopt.cpp
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/08/2015
 
 #include "SmoothMDPOperatorIpopt.h"
 
 #include "FrictionOperatorUtilities.h"
 
-#include "SCISim/ConstrainedMaps/IpoptUtilities.h"
-#include "SCISim/Math/MathUtilities.h"
-#include "SCISim/Utilities.h"
-#include "SCISim/StringUtilities.h"
+#include "scisim/ConstrainedMaps/IpoptUtilities.h"
+#include "scisim/Math/MathUtilities.h"
+#include "scisim/Utilities.h"
+#include "scisim/StringUtilities.h"
+#include "scisim/ConstrainedMaps/FrictionMaps/FischerBurmeisterSmooth.h"
 
 #include <iostream>
 
@@ -130,7 +131,8 @@ void SmoothMDPOperatorIpopt::flow( const scalar& t, const SparseMatrixsc& Minv, 
   createIpoptApplication( m_tol, ipopt_app );
 
   // Create the Ipopt-based QP solver
-  Ipopt::SmartPtr<Ipopt::TNLP> ipopt_problem{ new SmoothMDPNLP( Q, beta ) };
+  // Use built in termination, for now
+  Ipopt::SmartPtr<Ipopt::TNLP> ipopt_problem{ new SmoothMDPNLP{ Q, beta, false, FischerBurmeisterSmooth{ m_tol, ( mu.array() * alpha.array() ).matrix() } } };
   SmoothMDPNLP& qp_nlp{ *static_cast<SmoothMDPNLP*>( GetRawPtr( ipopt_problem ) ) };
 
   // Linear term in the objective
@@ -313,7 +315,7 @@ bool SmoothMDPNLP::get_nlp_info( Ipopt::Index& n, Ipopt::Index& m, Ipopt::Index&
   m = n / 2;
 
   nnz_jac_g = n;
-  nnz_h_lag = mathutils::nzLowerTriangular( m_Q );
+  nnz_h_lag = MathUtilities::nzLowerTriangular( m_Q );
   index_style = TNLP::C_STYLE;
 
   return true;
@@ -466,7 +468,7 @@ bool SmoothMDPNLP::eval_h( Ipopt::Index n, const Ipopt::Number* x, bool new_x, I
     assert( jCol != nullptr );
     assert( typeid(Ipopt::Index) == typeid(int) );
     {
-      const int nnz{ mathutils::sparsityPatternLowerTriangular( m_Q, iRow, jCol ) };
+      const int nnz{ MathUtilities::sparsityPatternLowerTriangular( m_Q, iRow, jCol ) };
       assert( nnz == nele_hess );
       Utilities::ignoreUnusedVariable( nnz ); // To silence warnings in release mode
     }
@@ -490,7 +492,7 @@ bool SmoothMDPNLP::eval_h( Ipopt::Index n, const Ipopt::Number* x, bool new_x, I
     assert( typeid(Ipopt::Number) == typeid(scalar) );
     assert( Ipopt::Index(m_diagonal_indices.size()) == n );
     {
-      const int nnz{ mathutils::valuesLowerTriangular( m_Q, values ) };
+      const int nnz{ MathUtilities::valuesLowerTriangular( m_Q, values ) };
       assert( nnz == nele_hess );
       Utilities::ignoreUnusedVariable( nnz ); // To silence warnings in release mode
     }

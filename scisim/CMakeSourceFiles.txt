@@ -14,6 +14,7 @@ set( Sources
   ConstrainedMaps/ImpactMaps/GRROperator.cpp
   ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.cpp
   ConstrainedMaps/ImpactMaps/ImpactSolution.cpp
+  ConstrainedMaps/ImpactMaps/FischerBurmeisterImpact.cpp
   ConstrainedMaps/FrictionMaps/BoundConstrainedMDPOperatorQL.cpp
   ConstrainedMaps/FrictionMaps/BoundConstrainedMDPOperatorIpopt.cpp
   ConstrainedMaps/FrictionMaps/FrictionOperator.cpp
@@ -22,6 +23,8 @@ set( Sources
   ConstrainedMaps/FrictionMaps/LinearMDPOperatorIpopt.cpp
   ConstrainedMaps/FrictionMaps/RestrictedSampleMDPOperatorIpopt.cpp
   ConstrainedMaps/FrictionMaps/SmoothMDPOperatorIpopt.cpp
+  ConstrainedMaps/FrictionMaps/FischerBurmeisterBoundConstrained.cpp
+  ConstrainedMaps/FrictionMaps/FischerBurmeisterSmooth.cpp
   ConstrainedMaps/ConstrainedMapUtilities.cpp
   ConstrainedMaps/ImpactFrictionMap.cpp
   ConstrainedMaps/GeometricImpactFrictionMap.cpp
@@ -68,6 +71,7 @@ set( Headers
   ConstrainedMaps/ImpactMaps/GRROperator.h
   ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h
   ConstrainedMaps/ImpactMaps/ImpactSolution.h
+  ConstrainedMaps/ImpactMaps/FischerBurmeisterImpact.h
   ConstrainedMaps/FrictionMaps/BoundConstrainedMDPOperatorQL.h
   ConstrainedMaps/FrictionMaps/BoundConstrainedMDPOperatorIpopt.h
   ConstrainedMaps/FrictionMaps/FrictionOperator.h
@@ -76,6 +80,8 @@ set( Headers
   ConstrainedMaps/FrictionMaps/LinearMDPOperatorIpopt.h
   ConstrainedMaps/FrictionMaps/RestrictedSampleMDPOperatorIpopt.h
   ConstrainedMaps/FrictionMaps/SmoothMDPOperatorIpopt.h
+  ConstrainedMaps/FrictionMaps/FischerBurmeisterBoundConstrained.h
+  ConstrainedMaps/FrictionMaps/FischerBurmeisterSmooth.h
   ConstrainedMaps/ConstrainedMapUtilities.h
   ConstrainedMaps/ImpactFrictionMap.h
   ConstrainedMaps/GeometricImpactFrictionMap.h

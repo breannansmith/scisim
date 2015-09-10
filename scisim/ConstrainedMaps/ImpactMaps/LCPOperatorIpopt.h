@@ -1,7 +1,7 @@
 // LCPOperatorIpopt.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/08/2015
 
 #ifndef LCP_OPERATOR_IPOPT_H
 #define LCP_OPERATOR_IPOPT_H
@@ -52,9 +52,9 @@ class QPNLP final : public Ipopt::TNLP
 
 public:
 
-  QPNLP( const SparseMatrixsc& Q, const bool use_custom_termination = false, const QPTerminationOperator& termination_operator = QPTerminationOperator() );
+  QPNLP( const SparseMatrixsc& Q, const bool use_custom_termination, const QPTerminationOperator& termination_operator );
 
-  virtual ~QPNLP() = default override;
+  virtual ~QPNLP() override;
 
   // Method to return some info about the nlp
   virtual bool get_nlp_info( Ipopt::Index& n, Ipopt::Index& m, Ipopt::Index& nnz_jac_g, Ipopt::Index& nnz_h_lag, TNLP::IndexStyleEnum& index_style ) override;
