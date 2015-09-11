@@ -136,13 +136,13 @@ endif()
 
 
 # Core two dimensional rigid body library
-#add_subdirectory( RigidBody2D )
+add_subdirectory( rigidbody2d )
 
 # Utilities shared by the command-line and Qt4 interface
-#add_subdirectory( RigidBody2DUtils )
+#add_subdirectory( rigidbody2dutils )
 
 # Command line interface for two dimensional rigid body simulations
-#add_subdirectory( RigidBody2DCLI )
+#add_subdirectory( rigidbody2dcli )
 
 # Qt4 interface for two dimensional rigid body simulations
 #if( USE_QT4 )

@@ -1,0 +1,39 @@
+set( Sources
+  CircleCircleConstraint.cpp
+  CircleGeometry.cpp
+  KinematicKickCircleCircleConstraint.cpp
+  NearEarthGravityForce.cpp
+  PlanarPortal.cpp
+  PythonScripting.cpp
+  RigidBody2DForce.cpp
+  RigidBody2DGeometry.cpp
+  RigidBody2DSim.cpp
+  RigidBody2DState.cpp
+  RigidBody2DStaticPlane.cpp
+  RigidBody2DUtilities.cpp
+  SpatialGrid.cpp
+  StateOutput.cpp
+  StaticPlaneCircleConstraint.cpp
+  SymplecticEulerMap.cpp
+  TeleportedCircleCircleConstraint.cpp
+)
+
+set( Headers
+  CircleCircleConstraint.h
+  CircleGeometry.h
+  KinematicKickCircleCircleConstraint.h
+  NearEarthGravityForce.h
+  PlanarPortal.h
+  PythonScripting.h
+  RigidBody2DForce.h
+  RigidBody2DGeometry.h
+  RigidBody2DSim.h
+  RigidBody2DState.h
+  RigidBody2DStaticPlane.h
+  RigidBody2DUtilities.h
+  SpatialGrid.h
+  StateOutput.h
+  StaticPlaneCircleConstraint.h
+  SymplecticEulerMap.h
+  TeleportedCircleCircleConstraint.h
+)
