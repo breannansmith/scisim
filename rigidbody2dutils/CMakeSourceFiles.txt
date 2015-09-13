@@ -1,0 +1,9 @@
+set( Sources
+  CameraSettings2D.cpp
+  RigidBody2DSceneParser.cpp
+)
+
+set( Headers
+  CameraSettings2D.h
+  RigidBody2DSceneParser.h
+)

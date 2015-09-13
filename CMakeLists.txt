@@ -139,7 +139,7 @@ endif()
 add_subdirectory( rigidbody2d )
 
 # Utilities shared by the command-line and Qt4 interface
-#add_subdirectory( rigidbody2dutils )
+add_subdirectory( rigidbody2dutils )
 
 # Command line interface for two dimensional rigid body simulations
 #add_subdirectory( rigidbody2dcli )
