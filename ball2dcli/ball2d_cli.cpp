@@ -1,7 +1,7 @@
-// twod_balls_cli.cpp
+// ball2d_cli.cpp
 //
 // Breannan Smith
-// Last updated: 09/07/2015
+// Last updated: 09/13/2015
 
 #ifdef USE_PYTHON
 #include <Python.h>
