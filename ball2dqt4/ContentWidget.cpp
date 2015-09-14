@@ -69,7 +69,6 @@ ContentWidget::ContentWidget( const QString& scene_name, QWidget* parent )
   m_idle_timer = new QTimer( this );
   connect( m_idle_timer, SIGNAL( timeout() ), this, SLOT( takeStep() ) );
 
-
   if( !scene_name.isEmpty() )
   {
     openScene( scene_name, false );
