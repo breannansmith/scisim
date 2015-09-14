@@ -51,14 +51,14 @@ output_directory=$(uuidgen)
 # Clean up the temporary storage directory if the user forces an exit
 function ctrl_c()
 {
-  echo "Cleaing up: rm -rf $output_directory"
+  echo "Cleaning up: rm -rf $output_directory"
   rm -rf $output_directory
   exit 1
 }
 
 # Ensure that the data storage directory does not exist
 if [ -d $output_directory ]; then
-  echo "Failed to execute test. Temporary output direcotry" $output_directory "already exists."
+  echo "Failed to execute test. Temporary output directory" $output_directory "already exists."
   exit 1
 fi
 
@@ -129,7 +129,7 @@ h5diff $output_directory/forces_final_output.h5 $output_directory/forces_$compar
 diff_return_value_force=$?
 
 # Clean up
-echo "Cleaing up: rm -rf $output_directory"
+echo "Cleaning up: rm -rf $output_directory"
 rm -rf $output_directory
 if [ $? -ne 0 ] ; then
   echo "Failed to clean up after test. Exiting."
