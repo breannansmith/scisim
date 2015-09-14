@@ -59,14 +59,13 @@ ContentWidget::ContentWidget( const QString& scene_name, QWidget* parent )
   controls_layout->addWidget( m_fps_spin_box, 1, 4 );
   connect( m_fps_spin_box, SIGNAL( valueChanged( int ) ), this, SLOT( movieFPSChanged( int ) ) );
   m_gl_widget->setMovieFPS( m_fps_spin_box->value() );
-  
-  
+
   mainLayout->addLayout( controls_layout );
   
   setLayout( mainLayout );
   
   // Create a timer that triggers simulation steps when Qt4 is idle
-  m_idle_timer = new QTimer( this );
+  m_idle_timer = new QTimer{ this };
   connect( m_idle_timer, SIGNAL( timeout() ), this, SLOT( takeStep() ) );
 
   if( !scene_name.isEmpty() )
@@ -105,7 +104,7 @@ void ContentWidget::resetSystem()
 void ContentWidget::openScene()
 {
   // Obtain a file name from the user
-  const QString xml_scene_file_name{ getOpenFileNameFromUser( tr("Please Select a Scene File") ) };
+  const QString xml_scene_file_name{ getOpenFileNameFromUser( tr( "Please Select a Scene File" ) ) };
 
   // Try to load the file
   openScene( xml_scene_file_name, true );
@@ -260,21 +259,21 @@ void ContentWidget::exportCameraSettings()
 
 QString ContentWidget::getOpenFileNameFromUser( const QString& prompt )
 {
-  QString file_name{ QFileDialog::getOpenFileName( this, prompt ) };
+  const QString file_name{ QFileDialog::getOpenFileName( this, prompt ) };
   activateWindow();
   return file_name;
 }
 
 QString ContentWidget::getSaveFileNameFromUser( const QString& prompt )
 {
-  QString file_name{ QFileDialog::getSaveFileName( this, prompt ) };
+  const QString file_name{ QFileDialog::getSaveFileName( this, prompt ) };
   activateWindow();
   return file_name;
 }
 
 QString ContentWidget::getDirectoryNameFromUser( const QString& prompt )
 {
-  QString file_name{ QFileDialog::getExistingDirectory( this, prompt ) };
+  const QString file_name{ QFileDialog::getExistingDirectory( this, prompt ) };
   activateWindow();
   return file_name;
 }

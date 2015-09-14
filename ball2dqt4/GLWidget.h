@@ -6,15 +6,15 @@
 #include <cstdint>
 
 #include "ball2d/Ball2DSim.h"
-#include "ball2d/PythonScripting.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
 #include "scisim/Math/Rational.h"
+#include "ball2d/PythonScripting.h"
 
 #include "DisplayController2D.h"
 #include "GLCircleRenderer2D.h"
 
 #include <random>
 
+class ImpactMap;
 class FrictionSolver;
 class ImpactFrictionMap;
 class ScriptingCallbackBalls2D;

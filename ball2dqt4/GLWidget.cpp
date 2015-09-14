@@ -7,11 +7,12 @@
 #include <iostream>
 #include <fstream>
 
-#include "SCISim/StringUtilities.h"
-#include "SCISim/ConstrainedMaps/FrictionSolver.h"
-#include "SCISim/ConstrainedMaps/ImpactFrictionMap.h"
-#include "SCISim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
-#include "SCISim/UnconstrainedMaps/UnconstrainedMap.h"
+#include "scisim/StringUtilities.h"
+#include "scisim/ConstrainedMaps/FrictionSolver.h"
+#include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
+#include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
 
 #include "ball2dutils/Ball2D.h"
 
@@ -20,7 +21,7 @@
 #include "ball2d/StaticGeometry/StaticDrum.h"
 #include "ball2d/Portals/PlanarPortal.h"
 
-#include "Ball2DUtils/XMLSceneParser.h"
+#include "ball2dutils/XMLSceneParser.h"
 
 #ifndef NDEBUG
 static std::string glErrorToString( const GLenum error_code )
@@ -50,7 +51,7 @@ static std::string glErrorToString( const GLenum error_code )
 
 static bool checkGLErrors()
 {
-  const GLenum error_code = glGetError();
+  const GLenum error_code{ glGetError() };
   if( error_code != GL_NO_ERROR )
   {
     std::cerr << "OpenGL error: " << glErrorToString( error_code ) << std::endl;
@@ -155,7 +156,7 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   bool new_lock_camera;
 
   // TODO: Instead of std::string as input, just take PythonScripting directly
-  const bool loaded_successfully = XMLSceneParser::parseXMLSceneFile( xml_scene_file_name.toStdString(), new_scripting_callback_name, new_balls, new_drums, new_planes, new_planar_portals, new_unconstrained_map, new_dt_string, new_dt, new_end_time, new_impact_operator, new_imap, new_CoR, new_friction_solver, new_mu, new_if_map, new_forces, camera_set, camera_center, camera_scale_factor, new_fps, new_render_at_fps, new_lock_camera );
+  const bool loaded_successfully{ XMLSceneParser::parseXMLSceneFile( xml_scene_file_name.toStdString(), new_scripting_callback_name, new_balls, new_drums, new_planes, new_planar_portals, new_unconstrained_map, new_dt_string, new_dt, new_end_time, new_impact_operator, new_imap, new_CoR, new_friction_solver, new_mu, new_if_map, new_forces, camera_set, camera_center, camera_scale_factor, new_fps, new_render_at_fps, new_lock_camera ) };
 
   if( !loaded_successfully )
   {
@@ -280,8 +281,8 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   }
 
   // Reset the output movie option
-  m_movie_dir_name = QString();
-  m_movie_dir = QDir();
+  m_movie_dir_name = QString{};
+  m_movie_dir = QDir{};
 
   const bool lock_backup{ m_lock_camera };
   m_lock_camera = false;
@@ -388,7 +389,7 @@ void GLWidget::stepSystem()
     if( m_iteration % m_steps_per_frame == 0 )
     {
       // Save a screenshot of the current state
-      QString output_image_name{ QString( tr("frame%1.png") ).arg( m_output_frame, 10, 10, QLatin1Char('0') ) };
+      QString output_image_name{ QString{ tr( "frame%1.png" ) }.arg( m_output_frame, 10, 10, QLatin1Char('0') ) };
       saveScreenshot( m_movie_dir.filePath( output_image_name ) );
       ++m_output_frame;
     }
@@ -406,8 +407,8 @@ void GLWidget::resetSystem()
   m_delta_L0 = 0.0;
 
   // Reset the output movie option
-  m_movie_dir_name = QString();
-  m_movie_dir = QDir();
+  m_movie_dir_name = QString{};
+  m_movie_dir = QDir{};
   m_output_frame = 0;
 
   // Reset ball colors, in case the number of balls changed
@@ -447,7 +448,7 @@ void GLWidget::getSimData( scalar& time, scalar& T, scalar& U, Vector2s& p, scal
 
 void GLWidget::initializeGL()
 {
-  qglClearColor( QColor( 255, 255, 255, 255 ) );
+  qglClearColor( QColor{ 255, 255, 255, 255 } );
   assert( checkGLErrors() );
 }
 
@@ -491,7 +492,7 @@ bool GLWidget::axesDrawingIsEnabled() const
 void GLWidget::paintAxes() const
 {
   // Draw the positive x axis
-  qglColor( QColor( 255, 0, 0 ) );
+  qglColor( QColor{ 255, 0, 0 } );
   glLineWidth( 2.0 );
   glBegin( GL_LINES );
   glVertex4f( 0.0, 0.0, 0.0, 1.0 );
@@ -499,7 +500,7 @@ void GLWidget::paintAxes() const
   glEnd();
 
   // Draw the negative x axis
-  qglColor( QColor( 255, 0, 0 ) );
+  qglColor( QColor{ 255, 0, 0 } );
   glLineWidth( 2.0 );
   glLineStipple( 8, 0xAAAA );
   glEnable( GL_LINE_STIPPLE );
@@ -510,7 +511,7 @@ void GLWidget::paintAxes() const
   glDisable( GL_LINE_STIPPLE );
 
   // Draw the positive y axis
-  qglColor( QColor( 0, 255, 0 ) );
+  qglColor( QColor{ 0, 255, 0 } );
   glLineWidth( 2.0 );
   glBegin( GL_LINES );
   glVertex4f( 0.0, 0.0, 0.0, 1.0 );
@@ -518,7 +519,7 @@ void GLWidget::paintAxes() const
   glEnd();
 
   // Draw the negative y axis
-  qglColor( QColor( 0, 255, 0 ) );
+  qglColor( QColor{ 0, 255, 0 } );
   glLineWidth( 2.0 );
   glLineStipple( 8, 0xAAAA );
   glEnable( GL_LINE_STIPPLE );
@@ -613,7 +614,7 @@ void GLWidget::setMovieDir( const QString& dir_name )
     m_movie_dir.setPath( m_movie_dir_name );
     assert( m_movie_dir.exists() );
 
-    const QString output_image_name{ QString( tr("frame%1.png") ).arg( m_output_frame, 10, 10, QLatin1Char('0') ) };
+    const QString output_image_name{ QString{ tr( "frame%1.png" ) }.arg( m_output_frame, 10, 10, QLatin1Char{ '0' } ) };
     saveScreenshot( m_movie_dir.filePath( output_image_name ) );
     ++m_output_frame;
   }
@@ -631,10 +632,10 @@ void GLWidget::setMovieFPS( const unsigned fps )
   }
   else
   {
-    const Rational<std::intmax_t> potential_steps_per_frame = std::intmax_t( 1 ) / ( m_dt * std::intmax_t( m_output_fps ) );
+    const Rational<std::intmax_t> potential_steps_per_frame{ std::intmax_t( 1 ) / ( m_dt * std::intmax_t( m_output_fps ) ) };
     if( !potential_steps_per_frame.isInteger() )
     {
-      if( m_dt != Rational<std::intmax_t>( 0 ) )
+      if( m_dt != Rational<std::intmax_t>{ 0 } )
       {
         std::cerr << "Warning, timestep and output frequency do not yield an integer number of timesteps for data output. Dumping at timestep rate." << std::endl;
       }
@@ -951,11 +952,11 @@ void GLWidget::paintSystem() const
 
 static QString generateTimeString( const unsigned iteration, const Rational<std::intmax_t>& dt, const int display_precision, const scalar& end_time )
 {
-  QString time_string{ QObject::tr("  t: ") };
+  QString time_string{ QObject::tr( "  t: " ) };
   time_string += QString::number( iteration * scalar( dt ), 'f', display_precision );
   if( end_time != SCALAR_INFINITY )
   {
-    time_string += QString( QObject::tr(" / ") );
+    time_string += QString{ QObject::tr( " / " ) };
     time_string += QString::number( end_time );
   }
   return time_string;
@@ -963,12 +964,12 @@ static QString generateTimeString( const unsigned iteration, const Rational<std:
 
 static QString generateNumericString( const std::string& label, const scalar& number )
 {
-  return QString( label.c_str() ) + QString::number( number );
+  return QString{ label.c_str() } + QString::number( number );
 }
 
 void GLWidget::paintHUD()
 {
-  static int text_width = 0;
+  static int text_width{ 0 };
 
   glPushAttrib( GL_MATRIX_MODE );
   glMatrixMode( GL_PROJECTION );
@@ -1044,7 +1045,7 @@ void GLWidget::mousePressEvent( QMouseEvent* event )
     return;
   }
   
-  bool repaint_needed = false;
+  bool repaint_needed{ false };
 
   if( event->buttons() & Qt::LeftButton )
   {
@@ -1071,7 +1072,7 @@ void GLWidget::mouseReleaseEvent( QMouseEvent* event )
     return;
   }
 
-  bool repaint_needed = false;
+  bool repaint_needed{ false };
 
   if( !( event->buttons() & Qt::LeftButton ) && m_left_mouse_button_pressed )
   {
@@ -1091,13 +1092,16 @@ void GLWidget::mouseReleaseEvent( QMouseEvent* event )
 
 void GLWidget::mouseMoveEvent( QMouseEvent* event )
 {
-  if( m_lock_camera ) return;
+  if( m_lock_camera )
+  {
+    return;
+  }
 
   const int dx{ event->x() - m_last_pos.x() };
   const int dy{ event->y() - m_last_pos.y() };
   m_last_pos = event->pos();
 
-  bool repaint_needed = false;
+  bool repaint_needed{ false };
 
   if( event->buttons() & Qt::LeftButton )
   {

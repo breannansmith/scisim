@@ -1,5 +1,5 @@
-#ifndef DISPLAY_CONTROLLER_2D
-#define DISPLAY_CONTROLLER_2D
+#ifndef DISPLAY_CONTROLLER_2D_H
+#define DISPLAY_CONTROLLER_2D_H
 
 #ifdef __APPLE__
 #include <OpenGL/gl.h>

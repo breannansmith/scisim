@@ -1,5 +1,5 @@
-#ifndef GL_CIRCLE_RENDERER_2D
-#define GL_CIRCLE_RENDERER_2D
+#ifndef GL_CIRCLE_RENDERER_2D_H
+#define GL_CIRCLE_RENDERER_2D_H
 
 // TODO: Options to render with display lists, vbo, etc
 
