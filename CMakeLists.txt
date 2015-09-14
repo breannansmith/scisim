@@ -145,9 +145,9 @@ add_subdirectory( rigidbody2dutils )
 add_subdirectory( rigidbody2dcli )
 
 # Qt4 interface for two dimensional rigid body simulations
-#if( USE_QT4 )
-#  add_subdirectory( rigidbody2dqt4 )
-#endif()
+if( USE_QT4 )
+  add_subdirectory( rigidbody2dqt4 )
+endif()
 
 
 # Core three dimensional rigid body simulation library

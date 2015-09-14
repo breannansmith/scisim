@@ -1,0 +1,20 @@
+set( Sources
+  CircleGeometryRenderer.cpp
+  ContentWidget.cpp
+  GLCircleRenderer2D.cpp
+  GLWidget.cpp
+  RigidBodyRenderer2D.cpp
+  DisplayController2D.cpp
+  Window.cpp
+  rigidbody2d_qt4.cpp
+)
+
+set( Headers
+  CircleGeometryRenderer.h
+  ContentWidget.h
+  GLCircleRenderer2D.h
+  GLWidget.h
+  RigidBodyRenderer2D.h
+  DisplayController2D.h
+  Window.h
+)
