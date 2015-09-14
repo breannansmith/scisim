@@ -1,0 +1,22 @@
+<!--
+  Four spinning balls collide with a stationary central ball. The central ball should remain stationary after the collision.
+-->
+
+<rigidbody2d_scene>
+
+  <camera center="0 0" scale="8.6" fps="50" render_at_fps="0" locked="0"/>
+
+  <integrator type="symplectic_euler" dt="0.01"/>
+
+  <sobogus_friction_solver mu="5.0" CoR="1.0" max_iters="50000" eval_every="25" tol="1.0e-12" staggering="geometric"/>
+
+  <geometry type="circle" r="1.2"/>
+  <geometry type="circle" r="0.732"/>
+
+  <rigid_body x="0.0 0.0" theta="0.0" v="0.0 0.0" omega="0.0" rho="2.3" geo_idx="0"/>
+  <rigid_body x="0.0 7.0" theta="0.0" v="0.0 -4.0" omega="6.283185307179586" rho="3.3" geo_idx="1"/>
+  <rigid_body x="0.0 -7.0" theta="0.0" v="0.0 4.0" omega="6.283185307179586" rho="3.3" geo_idx="1"/>
+  <rigid_body x="7.0 0.0" theta="0.0" v="-4.0 0.0" omega="-6.283185307179586" rho="3.3" geo_idx="1"/>
+  <rigid_body x="-7.0 0.0" theta="0.0" v="4.0 0.0" omega="-6.283185307179586" rho="3.3" geo_idx="1"/>
+
+</rigidbody2d_scene>

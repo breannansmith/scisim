@@ -1,0 +1,33 @@
+<!--
+  Six spinning balls that should bounce off one another in a pairwise fashion. Each pair should continue to travel along the same vertical line of collision.
+-->
+
+<rigidbody2d_scene>
+
+  <camera center="0 0" scale="4.70993" fps="50" render_at_fps="1" locked="0"/>
+
+  <integrator type="symplectic_euler" dt="0.00005"/>
+
+  <impact_operator type="gr" CoR="1.0" v_tol="1.0e-6">
+    <solver name="ipopt" linear_solvers="ma97 ma57 mumps ma27 ma86" con_tol="1.0e-12"/>
+  </impact_operator>
+
+  <geometry type="circle" r="0.1"/>
+  <geometry type="circle" r="0.5"/>
+
+  <geometry type="circle" r="0.2"/>
+  <geometry type="circle" r="0.6"/>
+  
+  <geometry type="circle" r="0.9"/>
+  <geometry type="circle" r="0.3"/>
+
+  <rigid_body x="-3.0 1.6" theta="0.0" v="0.0 -3.5" omega="-3.283185307179586" rho="0.5" geo_idx="0"/>
+  <rigid_body x="-3.0 -2.0" theta="0.0" v="0.0 3.5" omega="3.283185307179586" rho="1.253" geo_idx="1"/>
+
+  <rigid_body x="0.0 1.7" theta="0.0" v="0.0 -2.0" omega="-6.283185307179586" rho="3.232" geo_idx="2"/>
+  <rigid_body x="0.0 -2.1" theta="0.0" v="0.0 2.0" omega="-6.283185307179586" rho="1.253" geo_idx="3"/>
+
+  <rigid_body x="3.0 2.4" theta="0.0" v="0.0 -2.0" omega="1.283185307179586" rho="3.332" geo_idx="4"/>
+  <rigid_body x="3.0 -1.8" theta="0.0" v="0.0 2.0" omega="-1.283185307179586" rho="5.7" geo_idx="5"/>
+
+</rigidbody2d_scene>

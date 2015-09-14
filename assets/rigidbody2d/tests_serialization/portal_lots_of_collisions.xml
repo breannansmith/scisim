@@ -1,0 +1,66 @@
+<!--
+  A number of balls colliding under periodic Lees-Edwards boundary conditions.
+-->
+
+<rigidbody2d_scene>
+
+  <camera center="0.0 0.0" scale="3.80562" fps="50" render_at_fps="1" locked="0"/>
+
+  <integrator type="symplectic_euler" dt="0.01"/>
+
+  <sobogus_friction_solver mu="0.3" CoR="0.7" max_iters="50000" eval_every="25" tol="1.0e-12" staggering="geometric"/>
+
+  <static_plane x="-2 0" n="1 0"/>
+  <static_plane x="2 0" n="-1 0"/>
+
+  <static_plane x="0 -3" n="0 1"/>
+  <static_plane x="0 3" n="0 -1"/>
+
+  <lees_edwards_portal planeA="0" planeB="1" va="-1.0" vb="-1.0" boundsa="-3.0 3.0" boundsb="-3.0 3.0"/>
+  <planar_portal planeA="2" planeB="3"/>
+
+  <geometry type="circle" r="0.5"/>
+  <geometry type="circle" r="0.25"/>
+  <geometry type="circle" r="0.15"/>
+  <geometry type="circle" r="0.6"/>
+  <geometry type="circle" r="0.43"/>
+  <geometry type="circle" r="0.37"/>
+  <geometry type="circle" r="0.47"/>
+  <geometry type="circle" r="0.5"/>
+  <geometry type="circle" r="0.393"/>
+  <geometry type="circle" r="0.6"/>
+  <geometry type="circle" r="0.432"/>
+  <geometry type="circle" r="0.51"/>
+  <geometry type="circle" r="0.41"/>
+  <geometry type="circle" r="0.37"/>
+  <geometry type="circle" r="0.437"/>
+  <geometry type="circle" r="0.42"/>
+  <geometry type="circle" r="0.452"/>
+  <geometry type="circle" r="0.3"/>
+  <geometry type="circle" r="0.4"/>
+  <geometry type="circle" r="0.4"/>
+  <geometry type="circle" r="0.4"/>
+
+  <rigid_body x="1.9 0" theta="0" v="0 0" omega="0" rho="0.5" geo_idx="0"/>
+  <rigid_body x="-1.9 2" theta="0" v="0 0" omega="0" rho="0.5" geo_idx="1"/>
+  <rigid_body x="0 0" theta="0" v="0 0" omega="0" rho="0.5" geo_idx="2"/>
+  <rigid_body x="1.0 2.1" theta="0" v="0 0" omega="0" rho="0.5" geo_idx="3"/>
+  <rigid_body x="-1.0 -2.1" theta="0" v="0 0" omega="0" rho="0.5" geo_idx="4"/>
+  <rigid_body x="0.9 -1.8" theta="0" v="0 0" omega="0" rho="0.5" geo_idx="5"/>
+  <rigid_body x="-0.8 0.2" theta="0" v="0 0" omega="0" rho="0.5" geo_idx="6"/>
+  <rigid_body x="-0.7 1.2" theta="0" v="0 0" omega="0" rho="0.5" geo_idx="7"/>
+  <rigid_body x="-0.7 2.2" theta="0" v="0 0" omega="0" rho="0.5" geo_idx="8"/>
+  <rigid_body x="0.7 -0.4" theta="0" v="0 0" omega="0" rho="0.5" geo_idx="9"/>
+  <rigid_body x="-0.4 -0.75" theta="0" v="0 0" omega="0" rho="0.5" geo_idx="10"/>
+  <rigid_body x="-1.5 -0.75" theta="0" v="0 0" omega="0" rho="0.5" geo_idx="11"/>
+  <rigid_body x="0.0 -2.0" theta="0" v="0 0" omega="0" rho="0.5" geo_idx="12"/>
+  <rigid_body x="0.2 1.4" theta="0" v="0 0" omega="0" rho="0.5" geo_idx="13"/>
+  <rigid_body x="0.7 0.66" theta="0" v="0 0" omega="0" rho="0.5" geo_idx="14"/>
+  <rigid_body x="-1.6 0.76" theta="0" v="0 0" omega="0" rho="0.5" geo_idx="15"/>
+  <rigid_body x="1.7 -2.2" theta="0" v="0 0" omega="0" rho="0.5" geo_idx="16"/>
+  <rigid_body x="0.0 2.2" theta="0" v="0 0" omega="0" rho="0.5" geo_idx="17"/>
+  <rigid_body x="1.5 1.2" theta="0" v="0 0" omega="0" rho="0.5" geo_idx="18"/>
+  <rigid_body x="-1.5 2.6" theta="0" v="0 0" omega="0" rho="0.5" geo_idx="19"/>
+  <rigid_body x="0.8 -2.6" theta="0" v="0 0" omega="0" rho="0.5" geo_idx="20"/>
+
+</rigidbody2d_scene>

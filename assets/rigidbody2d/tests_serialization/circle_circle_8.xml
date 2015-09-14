@@ -1,0 +1,20 @@
+<!--
+  Two horizontally translating and spinning balls collide with a stationary central ball. The central ball should pick up spin post collision.
+-->
+
+<rigidbody2d_scene>
+
+  <camera center="0 0" scale="4.6" fps="50" render_at_fps="0" locked="0"/>
+
+  <integrator type="symplectic_euler" dt="0.01"/>
+
+  <sobogus_friction_solver mu="5.0" CoR="1.0" max_iters="50000" eval_every="25" tol="1.0e-12" staggering="geometric"/>
+
+  <geometry type="circle" r="0.6"/>
+  <geometry type="circle" r="0.4"/>
+
+  <rigid_body x="0.0 0.0" theta="0.0" v="0.0 0.0" omega="0.0" rho="2.3" geo_idx="0"/>
+  <rigid_body x="-2.0 -3.0" theta="0.0" v="2.0 2.0" omega="5.0" rho="3.3" geo_idx="1"/>
+  <rigid_body x="-2.0 3.0" theta="0.0" v="2.0 -2.0" omega="-5.0" rho="3.3" geo_idx="1"/>
+
+</rigidbody2d_scene>

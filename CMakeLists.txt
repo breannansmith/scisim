@@ -142,11 +142,11 @@ add_subdirectory( rigidbody2d )
 add_subdirectory( rigidbody2dutils )
 
 # Command line interface for two dimensional rigid body simulations
-#add_subdirectory( rigidbody2dcli )
+add_subdirectory( rigidbody2dcli )
 
 # Qt4 interface for two dimensional rigid body simulations
 #if( USE_QT4 )
-#  add_subdirectory( RigidBody2DQt4 )
+#  add_subdirectory( rigidbody2dqt4 )
 #endif()
 
 

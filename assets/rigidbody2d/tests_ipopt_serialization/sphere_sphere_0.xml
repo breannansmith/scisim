@@ -1,0 +1,20 @@
+<!--
+  Two spinning balls that should bounce off one another and remain along the same horizontal line.
+-->
+
+<rigidbody2d_scene>
+
+  <camera center="0 0" scale="3" fps="50" render_at_fps="0" locked="0"/>
+
+  <integrator type="symplectic_euler" dt="0.01"/>
+
+  <impact_operator type="gr" CoR="1.0" v_tol="1.0e-6">
+    <solver name="ipopt" linear_solvers="ma97 ma57 mumps ma27 ma86" con_tol="1.0e-12"/>
+  </impact_operator>
+
+  <geometry type="circle" r="0.5"/>
+
+  <rigid_body x="-2.0 0.0" theta="0.0" v="2.0 0.0" omega="6.283185307179586" rho="1.253" geo_idx="0"/>
+  <rigid_body x="2.0 0.0" theta="0.0" v="-2.0 0.0" omega="-6.283185307179586" rho="1.253" geo_idx="0"/>
+
+</rigidbody2d_scene>

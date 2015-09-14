@@ -1,0 +1,36 @@
+<!--
+  Eleven frictionless balls bouncing in a box with gravity. The balls should remain symmetric until, eventually, FPA errors lead to the symmetry breaking.
+-->
+
+<rigidbody2d_scene>
+
+  <camera center="0 0" scale="8.3225" fps="50" render_at_fps="0" locked="0"/>
+
+  <integrator type="symplectic_euler" dt="0.01"/>
+
+  <impact_operator type="gr" CoR="1.0" v_tol="1.0e-9">
+    <solver name="ipopt" linear_solvers="ma97 ma57 mumps ma27 ma86" con_tol="1.0e-12"/>
+  </impact_operator>
+
+  <near_earth_gravity f="0.0 -10.0"/>
+
+  <static_plane x="-4.0 -4.0" n="0.70710678118654752440 0.70710678118654752440"/>
+  <static_plane x="4.0 -4.0" n="-0.70710678118654752440 0.70710678118654752440"/>
+  <static_plane x="4.0 4.0" n="-0.70710678118654752440 -0.70710678118654752440"/>
+  <static_plane x="-4.0 4.0" n="0.70710678118654752440 -0.70710678118654752440"/>
+
+  <geometry type="circle" r="0.5001"/>
+
+  <rigid_body x="-5.0 0.0" theta="1.570796326794897" v="0.0 0.0" omega="0" rho="8.0" r="0.5001" geo_idx="0"/>
+  <rigid_body x="-4.0 0.0" theta="1.570796326794897" v="0.0 0.0" omega="0" rho="8.0" r="0.5001" geo_idx="0"/>
+  <rigid_body x="-3.0 0.0" theta="1.570796326794897" v="0.0 0.0" omega="0" rho="8.0" r="0.5001" geo_idx="0"/>
+  <rigid_body x="-2.0 0.0" theta="1.570796326794897" v="0.0 0.0" omega="0" rho="8.0" r="0.5001" geo_idx="0"/>
+  <rigid_body x="-1.0 0.0" theta="1.570796326794897" v="0.0 0.0" omega="0" rho="8.0" r="0.5001" geo_idx="0"/>
+  <rigid_body x="0.0 0.0" theta="1.570796326794897" v="0.0 0.0" omega="0" rho="8.0" r="0.5001" geo_idx="0"/>
+  <rigid_body x="1.0 0.0" theta="1.570796326794897" v="0.0 0.0" omega="0" rho="8.0" r="0.5001" geo_idx="0"/>
+  <rigid_body x="2.0 0.0" theta="1.570796326794897" v="0.0 0.0" omega="0" rho="8.0" r="0.5001" geo_idx="0"/>
+  <rigid_body x="3.0 0.0" theta="1.570796326794897" v="0.0 0.0" omega="0" rho="8.0" r="0.5001" geo_idx="0"/>
+  <rigid_body x="4.0 0.0" theta="1.570796326794897" v="0.0 0.0" omega="0" rho="8.0" r="0.5001" geo_idx="0"/>
+  <rigid_body x="5.0 0.0" theta="1.570796326794897" v="0.0 0.0" omega="0" rho="8.0" r="0.5001" geo_idx="0"/>
+
+</rigidbody2d_scene>

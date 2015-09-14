@@ -1,0 +1,19 @@
+<!--
+  A spinning ball with initial vertical velocity collides with a horizontal plane and picks up horizontal velocity.
+-->
+
+<rigidbody2d_scene>
+
+  <camera center="0.0 -0.765207" scale="1.39103" fps="50" render_at_fps="0" locked="0"/>
+
+  <sobogus_friction_solver mu="2.0" CoR="1.0" max_iters="50000" eval_every="25" tol="1.0e-12" staggering="geometric"/>
+
+  <integrator type="symplectic_euler" dt="0.01"/>
+
+  <static_plane x="0 -2" n="0 1"/>
+
+  <geometry type="circle" r="0.5"/>
+
+  <rigid_body x="0.0 0.0" theta="0.0" v="0.0 -2.0" omega="6.283185307179586" rho="1.0" geo_idx="0"/>
+
+</rigidbody2d_scene>

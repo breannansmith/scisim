@@ -1,0 +1,18 @@
+<!--
+  Two balls that collide along a horizontal line and that should remain along the line post-collision.
+-->
+
+<rigidbody2d_scene>
+
+  <camera center="0 0" scale="3" fps="50" render_at_fps="0" locked="0"/>
+
+  <integrator type="symplectic_euler" dt="0.01"/>
+
+  <sobogus_friction_solver mu="2.0" CoR="1.0" max_iters="50000" eval_every="25" tol="1.0e-12" staggering="geometric"/>
+
+  <geometry type="circle" r="0.5"/>
+
+  <rigid_body x="-2.0 0.0" theta="0.0" v="2.0 0.0" omega="-6.283185307179586" rho="1.253" geo_idx="0"/>
+  <rigid_body x="2.0 0.0" theta="0.0" v="-2.0 0.0" omega="6.283185307179586" rho="1.253" geo_idx="0"/>
+
+</rigidbody2d_scene>

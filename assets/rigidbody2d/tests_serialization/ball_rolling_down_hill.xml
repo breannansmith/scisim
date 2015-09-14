@@ -1,0 +1,22 @@
+<!--
+  A ball rolling down a valley that should come to rest at the bottom of the valley.
+-->
+
+<rigidbody2d_scene>
+
+  <camera center="2 4.4" scale="5.29539" fps="50" render_at_fps="1" locked="0"/>
+
+  <sobogus_friction_solver mu="2.0" CoR="0.0" max_iters="50000" eval_every="25" tol="1.0e-12" staggering="geometric"/>
+
+  <near_earth_gravity f="0.0 -10.0"/>
+
+  <integrator type="symplectic_euler" dt="0.001"/>
+
+  <static_plane x="2 0" n="-1 1"/>
+  <static_plane x="2 0" n="1 1"/>
+
+  <geometry type="circle" r="0.67"/>
+
+  <rigid_body x="0.0 5.0" theta="0.0" v="0.0 0.0" omega="0.0" rho="2.37" geo_idx="0"/>
+
+</rigidbody2d_scene>

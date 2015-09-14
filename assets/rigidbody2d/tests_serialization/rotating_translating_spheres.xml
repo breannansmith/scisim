@@ -1,0 +1,17 @@
+<!--
+  Two balls that are spinning and translating that should cross the x and y axis at one second.
+-->
+
+<rigidbody2d_scene>
+
+  <camera center="-2 -2.0385" scale="2.5938" fps="100" render_at_fps="1" locked="0"/>
+
+  <integrator type="symplectic_euler" dt="0.01"/>
+
+  <geometry type="circle" r="0.123"/>
+  <geometry type="circle" r="0.2"/>
+
+  <rigid_body x="-2.0 0.0" theta="1.5707963267948966192313216916398" v="2.0 0.0" omega="6.283185307179586" rho="0.3723" geo_idx="0"/>
+  <rigid_body x="-2.0 -4.0" theta="1.5707963267948966192313216916398" v="0.0 4.0" omega="-6.283185307179586" rho="5.23" geo_idx="1"/>
+
+</rigidbody2d_scene>

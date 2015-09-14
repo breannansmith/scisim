@@ -1,0 +1,18 @@
+<!--
+  A spinning ball collides with a non-spinning ball along a horizontal line. The non-spinning ball should pick up some spin, and both balls should pick up vertical motion.
+-->
+
+<rigidbody2d_scene>
+
+  <camera center="0 0" scale="3" fps="50" render_at_fps="1" locked="0"/>
+
+  <integrator type="symplectic_euler" dt="0.001"/>
+
+  <sobogus_friction_solver mu="2.0" CoR="1.0" max_iters="50000" eval_every="25" tol="1.0e-12" staggering="geometric"/>
+
+  <geometry type="circle" r="0.5"/>
+
+  <rigid_body x="-2.0 0.0" theta="0.0" v="2.0 0.0" omega="0.0" rho="1.253" geo_idx="0"/>
+  <rigid_body x="2.0 0.0" theta="0.0" v="-2.0 0.0" omega="-6.283185307179586" rho="1.253" geo_idx="0"/>
+
+</rigidbody2d_scene>

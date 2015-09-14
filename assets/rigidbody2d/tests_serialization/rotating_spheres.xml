@@ -1,0 +1,17 @@
+<!--
+  Two spinning balls that should undergo a complete rotation in one second.
+-->
+
+<rigidbody2d_scene>
+
+  <camera center="0.609536 0.598309" scale="1.20833" fps="100" render_at_fps="1" locked="0"/>
+
+  <integrator type="symplectic_euler" dt="0.01"/>
+
+  <geometry type="circle" r="0.3"/>
+  <geometry type="circle" r="0.5"/>
+
+  <rigid_body x="0.0 0.0" theta="0.0" v="0.0 0.0" omega="6.283185307179586" rho="0.3" geo_idx="0"/>
+  <rigid_body x="1.0 1.0" theta="1.5707963267948966192313216916398" v="0.0 0.0" omega="-6.283185307179586" rho="1.23" geo_idx="1"/>
+
+</rigidbody2d_scene>

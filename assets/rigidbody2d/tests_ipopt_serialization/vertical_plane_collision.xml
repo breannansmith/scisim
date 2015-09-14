@@ -1,0 +1,21 @@
+<!--
+  A ball bouncing off a vertical plane with no gravity.
+-->
+
+<rigidbody2d_scene>
+
+  <camera center="0.457653 0.0" scale="2.16789" fps="50" render_at_fps="0" locked="0"/>
+
+  <impact_operator type="gr" CoR="1.0" v_tol="1.0e-9">
+    <solver name="ipopt" linear_solvers="ma97 ma57 mumps ma27 ma86" con_tol="1.0e-12"/>
+  </impact_operator>
+
+  <integrator type="symplectic_euler" dt="0.01"/>
+
+  <static_plane x="2 0" n="-1 0"/>
+
+  <geometry type="circle" r="0.5"/>
+
+  <rigid_body x="0.0 0.0" theta="0.0" v="2.0 0.0" omega="0.0" rho="1.0" geo_idx="0"/>
+
+</rigidbody2d_scene>
