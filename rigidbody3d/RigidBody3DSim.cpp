@@ -35,6 +35,7 @@
 #include "Constraints/KinematicObjectSphereConstraint.h"
 #include "Constraints/KinematicObjectBodyConstraint.h"
 #include "Constraints/CollisionUtilities.h"
+#include "StaticGeometry/StaticCylinder.h"
 #include "SpatialGridDetector.h"
 #include "Portals/PlanarPortal.h"
 #include "StateOutput.h"

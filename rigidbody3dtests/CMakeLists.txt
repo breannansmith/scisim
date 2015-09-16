@@ -1,0 +1,25 @@
+# Intertia tests
+add_executable( threed_rigid_bodies_inertia_tests threed_rigid_bodies_inertia_tests.cpp )
+
+target_link_libraries( threed_rigid_bodies_inertia_tests rigidbody3d )
+
+# Sphere inertia tests
+add_test( threed_rigid_bodies_inertia_sphere_pool_ball threed_rigid_bodies_inertia_tests sphere pool_ball )
+# Box inertia tests
+add_test( threed_rigid_bodies_inertia_box_0 threed_rigid_bodies_inertia_tests box cube )
+add_test( threed_rigid_bodies_inertia_box_1 threed_rigid_bodies_inertia_tests box elongated )
+add_test( threed_rigid_bodies_inertia_box_2 threed_rigid_bodies_inertia_tests box elongated_two )
+# Mesh inertia tests
+#add_test( threed_rigid_bodies_inertia_mesh_box_00 threed_rigid_bodies_inertia_tests mesh box00 )
+#add_test( threed_rigid_bodies_inertia_mesh_box_01 threed_rigid_bodies_inertia_tests mesh box01 )
+#add_test( threed_rigid_bodies_inertia_mesh_box_02 threed_rigid_bodies_inertia_tests mesh box02 )
+
+
+# Broad phase collision detection tests
+add_executable( collision_detection_tests_3d collision_detection_tests_3d.cpp )
+
+target_link_libraries( collision_detection_tests_3d rigidbody3d )
+
+add_test( threed_rigid_body_collision_detection_00 collision_detection_tests_3D spatial_grid_00 )
+add_test( threed_rigid_body_collision_detection_01 collision_detection_tests_3D spatial_grid_01 )
+add_test( threed_rigid_body_collision_detection_02 collision_detection_tests_3D spatial_grid_02 )
