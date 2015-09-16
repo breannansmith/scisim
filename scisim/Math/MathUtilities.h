@@ -1,7 +1,9 @@
 // MathUtilities.h
 //
 // Breannan Smith
-// Last updated: 09/07/2015
+// Last updated: 09/14/2015
+
+// TODO: Break these utilities into separate dense and sparse utility collections
 
 #ifndef MATH_UTILITIES_H
 #define MATH_UTILITIES_H
@@ -30,10 +32,11 @@ namespace MathUtilities
   // Checks if the the three vectors when stacked as [ a b c ] form an orthonormal matrix with positive determinant
   bool isRightHandedOrthoNormal( const Vector3s& a, const Vector3s& b, const Vector3s& c, const scalar& tol );
 
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // SPARSE MATRIX
 
   bool isSquare( const SparseMatrixsc& matrix );
+
+  bool isIdentity( const SparseMatrixsc& A, const scalar& tol );
 
   // Saves a sparse matrix in a triplet format that can be imported into Matlab via:
   //   load sparse_matrix.dat

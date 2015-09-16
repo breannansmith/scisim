@@ -1,7 +1,7 @@
 // MathUtilities.cpp
 //
 // Breannan Smith
-// Last updated: 09/07/2015
+// Last updated: 09/14/2015
 
 #include "MathUtilities.h"
 
@@ -91,6 +91,35 @@ bool MathUtilities::isRightHandedOrthoNormal( const Vector3s& a, const Vector3s&
 bool MathUtilities::isSquare( const SparseMatrixsc& matrix )
 {
   return matrix.rows() == matrix.cols();
+}
+
+bool MathUtilities::isIdentity( const SparseMatrixsc& A, const scalar& tol )
+{
+  if( !isSquare( A ) )
+  {
+    return false;
+  }
+  for( int outer_idx = 0; outer_idx < A.outerSize(); ++outer_idx )
+  {
+    for( SparseMatrixsc::InnerIterator it( A, outer_idx ); it; ++it )
+    {
+      if( it.row() == it.col() )
+      {
+        if( fabs( it.value() - 1.0 ) > tol )
+        {
+          return false;
+        }
+      }
+      else
+      {
+        if( fabs( it.value() ) > tol )
+        {
+          return false;
+        }
+      }
+    }
+  }
+  return true;
 }
 
 bool MathUtilities::writeToMatlabTripletText( const SparseMatrixsc& matrix, const std::string& file_name )

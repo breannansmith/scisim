@@ -151,16 +151,16 @@ endif()
 
 
 # Core three dimensional rigid body simulation library
-#add_subdirectory( RigidBody3D )
+add_subdirectory( rigidbody3d )
 
 # Tets for the three dimensional rigid body simulation
-#add_subdirectory( RigidBody3DTests )
+#add_subdirectory( rigidbody3dtests )
 
 # Utilities shared by the command-line and Qt4 interface
-#add_subdirectory( RigidBody3DUtils )
+#add_subdirectory( rigidbody3dutils )
 
 # Command line interface for three dimensional rigid body simulation
-#add_subdirectory( RigidBody3DCLI )
+#add_subdirectory( rigidbody3dcli )
 
 # Qt4 interface for the three dimensional rigid body simulation
 #if( USE_QT4 )

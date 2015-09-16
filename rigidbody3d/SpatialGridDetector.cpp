@@ -3,14 +3,7 @@
 // Breannan Smith
 // Last updated: 09/14/2015
 
-#include "SpatialGrid.h"
-
-AABB::AABB( const Array2s& min, const Array2s& max )
-: m_min( min )
-, m_max( max )
-{
-  assert( ( m_min < m_max ).all() );
-}
+#include "SpatialGridDetector.h"
 
 bool AABB::overlaps( const AABB& other ) const
 {
@@ -33,29 +26,29 @@ bool AABB::overlaps( const AABB& other ) const
 
 
 
-static void computeCellIndex( const Array2s& coord, const Array2s& min_coord, const scalar& h, Array2u& index )
+static void computeCellIndex( const Array3s& coord, const Array3s& min_coord, const scalar& h, Array3u& index )
 {
   assert( ( coord > min_coord ).all() ); assert( h > 0.0 );
   // Unsigned cast same as floor if input is positive
   index = ( ( coord - min_coord ) / h ).cast<unsigned>();
 }
 
-static unsigned keyForIndex( const Array2u& index, const Array2u& dimensions )
+static unsigned keyForIndex( const Array3u& index, const Array3u& dimensions )
 {
   assert( ( index < dimensions ).all() );
   // TODO: key could get really big...
-  return index.x() + dimensions.x() * index.y();
+  return index.x() + dimensions.x() * index.y() + dimensions.x() * dimensions.y() * index.z();
 }
 
-static void rasterizeAABBs( const std::vector<AABB>& aabbs, const Array2s& min_coord, const scalar& h, const Array2u& dimensions, std::map< unsigned, std::vector<unsigned> >& voxels )
+static void rasterizeAABBs( const std::vector<AABB>& aabbs, const Array3s& min_coord, const scalar& h, const Array3u& dimensions, std::map<unsigned,std::vector<unsigned>>& voxels )
 {
   // For each bounding box
   for( std::vector<AABB>::size_type aabb_idx = 0; aabb_idx < aabbs.size(); ++aabb_idx )
   {
     // Compute the cells the AABB overlaps with. Slightly enlarge the boxes to account for FPA errors.
-    Array2u index_lower;
+    Array3u index_lower;
     computeCellIndex( aabbs[aabb_idx].min() - 1.0e-6, min_coord, h, index_lower );
-    Array2u index_upper;
+    Array3u index_upper;
     computeCellIndex( aabbs[aabb_idx].max() + 1.0e-6, min_coord, h, index_upper );
     assert( ( index_lower <= index_upper ).all() );
 
@@ -63,29 +56,32 @@ static void rasterizeAABBs( const std::vector<AABB>& aabbs, const Array2s& min_c
     {
       for( unsigned y_idx = index_lower.y(); y_idx <= index_upper.y(); ++y_idx )
       {
-        // Compute the hash key for the given indexed voxel
-        const unsigned key{ keyForIndex( Array2u{ x_idx, y_idx }, dimensions ) };
-
-        std::map< unsigned, std::vector<unsigned> >::iterator voxel_iterator{ voxels.find( key ) };
-        // Create a new voxel, if needed
-        if( voxel_iterator == voxels.end() )
+        for( unsigned z_idx = index_lower.z(); z_idx <= index_upper.z(); ++z_idx )
         {
-          const std::pair< std::map< unsigned, std::vector<unsigned> >::iterator, bool > insertion_result{ voxels.insert( std::make_pair( key, std::vector<unsigned>{} ) ) };
-          assert( insertion_result.second );
-          voxel_iterator = insertion_result.first;
+          // Compute the hash key for the given indexed voxel
+          const unsigned key = keyForIndex( Array3u{ x_idx, y_idx, z_idx }, dimensions );
+
+          std::map<unsigned,std::vector<unsigned>>::iterator voxel_iterator{ voxels.find( key ) };
+          // Create a new voxel, if needed
+          if( voxel_iterator == voxels.end() )
+          {
+            const std::pair<std::map<unsigned,std::vector<unsigned>>::iterator,bool> insertion_result{ voxels.insert( std::pair<unsigned,std::vector<unsigned>>( key, std::vector<unsigned>{} ) ) };
+            assert( insertion_result.second );
+            voxel_iterator = insertion_result.first;
+          }
+          // Add the index of the AABB to the voxel
+          voxel_iterator->second.push_back( aabb_idx );
         }
-        // Add the index of the AABB to the voxel
-        voxel_iterator->second.push_back( aabb_idx );
       }
     }
   }
 }
 
-static void initializeSpatialGrid( const std::vector<AABB>& aabbs, Array2s& min_coord, Array2u& dimensions, scalar& h )
+static void initializeSpatialGrid( const std::vector<AABB>& aabbs, Array3s& min_coord, Array3u& dimensions, scalar& h )
 {
   // Compute a bounding box for all AABBs
-  min_coord = Array2s::Constant( SCALAR_INFINITY );
-  Array2s max_coord{ Array2s::Constant( -SCALAR_INFINITY ) };
+  min_coord = Array3s::Constant( SCALAR_INFINITY );
+  Array3s max_coord{ Array3s::Constant( -SCALAR_INFINITY ) };
   for( std::vector<AABB>::size_type aabb_idx = 0; aabb_idx < aabbs.size(); ++aabb_idx )
   {
     assert( ( aabbs[aabb_idx].min() < aabbs[aabb_idx].max() ).all() );
@@ -99,7 +95,7 @@ static void initializeSpatialGrid( const std::vector<AABB>& aabbs, Array2s& min_
 
   // Compute the grid cell width
   {
-    Array2s delta{ Array2s::Zero() };
+    Array3s delta{ Array3s::Zero() };
     for( std::vector<AABB>::size_type aabb_idx = 0; aabb_idx < aabbs.size(); ++aabb_idx )
     {
       delta += aabbs[aabb_idx].max() - aabbs[aabb_idx].min();
@@ -111,10 +107,10 @@ static void initializeSpatialGrid( const std::vector<AABB>& aabbs, Array2s& min_
   dimensions = ( ( max_coord - min_coord ) / h ).unaryExpr(std::ptr_fun(ceil)).cast<unsigned>();
 }
 
-void SpatialGrid::getPotentialOverlaps( const std::vector<AABB>& aabbs, std::set<std::pair<unsigned,unsigned>>& overlaps )
+void SpatialGridDetector::getPotentialOverlaps( const std::vector<AABB>& aabbs, std::set<std::pair<unsigned,unsigned>>& overlaps )
 {
-  Array2s min_coord;
-  Array2u dimensions;
+  Array3s min_coord;
+  Array3u dimensions;
   scalar h;
   initializeSpatialGrid( aabbs, min_coord, dimensions, h );
 
@@ -140,14 +136,16 @@ void SpatialGrid::getPotentialOverlaps( const std::vector<AABB>& aabbs, std::set
   }
 }
 
-void SpatialGrid::getPotentialOverlaps( const AABB& trial_aabb, const std::vector<AABB>& aabbs, std::vector<unsigned>& overlaps )
+void SpatialGridDetector::getPotentialOverlapsAllPairs( const std::vector<AABB>& aabbs, std::set<std::pair<unsigned,unsigned>>& overlaps )
 {
-  // Compare the trial AABB to each input AABB
-  for( unsigned aabb_idx = 0; aabb_idx < aabbs.size(); ++aabb_idx )
+  for( std::vector<AABB>::size_type idx0 = 0; idx0 < aabbs.size(); ++idx0 )
   {
-    if( aabbs[aabb_idx].overlaps( trial_aabb ) )
+    for( std::vector<AABB>::size_type idx1 = idx0 + 1; idx1 < aabbs.size(); ++idx1 )
     {
-      overlaps.emplace_back( aabb_idx );
+      if( aabbs[idx0].overlaps( aabbs[idx1] ) )
+      {
+        overlaps.insert( std::pair<unsigned,unsigned>( idx0, idx1 ) );
+      }
     }
   }
 }
