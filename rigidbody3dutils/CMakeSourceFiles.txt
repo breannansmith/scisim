@@ -1,0 +1,9 @@
+set( Sources
+  RenderingState.cpp
+  RigidBody3DSceneParser.cpp
+)
+
+set( Headers
+  RenderingState.h
+  RigidBody3DSceneParser.h
+)

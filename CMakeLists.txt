@@ -157,7 +157,7 @@ add_subdirectory( rigidbody3d )
 add_subdirectory( rigidbody3dtests )
 
 # Utilities shared by the command-line and Qt4 interface
-#add_subdirectory( rigidbody3dutils )
+add_subdirectory( rigidbody3dutils )
 
 # Command line interface for three dimensional rigid body simulation
 #add_subdirectory( rigidbody3dcli )
