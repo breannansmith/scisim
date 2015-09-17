@@ -61,7 +61,7 @@ To obtain a minimal demo build that simulates colliding triangle meshes:
         mkdir build
         cd build
 
-5. Run CMake to create the build system with Qt4 enabled:
+5. Run CMake to create the build system with Qt4 and HDF5 enabled:
 
         cmake -DUSE_QT4=ON -DUSE_HDF5=ON ..
 
