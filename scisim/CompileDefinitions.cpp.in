@@ -1,9 +1,9 @@
 // CompileDefinitions.cpp
 //
 // Breannan Smith
-// Last updated: 09/02/2015
+// Last updated: 09/16/2015
  
-#include "SCISim/CompileDefinitions.h"
+#include "scisim/CompileDefinitions.h"
 
 const std::string CompileDefinitions::GitSHA1 = "@GIT_SHA1@";
 const std::string CompileDefinitions::BuildMode = "@CMAKE_BUILD_TYPE@";
