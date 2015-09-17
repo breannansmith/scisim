@@ -68,7 +68,7 @@ then
 fi
 
 # Patch the So-bogus source
-patch -d $temp_dir_name/so_bogus/src -p1 < include_scripts/sobogus_patch.patch
+patch -d $temp_dir_name/so_bogus/src -p1 < scripts_include/sobogus_patch.patch
 
 # Run a checksum on the patched download
 echo "Verifying patched So-bogus checksum"
