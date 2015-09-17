@@ -217,7 +217,7 @@ const SparseMatrixsc& RigidBody3DSim::Minv0() const
 
 void RigidBody3DSim::computeMomentum( const VectorXs& v, VectorXs& p ) const
 {
-  p.setZero();
+  p = Vector3s::Zero();
   for( unsigned bdy_idx = 0; bdy_idx < m_sim_state.nbodies(); ++bdy_idx )
   {
     p += m_sim_state.getTotalMass( bdy_idx ) * v.segment<3>( 3 * bdy_idx );
@@ -226,7 +226,7 @@ void RigidBody3DSim::computeMomentum( const VectorXs& v, VectorXs& p ) const
 
 void RigidBody3DSim::computeAngularMomentum( const VectorXs& v, VectorXs& L ) const
 {
-  L.setZero();
+  L = Vector3s::Zero();
   // Contribution from center of mass
   for( unsigned bdy_idx = 0; bdy_idx < m_sim_state.nbodies(); ++bdy_idx )
   {

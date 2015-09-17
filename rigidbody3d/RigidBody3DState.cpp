@@ -1,7 +1,7 @@
 // RigidBody3DState.cpp
 //
 // Breannan Smith
-// Last updated: 09/15/2015
+// Last updated: 09/16/2015
 
 #include "RigidBody3DState.h"
 
@@ -182,7 +182,7 @@ static SparseMatrixsc formWorldSpaceMassMatrix( const std::vector<scalar>& M, co
     assert( fabs( Rmat.determinant() - 1.0 ) <= 1.0e-9 );
     const Matrix33sr I = Rmat * I0[bdy_idx].asDiagonal() * Rmat.transpose();
     assert( ( I - I.transpose() ).lpNorm<Eigen::Infinity>() <= 1.0e-12 );
-    assert( fabs( I.determinant() - 1.0 ) <= 1.0e-12 );
+    assert( I.determinant() > 0.0 );
     for( unsigned row_idx = 0; row_idx < 3; ++row_idx )
     {
       const unsigned col{ 3 * nbodies + 3 * bdy_idx + row_idx };
@@ -233,7 +233,7 @@ static SparseMatrixsc formWorldSpaceInverseMassMatrix( const std::vector<scalar>
     assert( fabs( Rmat.determinant() - 1.0 ) <= 1.0e-9 );
     const Matrix33sr Iinv = Rmat * I0[bdy_idx].array().inverse().matrix().asDiagonal() * Rmat.transpose();
     assert( ( Iinv - Iinv.transpose() ).lpNorm<Eigen::Infinity>() <= 1.0e-12 );
-    assert( fabs( Iinv.determinant() - 1.0 ) <= 1.0e-12 );
+    assert( Iinv.determinant() > 0.0 );
     for( unsigned row_idx = 0; row_idx < 3; ++row_idx )
     {
       const unsigned col{ 3 * nbodies + 3 * bdy_idx + row_idx };
@@ -448,7 +448,7 @@ void RigidBody3DState::updateMandMinv()
       const Eigen::Map<const Vector3s> I0{ &m_M0.data().value( 3 * m_nbodies + 3 * bdy_idx ) };
       I = R * I0.asDiagonal() * R.transpose();
       assert( ( I - I.transpose() ).lpNorm<Eigen::Infinity>() <= 1.0e-12 );
-      assert( fabs( I.determinant() - 1.0 ) <= 1.0e-12 );
+      assert( I.determinant() > 0.0 );
     }
 
     // Inverse of the inertia tensor of the ith body
@@ -457,7 +457,7 @@ void RigidBody3DState::updateMandMinv()
       const Eigen::Map<const Vector3s> Iinv0{ &m_Minv0.data().value( 3 * m_nbodies + 3 * bdy_idx ) };
       Iinv = R * Iinv0.asDiagonal() * R.transpose();
       assert( ( Iinv - Iinv.transpose() ).lpNorm<Eigen::Infinity>() <= 1.0e-12 );
-      assert( fabs( Iinv.determinant() - 1.0 ) <= 1.0e-12 );
+      assert( Iinv.determinant() > 0.0 );
     }
   }
 

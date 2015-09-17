@@ -1,0 +1,19 @@
+<!--
+  A spinning ball bouncing between two fixed balls that should bounce out of line.
+-->
+
+<rigidbody3d_scene>
+  
+  <camera_perspective theta="1.2072" phi="0.485398" rho="29.4702" lookat="0 0 0" up="0 1 0" fps="50" render_at_fps="0" locked="0"/>
+
+  <integrator type="split_ham" dt="0.01"/>
+
+  <sobogus_friction_solver mu="0.2" CoR="1.0" max_iters="5000" tol="1.0e-12" eval_every="20" staggering="geometric"/>
+
+  <geometry type="sphere" r="2.85751"/>
+
+  <rigid_body_with_density x="-10.0 0.0 0.0" v="0.0 0.0 0.0" omega="0.0 0.0 0.0" rho="1.74040" fixed="1" geo_idx="0"/>
+  <rigid_body_with_density x=" 0.0 0.0 0.0" v="10.0 0.0 0.0" omega="0.0 10.0 0.0" rho="1.74040" fixed="0" geo_idx="0"/>
+  <rigid_body_with_density x=" 10.0 0.0 0.0" v="0.0 0.0 0.0" omega="0.0 0.0 0.0" rho="1.74040" fixed="1" geo_idx="0"/>
+
+</rigidbody3d_scene>

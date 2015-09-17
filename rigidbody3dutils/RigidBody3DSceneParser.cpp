@@ -128,7 +128,10 @@ static bool loadSimState( const rapidxml::xml_node<>& node, RigidBody3DState& si
     std::string geom_type;
     {
       const rapidxml::xml_attribute<>* const attrib{ nd->first_attribute( "type" ) };
-      if( !attrib ) { return false; }
+      if( !attrib )
+      {
+        return false;
+      }
       geom_type = attrib->value();
     }
 
@@ -725,7 +728,7 @@ static bool loadStaticCylinders( const rapidxml::xml_node<>& node, RigidBody3DSt
     // Read the axis of the cylinder
     VectorXs axis;
     {
-      const rapidxml::xml_attribute<>* const attrib = nd->first_attribute( "axis" );
+      const rapidxml::xml_attribute<>* const attrib{ nd->first_attribute( "axis" ) };
       if( !attrib )
       {
         std::cerr << "Failed to locate axis attribute for static_cylinder." << std::endl;
@@ -789,7 +792,7 @@ static bool loadStaticPlaneRenderers( const rapidxml::xml_node<>& node, const st
     // Read the half-width of the plane when rendered
     VectorXs r;
     {
-      const rapidxml::xml_attribute<>* const attrib = nd->first_attribute( "r" );
+      const rapidxml::xml_attribute<>* const attrib{ nd->first_attribute( "r" ) };
       if( !attrib )
       {
         std::cerr << "Failed to locate r attribute for static_plane_renderer." << std::endl;
@@ -1302,7 +1305,7 @@ static bool loadImpactOperatorNoCoR( const rapidxml::xml_node<>& node, std::uniq
       std::cerr << "Could not locate v_tol" << std::endl;
       return false;
     }
-    if( !StringUtilities::extractFromString( std::string( v_tol_nd->value() ), v_tol ) || v_tol < 0.0 )
+    if( !StringUtilities::extractFromString( std::string{ v_tol_nd->value() }, v_tol ) || v_tol < 0.0 )
     {
       std::cerr << "Could not load v_tol, value must be a positive scalar" << std::endl;
       return false;
@@ -1311,11 +1314,11 @@ static bool loadImpactOperatorNoCoR( const rapidxml::xml_node<>& node, std::uniq
 
   if( type == "gauss_seidel" )
   {
-    impact_operator.reset( new GaussSeidelOperator( v_tol ) );
+    impact_operator.reset( new GaussSeidelOperator{ v_tol } );
   }
   else if( type == "jacobi" )
   {
-    impact_operator.reset( new JacobiOperator( v_tol ) );
+    impact_operator.reset( new JacobiOperator{ v_tol } );
   }
   else if( type == "lcp" )
   {
@@ -1402,7 +1405,7 @@ static bool loadImpactOperator( const rapidxml::xml_node<>& node, std::unique_pt
   }
 
   CoR = std::numeric_limits<scalar>::signaling_NaN();
-  if( !StringUtilities::extractFromString( std::string( cor_nd->value() ), CoR ) )
+  if( !StringUtilities::extractFromString( std::string{ cor_nd->value() }, CoR ) )
   {
     std::cerr << "Could not load CoR value" << std::endl;
     return false;
@@ -2011,7 +2014,7 @@ static bool loadSobogusFrictionSolver( const rapidxml::xml_node<>& node, std::un
     return false;
   }
 
-  friction_solver.reset( new Sobogus( SobogusSolverType::RigidBodies3D, eval_every ) );
+  friction_solver.reset( new Sobogus{ SobogusSolverType::RigidBodies3D, static_cast<unsigned>( eval_every ) } );
   
   return true;
 }

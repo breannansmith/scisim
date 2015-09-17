@@ -1,0 +1,31 @@
+<!--
+  Balls colliding across a portal that should behave the same as balls not colliding across a portal.
+  Balls have different radii.
+-->
+
+<rigidbody3d_scene>
+
+  <camera_perspective theta="1.570796326794896619231321691639751442098584699687552910487472296" phi="0" rho="18.6009" lookat="0.5 -0.25 0" up="0 1 0" fps="50" render_at_fps="0" locked="0"/>
+
+  <integrator type="split_ham" dt="0.01"/>
+
+  <sobogus_friction_solver mu="2.0" CoR="0.8" eval_every="25" max_iters="5000" tol="1.0e-12" eval_every="50" staggering="geometric"/>
+
+  <static_plane x="-8 0 0" n="1 0 0"/>
+  <static_plane x="8 0 0" n="-1 0 0"/>
+
+  <static_plane_renderer plane="0" r="4.0 8.0"/>
+  <static_plane_renderer plane="1" r="4.0 8.0"/>
+
+  <planar_portal planeA="0" planeB="1" multiplier="1 1 -1"/>
+
+  <geometry type="sphere" r="0.25"/>
+  <geometry type="sphere" r="0.75"/>
+
+  <rigid_body_with_density x="1.25 1 0" v="-1 -1 0" omega="0 0 0" rho="1.74040" fixed="0" geo_idx="0"/>
+  <rigid_body_with_density x="-1.75 -1 0" v="1 1 0" omega="0 0 0" rho="1.74040" fixed="0" geo_idx="1"/>
+
+  <rigid_body_with_density x="-6.25 1 0" v="-1 -1 0" omega="0 0 0" rho="1.74040" fixed="0" geo_idx="0"/>
+  <rigid_body_with_density x="6.75 -1 0" v="1 1 0" omega="0 0 0" rho="1.74040" fixed="0" geo_idx="1"/>
+
+</rigidbody3d_scene>

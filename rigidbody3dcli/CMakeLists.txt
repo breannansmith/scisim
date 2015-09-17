@@ -1,0 +1,50 @@
+include( CMakeSourceFiles.txt )
+
+add_executable( rigidbody3d_cli ${Headers} ${Sources} )
+
+target_link_libraries( rigidbody3d_cli rigidbody3dutils rigidbody3d )
+
+execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_SOURCE_DIR}/assets/rigidbody3d ${CMAKE_CURRENT_BINARY_DIR}/assets )
+
+# Serialization and resume tests
+if( USE_HDF5 )
+  add_test( rb3d_serialization_00 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/card_house.xml 1 0999 0431 )
+  add_test( rb3d_serialization_01 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/friction_collide_in_portal.xml 5 499 147 )
+  add_test( rb3d_serialization_02 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/ball_rolling_in_container.xml 2.35 2299 1152 )
+  add_test( rb3d_serialization_03 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/one_dim_test_0.xml 2.0 20 03 )
+  add_test( rb3d_serialization_04 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/one_dim_test_1.xml 2.0 200 033 )
+  add_test( rb3d_serialization_05 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/one_dim_test_2.xml 2.0 200 033 )
+  add_test( rb3d_serialization_06 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/one_dim_test_3.xml 2.0 200 033 )
+  add_test( rb3d_serialization_07 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/box_box_test_0.xml 2.0 200 033 )
+  add_test( rb3d_serialization_08 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/box_box_test_1.xml 2.0 200 033 )
+  add_test( rb3d_serialization_09 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/box_box_test_2.xml 2.0 200 033 )
+  add_test( rb3d_serialization_10 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/box_box_test_2.xml 0.75 37 13 50 )
+  add_test( rb3d_serialization_11 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/two_dragon_drop.xml 1.0 50 27 50 )
+else()
+  message( STATUS "Skipping RigidBody3D tests that require HDF5 (USE_HDF5 is disabled)." )
+endif()
+
+# Serialization and resume tests
+if( USE_HDF5 AND USE_PYTHON )
+  add_test( rb3d_serialization_scripting_00 assets/shell_scripts/execute_serialization_test.sh assets/tests_python_serialization/different_friction.xml 2 199 051 )
+  add_test( rb3d_serialization_scripting_01 assets/shell_scripts/execute_serialization_test.sh assets/tests_python_serialization/oscillating_plane.xml 11 1099 0512 )
+  add_test( rb3d_serialization_scripting_02 assets/shell_scripts/execute_serialization_test.sh assets/tests_python_serialization/sphere_in_cylinder.xml 10 0999 0654 )
+  add_test( rb3d_serialization_scripting_03 assets/shell_scripts/execute_serialization_test.sh assets/tests_python_serialization/translating_plane.xml 20 200 137 10 )
+  add_test( rb3d_serialization_scripting_04 assets/shell_scripts/execute_serialization_test.sh assets/tests_python_serialization/different_restitution.xml 3.0 300 172 100 )
+else()
+  message( STATUS "Skipping RigidBody3D tests that require Python and HDF5 (USE_PYTHON or USER_HDF5 is disabled)." )
+endif()
+
+# Serialization tests for simulations that use Ipopt
+if( USE_HDF5 AND USE_IPOPT )
+  add_test( rb3d_ipopt_serialization_0 assets/shell_scripts/execute_serialization_test.sh assets/tests_ipopt_serialization/one_dim_test_0.xml 2.0 20 03 )
+  add_test( rb3d_ipopt_serialization_1 assets/shell_scripts/execute_serialization_test.sh assets/tests_ipopt_serialization/one_dim_test_1.xml 2.0 200 033 )
+  add_test( rb3d_ipopt_serialization_2 assets/shell_scripts/execute_serialization_test.sh assets/tests_ipopt_serialization/one_dim_test_2.xml 2.0 200 033 )
+  add_test( rb3d_ipopt_serialization_3 assets/shell_scripts/execute_serialization_test.sh assets/tests_ipopt_serialization/one_dim_test_3.xml 2.0 200 033 )
+  add_test( rb3d_ipopt_serialization_4 assets/shell_scripts/execute_serialization_test.sh assets/tests_ipopt_serialization/box_box_test_0.xml 2.0 200 033 )
+  add_test( rb3d_ipopt_serialization_5 assets/shell_scripts/execute_serialization_test.sh assets/tests_ipopt_serialization/box_box_test_1.xml 2.0 200 033 )
+  add_test( rb3d_ipopt_serialization_6 assets/shell_scripts/execute_serialization_test.sh assets/tests_ipopt_serialization/box_box_test_2.xml 2.0 200 033 )
+  add_test( rb3d_ipopt_serialization_7 assets/shell_scripts/execute_serialization_test.sh assets/tests_ipopt_serialization/kinematic_object_test.xml 3.0 30 13 )
+else()
+  message( STATUS "Skipping RigidBody2D tests that require Ipopt and HDF5 (USE_IPOPT or USER_HDF5 is disabled)." )
+endif()
