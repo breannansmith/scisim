@@ -63,7 +63,7 @@ To obtain a minimal demo build that simulates colliding triangle meshes:
 
 5. Run CMake to create the build system with Qt4 enabled:
 
-        cmake -DUSE_QT4=ON ..
+        cmake -DUSE_QT4=ON -DUSE_HDF5=ON ..
 
 6. Build SCISim:
 
@@ -71,7 +71,7 @@ To obtain a minimal demo build that simulates colliding triangle meshes:
 
 7. Load the example simulation:
 
-        cd RigidBody3DQt4
+        cd rigidbody3dqt4
         ./rigidbody3d_qt4 assets/Meshes/dragon_drop/two_dragon_drop.xml
 
 8. Press space to run the simulation!
