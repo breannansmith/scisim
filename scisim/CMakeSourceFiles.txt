@@ -44,8 +44,8 @@ set( Sources
   ScriptingCallback.cpp
   StringUtilities.cpp
   Utilities.cpp
-  UnConstrainedMaps/FlowableSystem.cpp
-  UnConstrainedMaps/UnconstrainedMap.cpp
+  UnconstrainedMaps/FlowableSystem.cpp
+  UnconstrainedMaps/UnconstrainedMap.cpp
   HDF5File.cpp
   PythonTools.cpp
 )
@@ -103,8 +103,8 @@ set( Headers
   ScriptingCallback.h
   StringUtilities.h
   Utilities.h
-  UnConstrainedMaps/FlowableSystem.h
-  UnConstrainedMaps/UnconstrainedMap.h
+  UnconstrainedMaps/FlowableSystem.h
+  UnconstrainedMaps/UnconstrainedMap.h
   HDF5File.h
   PythonTools.h
 )
