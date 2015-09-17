@@ -1,0 +1,28 @@
+set( Sources
+  ContentWidget.cpp
+  GLWidget.cpp
+  OrthographicCameraController.cpp
+  PerspectiveCameraController.cpp
+  Window.cpp
+  rigidbody3d_qt4.cpp
+  Rendering/OpenGL3DSphereRenderer.cpp
+  Rendering/PlanarPortalRenderer.cpp
+  Rendering/StaticCylinderRenderer.cpp
+  Rendering/StaticPlaneRenderer.cpp
+  Rendering/StapleRenderer.cpp
+  Rendering/BodyGeometryRenderer.cpp
+)
+
+set( Headers
+  ContentWidget.h
+  GLWidget.h
+  OrthographicCameraController.h
+  PerspectiveCameraController.h
+  Window.h
+  Rendering/OpenGL3DSphereRenderer.h
+  Rendering/PlanarPortalRenderer.h
+  Rendering/StaticCylinderRenderer.h
+  Rendering/StaticPlaneRenderer.h
+  Rendering/StapleRenderer.h
+  Rendering/BodyGeometryRenderer.h
+)

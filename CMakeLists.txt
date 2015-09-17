@@ -163,6 +163,6 @@ add_subdirectory( rigidbody3dutils )
 add_subdirectory( rigidbody3dcli )
 
 # Qt4 interface for the three dimensional rigid body simulation
-#if( USE_QT4 )
-#  add_subdirectory( rigidbody3dqt4 )
-#endif()
+if( USE_QT4 )
+  add_subdirectory( rigidbody3dqt4 )
+endif()
