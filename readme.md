@@ -72,7 +72,7 @@ To obtain a minimal demo build that simulates colliding triangle meshes:
 7. Load the example simulation:
 
         cd rigidbody3dqt4
-        ./rigidbody3d_qt4 assets/Meshes/dragon_drop/two_dragon_drop.xml
+        ./rigidbody3d_qt4 assets/tests_serialization/two_dragon_drop.xml
 
 8. Press space to run the simulation!
 
