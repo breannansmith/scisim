@@ -1,7 +1,7 @@
 The Structured Contact Impact Simulator
 =======================================
 
-Welcome to **SCISim** (pronounced skiz-em), the Structured Contact Impact Simulator! **SCISim** is a C++14 software package designed to simulate systems of rigid bodies where the evolution is dominated by collisions. **SCISim** respects essential symmetries and structures from the continuous setting at coarse temporal discretizations through the use of geometric integrators for the unconstrained and constrained dynamics. In practice, this leads to stable and predictable behavior across timesteps. For a preview of the types of simulations that **SCISim** can perform, please see our demo reel. (Coming soon. Until then, please see a [few](https://www.youtube.com/watch?v=AJAGUOhpnLc) [papers](https://www.youtube.com/watch?v=tFKLo0yNmFk) that use **SCISim**.)
+Welcome to **SCISim** (pronounced skiz-em), the Structured Contact Impact Simulator! **SCISim** is a C++14 software package designed to simulate systems of rigid bodies where the evolution is dominated by collisions. **SCISim** respects essential symmetries and structures from the continuous setting at coarse temporal discretizations through the use of geometric integrators for the unconstrained and constrained dynamics. In practice, this leads to stable and predictable behavior across timesteps. For a preview of the types of simulations that **SCISim** can perform, please see our demo reel. (Coming soon. Until then, please see videos from a [few](https://www.youtube.com/watch?v=AJAGUOhpnLc) [papers](https://www.youtube.com/watch?v=tFKLo0yNmFk) that use **SCISim**.)
 
 
 Required Dependencies
