@@ -34,8 +34,8 @@
 #include "rigidbody3d/PythonScripting.h"
 #include "rigidbody3d/RigidBody3DUtilities.h"
 
-#include "RigidBody3DUtils/RigidBody3DSceneParser.h"
-#include "RigidBody3DUtils/RenderingState.h"
+#include "rigidbody3dutils/RigidBody3DSceneParser.h"
+#include "rigidbody3dutils/RenderingState.h"
 
 
 // TODO: 'Front-pad' the time so all output is same width

@@ -27,8 +27,8 @@
 #include "rigidbody2d/RigidBody2DSim.h"
 #include "rigidbody2d/RigidBody2DUtilities.h"
 
-#include "RigidBody2DUtils/RigidBody2DSceneParser.h"
-#include "RigidBody2DUtils/CameraSettings2D.h"
+#include "rigidbody2dutils/RigidBody2DSceneParser.h"
+#include "rigidbody2dutils/CameraSettings2D.h"
 
 static RigidBody2DSim g_sim;
 static unsigned g_iteration = 0;
