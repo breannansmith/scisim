@@ -19,19 +19,19 @@ command -v md5sum >/dev/null 2>&1 || { echo >&2 "Error, please install md5sum an
 # TODO: Run a checksum on the existing source files to see if they are ok
 
 # If the output directory or interface scripts exist
-if [ -d "include/sobogus" ] || [ -e "SCISim/ConstrainedMaps/bogus/FrictionProblem.hpp" ] || [ -e "SCISim/ConstrainedMaps/bogus/FrictionProblem.cpp" ] || [ -e "SCISim/ConstrainedMaps/bogus/FrictionProblem.impl.hpp" ]; then
+if [ -d "include/sobogus" ] || [ -e "scisim/ConstrainedMaps/bogus/FrictionProblem.hpp" ] || [ -e "scisim/ConstrainedMaps/bogus/FrictionProblem.cpp" ] || [ -e "scisim/ConstrainedMaps/bogus/FrictionProblem.impl.hpp" ]; then
   # If the So-bogus install is up to date
   computed_installed_sobogus_dir_md5=`find include/sobogus -type f -name '*.[hc]pp' -exec md5sum {} + | awk '{print $2$1}' | sort -fd | md5sum | cut -c -32`
-  computed_installed_hpp_md5=`md5sum SCISim/ConstrainedMaps/bogus/FrictionProblem.hpp | cut -c -32`
-  computed_installed_cpp_md5=`md5sum SCISim/ConstrainedMaps/bogus/FrictionProblem.cpp | cut -c -32`
-  computed_installed_impl_md5=`md5sum SCISim/ConstrainedMaps/bogus/FrictionProblem.impl.hpp | cut -c -32`
+  computed_installed_hpp_md5=`md5sum scisim/ConstrainedMaps/bogus/FrictionProblem.hpp | cut -c -32`
+  computed_installed_cpp_md5=`md5sum scisim/ConstrainedMaps/bogus/FrictionProblem.cpp | cut -c -32`
+  computed_installed_impl_md5=`md5sum scisim/ConstrainedMaps/bogus/FrictionProblem.impl.hpp | cut -c -32`
   if [ "$computed_installed_sobogus_dir_md5" == "$actual_installed_sobogus_dir_md5" ] && [ "$computed_installed_hpp_md5" == "$actual_installed_hpp_md5" ] && [ "$computed_installed_cpp_md5" == "$actual_installed_cpp_md5" ] && [ "$computed_installed_impl_md5" == "$actual_installed_impl_md5" ]
   then
     echo "So-bogus library is already up to date, no further action is needed."
     exit 0
   fi
   # Warn the user and exit
-  echo "Error, sobogus source exists, please manually delete include/sobogus, SCISim/ConstrainedMaps/bogus/FrictionProblem.hpp, SCISim/ConstrainedMaps/bogus/FrictionProblem.cpp, and SCISim/ConstrainedMaps/bogus/FrictionProblem.impl.hpp and rerun this script."
+  echo "Error, sobogus source exists, please manually delete include/sobogus, scisim/ConstrainedMaps/bogus/FrictionProblem.hpp, scisim/ConstrainedMaps/bogus/FrictionProblem.cpp, and scisim/ConstrainedMaps/bogus/FrictionProblem.impl.hpp and rerun this script."
   exit 1
 fi
 
