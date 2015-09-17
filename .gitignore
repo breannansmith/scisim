@@ -1,8 +1,8 @@
 .DS_Store
 include
-SCISim/ConstrainedMaps/bogus/FrictionProblem.cpp
-SCISim/ConstrainedMaps/bogus/FrictionProblem.hpp
-SCISim/ConstrainedMaps/bogus/FrictionProblem.impl.hpp
-SCISim/Math/QL/ql.for
+scisim/ConstrainedMaps/bogus/FrictionProblem.cpp
+scisim/ConstrainedMaps/bogus/FrictionProblem.hpp
+scisim/ConstrainedMaps/bogus/FrictionProblem.impl.hpp
+scisim/Math/QL/ql.for
 xcode
 *.pyc
