@@ -23,11 +23,11 @@ public:
 
 private:
 
-  const Vector2s m_x;
-  const Vector2s m_v;
-  const scalar m_m;
-  const scalar m_r;
-  const bool m_fixed;
+  Vector2s m_x;
+  Vector2s m_v;
+  scalar m_m;
+  scalar m_r;
+  bool m_fixed;
 
 };
 

@@ -24,8 +24,8 @@ public:
 
 private:
 
-  const Vector2s m_x;
-  const scalar m_r;
+  Vector2s m_x;
+  scalar m_r;
 
 };
 
