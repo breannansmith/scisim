@@ -47,14 +47,6 @@ endif()
 find_package( Sobogus REQUIRED )
 target_include_directories( scisim SYSTEM PRIVATE ${SOBOGUS_INCLUDE_DIR} )
 
-# MKL is an external library and is used internal to scisim
-if( USE_MKL )
-  find_package( MKL REQUIRED )
-  target_include_directories( scisim SYSTEM PRIVATE ${MKL_INCLUDE_DIRS} )
-  set_source_files_properties( Math/ProjectionSolvers/APGDSolver.cpp Math/ProjectionSolvers/GPMINRESSolver.cpp PROPERTIES COMPILE_DEFINITIONS MKL_FOUND )
-  target_link_libraries( scisim INTERFACE ${MKL_LIBRARIES} )
-endif()
-
 # Ipopt is an external library and is used internal to scisim
 if( USE_IPOPT )
   find_package( Ipopt REQUIRED )

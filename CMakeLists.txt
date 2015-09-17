@@ -80,10 +80,6 @@ option( STRICT_BUILD "Enable agressive warnings and treat warnings as errors" OF
 
 option( USE_QT4 "Build Qt4 front ends" OFF )
 
-option( USE_MKL "Use Intel's MKL" OFF )
-option( MKL_MULTI_THREADED "Use multithreaded MKL" OFF )
-option( MKL_STATIC "Statically link against MKL" OFF )
-
 option( USE_IPOPT "Use the Ipopt solver (Fortran required)" OFF )
 
 option( USE_OPENMP "OpenMP-based parallelism" OFF )
