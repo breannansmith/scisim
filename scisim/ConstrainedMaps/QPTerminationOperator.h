@@ -6,7 +6,7 @@
 #ifndef QP_TERMINATION_OPERATOR_H
 #define QP_TERMINATION_OPERATOR_H
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 class QPTerminationOperator
 {

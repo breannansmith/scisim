@@ -1,6 +1,6 @@
 #include "OrthographicCameraController.h"
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 OrthographicCameraController::OrthographicCameraController()
 : m_theta_cam()

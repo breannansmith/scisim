@@ -6,8 +6,8 @@
 #ifndef FISCHER_BURMEISTER_SMOOTH_H
 #define FISCHER_BURMEISTER_SMOOTH_H
 
-#include "SCISim/ConstrainedMaps/QPTerminationOperator.h"
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/ConstrainedMaps/QPTerminationOperator.h"
+#include "scisim/Math/MathDefines.h"
 
 class FischerBurmeisterSmooth final : public QPTerminationOperator
 {

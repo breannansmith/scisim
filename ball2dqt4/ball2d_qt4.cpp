@@ -5,8 +5,8 @@
 
 #ifdef USE_PYTHON
 #include <Python.h>
-#include "Ball2D/PythonScripting.cpp"
-#include "SCISim/PythonTools.h"
+#include "ball2d/PythonScripting.cpp"
+#include "scisim/PythonTools.h"
 #endif
 
 #include <iostream>

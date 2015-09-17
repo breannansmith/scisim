@@ -5,7 +5,7 @@
 
 #include "TeleportedCircleCircleConstraint.h"
 
-#include "SCISim/Math/MathUtilities.h"
+#include "scisim/Math/MathUtilities.h"
 
 TeleportedCircleCircleConstraint::TeleportedCircleCircleConstraint( const unsigned idx0, const unsigned idx1, const Vector2s& x0, const Vector2s& x1, const scalar& r0, const scalar& r1, const Vector2s& delta0, const Vector2s& delta1, const scalar& radius0, const scalar& radius1 )
 : m_idx0( idx0 )

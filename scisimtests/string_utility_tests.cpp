@@ -8,7 +8,7 @@
 #include <cstdlib>
 #include <algorithm>
 
-#include "SCISim/StringUtilities.h"
+#include "scisim/StringUtilities.h"
 
 int main( int argc, char** argv )
 {

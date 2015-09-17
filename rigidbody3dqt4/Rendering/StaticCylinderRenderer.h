@@ -1,7 +1,7 @@
 #ifndef STATIC_CYLINDER_RENDERER_H
 #define STATIC_CYLINDER_RENDERER_H
 
-#include "RigidBody3D/StaticGeometry/StaticCylinder.h"
+#include "rigidbody3d/StaticGeometry/StaticCylinder.h"
 
 #include <QtOpenGL>
 

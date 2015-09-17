@@ -6,9 +6,9 @@
 #include <iostream>
 #include <cstdlib>
 
-#include "RigidBody3D/Geometry/RigidBodySphere.h"
-#include "RigidBody3D/Geometry/RigidBodyBox.h"
-#include "RigidBody3D/Geometry/RigidBodyTriangleMesh.h"
+#include "rigidbody3d/Geometry/RigidBodySphere.h"
+#include "rigidbody3d/Geometry/RigidBodyBox.h"
+#include "rigidbody3d/Geometry/RigidBodyTriangleMesh.h"
 
 // TODO: For meshes, check that vertices are in correct transformed positions
 

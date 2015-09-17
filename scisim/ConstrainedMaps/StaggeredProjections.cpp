@@ -5,19 +5,19 @@
 
 #include "StaggeredProjections.h"
 
-#include "SCISim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
-#include "SCISim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
-#include "SCISim/Constraints/Constraint.h"
-#include "SCISim/Math/MathUtilities.h"
-#include "SCISim/ConstrainedMaps/ConstrainedMapUtilities.h"
-#include "SCISim/ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h"
-#include "SCISim/UnconstrainedMaps/FlowableSystem.h"
-#include "SCISim/Utilities.h"
-#include "SCISim/StringUtilities.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
+#include "scisim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
+#include "scisim/Constraints/Constraint.h"
+#include "scisim/Math/MathUtilities.h"
+#include "scisim/ConstrainedMaps/ConstrainedMapUtilities.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h"
+#include "scisim/UnconstrainedMaps/FlowableSystem.h"
+#include "scisim/Utilities.h"
+#include "scisim/StringUtilities.h"
 #include <iostream>
 
 // For error computation
-#include "SCISim/ConstrainedMaps/Sobogus.h"
+#include "scisim/ConstrainedMaps/Sobogus.h"
 
 StaggeredProjections::StaggeredProjections( const bool warm_start_alpha, const bool warm_start_beta, const ImpactOperator& impact_operator, const FrictionOperator& friction_operator )
 : m_warm_start_alpha( warm_start_alpha )

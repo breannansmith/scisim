@@ -6,7 +6,7 @@
 #ifndef IMPACT_FRICTION_MAP_H
 #define IMPACT_FRICTION_MAP_H
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 #include <memory>
 

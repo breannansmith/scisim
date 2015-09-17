@@ -6,7 +6,7 @@
 #ifndef SCRIPTING_CALLBACK_H
 #define SCRIPTING_CALLBACK_H
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 #include <memory>
 

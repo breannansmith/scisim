@@ -12,9 +12,9 @@
 
 #include <fstream>
 
-#include "SCISim/UnconstrainedMaps/FlowableSystem.h"
-#include "SCISim/Constraints/ConstrainedSystem.h"
-#include "SCISim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
+#include "scisim/UnconstrainedMaps/FlowableSystem.h"
+#include "scisim/Constraints/ConstrainedSystem.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
 
 #include "RigidBody3DState.h"
 #include "ConstraintCache.h"

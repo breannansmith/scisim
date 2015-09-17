@@ -6,7 +6,7 @@
 #include "StaticPlaneBodyConstraint.h"
 
 #include "FrictionUtilities.h"
-#include "SCISim/Math/MathUtilities.h"
+#include "scisim/Math/MathUtilities.h"
 
 StaticPlaneBodyConstraint::StaticPlaneBodyConstraint( const unsigned body_idx, const Vector3s& collision_point, const Vector3s& n, const VectorXs& q, const unsigned plane_idx )
 : m_idx_body( body_idx )

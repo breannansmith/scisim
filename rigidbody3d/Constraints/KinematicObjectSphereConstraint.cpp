@@ -7,7 +7,7 @@
 
 #include "FrictionUtilities.h"
 #ifndef NDEBUG
-#include "SCISim/Math/MathUtilities.h"
+#include "scisim/Math/MathUtilities.h"
 #endif
 
 KinematicObjectSphereConstraint::KinematicObjectSphereConstraint( const unsigned sphere_idx, const scalar& r, const Vector3s& n, const unsigned kinematic_index, const Vector3s& X, const Vector3s& V, const Vector3s& omega )

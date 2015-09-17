@@ -5,7 +5,7 @@
 
 #include "RigidBodySphere.h"
 
-#include "SCISim/Utilities.h"
+#include "scisim/Utilities.h"
 
 void RigidBodySphere::computeMassAndInertia( const scalar& density, scalar& M, Vector3s& CM, Vector3s& I, Matrix33sr& R ) const
 {

@@ -3,7 +3,7 @@
 
 // TODO: Options to render with display lists, vbo, etc
 
-#include "SCISim/Math/MathUtilities.h"
+#include "scisim/Math/MathUtilities.h"
 
 #ifdef __APPLE__
 #include <OpenGL/gl.h>

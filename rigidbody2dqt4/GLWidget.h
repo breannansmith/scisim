@@ -4,7 +4,7 @@
 #include <QGLWidget>
 #include <QDir>
 
-#include "RigidBody2D/RigidBody2DSim.h"
+#include "rigidbody2d/RigidBody2DSim.h"
 #include "scisim/Math/Rational.h"
 
 #include "DisplayController2D.h"

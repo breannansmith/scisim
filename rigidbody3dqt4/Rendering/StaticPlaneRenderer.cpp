@@ -2,7 +2,7 @@
 
 #include <QtOpenGL>
 
-#include "RigidBody3D/StaticGeometry/StaticPlane.h"
+#include "rigidbody3d/StaticGeometry/StaticPlane.h"
 
 StaticPlaneRenderer::StaticPlaneRenderer( const unsigned idx, const Array2s& half_width )
 : m_idx( idx )

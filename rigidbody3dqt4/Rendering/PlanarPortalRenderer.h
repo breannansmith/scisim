@@ -1,7 +1,7 @@
 #ifndef PLANAR_PORTAL_RENDERER_H
 #define PLANAR_PORTAL_RENDERER_H
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 class PlanarPortal;
 class StaticPlane;

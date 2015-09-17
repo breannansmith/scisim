@@ -6,7 +6,7 @@
 #ifndef BALL_2D_FORCE_H
 #define BALL_2D_FORCE_H
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 #include <memory>
 

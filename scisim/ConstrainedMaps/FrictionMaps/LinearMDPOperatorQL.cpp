@@ -6,8 +6,8 @@
 #include "LinearMDPOperatorQL.h"
 
 #include "FrictionOperatorUtilities.h"
-#include "SCISim/Utilities.h"
-#include "SCISim/Math/QL/QLUtilities.h"
+#include "scisim/Utilities.h"
+#include "scisim/Math/QL/QLUtilities.h"
 
 #include <iostream>
 

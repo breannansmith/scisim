@@ -5,8 +5,8 @@
 
 #include "RigidBodyBox.h"
 
-#include "SCISim/Math/MathUtilities.h"
-#include "SCISim/Utilities.h"
+#include "scisim/Math/MathUtilities.h"
+#include "scisim/Utilities.h"
 
 #include <iostream>
 

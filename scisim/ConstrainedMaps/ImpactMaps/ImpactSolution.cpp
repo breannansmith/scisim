@@ -5,8 +5,8 @@
 
 #include "ImpactSolution.h"
 
-#include "SCISim/Constraints/Constraint.h"
-#include "SCISim/HDF5File.h"
+#include "scisim/Constraints/Constraint.h"
+#include "scisim/HDF5File.h"
 
 ImpactSolution::ImpactSolution()
 : m_indices()

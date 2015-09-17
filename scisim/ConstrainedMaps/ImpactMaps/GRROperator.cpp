@@ -5,7 +5,7 @@
 
 #include "GRROperator.h"
 
-#include "SCISim/ConstrainedMaps/ConstrainedMapUtilities.h"
+#include "scisim/ConstrainedMaps/ConstrainedMapUtilities.h"
 
 #include <iostream>
 

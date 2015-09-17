@@ -5,7 +5,7 @@
 
 #include "FrictionOperatorUtilities.h"
 
-#include "SCISim/Constraints/Constraint.h"
+#include "scisim/Constraints/Constraint.h"
 
 static void reserveSpaceInBasisMatrix( const int nsamples, const std::vector<std::unique_ptr<Constraint>>& K, SparseMatrixsc& D )
 {

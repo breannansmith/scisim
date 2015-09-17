@@ -6,7 +6,7 @@
 #ifndef RIGID_BODY_GEOMETRY_H
 #define RIGID_BODY_GEOMETRY_H
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 #include <memory>
 #include <cstdint>

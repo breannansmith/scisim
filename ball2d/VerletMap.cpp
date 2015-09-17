@@ -5,7 +5,7 @@
 
 #include "VerletMap.h"
 
-#include "SCISim/UnconstrainedMaps/FlowableSystem.h"
+#include "scisim/UnconstrainedMaps/FlowableSystem.h"
 
 VerletMap::VerletMap()
 {}

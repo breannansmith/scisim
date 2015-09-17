@@ -6,7 +6,7 @@
 #include "SphereSphereConstraint.h"
 
 #include "FrictionUtilities.h"
-#include "SCISim/Math/MathUtilities.h"
+#include "scisim/Math/MathUtilities.h"
 
 bool SphereSphereConstraint::isActive( const Vector3s& x0, const Vector3s& x1, const scalar& r0, const scalar& r1 )
 {

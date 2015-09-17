@@ -6,9 +6,9 @@
 #include "Ball2DUtilities.h"
 
 #include <cassert>
-#include "SCISim/StringUtilities.h"
-#include "SCISim/UnconstrainedMaps/UnconstrainedMap.h"
-#include "Ball2D/VerletMap.h"
+#include "scisim/StringUtilities.h"
+#include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
+#include "ball2d/VerletMap.h"
 
 #include <iostream>
 

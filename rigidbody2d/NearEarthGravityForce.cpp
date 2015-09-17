@@ -5,7 +5,7 @@
 
 #include "NearEarthGravityForce.h"
 
-#include "SCISim/Math/MathUtilities.h"
+#include "scisim/Math/MathUtilities.h"
 
 NearEarthGravityForce::NearEarthGravityForce( const Vector2s& g )
 : m_g( g )

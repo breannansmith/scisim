@@ -7,15 +7,15 @@
 
 #include <iostream>
 
-#include "SCISim/Math/MathUtilities.h"
-#include "SCISim/ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h"
-#include "SCISim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
-#include "SCISim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
-#include "SCISim/ConstrainedMaps/StaggeredProjections.h"
-#include "SCISim/Constraints/ConstrainedSystem.h"
-#include "SCISim/UnconstrainedMaps/UnconstrainedMap.h"
-#include "SCISim/ScriptingCallback.h"
-#include "SCISim/UnconstrainedMaps/FlowableSystem.h"
+#include "scisim/Math/MathUtilities.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
+#include "scisim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
+#include "scisim/ConstrainedMaps/StaggeredProjections.h"
+#include "scisim/Constraints/ConstrainedSystem.h"
+#include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
+#include "scisim/ScriptingCallback.h"
+#include "scisim/UnconstrainedMaps/FlowableSystem.h"
 
 StabilizedImpactFrictionMap::StabilizedImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters )
 : m_f( VectorXs::Zero( 0 ) )

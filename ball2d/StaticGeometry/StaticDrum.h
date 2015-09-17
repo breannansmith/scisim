@@ -6,7 +6,7 @@
 #ifndef STATIC_DRUM_H
 #define STATIC_DRUM_H
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 class StaticDrum final
 {

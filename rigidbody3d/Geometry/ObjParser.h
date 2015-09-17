@@ -13,7 +13,7 @@
 #ifndef OBJ_PARSER_H
 #define OBJ_PARSER_H
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 #include <string>
 
 namespace ObjParser

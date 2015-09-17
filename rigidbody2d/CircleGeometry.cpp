@@ -5,7 +5,7 @@
 
 #include "CircleGeometry.h"
 
-#include "SCISim/Utilities.h"
+#include "scisim/Utilities.h"
 
 CircleGeometry::CircleGeometry( const scalar& r )
 : m_r( r )

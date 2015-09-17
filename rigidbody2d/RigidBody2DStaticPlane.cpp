@@ -5,7 +5,7 @@
 
 #include "RigidBody2DStaticPlane.h"
 
-#include "SCISim/Math/MathUtilities.h"
+#include "scisim/Math/MathUtilities.h"
 
 RigidBody2DStaticPlane::RigidBody2DStaticPlane( const Vector2s& x, const Vector2s& n )
 : m_x( x )

@@ -6,8 +6,8 @@
 #ifndef FISCHER_BURMEISTER_IMPACT_H
 #define FISCHER_BURMEISTER_IMPACT_H
 
-#include "SCISim/ConstrainedMaps/QPTerminationOperator.h"
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/ConstrainedMaps/QPTerminationOperator.h"
+#include "scisim/Math/MathDefines.h"
 
 class FischerBurmeisterImpact final : public QPTerminationOperator
 {

@@ -6,7 +6,7 @@
 #ifndef DMV_MAP_H
 #define DMV_MAP_H
 
-#include "SCISim/UnconstrainedMaps/UnconstrainedMap.h"
+#include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
 
 class DMVMap final : public UnconstrainedMap
 {

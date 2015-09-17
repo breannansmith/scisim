@@ -7,8 +7,8 @@
 #include <cstdlib>
 #include <string>
 
-#include "SCISim/Math/MathDefines.h"
-#include "SCISim/Math/SparseMatrixUtilities.h"
+#include "scisim/Math/MathDefines.h"
+#include "scisim/Math/SparseMatrixUtilities.h"
 #include <Eigen/OrderingMethods>
 
 // 0 1 1 0

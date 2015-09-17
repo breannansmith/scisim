@@ -6,7 +6,7 @@
 #include "QLUtilities.h"
 
 #include <iostream>
-#include "SCISim/StringUtilities.h"
+#include "scisim/StringUtilities.h"
 
 std::string QLUtilities::QLReturnStatusToString( const int status )
 {

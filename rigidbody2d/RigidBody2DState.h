@@ -6,7 +6,7 @@
 #ifndef RIGID_BODY_2D_STATE
 #define RIGID_BODY_2D_STATE
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 #include "RigidBody2DGeometry.h"
 #include "RigidBody2DForce.h"
 #include "RigidBody2DStaticPlane.h"

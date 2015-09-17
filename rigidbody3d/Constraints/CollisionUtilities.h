@@ -6,7 +6,7 @@
 #ifndef COLLISION_UTILITIES_H
 #define COLLISION_UTILITIES_H
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 namespace CollisionUtilities
 {

@@ -5,7 +5,7 @@
 
 #include "StapleStapleUtilities.h"
 #include "CollisionUtilities.h"
-#include "RigidBody3D/Geometry/RigidBodyStaple.h"
+#include "rigidbody3d/Geometry/RigidBodyStaple.h"
 
 #include <set>
 #include <iostream>

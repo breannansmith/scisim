@@ -6,7 +6,7 @@
 #ifndef KINEMATIC_OBJECT_BODY_CONSTRAINT_H
 #define KINEMATIC_OBJECT_BODY_CONSTRAINT_H
 
-#include "SCISim/Constraints/Constraint.h"
+#include "scisim/Constraints/Constraint.h"
 
 class KinematicObjectBodyConstraint final : public Constraint
 {

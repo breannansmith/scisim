@@ -5,8 +5,8 @@
 
 #include "PlanarPortal.h"
 
-#include "SCISim/Utilities.h"
-#include "SCISim/Math/MathUtilities.h"
+#include "scisim/Utilities.h"
+#include "scisim/Math/MathUtilities.h"
 
 #include <iostream>
 

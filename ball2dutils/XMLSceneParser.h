@@ -8,7 +8,7 @@
 #ifndef XML_SCENE_PARSER_H
 #define XML_SCENE_PARSER_H
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 #include <string>
 #include <memory>
 #include <cstdint>

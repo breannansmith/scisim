@@ -8,7 +8,7 @@
 #ifndef STATIC_CYLINDER_H
 #define STATIC_CYLINDER_H
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 class StaticCylinder
 {

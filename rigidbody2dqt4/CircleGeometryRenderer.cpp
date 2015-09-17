@@ -1,6 +1,6 @@
 #include "CircleGeometryRenderer.h"
 
-#include "RigidBody2D/CircleGeometry.h"
+#include "rigidbody2d/CircleGeometry.h"
 #include "GLCircleRenderer2D.h"
 
 CircleGeometryRenderer::CircleGeometryRenderer( const CircleGeometry& geo, const GLCircleRenderer2D& circle_renderer )

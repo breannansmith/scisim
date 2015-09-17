@@ -2,8 +2,8 @@
 
 #include <QtOpenGL>
 
-#include "RigidBody3D/Portals/PlanarPortal.h"
-#include "RigidBody3D/StaticGeometry/StaticPlane.h"
+#include "rigidbody3d/Portals/PlanarPortal.h"
+#include "rigidbody3d/StaticGeometry/StaticPlane.h"
 
 PlanarPortalRenderer::PlanarPortalRenderer( const unsigned idx, const Array2s& half_width0, const Array2s& half_width1 )
 : m_idx( idx )

@@ -6,7 +6,7 @@
 #ifndef STATIC_DRUM_CONSTRAINT_H
 #define STATIC_DRUM_CONSTRAINT_H
 
-#include "SCISim/Constraints/Constraint.h"
+#include "scisim/Constraints/Constraint.h"
 
 class StaticDrumConstraint final : public Constraint
 {

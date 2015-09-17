@@ -6,9 +6,9 @@
 #include <ostream>
 #include <string>
 
-#include "SCISim/StringUtilities.h"
-#include "SCISim/Math/MathUtilities.h"
-#include "SCISim/Utilities.h"
+#include "scisim/StringUtilities.h"
+#include "scisim/Math/MathUtilities.h"
+#include "scisim/Utilities.h"
 
 // TODO: What happens when denominator == 0 ?
 // TODO: Handle unsigned numbers

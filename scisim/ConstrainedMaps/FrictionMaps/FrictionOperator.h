@@ -6,7 +6,7 @@
 #ifndef FRICTION_OPERATOR_H
 #define FRICTION_OPERATOR_H
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 #include <memory>
 

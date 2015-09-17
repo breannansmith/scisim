@@ -5,8 +5,8 @@
 
 #include "HertzianPenaltyForce.h"
 
-#include "SCISim/StringUtilities.h"
-#include "SCISim/Utilities.h"
+#include "scisim/StringUtilities.h"
+#include "scisim/Utilities.h"
 
 HertzianPenaltyForce::HertzianPenaltyForce( const scalar& k )
 : m_k( k )

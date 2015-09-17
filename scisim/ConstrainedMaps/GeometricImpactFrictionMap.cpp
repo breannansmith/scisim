@@ -8,17 +8,17 @@
 #include <memory>
 #include <iostream>
 
-#include "SCISim/Math/MathUtilities.h"
-#include "SCISim/ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h"
-#include "SCISim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
-#include "SCISim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
-#include "SCISim/ConstrainedMaps/StaggeredProjections.h"
-#include "SCISim/Constraints/Constraint.h"
-#include "SCISim/Constraints/ConstrainedSystem.h"
-#include "SCISim/UnconstrainedMaps/UnconstrainedMap.h"
-#include "SCISim/ScriptingCallback.h"
-#include "SCISim/UnconstrainedMaps/FlowableSystem.h"
-#include "SCISim/Utilities.h"
+#include "scisim/Math/MathUtilities.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
+#include "scisim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
+#include "scisim/ConstrainedMaps/StaggeredProjections.h"
+#include "scisim/Constraints/Constraint.h"
+#include "scisim/Constraints/ConstrainedSystem.h"
+#include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
+#include "scisim/ScriptingCallback.h"
+#include "scisim/UnconstrainedMaps/FlowableSystem.h"
+#include "scisim/Utilities.h"
 
 GeometricImpactFrictionMap::GeometricImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters, const bool external_warm_start_alpha, const bool external_warm_start_beta )
 : m_use_staggered_projections( true )

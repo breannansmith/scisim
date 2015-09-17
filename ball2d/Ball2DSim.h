@@ -10,8 +10,8 @@
 #include <Python.h>
 #endif
 
-#include "SCISim/UnconstrainedMaps/FlowableSystem.h"
-#include "SCISim/Constraints/ConstrainedSystem.h"
+#include "scisim/UnconstrainedMaps/FlowableSystem.h"
+#include "scisim/Constraints/ConstrainedSystem.h"
 #include "Ball2DState.h"
 #include "ConstraintCache.h"
 

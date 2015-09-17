@@ -12,7 +12,7 @@
 #include "IpIpoptApplication.hpp"
 #endif
 
-#include "SCISim/ConstrainedMaps/QPTerminationOperator.h"
+#include "scisim/ConstrainedMaps/QPTerminationOperator.h"
 
 // Solves the problem:
 //   1/2 beta^T Q beta + beta^T ( D^T v0 + gdotD  )

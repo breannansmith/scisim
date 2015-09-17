@@ -5,7 +5,7 @@
 
 #include "ExponentialEulerMap.h"
 
-#include "SCISim/UnconstrainedMaps/FlowableSystem.h"
+#include "scisim/UnconstrainedMaps/FlowableSystem.h"
 
 ExponentialEulerMap::~ExponentialEulerMap()
 {}

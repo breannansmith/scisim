@@ -6,7 +6,7 @@
 #ifndef STATIC_CYLINDER_SPHERE_CONSTRAINT_H
 #define STATIC_CYLINDER_SPHERE_CONSTRAINT_H
 
-#include "SCISim/Constraints/Constraint.h"
+#include "scisim/Constraints/Constraint.h"
 
 class StaticCylinder;
 

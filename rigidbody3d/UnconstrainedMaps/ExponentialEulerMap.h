@@ -8,7 +8,7 @@
 #ifndef EXPONENTIAL_EULER_MAP_H
 #define EXPONENTIAL_EULER_MAP_H
 
-#include "SCISim/UnconstrainedMaps/UnconstrainedMap.h"
+#include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
 
 class ExponentialEulerMap final : public UnconstrainedMap
 {

@@ -6,7 +6,7 @@
 #ifndef BALL_2D_H
 #define BALL_2D_H
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 class Ball2D
 {

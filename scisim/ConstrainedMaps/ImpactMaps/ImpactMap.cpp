@@ -7,14 +7,14 @@
 
 #include <memory>
 
-#include "SCISim/ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h"
-#include "SCISim/ConstrainedMaps/ImpactMaps/ImpactSolution.h"
-#include "SCISim/Constraints/ConstrainedSystem.h"
-#include "SCISim/Constraints/Constraint.h"
-#include "SCISim/UnconstrainedMaps/FlowableSystem.h"
-#include "SCISim/UnconstrainedMaps/UnconstrainedMap.h"
-#include "SCISim/ScriptingCallback.h"
-#include "SCISim/Utilities.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactSolution.h"
+#include "scisim/Constraints/ConstrainedSystem.h"
+#include "scisim/Constraints/Constraint.h"
+#include "scisim/UnconstrainedMaps/FlowableSystem.h"
+#include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
+#include "scisim/ScriptingCallback.h"
+#include "scisim/Utilities.h"
 #include "ImpactOperator.h"
 
 ImpactMap::ImpactMap( const bool warm_start )

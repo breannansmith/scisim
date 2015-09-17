@@ -5,8 +5,8 @@
 
 #include "StateOutput.h"
 
-#include "SCISim/HDF5File.h"
-#include "SCISim/Utilities.h"
+#include "scisim/HDF5File.h"
+#include "scisim/Utilities.h"
 #include "Geometry/RigidBodyGeometry.h"
 #include "Geometry/RigidBodyBox.h"
 #include "Geometry/RigidBodySphere.h"

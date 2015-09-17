@@ -6,7 +6,7 @@
 #ifndef IMPACT_OPERATOR_H
 #define IMPACT_OPERATOR_H
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 #include <memory>
 

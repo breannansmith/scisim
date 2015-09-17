@@ -6,8 +6,8 @@
 
 #ifdef USE_PYTHON
 #include <Python.h>
-#include "RigidBody3D/PythonScripting.cpp"
-#include "SCISim/PythonTools.h"
+#include "rigidbody3d/PythonScripting.cpp"
+#include "scisim/PythonTools.h"
 #endif
 
 static void centerWindow( Window& window )

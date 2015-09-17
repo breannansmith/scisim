@@ -6,7 +6,7 @@
 #ifndef SPATIAL_GRID_H
 #define SPATIAL_GRID_H
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 #include <set>
 #include <vector>

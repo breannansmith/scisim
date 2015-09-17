@@ -5,7 +5,7 @@
 
 #include "StaticPlaneCircleConstraint.h"
 
-#include "SCISim/Math/MathUtilities.h"
+#include "scisim/Math/MathUtilities.h"
 
 #include "RigidBody2DStaticPlane.h"
 

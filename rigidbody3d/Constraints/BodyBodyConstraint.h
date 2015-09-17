@@ -6,7 +6,7 @@
 #ifndef BODY_BODY_CONSTRAINT_H
 #define BODY_BODY_CONSTRAINT_H
 
-#include "SCISim/Constraints/Constraint.h"
+#include "scisim/Constraints/Constraint.h"
 
 class BodyBodyConstraint final : public Constraint
 {

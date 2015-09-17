@@ -5,8 +5,8 @@
 
 #include "StaticDrum.h"
 
-#include "SCISim/Math/MathUtilities.h"
-#include "SCISim/Utilities.h"
+#include "scisim/Math/MathUtilities.h"
+#include "scisim/Utilities.h"
 
 StaticDrum::StaticDrum( const Vector2s& x, const scalar& r )
 : m_x( x )

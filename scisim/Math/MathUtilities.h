@@ -12,7 +12,7 @@
 #include <Eigen/LU>
 #include "MathDefines.h"
 
-#include "SCISim/Utilities.h"
+#include "scisim/Utilities.h"
 
 namespace MathUtilities
 {

@@ -6,7 +6,7 @@
 #include "TimeUtils.h"
 
 #include <ctime>
-#include "SCISim/StringUtilities.h"
+#include "scisim/StringUtilities.h"
 
 std::string TimeUtils::currentTime()
 {

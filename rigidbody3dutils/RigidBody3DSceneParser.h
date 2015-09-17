@@ -6,7 +6,7 @@
 #ifndef RIGID_BODY_3D_SCENE_PARSER_H
 #define RIGID_BODY_3D_SCENE_PARSER_H
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 #include <string>
 #include <memory>
 #include <cstdint>

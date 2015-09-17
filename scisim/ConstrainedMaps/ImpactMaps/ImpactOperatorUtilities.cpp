@@ -5,7 +5,7 @@
 
 #include "ImpactOperatorUtilities.h"
 
-#include "SCISim/Constraints/Constraint.h"
+#include "scisim/Constraints/Constraint.h"
 
 void ImpactOperatorUtilities::computeN( const FlowableSystem& fsys, const std::vector<std::unique_ptr<Constraint>>& V, const VectorXs& q, SparseMatrixsc& N )
 {

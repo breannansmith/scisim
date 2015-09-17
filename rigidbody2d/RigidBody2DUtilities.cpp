@@ -9,8 +9,8 @@
 #include <ostream>
 #include <iostream>
 
-#include "SCISim/StringUtilities.h"
-#include "SCISim/UnconstrainedMaps/UnconstrainedMap.h"
+#include "scisim/StringUtilities.h"
+#include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
 
 #include "SymplecticEulerMap.h"
 

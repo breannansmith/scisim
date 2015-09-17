@@ -10,8 +10,8 @@
 #include <Python.h>
 #endif
 
-#include "SCISim/ScriptingCallback.h"
-#include "SCISim/PythonObject.h"
+#include "scisim/ScriptingCallback.h"
+#include "scisim/PythonObject.h"
 
 class RigidBody3DState;
 

@@ -5,9 +5,9 @@
 
 #include "ConstraintCache.h"
 
-#include "SCISim/Math/MathUtilities.h"
-#include "SCISim/Constraints/Constraint.h"
-#include "SCISim/Utilities.h"
+#include "scisim/Math/MathUtilities.h"
+#include "scisim/Constraints/Constraint.h"
+#include "scisim/Utilities.h"
 #include "Constraints/BallBallConstraint.h"
 #include "Constraints/BallStaticPlaneConstraint.h"
 #include "Constraints/BallStaticDrumConstraint.h"

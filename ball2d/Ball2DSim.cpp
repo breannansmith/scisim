@@ -5,14 +5,14 @@
 
 #include "Ball2DSim.h"
 
-#include "SCISim/UnconstrainedMaps/UnconstrainedMap.h"
-#include "SCISim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
-#include "SCISim/ConstrainedMaps/ImpactFrictionMap.h"
-#include "SCISim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
-#include "SCISim/Math/MathUtilities.h"
-#include "SCISim/Utilities.h"
-#include "SCISim/HDF5File.h"
-#include "SCISim/Math/Rational.h"
+#include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
+#include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
+#include "scisim/Math/MathUtilities.h"
+#include "scisim/Utilities.h"
+#include "scisim/HDF5File.h"
+#include "scisim/Math/Rational.h"
 
 #include "Constraints/BallBallConstraint.h"
 #include "Constraints/KinematicKickBallBallConstraint.h"

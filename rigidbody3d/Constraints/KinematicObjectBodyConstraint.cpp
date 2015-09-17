@@ -8,7 +8,7 @@
 #include "FrictionUtilities.h"
 
 #ifndef NDEBUG
-#include "SCISim/Math/MathUtilities.h"
+#include "scisim/Math/MathUtilities.h"
 #endif
 
 KinematicObjectBodyConstraint::KinematicObjectBodyConstraint( const unsigned bdy_idx, const unsigned knmtc_idx, const Vector3s& p, const Vector3s& n, const VectorXs& q )

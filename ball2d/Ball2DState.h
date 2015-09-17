@@ -8,7 +8,7 @@
 
 #include <memory>
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 #include "Forces/Ball2DForce.h"
 
 class StaticDrum;

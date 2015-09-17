@@ -6,7 +6,7 @@
 #ifndef RENDERING_STATE
 #define RENDERING_STATE
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 #include <vector>
 

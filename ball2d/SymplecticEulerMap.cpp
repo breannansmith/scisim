@@ -5,7 +5,7 @@
 
 #include "SymplecticEulerMap.h"
 
-#include "SCISim/UnconstrainedMaps/FlowableSystem.h"
+#include "scisim/UnconstrainedMaps/FlowableSystem.h"
 
 SymplecticEulerMap::SymplecticEulerMap()
 {}

@@ -6,7 +6,7 @@
 #ifndef PYTHON_SCRIPTING_H
 #define PYTHON_SCRIPTING_H
 
-#include "SCISim/ScriptingCallback.h"
+#include "scisim/ScriptingCallback.h"
 
 class PythonScripting final : public ScriptingCallback
 {

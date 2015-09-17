@@ -6,8 +6,8 @@
 #ifndef FISCHER_BURMEISTER_BOUND_CONSTRAINED_H
 #define FISCHER_BURMEISTER_BOUND_CONSTRAINED_H
 
-#include "SCISim/ConstrainedMaps/QPTerminationOperator.h"
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/ConstrainedMaps/QPTerminationOperator.h"
+#include "scisim/Math/MathDefines.h"
 
 class FischerBurmeisterBoundConstrained final : public QPTerminationOperator
 {

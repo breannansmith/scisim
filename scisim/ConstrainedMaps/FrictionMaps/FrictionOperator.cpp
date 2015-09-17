@@ -5,7 +5,7 @@
 
 #include "FrictionOperator.h"
 
-#include "SCISim/Constraints/Constraint.h"
+#include "scisim/Constraints/Constraint.h"
 
 FrictionOperator::~FrictionOperator()
 {}

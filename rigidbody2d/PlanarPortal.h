@@ -7,7 +7,7 @@
 #define PLANAR_PORTAL_H
 
 #include "RigidBody2DStaticPlane.h"
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 class TeleportedBody final
 {

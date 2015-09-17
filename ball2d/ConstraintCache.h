@@ -8,7 +8,7 @@
 #ifndef CONSTRAINT_CACHE_H
 #define CONSTRAINT_CACHE_H
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 class Constraint;
 

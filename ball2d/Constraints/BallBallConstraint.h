@@ -8,7 +8,7 @@
 #ifndef BALL_BALL_CONSTRAINT_H
 #define BALL_BALL_CONSTRAINT_H
 
-#include "SCISim/Constraints/Constraint.h"
+#include "scisim/Constraints/Constraint.h"
 
 class BallBallConstraint : public Constraint
 {

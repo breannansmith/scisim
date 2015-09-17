@@ -8,7 +8,7 @@
 
 class FlowableSystem;
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 class UnconstrainedMap
 {

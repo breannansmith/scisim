@@ -6,7 +6,7 @@
 #ifndef RIGID_BODY_2D_STATIC_PLANE_H
 #define RIGID_BODY_2D_STATIC_PLANE_H
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 #include <iosfwd>
 
 class RigidBody2DStaticPlane final

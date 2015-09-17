@@ -5,10 +5,10 @@
 
 #include "ImpactFrictionMap.h"
 
-#include "SCISim/UnconstrainedMaps/FlowableSystem.h"
-#include "SCISim/Constraints/Constraint.h"
+#include "scisim/UnconstrainedMaps/FlowableSystem.h"
+#include "scisim/Constraints/Constraint.h"
 
-#include "SCISim/HDF5File.h"
+#include "scisim/HDF5File.h"
 
 #include <iostream>
 

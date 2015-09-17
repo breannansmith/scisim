@@ -6,7 +6,7 @@
 #ifndef INTEGRATION_UTILS_H
 #define INTEGRATION_UTILS_H
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 namespace IntegrationUtils
 {

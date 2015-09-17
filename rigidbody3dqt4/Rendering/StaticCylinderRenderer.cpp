@@ -1,6 +1,6 @@
 #include "StaticCylinderRenderer.h"
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 StaticCylinderRenderer::StaticCylinderRenderer( const int idx, const scalar& length )
 : m_idx( idx )

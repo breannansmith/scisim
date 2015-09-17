@@ -5,8 +5,8 @@
 
 #include "Ball2DGravityForce.h"
 
-#include "SCISim/Math/MathUtilities.h"
-#include "SCISim/StringUtilities.h"
+#include "scisim/Math/MathUtilities.h"
+#include "scisim/StringUtilities.h"
 
 Ball2DGravityForce::Ball2DGravityForce( const Vector2s& g )
 : m_g( g )

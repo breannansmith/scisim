@@ -1,7 +1,7 @@
 #ifndef RIGID_BODY_RENDERER_2D_H
 #define RIGID_BODY_RENDERER_2D_H
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 #ifdef __APPLE__
 #include <OpenGL/gl.h>

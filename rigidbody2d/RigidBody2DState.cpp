@@ -5,9 +5,9 @@
 
 #include "RigidBody2DState.h"
 
-#include "SCISim/Utilities.h"
-#include "SCISim/Math/MathUtilities.h"
-#include "SCISim/StringUtilities.h"
+#include "scisim/Utilities.h"
+#include "scisim/Math/MathUtilities.h"
+#include "scisim/StringUtilities.h"
 
 #include "CircleGeometry.h"
 #include "NearEarthGravityForce.h"

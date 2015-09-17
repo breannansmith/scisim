@@ -5,7 +5,7 @@
 
 #include "RigidBody2DForce.h"
 
-#include "SCISim/StringUtilities.h"
+#include "scisim/StringUtilities.h"
 
 RigidBody2DForce::~RigidBody2DForce()
 {}

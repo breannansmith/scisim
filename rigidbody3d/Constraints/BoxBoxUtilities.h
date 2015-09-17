@@ -6,7 +6,7 @@
 #ifndef BOX_BOX_UTILITIES_H
 #define BOX_BOX_UTILITIES_H
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 // TODO: Complete cleanup of this code
 

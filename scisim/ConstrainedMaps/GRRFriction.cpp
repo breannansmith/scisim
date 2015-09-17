@@ -5,12 +5,12 @@
 
 #include "GRRFriction.h"
 
-#include "SCISim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
-#include "SCISim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
-#include "SCISim/ConstrainedMaps/ConstrainedMapUtilities.h"
-#include "SCISim/ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h"
-#include "SCISim/UnconstrainedMaps/FlowableSystem.h"
-#include "SCISim/Constraints/Constraint.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
+#include "scisim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
+#include "scisim/ConstrainedMaps/ConstrainedMapUtilities.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h"
+#include "scisim/UnconstrainedMaps/FlowableSystem.h"
+#include "scisim/Constraints/Constraint.h"
 
 GRRFriction::GRRFriction( const ImpactOperator& impact_operator, const FrictionOperator& friction_operator )
 : m_impact_operator( impact_operator.clone() )

@@ -6,7 +6,7 @@
 #ifndef FLOWABLE_SYSTEM_H
 #define FLOWABLE_SYSTEM_H
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 class FlowableSystem
 {

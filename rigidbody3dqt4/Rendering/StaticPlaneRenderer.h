@@ -1,7 +1,7 @@
 #ifndef STATIC_PLANE_RENDERER_H
 #define STATIC_PLANE_RENDERER_H
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 class StaticPlane;
 

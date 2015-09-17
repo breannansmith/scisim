@@ -5,7 +5,7 @@
 
 #include "StaticCylinderBodyConstraint.h"
 
-#include "RigidBody3D/StaticGeometry/StaticCylinder.h"
+#include "rigidbody3d/StaticGeometry/StaticCylinder.h"
 
 #include <iostream>
 

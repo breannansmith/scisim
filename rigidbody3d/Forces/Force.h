@@ -6,7 +6,7 @@
 #ifndef FORCE_H
 #define FORCE_H
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 #include <string>
 #include <memory>
 

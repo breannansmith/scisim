@@ -7,8 +7,8 @@
 
 #include "FrictionUtilities.h"
 
-#include "RigidBody3D/StaticGeometry/StaticPlane.h"
-#include "SCISim/Math/MathUtilities.h"
+#include "rigidbody3d/StaticGeometry/StaticPlane.h"
+#include "scisim/Math/MathUtilities.h"
 
 #include <iostream>
 

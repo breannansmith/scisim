@@ -5,7 +5,7 @@
 
 #include "BallStaticPlaneConstraint.h"
 
-#include "Ball2D/StaticGeometry/StaticPlane.h"
+#include "ball2d/StaticGeometry/StaticPlane.h"
 
 bool StaticPlaneConstraint::isActive( const unsigned ball_idx, const VectorXs& q, const VectorXs& r, const Vector2s& x, const Vector2s& n )
 {

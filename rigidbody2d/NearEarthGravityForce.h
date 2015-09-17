@@ -6,7 +6,7 @@
 #ifndef NEAR_EARTH_GRAVITY_FORCE_H
 #define NEAR_EARTH_GRAVITY_FORCE_H
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 #include "RigidBody2DForce.h"
 
 class NearEarthGravityForce final : public RigidBody2DForce

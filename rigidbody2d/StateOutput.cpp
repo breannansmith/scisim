@@ -5,8 +5,8 @@
 
 #include "StateOutput.h"
 
-#include "SCISim/HDF5File.h"
-#include "SCISim/Utilities.h"
+#include "scisim/HDF5File.h"
+#include "scisim/Utilities.h"
 #include "RigidBody2DGeometry.h"
 #include "RigidBody2DStaticPlane.h"
 #include "PlanarPortal.h"

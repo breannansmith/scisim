@@ -8,8 +8,8 @@
 #include <cstdlib>
 #include <cmath>
 
-#include "SCISim/Math/MathDefines.h"
-#include "SCISim/Math/Rational.h"
+#include "scisim/Math/MathDefines.h"
+#include "scisim/Math/Rational.h"
 
 int main( int argc, char** argv )
 {

@@ -6,7 +6,7 @@
 #ifndef SPHERE_SPHERE_CONSTRAINT_H
 #define SPHERE_SPHERE_CONSTRAINT_H
 
-#include "SCISim/Constraints/Constraint.h"
+#include "scisim/Constraints/Constraint.h"
 
 class SphereSphereConstraint final : public Constraint
 {

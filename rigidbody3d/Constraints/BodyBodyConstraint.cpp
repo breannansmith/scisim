@@ -7,7 +7,7 @@
 
 #include "FrictionUtilities.h"
 
-#include "SCISim/Math/MathUtilities.h"
+#include "scisim/Math/MathUtilities.h"
 
 BodyBodyConstraint::BodyBodyConstraint( const unsigned idx0, const unsigned idx1, const Vector3s& p, const Vector3s& n, const VectorXs& q )
 : m_idx0( idx0 )

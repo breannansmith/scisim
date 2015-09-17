@@ -4,15 +4,15 @@
 #include <QtOpenGL>
 #include <iostream>
 
-#include "SCISim/Utilities.h"
-#include "SCISim/UnconstrainedMaps/UnconstrainedMap.h"
-#include "SCISim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
-#include "SCISim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
-#include "SCISim/ConstrainedMaps/FrictionSolver.h"
-#include "SCISim/ConstrainedMaps/ImpactFrictionMap.h"
+#include "scisim/Utilities.h"
+#include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
+#include "scisim/ConstrainedMaps/FrictionSolver.h"
+#include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
 
-#include "RigidBody2D/CircleGeometry.h"
-#include "RigidBody2D/RigidBody2DState.h"
+#include "rigidbody2d/CircleGeometry.h"
+#include "rigidbody2d/RigidBody2DState.h"
 
 #include "RigidBody2DUtils/RigidBody2DSceneParser.h"
 #include "RigidBody2DUtils/CameraSettings2D.h"

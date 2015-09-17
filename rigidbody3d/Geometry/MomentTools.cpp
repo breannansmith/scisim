@@ -9,7 +9,7 @@
 
 #include <Eigen/Eigenvalues>
 
-#include "SCISim/Math/MathUtilities.h"
+#include "scisim/Math/MathUtilities.h"
 
 static void diagonalizeInertiaTensor( const Matrix3s& I, Matrix3s& R0, Vector3s& I0 )
 {

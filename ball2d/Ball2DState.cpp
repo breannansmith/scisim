@@ -5,9 +5,9 @@
 
 #include "Ball2DState.h"
 
-#include "SCISim/Math/MathUtilities.h"
-#include "SCISim/Utilities.h"
-#include "SCISim/StringUtilities.h"
+#include "scisim/Math/MathUtilities.h"
+#include "scisim/Utilities.h"
+#include "scisim/StringUtilities.h"
 #include "Forces/Ball2DGravityForce.h"
 
 #include "StaticGeometry/StaticDrum.h"

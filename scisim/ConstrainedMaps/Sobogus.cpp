@@ -5,12 +5,12 @@
 
 #include "Sobogus.h"
 
-#include "SCISim/Constraints/Constraint.h"
-#include "SCISim/Math/MathUtilities.h"
-#include "SCISim/UnconstrainedMaps/FlowableSystem.h"
-#include "SCISim/ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h"
-#include "SCISim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
-#include "SCISim/Utilities.h"
+#include "scisim/Constraints/Constraint.h"
+#include "scisim/Math/MathUtilities.h"
+#include "scisim/UnconstrainedMaps/FlowableSystem.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h"
+#include "scisim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
+#include "scisim/Utilities.h"
 
 #include <cassert>
 #include <map>

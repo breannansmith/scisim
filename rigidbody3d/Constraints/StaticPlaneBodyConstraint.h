@@ -6,7 +6,7 @@
 #ifndef STATIC_PLANE_BODY_CONSTRAINT_H
 #define STATIC_PLANE_BODY_CONSTRAINT_H
 
-#include "SCISim/Constraints/Constraint.h"
+#include "scisim/Constraints/Constraint.h"
 
 class StaticPlaneBodyConstraint final : public Constraint
 {

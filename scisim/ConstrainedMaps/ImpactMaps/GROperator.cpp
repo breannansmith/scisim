@@ -7,9 +7,9 @@
 
 #include <iostream>
 
-#include "SCISim/Math/MathUtilities.h"
-#include "SCISim/ConstrainedMaps/ConstrainedMapUtilities.h"
-#include "SCISim/Utilities.h"
+#include "scisim/Math/MathUtilities.h"
+#include "scisim/ConstrainedMaps/ConstrainedMapUtilities.h"
+#include "scisim/Utilities.h"
 
 GROperator::GROperator( const scalar& v_tol, const ImpactOperator& impact_operator )
 : m_v_tol( v_tol )

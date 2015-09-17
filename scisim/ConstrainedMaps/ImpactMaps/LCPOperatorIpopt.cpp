@@ -9,12 +9,12 @@
 #include <fstream>
 #include <iostream>
 
-#include "SCISim/StringUtilities.h"
-#include "SCISim/Utilities.h"
-#include "SCISim/ConstrainedMaps/IpoptUtilities.h"
-#include "SCISim/Math/MathUtilities.h"
-#include "SCISim/ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h"
-#include "SCISim/ConstrainedMaps/ImpactMaps/FischerBurmeisterImpact.h"
+#include "scisim/StringUtilities.h"
+#include "scisim/Utilities.h"
+#include "scisim/ConstrainedMaps/IpoptUtilities.h"
+#include "scisim/Math/MathUtilities.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/FischerBurmeisterImpact.h"
 
 #ifdef IPOPT_FOUND
 #include "IpIpoptCalculatedQuantities.hpp"

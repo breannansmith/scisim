@@ -8,7 +8,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "SCISim/StringUtilities.h"
+#include "scisim/StringUtilities.h"
 
 // TODO: Move error handling to exceptions
 void parsevCommand( std::istringstream& commandstream, std::vector<Vector3s>& verts )

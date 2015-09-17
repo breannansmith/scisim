@@ -5,7 +5,7 @@
 
 #include "MeshMeshUtilities.h"
 
-#include "RigidBody3D/Geometry/RigidBodyTriangleMesh.h"
+#include "rigidbody3d/Geometry/RigidBodyTriangleMesh.h"
 
 void MeshMeshUtilities::computeActiveSet( const Vector3s& cm0, const Matrix33sr& R0, const RigidBodyTriangleMesh& mesh0,
                                           const Vector3s& cm1, const Matrix33sr& R1, const RigidBodyTriangleMesh& mesh1,

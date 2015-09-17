@@ -6,7 +6,7 @@
 #ifndef STATIC_PLANE_BOX_CONSTRAINT_H
 #define STATIC_PLANE_BOX_CONSTRAINT_H
 
-#include "SCISim/Constraints/Constraint.h"
+#include "scisim/Constraints/Constraint.h"
 
 // TODO: Merge this with StaticPlaneBodyConstraint
 // TODO: Update to handle kinematic planes

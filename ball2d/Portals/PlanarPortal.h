@@ -6,8 +6,8 @@
 #ifndef PLANAR_PORTAL_H
 #define PLANAR_PORTAL_H
 
-#include "Ball2D/StaticGeometry/StaticPlane.h"
-#include "SCISim/Math/MathDefines.h"
+#include "ball2d/StaticGeometry/StaticPlane.h"
+#include "scisim/Math/MathDefines.h"
 
 class TeleportedBall final
 {

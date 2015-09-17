@@ -6,7 +6,7 @@
 #ifndef SYMPLECTIC_EULER_MAP_H
 #define SYMPLECTIC_EULER_MAP_H
 
-#include "SCISim/UnconstrainedMaps/UnconstrainedMap.h"
+#include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
 
 class SymplecticEulerMap final : public UnconstrainedMap
 {

@@ -5,7 +5,7 @@
 
 #include "StaticPlane.h"
 
-#include "SCISim/Math/MathUtilities.h"
+#include "scisim/Math/MathUtilities.h"
 
 StaticPlane::StaticPlane()
 : m_x()

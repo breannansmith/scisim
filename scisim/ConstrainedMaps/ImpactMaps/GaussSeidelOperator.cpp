@@ -4,8 +4,8 @@
 // Last updated: 09/03/2015
 
 #include "GaussSeidelOperator.h"
-#include "SCISim/Utilities.h"
-#include "SCISim/Constraints/Constraint.h"
+#include "scisim/Utilities.h"
+#include "scisim/Constraints/Constraint.h"
 
 GaussSeidelOperator::GaussSeidelOperator( const scalar& v_tol )
 : m_v_tol( v_tol )

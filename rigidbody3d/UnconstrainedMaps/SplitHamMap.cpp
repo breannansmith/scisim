@@ -7,7 +7,7 @@
 
 #include "IntegrationUtils.h"
 
-#include "SCISim/UnconstrainedMaps/FlowableSystem.h"
+#include "scisim/UnconstrainedMaps/FlowableSystem.h"
 
 #ifndef NDEBUG
 #include <iostream>

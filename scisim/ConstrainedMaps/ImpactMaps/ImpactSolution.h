@@ -6,7 +6,7 @@
 #ifndef IMPACT_SOLUTION_H
 #define IMPACT_SOLUTION_H
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 #include <memory>
 

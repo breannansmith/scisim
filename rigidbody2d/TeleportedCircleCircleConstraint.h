@@ -6,7 +6,7 @@
 #ifndef TELEPORTED_CIRCLE_CIRCLE_CONSTRAINT_H
 #define TELEPORTED_CIRCLE_CIRCLE_CONSTRAINT_H
 
-#include "SCISim/Constraints/Constraint.h"
+#include "scisim/Constraints/Constraint.h"
 
 class TeleportedCircleCircleConstraint : public Constraint
 {

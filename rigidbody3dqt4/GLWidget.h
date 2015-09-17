@@ -5,11 +5,11 @@
 #include <QDir>
 #include <cstdint>
 
-#include "SCISim/Math/MathDefines.h"
-#include "SCISim/Math/Rational.h"
+#include "scisim/Math/MathDefines.h"
+#include "scisim/Math/Rational.h"
 
-#include "RigidBody3D/RigidBody3DSim.h"
-#include "RigidBody3D/PythonScripting.h"
+#include "rigidbody3d/RigidBody3DSim.h"
+#include "rigidbody3d/PythonScripting.h"
 
 #include "PerspectiveCameraController.h"
 #include "OrthographicCameraController.h"

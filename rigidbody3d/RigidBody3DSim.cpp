@@ -7,14 +7,14 @@
 
 #include <iostream>
 
-#include "SCISim/UnconstrainedMaps/UnconstrainedMap.h"
-#include "SCISim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
-#include "SCISim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
-#include "SCISim/ConstrainedMaps/ImpactFrictionMap.h"
-#include "SCISim/ScriptingCallback.h"
-#include "SCISim/Utilities.h"
-#include "SCISim/HDF5File.h"
-#include "SCISim/Math/Rational.h"
+#include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
+#include "scisim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
+#include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
+#include "scisim/ScriptingCallback.h"
+#include "scisim/Utilities.h"
+#include "scisim/HDF5File.h"
+#include "scisim/Math/Rational.h"
 #include "Forces/Force.h"
 #include "Geometry/RigidBodyBox.h"
 #include "Geometry/RigidBodySphere.h"

@@ -9,10 +9,10 @@
 #include <iostream>
 
 #include "FrictionOperatorUtilities.h"
-#include "SCISim/StringUtilities.h"
-#include "SCISim/ConstrainedMaps/IpoptUtilities.h"
-#include "SCISim/Math/MathUtilities.h"
-#include "SCISim/Utilities.h"
+#include "scisim/StringUtilities.h"
+#include "scisim/ConstrainedMaps/IpoptUtilities.h"
+#include "scisim/Math/MathUtilities.h"
+#include "scisim/Utilities.h"
 
 #ifndef NDEBUG
 #include <typeinfo>

@@ -11,7 +11,7 @@
 
 #include <memory>
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 class ImpactOperator;
 class FrictionOperator;

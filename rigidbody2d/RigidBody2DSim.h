@@ -6,10 +6,10 @@
 #ifndef RIGID_BODY_2D_SIM_H
 #define RIGID_BODY_2D_SIM_H
 
-#include "SCISim/UnconstrainedMaps/FlowableSystem.h"
-#include "RigidBody2D/RigidBody2DState.h"
+#include "scisim/UnconstrainedMaps/FlowableSystem.h"
+#include "rigidbody2d/RigidBody2DState.h"
 
-#include "SCISim/Constraints/ConstrainedSystem.h"
+#include "scisim/Constraints/ConstrainedSystem.h"
 
 class UnconstrainedMap;
 class ImpactOperator;

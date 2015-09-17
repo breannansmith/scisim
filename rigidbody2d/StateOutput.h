@@ -12,7 +12,7 @@
 #include <string>
 #include <memory>
 
-#include "SCISim/Math/MathDefines.h"
+#include "scisim/Math/MathDefines.h"
 
 class RigidBody2DGeometry;
 class HDF5File;
