@@ -1,7 +1,7 @@
 // RigidBody2DSim.h
 //
 // Breannan Smith
-// Last updated: 09/10/2015
+// Last updated: 09/16/2015
 
 #ifndef RIGID_BODY_2D_SIM_H
 #define RIGID_BODY_2D_SIM_H
@@ -18,7 +18,7 @@ class ImpactFrictionMap;
 class HDF5File;
 class FrictionSolver;
 
-class RigidBody2DSim final : public FlowableSystem, public ConstrainedSystem
+class RigidBody2DSim final : private FlowableSystem, private ConstrainedSystem
 {
 
 public:
