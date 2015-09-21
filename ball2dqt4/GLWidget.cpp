@@ -21,7 +21,7 @@
 #include "ball2d/StaticGeometry/StaticDrum.h"
 #include "ball2d/Portals/PlanarPortal.h"
 
-#include "ball2dutils/XMLSceneParser.h"
+#include "ball2dutils/Ball2DSceneParser.h"
 
 #ifndef NDEBUG
 static std::string glErrorToString( const GLenum error_code )
@@ -156,7 +156,7 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   bool new_lock_camera;
 
   // TODO: Instead of std::string as input, just take PythonScripting directly
-  const bool loaded_successfully{ XMLSceneParser::parseXMLSceneFile( xml_scene_file_name.toStdString(), new_scripting_callback_name, new_balls, new_drums, new_planes, new_planar_portals, new_unconstrained_map, new_dt_string, new_dt, new_end_time, new_impact_operator, new_imap, new_CoR, new_friction_solver, new_mu, new_if_map, new_forces, camera_set, camera_center, camera_scale_factor, new_fps, new_render_at_fps, new_lock_camera ) };
+  const bool loaded_successfully{ Ball2DSceneParser::parseXMLSceneFile( xml_scene_file_name.toStdString(), new_scripting_callback_name, new_balls, new_drums, new_planes, new_planar_portals, new_unconstrained_map, new_dt_string, new_dt, new_end_time, new_impact_operator, new_imap, new_CoR, new_friction_solver, new_mu, new_if_map, new_forces, camera_set, camera_center, camera_scale_factor, new_fps, new_render_at_fps, new_lock_camera ) };
 
   if( !loaded_successfully )
   {

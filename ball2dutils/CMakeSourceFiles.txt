@@ -1,9 +1,9 @@
 set( Sources
   Ball2D.cpp
-  XMLSceneParser.cpp
+  Ball2DSceneParser.cpp
 )
 
 set( Headers
   Ball2D.h
-  XMLSceneParser.h
+  Ball2DSceneParser.h
 )

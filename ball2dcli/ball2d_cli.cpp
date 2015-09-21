@@ -1,7 +1,7 @@
 // ball2d_cli.cpp
 //
 // Breannan Smith
-// Last updated: 09/13/2015
+// Last updated: 09/21/2015
 
 #ifdef USE_PYTHON
 #include <Python.h>
@@ -38,7 +38,7 @@
 #include "ball2d/StaticGeometry/StaticPlane.h"
 #include "ball2d/Portals/PlanarPortal.h"
 
-#include "ball2dutils/XMLSceneParser.h"
+#include "ball2dutils/Ball2DSceneParser.h"
 #include "ball2dutils/Ball2D.h"
 
 static Ball2DSim g_sim;
@@ -124,7 +124,7 @@ static bool loadXMLScene( const std::string& xml_file_name )
     bool camera_render_at_fps;
     bool camera_lock_camera;
 
-    const bool loaded_successfully{ XMLSceneParser::parseXMLSceneFile( xml_file_name, scripting_callback_name, balls, drums, planes, planar_portals, g_unconstrained_map, dt_string, g_dt, g_end_time, g_impact_operator, g_impact_map, g_CoR, g_friction_solver, g_mu, g_impact_friction_map, forces, camera_set, camera_center, camera_scale_factor, camera_fps, camera_render_at_fps, camera_lock_camera ) };
+    const bool loaded_successfully{ Ball2DSceneParser::parseXMLSceneFile( xml_file_name, scripting_callback_name, balls, drums, planes, planar_portals, g_unconstrained_map, dt_string, g_dt, g_end_time, g_impact_operator, g_impact_map, g_CoR, g_friction_solver, g_mu, g_impact_friction_map, forces, camera_set, camera_center, camera_scale_factor, camera_fps, camera_render_at_fps, camera_lock_camera ) };
     if( !loaded_successfully )
     {
       return false;
