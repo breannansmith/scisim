@@ -1,7 +1,7 @@
 // ImpactFrictionMap.cpp
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/21/2015
 
 #include "ImpactFrictionMap.h"
 
@@ -14,20 +14,6 @@
 
 ImpactFrictionMap::~ImpactFrictionMap()
 {}
-
-bool ImpactFrictionMap::impactOperatorSupported( const std::string& impact_operator_name )
-{
-  // Array doesn't seem to work correctly on CRF's version of stdlib
-  // const std::array<std::string,3> valid_impact_operators{ { "lcp_ipopt", "lcp_ql", "lcp_apgd" } };
-  const std::vector<std::string> valid_impact_operators{ "lcp_ipopt", "lcp_ql", "lcp_apgd", "lcp_gpminres" };
-  return std::find( valid_impact_operators.begin(), valid_impact_operators.end(), impact_operator_name ) != valid_impact_operators.end();
-}
-
-bool ImpactFrictionMap::frictionOperatorSupported( const std::string& friction_operator_name )
-{
-  const std::vector<std::string> valid_friction_operators{ "bound_constrained_mdp_ql", "bound_constrained_mdp_operator_ipopt", "restricted_sample_linear_mdp_ipopt", "linear_mdp_ql", "linear_mdp_ipopt", "smooth_mdp_ipopt", "bound_constrained_mdp_apgd", "smooth_mdp_apgd" };
-  return std::find( valid_friction_operators.begin(), valid_friction_operators.end(), friction_operator_name ) != valid_friction_operators.end();
-}
 
 // TODO: Implement in a cleaner way -- create a function in fsys that checks if kinematic constraints are respected
 bool ImpactFrictionMap::noImpulsesToKinematicGeometry( const FlowableSystem& fsys, const SparseMatrixsc& N, const VectorXs& alpha, const SparseMatrixsc& D, const VectorXs& beta, const VectorXs& v0 )
