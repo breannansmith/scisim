@@ -1,7 +1,7 @@
 // XMLSceneParser.cpp
 //
 // Breannan Smith
-// Last updated: 09/05/2015
+// Last updated: 09/21/2015
 
 #include "XMLSceneParser.h"
 
@@ -965,8 +965,8 @@ static bool loadMDPOperator( const rapidxml::xml_node<>& node, std::unique_ptr<F
 
 // Example:
 //  <staggerd_projections_friction_solver mu="2.0" CoR="0.8" max_iters="50" tol="1.0e-8" staggering="geometric" internal_warm_start_alpha="1" internal_warm_start_beta="1">
-//    <lcp_impact_solver name="apgd" tol="1.0e-12" max_iters="5000"/>
-//    <mdp_friction_solver name="apgd" tol="1.0e-12" max_iters="5000"/>
+//    <lcp_impact_solver name="ipopt" con_tol="1.0e-12" linear_solvers="ma97"/>
+//    <mdp_friction_solver name="ipopt" con_tol="1.0e-12" linear_solvers="ma97"/>
 //  </staggerd_projections_friction_solver>
 static bool loadStaggeredProjectionsFrictionSolver( const rapidxml::xml_node<>& node, scalar& mu, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, std::unique_ptr<ImpactFrictionMap>& if_map )
 {
