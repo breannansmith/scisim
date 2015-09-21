@@ -14,6 +14,8 @@ Updates
 New Features
 ------------
 
+* Microsoft VC++ support.
+
 * User documentation.
 
 * Faceted friction disc support (currently broken).
