@@ -1,7 +1,7 @@
 // CollisionUtilities.cpp
 //
 // Breannan Smith
-// Last updated: 09/15/2015
+// Last updated: 09/22/2015
 
 #include "CollisionUtilities.h"
 
@@ -116,26 +116,6 @@ scalar CollisionUtilities::closestPointSegmentSegment( const Vector3s& p1, const
   c1 = p1 + d1 * s;
   c2 = p2 + d2 * t;
   return ( c1 - c2 ).dot( c1 - c2 );
-}
-
-scalar CollisionUtilities::closestPointPointSegment( const Vector3s& c, const Vector3s& a, const Vector3s& b, scalar& t )
-{
-  const Vector3s ab{ b - a };
-  // Project c onto ab, computing parameterized position d(t) = a + t*(b – a)
-  t = (c - a).dot( ab ) / ab.dot( ab );
-  // If outside segment, clamp t (and therefore d) to the closest endpoint
-  if( t < 0.0 )
-  {
-    t = 0.0;
-  }
-  if( t > 1.0 )
-  {
-    t = 1.0;
-  }
-  // Compute projected position from the clamped t
-  const Vector3s& d{ a + t * ab };
-  
-  return ( c - d ).squaredNorm();
 }
 
 void CollisionUtilities::computeBoxSphereActiveSet( const Vector3s& xb, const Matrix33sc& Rb, const Vector3s& wb, const Vector3s& xs, const scalar& rs, std::vector<Vector3s>& p, std::vector<Vector3s>& n )
