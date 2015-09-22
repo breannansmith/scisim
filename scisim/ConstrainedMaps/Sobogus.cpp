@@ -1,7 +1,7 @@
 // Sobogus.cpp
 //
 // Breannan Smith
-// Last updated: 09/07/2015
+// Last updated: 09/22/2015
 
 #include "Sobogus.h"
 
@@ -19,6 +19,15 @@
 
 SobogusFrictionProblem::SobogusFrictionProblem( const SobogusSolverType& solver_type )
 : m_solver_type( solver_type )
+, m_num_bodies()
+, m_num_collisions()
+, m_mfp()
+, m_balls_2d()
+, m_rigid_body_2d()
+, m_f_in()
+, m_w_in()
+, m_H_0_store()
+, m_H_1_store()
 {}
 
 SobogusFrictionProblem::SobogusFrictionProblem( const SobogusSolverType& solver_type, const std::vector<std::unique_ptr<Constraint>>& active_set, const MatrixXXsc& contact_bases, VectorXs& masses, const VectorXs& q0, const VectorXs& v0, const VectorXs& CoR, const VectorXs& mu, const VectorXs& nrel, const VectorXs& drel )
