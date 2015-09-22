@@ -43,9 +43,6 @@ public:
   void minimizeSystemsEnergy();
   void resetSystem();
 
-  // Doubles because the plotting library expects doubles...
-  void getSimData( double& time, double& T, double& U, Eigen::Vector3d& p, Eigen::Vector3d& L );
-
   void renderAtFPS( const bool render_at_fps );
   void lockCamera( const bool lock_camera );
   void toggleHUD();

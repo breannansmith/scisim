@@ -11,7 +11,6 @@
 #include "scisim/ConstrainedMaps/FrictionMaps/LinearMDPOperatorQL.h"
 #include "scisim/ConstrainedMaps/FrictionMaps/RestrictedSampleMDPOperatorIpopt.h"
 #include "scisim/ConstrainedMaps/FrictionMaps/BoundConstrainedMDPOperatorQL.h"
-#include "scisim/ConstrainedMaps/FrictionMaps/BoundConstrainedMDPOperatorIpopt.h"
 #include "scisim/ConstrainedMaps/FrictionMaps/SmoothMDPOperatorIpopt.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/GROperator.h"
@@ -183,10 +182,6 @@ std::unique_ptr<FrictionOperator> ConstrainedMapUtilities::deserializeFrictionOp
   else if( "smooth_mdp_ipopt" == friction_operator_name )
   {
     friction_operator.reset( new SmoothMDPOperatorIpopt{ input_stream } );
-  }
-  else if( "bound_constrained_mdp_operator_ipopt" == friction_operator_name )
-  {
-    friction_operator.reset( new BoundConstrainedMDPOperatorIpopt{ input_stream } );
   }
   else if( "NULL" == friction_operator_name )
   {

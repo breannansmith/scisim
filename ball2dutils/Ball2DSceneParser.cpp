@@ -26,7 +26,6 @@
 #include "scisim/ConstrainedMaps/GeometricImpactFrictionMap.h"
 #include "scisim/ConstrainedMaps/StabilizedImpactFrictionMap.h"
 #include "scisim/ConstrainedMaps/FrictionMaps/BoundConstrainedMDPOperatorQL.h"
-#include "scisim/ConstrainedMaps/FrictionMaps/BoundConstrainedMDPOperatorIpopt.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/GaussSeidelOperator.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/JacobiOperator.h"
