@@ -1,7 +1,7 @@
 // GeometricImpactFrictionMap.cpp
 //
 // Breannan Smith
-// Last updated: 09/07/2015
+// Last updated: 09/22/2015
 
 #include "GeometricImpactFrictionMap.h"
 
@@ -246,8 +246,8 @@ void GeometricImpactFrictionMap::flow( ScriptingCallback& call_back, FlowableSys
 
   // Perform the coupled impact/friction solve
   VectorXs v2{ v0.size() };
-  scalar error;
   {
+    scalar error;
     bool solve_succeeded;
     friction_solver.solve( iteration, dt, fsys, fsys.M(), fsys.Minv(), CoR, mu, q0, v0, active_set, contact_bases, m_max_iters, m_abs_tol, m_f, alpha, beta, v2, solve_succeeded, error );
     assert( error >= 0.0 );
