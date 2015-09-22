@@ -1,7 +1,7 @@
 // RigidBody2DSceneParser.cpp
 //
 // Breannan Smith
-// Last updated: 09/21/2015
+// Last updated: 09/22/2015
 
 #include "RigidBody2DSceneParser.h"
 
@@ -1257,21 +1257,18 @@ static bool loadGeometry( const rapidxml::xml_node<>& node, std::vector<std::uni
       {
         // Read the radius
         scalar r;
+        const rapidxml::xml_attribute<>* const r_attrib{ nd->first_attribute( "r" ) };
+        if( r_attrib == nullptr )
         {
-          const rapidxml::xml_attribute<>* const r_attrib{ nd->first_attribute( "r" ) };
-          if( r_attrib == nullptr )
-          {
-            std::cerr << "Failed to locate r attribute for circle geometry node." << std::endl;
-            return false;
-          }
-          if( !StringUtilities::extractFromString( r_attrib->value(), r ) || r <= 0.0 )
-          {
-            std::cerr << "Failed to read r attribute for circle geometry, must provide a positive scalar." << std::endl;
-            return false;
-          }
-
-          geometry.emplace_back( new CircleGeometry{ r } );
+          std::cerr << "Failed to locate r attribute for circle geometry node." << std::endl;
+          return false;
         }
+        if( !StringUtilities::extractFromString( r_attrib->value(), r ) || r <= 0.0 )
+        {
+          std::cerr << "Failed to read r attribute for circle geometry, must provide a positive scalar." << std::endl;
+          return false;
+        }
+        geometry.emplace_back( new CircleGeometry{ r } );
       }
       else
       {
