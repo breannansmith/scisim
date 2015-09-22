@@ -19,8 +19,6 @@ namespace FrictionOperatorUtilities
 
   void formLinearFrictionDiskConstraint( const int num_samples, SparseMatrixsc& E );
 
-  void computeMDPLambda( const VectorXs& vrel, VectorXs& lambda );
-
   // TODO: Have code that forms the linear term in MDP
 
 }

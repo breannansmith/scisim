@@ -76,13 +76,3 @@ void FrictionOperatorUtilities::formLinearFrictionDiskConstraint( const int num_
   assert( E.nonZeros() == E.cols() * num_samples );
   assert( E.sum() == E.nonZeros() );
 }
-
-void FrictionOperatorUtilities::computeMDPLambda( const VectorXs& vrel, VectorXs& lambda )
-{
-  assert( vrel.size() % 2 == 0 );
-  lambda.conservativeResize( vrel.size() / 2 );
-  for( int con_num = 0; con_num < lambda.size(); ++con_num )
-  {
-    lambda( con_num ) = vrel.segment<2>( 2 * con_num ).norm();
-  }
-}
