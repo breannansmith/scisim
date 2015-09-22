@@ -1,7 +1,7 @@
 // StaticCylinderBodyConstraint.cpp
 //
 // Breannan Smith
-// Last updated: 09/16/2015
+// Last updated: 09/22/2015
 
 #include "StaticCylinderBodyConstraint.h"
 
@@ -252,8 +252,7 @@ Vector3s StaticCylinderBodyConstraint::computeCylinderCollisionPointVelocity( co
 
 VectorXs StaticCylinderBodyConstraint::computeKinematicRelativeVelocity( const VectorXs& q, const VectorXs& v ) const
 {
-  std::cerr << "Code up StaticCylinderBodyConstraint::computeKinematicRelativeVelocity" << std::endl;
-  std::exit( EXIT_FAILURE );
+  return computeCylinderCollisionPointVelocity( q );
 }
 
 //Vector3s StaticCylinderSphereConstraint::computeRelativeVelocityAtCylinderPoint( const VectorXs& q, const VectorXs& v ) const
