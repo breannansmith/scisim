@@ -1,7 +1,7 @@
 // ImpactFrictionMap.cpp
 //
 // Breannan Smith
-// Last updated: 09/21/2015
+// Last updated: 09/22/2015
 
 #include "ImpactFrictionMap.h"
 
@@ -16,44 +16,44 @@ ImpactFrictionMap::~ImpactFrictionMap()
 {}
 
 // TODO: Implement in a cleaner way -- create a function in fsys that checks if kinematic constraints are respected
-bool ImpactFrictionMap::noImpulsesToKinematicGeometry( const FlowableSystem& fsys, const SparseMatrixsc& N, const VectorXs& alpha, const SparseMatrixsc& D, const VectorXs& beta, const VectorXs& v0 )
-{
-  const VectorXs dv{ fsys.Minv() * ( N * alpha + D * beta ) };
-  assert( unsigned( v0.size() ) % fsys.numVelDoFsPerBody() == 0 );
-  const unsigned nbodies = unsigned( v0.size() ) / fsys.numVelDoFsPerBody();
-  for( unsigned i = 0; i < nbodies; ++i )
-  {
-    if( fsys.isKinematicallyScripted( i ) )
-    {
-      if( fsys.numVelDoFsPerBody() == 6 )
-      {
-        // 6-DoF rigid body in 3D
-        if( ( dv.segment<3>( 3 * i ).array() != 0.0 ).any() )
-        {
-          return false;
-        }
-        if( ( dv.segment<3>( 3 * nbodies + 3 * i ).array() != 0.0 ).any() )
-        {
-          return false;
-        }
-      }
-      else if( fsys.numVelDoFsPerBody() == 2 )
-      {
-        // 2-DoF ball in 2D
-        if( ( dv.segment<2>( 2 * i ).array() != 0.0 ).any() )
-        {
-          return false;
-        }
-      }
-      else
-      {
-        std::cerr << "Unhandled code path in ImpactFrictionMap::noImpulsesToKinematicGeometry. This is a bug." << std::endl;
-        std::exit( EXIT_FAILURE );
-      }
-    }
-  }
-  return true;
-}
+//bool ImpactFrictionMap::noImpulsesToKinematicGeometry( const FlowableSystem& fsys, const SparseMatrixsc& N, const VectorXs& alpha, const SparseMatrixsc& D, const VectorXs& beta, const VectorXs& v0 )
+//{
+//  const VectorXs dv{ fsys.Minv() * ( N * alpha + D * beta ) };
+//  assert( unsigned( v0.size() ) % fsys.numVelDoFsPerBody() == 0 );
+//  const unsigned nbodies = unsigned( v0.size() ) / fsys.numVelDoFsPerBody();
+//  for( unsigned i = 0; i < nbodies; ++i )
+//  {
+//    if( fsys.isKinematicallyScripted( i ) )
+//    {
+//      if( fsys.numVelDoFsPerBody() == 6 )
+//      {
+//        // 6-DoF rigid body in 3D
+//        if( ( dv.segment<3>( 3 * i ).array() != 0.0 ).any() )
+//        {
+//          return false;
+//        }
+//        if( ( dv.segment<3>( 3 * nbodies + 3 * i ).array() != 0.0 ).any() )
+//        {
+//          return false;
+//        }
+//      }
+//      else if( fsys.numVelDoFsPerBody() == 2 )
+//      {
+//        // 2-DoF ball in 2D
+//        if( ( dv.segment<2>( 2 * i ).array() != 0.0 ).any() )
+//        {
+//          return false;
+//        }
+//      }
+//      else
+//      {
+//        std::cerr << "Unhandled code path in ImpactFrictionMap::noImpulsesToKinematicGeometry. This is a bug." << std::endl;
+//        std::exit( EXIT_FAILURE );
+//      }
+//    }
+//  }
+//  return true;
+//}
 
 static void getCollisionIndices( const Constraint& con, std::pair<int,int>& indices )
 {
