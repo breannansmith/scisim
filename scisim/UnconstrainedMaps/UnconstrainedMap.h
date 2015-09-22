@@ -1,7 +1,7 @@
 // UnconstrainedMap.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/22/2015
 
 #ifndef UNCONSTRAINED_MAP_H
 #define UNCONSTRAINED_MAP_H
@@ -25,8 +25,6 @@ public:
   // q1: Result of map acting on (q0,v0)
   // v1: Result of map acting on (q0,v0)
   virtual void flow( const VectorXs& q0, const VectorXs& v0, FlowableSystem& fsys, const unsigned iteration, const scalar& dt, VectorXs& q1, VectorXs& v1 ) = 0;
-
-  virtual void linearInertialConfigurationUpdate( const VectorXs& q0, const VectorXs& v0, const scalar& dt, VectorXs& q1 );
 
   virtual std::string name() const = 0;
 

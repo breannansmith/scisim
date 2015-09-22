@@ -1,7 +1,7 @@
 // DMVMap.cpp
 //
 // Breannan Smith
-// Last updated: 09/15/2015
+// Last updated: 09/22/2015
 
 #include "DMVMap.h"
 
@@ -216,9 +216,4 @@ std::string DMVMap::name() const
 void DMVMap::serialize( std::ostream& output_stream ) const
 {
   // No-op
-}
-
-void DMVMap::linearInertialConfigurationUpdate( const VectorXs& q0, const VectorXs& v0, const scalar& dt, VectorXs& q1 )
-{
-  IntegrationUtils::exponentialEuler( q0, v0, dt, q1 );
 }

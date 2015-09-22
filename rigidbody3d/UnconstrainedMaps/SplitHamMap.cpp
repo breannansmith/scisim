@@ -1,7 +1,7 @@
 // SplitHamMap.cpp
 //
 // Breannan Smith
-// Last updated: 09/15/2015
+// Last updated: 09/22/2015
 
 #include "SplitHamMap.h"
 
@@ -181,11 +181,6 @@ void SplitHamMap::flow( const VectorXs& q0, const VectorXs& v0, FlowableSystem& 
     assert( ( Iinv0.array() > 0.0 ).all() );
     v1.segment<3>( 3 * nbodies + 3 * bdy_idx ) = R * Iinv0.asDiagonal() * R.transpose() * v1.segment<3>( 3 * nbodies + 3 * bdy_idx );
   }
-}
-
-void SplitHamMap::linearInertialConfigurationUpdate( const VectorXs& q0, const VectorXs& v0, const scalar& dt, VectorXs& q1 )
-{
-  IntegrationUtils::exponentialEuler( q0, v0, dt, q1 );
 }
 
 std::string SplitHamMap::name() const
