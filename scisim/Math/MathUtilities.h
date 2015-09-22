@@ -60,8 +60,6 @@ namespace MathUtilities
   // Extracts columns in cols from A0, in order, and places them in A1
   void extractColumns( const SparseMatrixsc& A0, const std::vector<unsigned>& cols, SparseMatrixsc& A1 );
 
-  SparseMatrixsc sparseIdentity( const unsigned size );
-
   void serialize( const SparseMatrixsc& A, std::ostream& stm );
   void deserialize( SparseMatrixsc& A, std::istream& stm );
 

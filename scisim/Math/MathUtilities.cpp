@@ -70,15 +70,6 @@ bool MathUtilities::isIdentity( const SparseMatrixsc& A, const scalar& tol )
   return true;
 }
 
-SparseMatrixsc MathUtilities::sparseIdentity( const unsigned size )
-{
-  SparseMatrixsc id_mat( size, size );
-  id_mat.setIdentity();
-  return id_mat;
-}
-
-
-
 unsigned MathUtilities::computeNumDigits( unsigned n )
 {
   if( n == 0 ) { return 1; }
