@@ -1,7 +1,7 @@
 // Ball2DSceneParser.cpp
 //
 // Breannan Smith
-// Last updated: 09/21/2015
+// Last updated: 09/22/2015
 
 #include "Ball2DSceneParser.h"
 
@@ -964,10 +964,10 @@ static bool loadMDPOperator( const rapidxml::xml_node<>& node, std::unique_ptr<F
 }
 
 // Example:
-//  <staggerd_projections_friction_solver mu="2.0" CoR="0.8" max_iters="50" tol="1.0e-8" staggering="geometric" internal_warm_start_alpha="1" internal_warm_start_beta="1">
+//  <staggered_projections_friction_solver mu="2.0" CoR="0.8" max_iters="50" tol="1.0e-8" staggering="geometric" internal_warm_start_alpha="1" internal_warm_start_beta="1">
 //    <lcp_impact_solver name="ipopt" tol="1.0e-12" linear_solvers="ma97"/>
 //    <mdp_friction_solver name="ipopt" tol="1.0e-12" linear_solvers="ma97"/>
-//  </staggerd_projections_friction_solver>
+//  </staggered_projections_friction_solver>
 static bool loadStaggeredProjectionsFrictionSolver( const rapidxml::xml_node<>& node, scalar& mu, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, std::unique_ptr<ImpactFrictionMap>& if_map )
 {
   // Friction solver setup
@@ -977,20 +977,20 @@ static bool loadStaggeredProjectionsFrictionSolver( const rapidxml::xml_node<>& 
       const rapidxml::xml_attribute<>* const attrib_nd{ node.first_attribute( "mu" ) };
       if( attrib_nd == nullptr )
       {
-        std::cerr << "Could not locate mu for staggerd_projections_friction_solver" << std::endl;
+        std::cerr << "Could not locate mu for staggered_projections_friction_solver" << std::endl;
         return false;
       }
 
       mu = std::numeric_limits<scalar>::signaling_NaN();
       if( !StringUtilities::extractFromString( attrib_nd->value(), mu ) )
       {
-        std::cerr << "Could not load mu value for staggerd_projections_friction_solver" << std::endl;
+        std::cerr << "Could not load mu value for staggered_projections_friction_solver" << std::endl;
         return false;
       }
 
       if( mu < 0.0 )
       {
-        std::cerr << "Could not load mu value for staggerd_projections_friction_solver, value of mu must be a nonnegative scalar" << std::endl;
+        std::cerr << "Could not load mu value for staggered_projections_friction_solver, value of mu must be a nonnegative scalar" << std::endl;
         return false;
       }
     }
@@ -1000,20 +1000,20 @@ static bool loadStaggeredProjectionsFrictionSolver( const rapidxml::xml_node<>& 
       const rapidxml::xml_attribute<>* const attrib_nd{ node.first_attribute( "CoR" ) };
       if( attrib_nd == nullptr )
       {
-        std::cerr << "Could not locate CoR for staggerd_projections_friction_solver" << std::endl;
+        std::cerr << "Could not locate CoR for staggered_projections_friction_solver" << std::endl;
         return false;
       }
 
       CoR = std::numeric_limits<scalar>::signaling_NaN();
       if( !StringUtilities::extractFromString( attrib_nd->value(), CoR ) )
       {
-        std::cerr << "Could not load CoR value for staggerd_projections_friction_solver" << std::endl;
+        std::cerr << "Could not load CoR value for staggered_projections_friction_solver" << std::endl;
         return false;
       }
 
       if( CoR < 0.0 || CoR > 1.0 )
       {
-        std::cerr << "Could not load CoR value for staggerd_projections_friction_solver, value of CoR must be a nonnegative scalar" << std::endl;
+        std::cerr << "Could not load CoR value for staggered_projections_friction_solver, value of CoR must be a nonnegative scalar" << std::endl;
         return false;
       }
     }
@@ -1024,13 +1024,13 @@ static bool loadStaggeredProjectionsFrictionSolver( const rapidxml::xml_node<>& 
       const rapidxml::xml_attribute<>* const attrib_nd{ node.first_attribute( "internal_warm_start_alpha" ) };
       if( attrib_nd == nullptr )
       {
-        std::cerr << "Could not locate internal_warm_start_alpha for staggerd_projections_friction_solver" << std::endl;
+        std::cerr << "Could not locate internal_warm_start_alpha for staggered_projections_friction_solver" << std::endl;
         return false;
       }
 
       if( !StringUtilities::extractFromString( attrib_nd->value(), internal_warm_start_alpha ) )
       {
-        std::cerr << "Could not load internal_warm_start_alpha value for staggerd_projections_friction_solver, value of internal_warm_start_alpha must be a boolean" << std::endl;
+        std::cerr << "Could not load internal_warm_start_alpha value for staggered_projections_friction_solver, value of internal_warm_start_alpha must be a boolean" << std::endl;
         return false;
       }
     }
@@ -1041,13 +1041,13 @@ static bool loadStaggeredProjectionsFrictionSolver( const rapidxml::xml_node<>& 
       const rapidxml::xml_attribute<>* const attrib_nd{ node.first_attribute( "internal_warm_start_beta" ) };
       if( attrib_nd == nullptr )
       {
-        std::cerr << "Could not locate internal_warm_start_beta for staggerd_projections_friction_solver" << std::endl;
+        std::cerr << "Could not locate internal_warm_start_beta for staggered_projections_friction_solver" << std::endl;
         return false;
       }
 
       if( !StringUtilities::extractFromString( attrib_nd->value(), internal_warm_start_beta ) )
       {
-        std::cerr << "Could not load internal_warm_start_beta value for staggerd_projections_friction_solver, value of internal_warm_start_alpha must be a boolean" << std::endl;
+        std::cerr << "Could not load internal_warm_start_beta value for staggered_projections_friction_solver, value of internal_warm_start_alpha must be a boolean" << std::endl;
         return false;
       }
     }
@@ -1058,7 +1058,7 @@ static bool loadStaggeredProjectionsFrictionSolver( const rapidxml::xml_node<>& 
       const rapidxml::xml_node<>* const impact_operator_node{ node.first_node( "lcp_impact_solver" ) };
       if( impact_operator_node == nullptr )
       {
-        std::cerr << "Could not locate lcp_impact_solver node for staggerd_projections_friction_solver" << std::endl;
+        std::cerr << "Could not locate lcp_impact_solver node for staggered_projections_friction_solver" << std::endl;
         return false;
       }
       if( !loadLCPSolver( *impact_operator_node, impact_operator ) )
@@ -1073,7 +1073,7 @@ static bool loadStaggeredProjectionsFrictionSolver( const rapidxml::xml_node<>& 
       const rapidxml::xml_node<>* const friction_operator_node{ node.first_node( "mdp_friction_solver" ) };
       if( friction_operator_node == nullptr )
       {
-        std::cerr << "Could not locate mdp_friction_solver node for staggerd_projections_friction_solver" << std::endl;
+        std::cerr << "Could not locate mdp_friction_solver node for staggered_projections_friction_solver" << std::endl;
         return false;
       }
       if( !loadMDPOperator( *friction_operator_node, friction_operator ) )
@@ -1082,7 +1082,7 @@ static bool loadStaggeredProjectionsFrictionSolver( const rapidxml::xml_node<>& 
       }
     }
 
-    friction_solver.reset( new StaggeredProjections( internal_warm_start_alpha, internal_warm_start_beta, *impact_operator, *friction_operator ) );
+    friction_solver.reset( new StaggeredProjections{ internal_warm_start_alpha, internal_warm_start_beta, *impact_operator, *friction_operator } );
   }
 
   // Impact-friction map setup
@@ -1094,7 +1094,7 @@ static bool loadStaggeredProjectionsFrictionSolver( const rapidxml::xml_node<>& 
       const rapidxml::xml_attribute<>* const attrib_nd{ node.first_attribute( "staggering" ) };
       if( attrib_nd == nullptr )
       {
-        std::cerr << "Could not locate staggering attribute for staggerd_projections_friction_solver" << std::endl;
+        std::cerr << "Could not locate staggering attribute for staggered_projections_friction_solver" << std::endl;
         return false;
       }
       staggering_type = attrib_nd->value();
@@ -1106,19 +1106,19 @@ static bool loadStaggeredProjectionsFrictionSolver( const rapidxml::xml_node<>& 
       const rapidxml::xml_attribute<>* const attrib_nd{ node.first_attribute( "tol" ) };
       if( attrib_nd == nullptr )
       {
-        std::cerr << "Could not locate tol for staggerd_projections_friction_solver" << std::endl;
+        std::cerr << "Could not locate tol for staggered_projections_friction_solver" << std::endl;
         return false;
       }
 
       if( !StringUtilities::extractFromString( attrib_nd->value(), tol ) )
       {
-        std::cerr << "Could not load tol value for staggerd_projections_friction_solver" << std::endl;
+        std::cerr << "Could not load tol value for staggered_projections_friction_solver" << std::endl;
         return false;
       }
 
       if( tol < 0.0 )
       {
-        std::cerr << "Could not load tol value for staggerd_projections_friction_solver, value of tol must be a nonnegative scalar" << std::endl;
+        std::cerr << "Could not load tol value for staggered_projections_friction_solver, value of tol must be a nonnegative scalar" << std::endl;
         return false;
       }
     }
@@ -1129,19 +1129,19 @@ static bool loadStaggeredProjectionsFrictionSolver( const rapidxml::xml_node<>& 
       const rapidxml::xml_attribute<>* const attrib_nd{ node.first_attribute( "max_iters" ) };
       if( attrib_nd == nullptr )
       {
-        std::cerr << "Could not locate max_iters for staggerd_projections_friction_solver" << std::endl;
+        std::cerr << "Could not locate max_iters for staggered_projections_friction_solver" << std::endl;
         return false;
       }
 
       if( !StringUtilities::extractFromString( attrib_nd->value(), max_iters ) )
       {
-        std::cerr << "Could not load max_iters value for staggerd_projections_friction_solver" << std::endl;
+        std::cerr << "Could not load max_iters value for staggered_projections_friction_solver" << std::endl;
         return false;
       }
 
       if( max_iters <= 0 )
       {
-        std::cerr << "Could not load max_iters value for staggerd_projections_friction_solver, value of max_iters must be positive integer." << std::endl;
+        std::cerr << "Could not load max_iters value for staggered_projections_friction_solver, value of max_iters must be positive integer." << std::endl;
         return false;
       }
     }
@@ -1156,7 +1156,7 @@ static bool loadStaggeredProjectionsFrictionSolver( const rapidxml::xml_node<>& 
     }
     else
     {
-      std::cerr << "Invalid staggering attribute specified for staggerd_projections_friction_solver, options are: ";
+      std::cerr << "Invalid staggering attribute specified for staggered_projections_friction_solver, options are: ";
       std::cerr << "geometric, stabilized" << std::endl;
       return false;
     }
@@ -1453,21 +1453,21 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::st
   if_map.reset( nullptr );
 
   // Load a staggered projections friction solver, if present
-  if( root_node.first_node( "staggerd_projections_friction_solver" ) != nullptr )
+  if( root_node.first_node( "staggered_projections_friction_solver" ) != nullptr )
   {
     if( impact_operator != nullptr || impact_map != nullptr )
     {
-      std::cerr << "Error loading staggerd_projections_friction_solver, solver of type " << impact_operator->name() << " already specified" << std::endl;
+      std::cerr << "Error loading staggered_projections_friction_solver, solver of type " << impact_operator->name() << " already specified" << std::endl;
       return false;
     }
     if( friction_solver != nullptr )
     {
-      std::cerr << "Error loading staggerd_projections_friction_solver, solver of type " << friction_solver->name() << " already specified" << std::endl;
+      std::cerr << "Error loading staggered_projections_friction_solver, solver of type " << friction_solver->name() << " already specified" << std::endl;
       return false;
     }
-    if( !loadStaggeredProjectionsFrictionSolver( *root_node.first_node( "staggerd_projections_friction_solver" ), mu, CoR, friction_solver, if_map ) )
+    if( !loadStaggeredProjectionsFrictionSolver( *root_node.first_node( "staggered_projections_friction_solver" ), mu, CoR, friction_solver, if_map ) )
     {
-      std::cerr << "Failed to load staggerd_projections_friction_solver in xml scene file: " << file_name << std::endl;
+      std::cerr << "Failed to load staggered_projections_friction_solver in xml scene file: " << file_name << std::endl;
       return false;
     }
   }
