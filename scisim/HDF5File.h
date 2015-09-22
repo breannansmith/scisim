@@ -1,7 +1,7 @@
 // HDF5File.h
 //
 // Breannan Smith
-// Last updated: 09/21/2015
+// Last updated: 09/22/2015
 
 // TODO: Store sparse matrix components in a struct to prevent polution of namespace
 // TODO: Support routines for users to create structs
@@ -406,7 +406,6 @@ private:
   {
     return computeHDFType<typename Derived::Scalar>();
   }
-  #endif
 
   template <typename Derived>
   static constexpr bool isColumnMajor( const Eigen::EigenBase<Derived>& )
@@ -425,6 +424,7 @@ private:
   {
     return Derived::ColsAtCompileTime != Eigen::Dynamic;
   }
+  #endif
 
   int m_hdf_file_id;
   bool m_file_opened;
