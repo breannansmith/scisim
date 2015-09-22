@@ -120,11 +120,6 @@ public:
   #endif
   void writeString( const std::string& group, const std::string& variable_name, const std::string& string_variable ) const;
 
-  #ifndef USE_HDF5
-  [[noreturn]]
-  #endif
-  void readString( const std::string& group, const std::string& variable_name, std::string& string_variable ) const;
-
   template <typename Scalar>
   void writeScalar( const std::string& group, const std::string& variable_name, const Scalar& variable ) const
   {

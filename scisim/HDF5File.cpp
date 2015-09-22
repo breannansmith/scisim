@@ -1,7 +1,7 @@
 // HDF5File.cpp
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/22/2015
 
 #include "HDF5File.h"
 
@@ -113,52 +113,6 @@ void HDF5File::writeString( const std::string& group, const std::string& variabl
   }
   #else
   throw std::string{ "HDF5File::writeString not compiled with HDF5 support" };
-  #endif
-}
-
-void HDF5File::readString( const std::string& group, const std::string& variable_name, std::string& string_variable ) const
-{
-  #ifdef USE_HDF5
-  const HDFDID dset{ H5Dopen2( m_hdf_file_id, ( group + "/" + variable_name ).c_str(), H5P_DEFAULT ) };
-  if( dset < 0 )
-  {
-    throw std::string{ "Failed to open HDF dataset" };
-  }
-  const HDFTID file_type{ H5Dget_type( dset ) };
-  if( file_type < 0 )
-  {
-    throw std::string{ "Failed to get HDF file type" };
-  }
-  const HDFSID space{ H5Dget_space( dset ) };
-  if( space < 0 )
-  {
-    throw std::string{ "Failed to get HDF space" };
-  }
-  hsize_t dims[1];
-  const int ndims{ H5Sget_simple_extent_dims( space, dims, nullptr ) };
-  Utilities::ignoreUnusedVariable( ndims );
-  assert( ndims == 1 ); assert( dims[0] == 1 );
-  const HDFTID mem_type{ H5Tcopy( H5T_C_S1 ) };
-  if( mem_type < 0 )
-  {
-    throw std::string{ "Failed to get HDF mem type" };
-  }
-  const herr_t set_size_status{ H5Tset_size( mem_type, H5T_VARIABLE ) };
-  if( set_size_status < 0 )
-  {
-    throw std::string{ "Failed to set HDF mem type size" };
-  }
-  char* rdata[1] = { nullptr };
-  const herr_t read_status{ H5Dread( dset, mem_type, H5S_ALL, H5S_ALL, H5P_DEFAULT, rdata ) };
-  if( read_status < 0 )
-  {
-    if( rdata[0] != nullptr ) { free( rdata[0] ); }
-    throw std::string{ "Failed to read HDF data" };
-  }
-  string_variable = rdata[0];
-  free( rdata[0] );
-  #else
-  throw std::string{ "HDF5File::readString not compiled with HDF5 support" };
   #endif
 }
 
