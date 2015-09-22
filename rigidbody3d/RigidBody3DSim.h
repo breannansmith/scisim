@@ -1,7 +1,7 @@
 // RigidBody3DSim.h
 //
 // Breannan Smith
-// Last updated: 09/16/2015
+// Last updated: 09/22/2015
 
 #ifndef RIGID_BODY_3D_SIM_H
 #define RIGID_BODY_3D_SIM_H
@@ -87,7 +87,6 @@ public:
   virtual void clearConstraintCache() override;
   virtual void cacheConstraint( const Constraint& constraint, const VectorXs& r ) override;
   virtual void getCachedConstraintImpulse( const Constraint& constraint, VectorXs& r ) const override;
-  virtual bool equal( const Constraint& constraint0, const Constraint& constraint1 ) const override;
 
   // Computes the number of collisions in the current state and the total amount of penetration
   void computeNumberOfCollisions( std::map<std::string,unsigned>& collision_counts, std::map<std::string,scalar>& collision_depths, std::map<std::string,scalar>& overlap_volumes );

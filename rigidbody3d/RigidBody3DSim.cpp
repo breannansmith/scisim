@@ -1,7 +1,7 @@
 // RigidBody3DSim.cpp
 //
 // Breannan Smith
-// Last updated: 09/16/2015
+// Last updated: 09/22/2015
 
 #include "RigidBody3DSim.h"
 
@@ -294,12 +294,6 @@ void RigidBody3DSim::cacheConstraint( const Constraint& constraint, const Vector
 void RigidBody3DSim::getCachedConstraintImpulse( const Constraint& constraint, VectorXs& r ) const
 {
   m_constraint_cache.getCachedConstraint( constraint, r );
-}
-
-bool RigidBody3DSim::equal( const Constraint& constraint0, const Constraint& constraint1 ) const
-{
-  std::cerr << "Code up RigidBody3DSim::equal" << std::endl;
-  std::exit( EXIT_FAILURE );
 }
 
 void RigidBody3DSim::computeNumberOfCollisions( std::map<std::string,unsigned>& collision_counts, std::map<std::string,scalar>& collision_depths, std::map<std::string,scalar>& overlap_volumes )

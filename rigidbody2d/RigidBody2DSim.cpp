@@ -546,41 +546,6 @@ void RigidBody2DSim::getCachedConstraintImpulse( const Constraint& constraint, V
 //  m_constraint_cache.getCachedConstraint( constraint, r );
 }
 
-bool RigidBody2DSim::equal( const Constraint& constraint0, const Constraint& constraint1 ) const
-{
-  const std::type_info& type0{ typeid(constraint0) };
-  const std::type_info& type1{ typeid(constraint1) };
-
-  if( type0 != type1 )
-  {
-    return false;
-  }
-
-  if( type0 == typeid(StaticPlaneCircleConstraint) )
-  {
-    const StaticPlaneCircleConstraint& static_plane_constraint_0{ sd_cast<const StaticPlaneCircleConstraint&>( constraint0 ) };
-    const StaticPlaneCircleConstraint& static_plane_constraint_1{ sd_cast<const StaticPlaneCircleConstraint&>( constraint1 ) };
-    return static_plane_constraint_0 == static_plane_constraint_1;
-  }
-  else if( type0 == typeid(CircleCircleConstraint) )
-  {
-    const CircleCircleConstraint& circle_circle_constraint_0{ sd_cast<const CircleCircleConstraint&>( constraint0 ) };
-    const CircleCircleConstraint& circle_circle_constraint_1{ sd_cast<const CircleCircleConstraint&>( constraint1 ) };
-    return circle_circle_constraint_0 == circle_circle_constraint_1;
-  }
-  else if( type0 == typeid(TeleportedCircleCircleConstraint) )
-  {
-    const TeleportedCircleCircleConstraint& teleported_circle_circle_constraint_0{ sd_cast<const TeleportedCircleCircleConstraint&>( constraint0 ) };
-    const TeleportedCircleCircleConstraint& teleported_circle_circle_constraint_1{ sd_cast<const TeleportedCircleCircleConstraint&>( constraint1 ) };
-    return teleported_circle_circle_constraint_0 == teleported_circle_circle_constraint_1;
-  }
-  else
-  {
-    std::cout << "Unsupported constraint type in RigidBody2DSim::equal: " << constraint0.name() << std::endl;
-    std::exit( EXIT_FAILURE );
-  }
-}
-
 void RigidBody2DSim::flow( const unsigned iteration, const scalar& dt, UnconstrainedMap& umap )
 {
   VectorXs q1{ m_state.q().size() };

@@ -66,7 +66,6 @@ public:
   virtual void clearConstraintCache() override;
   virtual void cacheConstraint( const Constraint& constraint, const VectorXs& r ) override;
   virtual void getCachedConstraintImpulse( const Constraint& constraint, VectorXs& r ) const override;
-  virtual bool equal( const Constraint& constraint0, const Constraint& constraint1 ) const override;
 
   // Flow using only an unconstrained map
   void flow( const unsigned iteration, const scalar& dt, UnconstrainedMap& umap );

@@ -1,7 +1,7 @@
 // Ball2DSim.cpp
 //
 // Breannan Smith
-// Last updated: 09/07/2015
+// Last updated: 09/22/2015
 
 #include "Ball2DSim.h"
 
@@ -201,12 +201,6 @@ void Ball2DSim::cacheConstraint( const Constraint& constraint, const VectorXs& r
 void Ball2DSim::getCachedConstraintImpulse( const Constraint& constraint, VectorXs& r ) const
 {
   m_constraint_cache.getCachedConstraint( constraint, r );
-}
-
-bool Ball2DSim::equal( const Constraint& constraint0, const Constraint& constraint1 ) const
-{
-  std::cerr << "Code up Ball2DSim::equal" << std::endl;
-  std::exit( EXIT_FAILURE );
 }
 
 void Ball2DSim::computeNumberOfCollisions( std::map<std::string,unsigned>& collision_counts, std::map<std::string,scalar>& collision_depths )

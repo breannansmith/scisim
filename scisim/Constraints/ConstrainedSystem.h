@@ -1,7 +1,7 @@
 // ConstrainedSystem.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/22/2015
 
 #ifndef CONSTRAINED_SYSTEM_H
 #define CONSTRAINED_SYSTEM_H
@@ -26,8 +26,6 @@ public:
   virtual void clearConstraintCache() = 0;
   virtual void cacheConstraint( const Constraint& constraint, const VectorXs& r ) = 0;
   virtual void getCachedConstraintImpulse( const Constraint& constraint, VectorXs& r  ) const = 0;
-
-  virtual bool equal( const Constraint& constraint0, const Constraint& constraint1 ) const = 0;
 
 };
 
