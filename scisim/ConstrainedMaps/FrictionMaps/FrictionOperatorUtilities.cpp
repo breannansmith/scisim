@@ -1,7 +1,7 @@
 // FrictionOperatorUtilities.cpp
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/22/2015
 
 #include "FrictionOperatorUtilities.h"
 
@@ -84,21 +84,5 @@ void FrictionOperatorUtilities::computeMDPLambda( const VectorXs& vrel, VectorXs
   for( int con_num = 0; con_num < lambda.size(); ++con_num )
   {
     lambda( con_num ) = vrel.segment<2>( 2 * con_num ).norm();
-  }
-}
-
-void FrictionOperatorUtilities::projectOnFrictionDisc( const VectorXs& disc_bounds, VectorXs& beta )
-{
-  assert( beta.size() % 2 == 0 ); assert( beta.size() / 2 == disc_bounds.size() ); assert( ( disc_bounds.array() >= 0.0 ).all() );
-  for( int con_num = 0; con_num < disc_bounds.size(); ++con_num )
-  {
-    const scalar dsc_nrm_sqrd{ beta.segment<2>( 2 * con_num ).squaredNorm() };
-    // If the squared norm of the friction impulse is greater than the \mu \alpha squared
-    if( dsc_nrm_sqrd > disc_bounds( con_num ) * disc_bounds( con_num ) )
-    {
-      // Normalize beta and rescale so its magnitude is \mu \alpha
-      beta.segment<2>( 2 * con_num ) *= disc_bounds( con_num ) / sqrt( dsc_nrm_sqrd );
-      assert( fabs( beta.segment<2>( 2 * con_num ).norm() - disc_bounds( con_num ) ) <= 1.0e-6 );
-    }
   }
 }

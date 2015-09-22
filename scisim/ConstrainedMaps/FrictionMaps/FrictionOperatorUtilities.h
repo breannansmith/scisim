@@ -1,7 +1,7 @@
 // FrictionOperatorUtilities.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/22/2015
 
 #ifndef FRICTION_OPERATOR_UTILITIES_H
 #define FRICTION_OPERATOR_UTILITIES_H
@@ -20,8 +20,6 @@ namespace FrictionOperatorUtilities
   void formLinearFrictionDiskConstraint( const int num_samples, SparseMatrixsc& E );
 
   void computeMDPLambda( const VectorXs& vrel, VectorXs& lambda );
-
-  void projectOnFrictionDisc( const VectorXs& disc_bounds, VectorXs& beta );
 
   // TODO: Have code that forms the linear term in MDP
 
