@@ -52,7 +52,7 @@ if( USE_IPOPT )
   find_package( Ipopt REQUIRED )
   target_include_directories( scisim SYSTEM PRIVATE ${IPOPT_INC_DIRS} )
   set_source_files_properties(
-    ConstrainedMaps/IpoptUtilities.h ConstrainedMaps/IpoptUtilities.cpp ConstrainedMaps/ImpactMaps/LCPOperatorIpopt.h ConstrainedMaps/ImpactMaps/LCPOperatorIpopt.cpp ConstrainedMaps/FrictionMaps/RestrictedSampleMDPOperatorIpopt.h ConstrainedMaps/FrictionMaps/SmoothMDPOperatorIpopt.h ConstrainedMaps/FrictionMaps/SmoothMDPOperatorIpopt.cpp ConstrainedMaps/FrictionMaps/RestrictedSampleMDPOperatorIpopt.cpp PROPERTIES COMPILE_DEFINITIONS IPOPT_FOUND
+    ConstrainedMaps/IpoptUtilities.h ConstrainedMaps/IpoptUtilities.cpp ConstrainedMaps/ImpactMaps/LCPOperatorIpopt.h ConstrainedMaps/ImpactMaps/LCPOperatorIpopt.cpp ConstrainedMaps/FrictionMaps/SmoothMDPOperatorIpopt.h ConstrainedMaps/FrictionMaps/SmoothMDPOperatorIpopt.cpp PROPERTIES COMPILE_DEFINITIONS IPOPT_FOUND
   )
   target_link_libraries( scisim INTERFACE ${IPOPT_LIB} )
 endif()

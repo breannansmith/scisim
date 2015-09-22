@@ -19,7 +19,6 @@ set( Sources
   ConstrainedMaps/FrictionMaps/FrictionOperator.cpp
   ConstrainedMaps/FrictionMaps/LinearMDPOperatorQL.cpp
   ConstrainedMaps/FrictionMaps/FrictionOperatorUtilities.cpp
-  ConstrainedMaps/FrictionMaps/RestrictedSampleMDPOperatorIpopt.cpp
   ConstrainedMaps/FrictionMaps/SmoothMDPOperatorIpopt.cpp
   ConstrainedMaps/FrictionMaps/FischerBurmeisterBoundConstrained.cpp
   ConstrainedMaps/FrictionMaps/FischerBurmeisterSmooth.cpp
@@ -73,7 +72,6 @@ set( Headers
   ConstrainedMaps/FrictionMaps/FrictionOperator.h
   ConstrainedMaps/FrictionMaps/LinearMDPOperatorQL.h
   ConstrainedMaps/FrictionMaps/FrictionOperatorUtilities.h
-  ConstrainedMaps/FrictionMaps/RestrictedSampleMDPOperatorIpopt.h
   ConstrainedMaps/FrictionMaps/SmoothMDPOperatorIpopt.h
   ConstrainedMaps/FrictionMaps/FischerBurmeisterBoundConstrained.h
   ConstrainedMaps/FrictionMaps/FischerBurmeisterSmooth.h
