@@ -1,7 +1,7 @@
 // RigidBodyTriangleMesh.h
 //
 // Breannan Smith
-// Last updated: 09/21/2015
+// Last updated: 09/22/2015
 
 #ifndef RIGID_BODY_TRIANGLE_MESH
 #define RIGID_BODY_TRIANGLE_MESH
@@ -40,14 +40,8 @@ public:
 
   const std::string& inputFileName() const;
 
-  const Vector3s& I_on_rho() const;
   const Matrix3s& R() const;
   const Matrix3Xsc& samples() const;
-  const Vector3s& cellDelta() const;
-  const Vector3u& gridDimensions() const;
-  const Vector3s& gridOrigin() const;
-  const VectorXs& signedDistance() const;
-  const Vector3s& gridEnd() const;
 
   // N.b: Sample point must be expressed in local frame of this body,
   // and if the point is inside the distance field, the returned normal

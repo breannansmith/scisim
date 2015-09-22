@@ -1,7 +1,7 @@
 // RigidBodyTriangleMesh.cpp
 //
 // Breannan Smith
-// Last updated: 09/15/2015
+// Last updated: 09/22/2015
 
 #include "RigidBodyTriangleMesh.h"
 
@@ -247,11 +247,6 @@ const std::string& RigidBodyTriangleMesh::inputFileName() const
   return m_input_file_name;
 }
 
-const Vector3s& RigidBodyTriangleMesh::I_on_rho() const
-{
-  return m_I_on_rho;
-}
-
 const Matrix3s& RigidBodyTriangleMesh::R() const
 {
   return m_R;
@@ -260,31 +255,6 @@ const Matrix3s& RigidBodyTriangleMesh::R() const
 const Matrix3Xsc& RigidBodyTriangleMesh::samples() const
 {
   return m_samples;
-}
-
-const Vector3s& RigidBodyTriangleMesh::cellDelta() const
-{
-  return m_cell_delta;
-}
-
-const Vector3u& RigidBodyTriangleMesh::gridDimensions() const
-{
-  return m_grid_dimensions;
-}
-
-const Vector3s& RigidBodyTriangleMesh::gridOrigin() const
-{
-  return m_grid_origin;
-}
-
-const VectorXs& RigidBodyTriangleMesh::signedDistance() const
-{
-  return m_signed_distance;
-}
-
-const Vector3s& RigidBodyTriangleMesh::gridEnd() const
-{
-  return m_grid_end;
 }
 
 const scalar& RigidBodyTriangleMesh::v( const unsigned i, const unsigned j, const unsigned k ) const
