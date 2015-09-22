@@ -433,19 +433,6 @@ void GLWidget::resetSystem()
   updateGL();
 }
 
-void GLWidget::getSimData( scalar& time, scalar& T, scalar& U, Vector2s& p, scalar& L )
-{
-  time = m_iteration * scalar( m_dt );
-
-  const Ball2DState& state{ m_sim.state() };
-
-  T = state.computeKineticEnergy();
-  U = state.computePotentialEnergy();
-
-  p = state.computeMomentum();
-  L = state.computeAngularMomentum();
-}
-
 void GLWidget::initializeGL()
 {
   qglClearColor( QColor{ 255, 255, 255, 255 } );

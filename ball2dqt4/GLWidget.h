@@ -39,8 +39,6 @@ public:
   void minimizeSystemsEnergy();
   void resetSystem();
 
-  void getSimData( scalar& time, scalar& T, scalar& U, Vector2s& p, scalar& L );
-
   void renderAtFPS( const bool render_at_fps );
 
   void lockCamera( const bool lock_camera );
