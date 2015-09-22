@@ -21,7 +21,6 @@
 #include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorQLVP.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorIpopt.h"
 #include "scisim/ConstrainedMaps/FrictionMaps/LinearMDPOperatorQL.h"
-#include "scisim/ConstrainedMaps/FrictionMaps/LinearMDPOperatorIpopt.h"
 #include "scisim/ConstrainedMaps/FrictionMaps/RestrictedSampleMDPOperatorIpopt.h"
 #include "scisim/ConstrainedMaps/FrictionMaps/SmoothMDPOperatorIpopt.h"
 #include "scisim/ConstrainedMaps/GeometricImpactFrictionMap.h"
