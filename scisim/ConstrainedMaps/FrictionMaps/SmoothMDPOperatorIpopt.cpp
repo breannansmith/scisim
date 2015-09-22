@@ -1,7 +1,7 @@
 // SmoothMDPOperatorIpopt.cpp
 //
 // Breannan Smith
-// Last updated: 09/08/2015
+// Last updated: 09/22/2015
 
 #include "SmoothMDPOperatorIpopt.h"
 
@@ -508,37 +508,6 @@ bool SmoothMDPNLP::eval_h( Ipopt::Index n, const Ipopt::Number* x, bool new_x, I
     {
       values[ m_diagonal_indices[ 2 * i + 0 ] ] += 2.0 * lambda_map( i );
       values[ m_diagonal_indices[ 2 * i + 1 ] ] += 2.0 * lambda_map( i );
-    }
-  }
-
-  return true;
-}
-
-bool SmoothMDPNLP::intermediate_callback( Ipopt::AlgorithmMode mode, Ipopt::Index iter, Ipopt::Number obj_value, Ipopt::Number inf_pr, Ipopt::Number inf_du, Ipopt::Number mu, Ipopt::Number d_norm, Ipopt::Number regularization_size, Ipopt::Number alpha_du, Ipopt::Number alpha_pr, Ipopt::Index ls_trials, const Ipopt::IpoptData* ip_data, Ipopt::IpoptCalculatedQuantities* ip_cq )
-{
-  // If the user did not request a custom termination, exit
-  if( !m_use_custom_termination ) { return true; }
-
-  Ipopt::TNLPAdapter* tnlp_adapter{ nullptr };
-  if( ip_cq != nullptr )
-  {
-    Ipopt::OrigIpoptNLP* orignlp;
-    orignlp = dynamic_cast<Ipopt::OrigIpoptNLP*>( GetRawPtr( ip_cq->GetIpoptNLP() ) );
-    if( orignlp != nullptr )
-    {
-      tnlp_adapter = dynamic_cast<Ipopt::TNLPAdapter*>( GetRawPtr( orignlp->nlp() ) );
-    }
-  }
-
-  if( tnlp_adapter != nullptr )
-  {
-    tnlp_adapter->ResortX( *ip_data->curr()->x(), m_beta.data() );
-    const VectorXs y{ m_Q * m_beta + m_A };
-    const scalar current_tol{ m_termination_operator( m_beta, y ) };
-    if( current_tol <= m_termination_operator.tol() )
-    {
-      m_achieved_tolerance = current_tol;
-      return false;
     }
   }
 
