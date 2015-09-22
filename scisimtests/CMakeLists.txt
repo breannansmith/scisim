@@ -1,12 +1,3 @@
-# Sparse matrix tests
-add_executable( sparse_matrix_tests sparse_matrix_tests.cpp )
-
-target_link_libraries( sparse_matrix_tests scisim )
-
-add_test( sparse_matrix_rcm_ordering_00 sparse_matrix_tests rcm_ordering_00 )
-add_test( sparse_matrix_rcm_ordering_01 sparse_matrix_tests rcm_ordering_01 )
-
-
 # Rational number tests
 add_executable( rational_number_tests rational_number_tests.cpp )
 

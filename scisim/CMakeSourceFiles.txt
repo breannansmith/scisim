@@ -39,7 +39,6 @@ set( Sources
   ConstrainedMaps/QPTerminationOperator.cpp
   Math/QL/QLUtilities.cpp
   Math/MathUtilities.cpp
-  Math/SparseMatrixUtilities.cpp
   Timer/TimeUtils.cpp
   ScriptingCallback.cpp
   StringUtilities.cpp
@@ -97,7 +96,6 @@ set( Headers
   Math/QL/QLUtilities.h
   Math/MathDefines.h
   Math/MathUtilities.h
-  Math/SparseMatrixUtilities.h
   Math/Rational.h
   Timer/TimeUtils.h
   ScriptingCallback.h
