@@ -1,7 +1,7 @@
 // RenderingState.cpp
 //
 // Breannan Smith
-// Last updated: 09/16/2015
+// Last updated: 09/22/2015
 
 #include "RenderingState.h"
 
@@ -145,11 +145,6 @@ PlaneRendererState& RenderingState::planeRenderer( const std::vector<PlaneRender
 {
   assert( plane_renderer_index < numPlaneRenderers() );
   return m_plane_renderers[plane_renderer_index];
-}
-
-std::vector<PlaneRendererState>& RenderingState::planeRenderers()
-{
-  return m_plane_renderers;
 }
 
 void RenderingState::sortPlaneRenderers()

@@ -1,7 +1,7 @@
 // RenderingState.h
 //
 // Breannan Smith
-// Last updated: 09/16/2015
+// Last updated: 09/22/2015
 
 #ifndef RENDERING_STATE
 #define RENDERING_STATE
@@ -88,7 +88,6 @@ public:
   std::vector<PlaneRendererState>::size_type numPlaneRenderers() const;
   const PlaneRendererState& planeRenderer( const std::vector<PlaneRendererState>::size_type plane_renderer_index ) const;
   PlaneRendererState& planeRenderer( const std::vector<PlaneRendererState>::size_type plane_renderer_index );
-  std::vector<PlaneRendererState>& planeRenderers();
   // Sort the plane renderers by plane index
   void sortPlaneRenderers();
   void deleteStaticPlaneRenderer( const std::vector<PlaneRendererState>::size_type plane_renderer_index );
