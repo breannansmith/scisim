@@ -1,7 +1,7 @@
 // RigidBody2DState.h
 //
 // Breannan Smith
-// Last updated: 09/10/2015
+// Last updated: 09/22/2015
 
 #ifndef RIGID_BODY_2D_STATE
 #define RIGID_BODY_2D_STATE
@@ -57,12 +57,6 @@ public:
 
   // Computes a bounding box around the system
   Array4s computeBoundingBox() const;
-
-  // Insert new geometry after all current geometry instances
-  void insertGeometryInBack( const std::unique_ptr<RigidBody2DGeometry>& new_geo );
-
-  // NOTE: This is currently quite slow...
-  void insertBodyInBack( const Vector2s& x, const scalar& theta, const Vector2s& v, const scalar& omega, const scalar& rho, const unsigned geo_idx );
 
   // Serialization and deserialization
   void serialize( std::ostream& output_stream ) const;

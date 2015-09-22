@@ -1,7 +1,7 @@
 // RigidBody2DState.cpp
 //
 // Breannan Smith
-// Last updated: 09/10/2015
+// Last updated: 09/22/2015
 
 #include "RigidBody2DState.h"
 
@@ -269,89 +269,6 @@ Array4s RigidBody2DState::computeBoundingBox() const
   assert( ( bounds.segment<2>( 0 ) < bounds.segment<2>( 2 ) ).all() );
 
   return bounds;
-}
-
-void RigidBody2DState::insertGeometryInBack( const std::unique_ptr<RigidBody2DGeometry>& new_geo )
-{
-  m_geometry.emplace_back( new_geo->clone() );
-}
-
-void RigidBody2DState::insertBodyInBack( const Vector2s& x, const scalar& theta, const Vector2s& v, const scalar& omega, const scalar& rho, const unsigned geo_idx )
-{
-  const unsigned original_num_bodies{ static_cast<unsigned>( m_q.size() / 3 ) };
-  const unsigned new_num_bodies{ original_num_bodies + 1 };
-
-  // Update the geometry indices
-  m_geometry_indices.conservativeResize( new_num_bodies );
-  m_geometry_indices( original_num_bodies ) = geo_idx;
-
-  // Update the positions
-  m_q.conservativeResize( 3 * new_num_bodies );
-  m_q.segment<2>( 3 * original_num_bodies ) = x;
-  m_q( 3 * original_num_bodies + 2 ) = theta;
-  // Update the velocities
-  m_v.conservativeResize( 3 * new_num_bodies );
-  m_v.segment<2>( 3 * original_num_bodies ) = v;
-  m_v( 3 * original_num_bodies + 2 ) = omega;
-
-  // Compute the mass and inertia
-  scalar m;
-  scalar I;
-  bodyGeometry( geo_idx )->computeMassAndInertia( rho, m, I );
-
-  // Update the mass matrix
-  {
-    SparseMatrixsc M{ static_cast<SparseMatrixsc::Index>( 3 * new_num_bodies ), static_cast<SparseMatrixsc::Index>( 3 * new_num_bodies ) };
-    M.reserve( 3 * new_num_bodies );
-    // Copy the old masses
-    for( unsigned col = 0; col < 3 * original_num_bodies; ++col )
-    {
-      M.startVec( col );
-      const unsigned row{ col };
-      M.insertBack( row, col ) = m_M.valuePtr()[ col ];
-    }
-    // Insert the new masses
-    M.startVec( 3 * original_num_bodies );
-    M.insertBack( 3 * original_num_bodies, 3 * original_num_bodies ) = m;
-    M.startVec( 3 * original_num_bodies + 1 );
-    M.insertBack( 3 * original_num_bodies + 1, 3 * original_num_bodies + 1 ) = m;
-    M.startVec( 3 * original_num_bodies + 2 );
-    M.insertBack( 3 * original_num_bodies + 2, 3 * original_num_bodies + 2 ) = I;
-    M.finalize();
-    m_M.swap( M );
-  }
-  // Update the inverse mass matrix
-  {
-    SparseMatrixsc Minv{ static_cast<SparseMatrixsc::Index>( 3 * new_num_bodies ), static_cast<SparseMatrixsc::Index>( 3 * new_num_bodies ) };
-    Minv.reserve( 3 * new_num_bodies );
-    // Copy the old inverse masses
-    for( unsigned col = 0; col < 3 * original_num_bodies; ++col )
-    {
-      Minv.startVec( col );
-      const unsigned row{ col };
-      Minv.insertBack( row, col ) = m_Minv.valuePtr()[ col ];
-    }
-    // Insert the new inverse masses
-    Minv.startVec( 3 * original_num_bodies );
-    Minv.insertBack( 3 * original_num_bodies, 3 * original_num_bodies ) = 1.0 / m;
-    Minv.startVec( 3 * original_num_bodies + 1 );
-    Minv.insertBack( 3 * original_num_bodies + 1, 3 * original_num_bodies + 1 ) = 1.0 / m;
-    Minv.startVec( 3 * original_num_bodies + 2 );
-    Minv.insertBack( 3 * original_num_bodies + 2, 3 * original_num_bodies + 2 ) = 1.0 / I;
-    Minv.finalize();
-    m_Minv.swap( Minv );
-  }
-
-  // Sanity checks on the identity matrices
-  #ifndef NDEBUG
-  {
-    const SparseMatrixsc id_delta_mat{ m_M * m_Minv - MathUtilities::sparseIdentity( 3 * new_num_bodies ) };
-    const Eigen::Map<const VectorXs> deltas{ id_delta_mat.valuePtr(), id_delta_mat.nonZeros() };
-    assert( deltas.lpNorm<Eigen::Infinity>() <= 1.0e-9 );
-  }
-  assert( ( Eigen::Map<const ArrayXs>{ m_M.valuePtr(), m_M.nonZeros() } > 0.0 ).all() );
-  assert( ( Eigen::Map<const ArrayXs>{ m_Minv.valuePtr(), m_Minv.nonZeros() } > 0.0 ).all() );
-  #endif
 }
 
 void RigidBody2DState::serialize( std::ostream& output_stream ) const
