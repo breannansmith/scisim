@@ -1,7 +1,7 @@
 // GeometricImpactFrictionMap.h
 //
 // Breannan Smith
-// Last updated: 09/21/2015
+// Last updated: 09/22/2015
 
 #ifndef GEOMETRIC_IMPACT_FRICTION_MAP_H
 #define GEOMETRIC_IMPACT_FRICTION_MAP_H
@@ -34,9 +34,6 @@ public:
   virtual void exportForcesNextStep( HDF5File& output_file ) override;
 
 private:
-
-  void initializeImpulses( const std::vector<std::unique_ptr<Constraint>>& active_set, const VectorXs& q0, const SparseMatrixsc& D, ConstrainedSystem& csys, const int num_impulses_per_normal, const int ambient_space_dims, VectorXs& alpha, VectorXs& beta );
-  void cacheImpulses( const std::vector<std::unique_ptr<Constraint>>& active_set, const VectorXs& q0, ConstrainedSystem& csys, const int num_impulses_per_normal, const int ambient_space_dims, const VectorXs& alpha, const VectorXs& beta );
 
   // For saving out constraint forces
   void exportConstraintForcesToBinary( const VectorXs& q, const std::vector<std::unique_ptr<Constraint>>& constraints, const MatrixXXsc& contact_bases, const VectorXs& alpha, const VectorXs& beta, const scalar& dt );
