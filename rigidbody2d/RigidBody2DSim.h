@@ -1,7 +1,7 @@
 // RigidBody2DSim.h
 //
 // Breannan Smith
-// Last updated: 09/21/2015
+// Last updated: 09/22/2015
 
 #ifndef RIGID_BODY_2D_SIM_H
 #define RIGID_BODY_2D_SIM_H
@@ -94,9 +94,7 @@ private:
   void getTeleportedCollisionCenters( const VectorXs& q, const TeleportedCollision& teleported_collision, Vector2s& x0, Vector2s& x1 ) const;
   void dispatchTeleportedNarrowPhaseCollision( const TeleportedCollision& teleported_collision, const std::unique_ptr<RigidBody2DGeometry>& geo0, const std::unique_ptr<RigidBody2DGeometry>& geo1, const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const;
   bool teleportedCollisionIsActive( const TeleportedCollision& teleported_collision, const std::unique_ptr<RigidBody2DGeometry>& geo0, const std::unique_ptr<RigidBody2DGeometry>& geo1, const VectorXs& q ) const;
-  bool bodyCollidesWithAnother( const Vector2s& x, const scalar& theta, const std::unique_ptr<RigidBody2DGeometry>& geo, const VectorXs& q ) const;
 
-  void computeBodyBodyActiveSetAllPairs( const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const;
   void computeBodyBodyActiveSetSpatialGrid( const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const;
   void computeBodyPlaneActiveSetAllPairs( const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const;
 

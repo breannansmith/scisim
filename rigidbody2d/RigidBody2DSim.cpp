@@ -1,7 +1,7 @@
 // RigidBody2DSim.cpp
 //
 // Breannan Smith
-// Last updated: 09/10/2015
+// Last updated: 09/22/2015
 
 #include "RigidBody2DSim.h"
 
@@ -456,121 +456,6 @@ void RigidBody2DSim::dispatchTeleportedNarrowPhaseCollision( const TeleportedCol
   }
 }
 
-bool RigidBody2DSim::bodyCollidesWithAnother( const Vector2s& x, const scalar& theta, const std::unique_ptr<RigidBody2DGeometry>& geo, const VectorXs& q ) const
-{
-  assert( q.size() % 3 == 0 );
-
-  const unsigned nbodies{ static_cast<unsigned>( q.size() / 3 ) };
-
-  // Compute an AABB for the trial body
-  Array2s trial_min;
-  Array2s trial_max;
-  geo->computeAABB( x, theta, trial_min, trial_max );
-  const AABB trial_aabb{ trial_min, trial_max };
-
-  // Candidate bodies that might overlap
-  std::vector<unsigned> possible_overlaps;
-  // Map from teleported AABB indices and body and portal indices
-  std::map<unsigned,TeleportedBody> teleported_aabb_body_indices;
-  {
-    // Compute an AABB for each body
-    std::vector<AABB> aabbs;
-    aabbs.reserve( nbodies );
-    for( unsigned bdy_idx = 0; bdy_idx < nbodies; ++bdy_idx )
-    {
-      Array2s min;
-      Array2s max;
-      m_state.bodyGeometry( bdy_idx )->computeAABB( q.segment<2>( 3 * bdy_idx ), q( 3 * bdy_idx + 2 ), min, max );
-      aabbs.emplace_back( min, max );
-    }
-    assert( aabbs.size() == nbodies );
-
-    // Compute an AABB for each teleported body
-    std::map<unsigned,TeleportedBody>::iterator aabb_bdy_map_itr{ teleported_aabb_body_indices.begin() };
-    // For each portal
-    for( const PlanarPortal& planar_portal : m_state.planarPortals() )
-    {
-      // For each body
-      for( unsigned bdy_idx = 0; bdy_idx < nbodies; ++bdy_idx )
-      {
-        // If the body is inside a portal
-        bool intersecting_plane_index;
-        if( planar_portal.aabbTouchesPortal( aabbs[bdy_idx].min(), aabbs[bdy_idx].max(), intersecting_plane_index )  )
-        {
-          // Teleport to the other side of the portal
-          Vector2s x_out;
-          planar_portal.teleportPoint( q.segment<2>( 3 * bdy_idx ), intersecting_plane_index, x_out );
-          // Compute an AABB for the teleported particle
-          Array2s min;
-          Array2s max;
-          m_state.bodyGeometry( bdy_idx )->computeAABB( x_out, q( 3 * bdy_idx + 2 ), min, max );
-          aabbs.emplace_back( min, max );
-
-          const unsigned prtl_idx{ Utilities::index( m_state.planarPortals(), planar_portal ) };
-          aabb_bdy_map_itr = teleported_aabb_body_indices.insert( aabb_bdy_map_itr, std::make_pair( aabbs.size() - 1, TeleportedBody{ bdy_idx, prtl_idx, intersecting_plane_index } ) );
-        }
-      }
-    }
-
-    // Determine which bodies possibly overlap
-    SpatialGrid::getPotentialOverlaps( trial_aabb, aabbs, possible_overlaps );
-  }
-
-  // Narrow phase checks to verify whether the bodies actually overlap
-  for( const unsigned other_idx : possible_overlaps )
-  {
-    // If the other body wasn't teleported
-    if( other_idx < nbodies )
-    {
-      // We can run standard narrow phase
-      if( collisionIsActive( x, theta, geo, q.segment<2>( 3 * other_idx ), q( 3 * other_idx + 2 ), m_state.bodyGeometry( other_idx ) ) )
-      {
-        return true;
-      }
-    }
-    // If the other body was teleported
-    else
-    {
-      // TODO: Never actually seem to hit this else clause randomly. Set up an artificial example that purpousefully executes this code.
-      std::cout << "!!!! OTHER TELEPORTED !!!!!" << std::endl;
-      const std::map<unsigned,TeleportedBody>::const_iterator map_itr{ teleported_aabb_body_indices.find( other_idx ) };
-      assert( map_itr != teleported_aabb_body_indices.end() );
-      const unsigned other_bdy_idx{ map_itr->second.bodyIndex() };
-      assert( other_bdy_idx < nbodies );
-      const unsigned prtl_idx{ map_itr->second.portalIndex() };
-      assert( prtl_idx < m_state.planarPortals().size() );
-      const unsigned prtl_plane{ map_itr->second.planeIndex() };
-
-      // Check if the teleported collision happens
-      Vector2s teleported_center{ q.segment<2>( 3 * other_bdy_idx ) };
-      getTeleportedCollisionCenter( prtl_idx, prtl_plane, teleported_center );
-      if( collisionIsActive( x, theta, geo, teleported_center, q( 3 * other_bdy_idx + 2 ), m_state.bodyGeometry( other_bdy_idx ) ) )
-      {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
-void RigidBody2DSim::computeBodyBodyActiveSetAllPairs( const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const
-{
-  assert( q0.size() % 3 == 0 ); assert( q0.size() == q1.size() );
-
-  const unsigned nbodies{ static_cast<unsigned>( q0.size() / 3 ) };
-
-  // Check all body-body pairs
-  for( unsigned bdy_idx_0 = 0; bdy_idx_0 < nbodies; ++bdy_idx_0 )
-  {
-    for( unsigned bdy_idx_1 = bdy_idx_0 + 1; bdy_idx_1 < nbodies; ++bdy_idx_1 )
-    {
-      const std::unique_ptr<RigidBody2DGeometry>& geo0{ m_state.geometry()[ m_state.geometryIndices()( bdy_idx_0 ) ] };
-      const std::unique_ptr<RigidBody2DGeometry>& geo1{ m_state.geometry()[ m_state.geometryIndices()( bdy_idx_1 ) ] };
-      dispatchNarrowPhaseCollision( bdy_idx_0, bdy_idx_1, geo0, geo1, q0, q1, active_set );
-    }
-  }
-}
-
 void RigidBody2DSim::computeBodyPlaneActiveSetAllPairs( const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const
 {
   assert( q0.size() % 3 == 0 ); assert( q0.size() == q1.size() );
@@ -605,7 +490,6 @@ void RigidBody2DSim::computeActiveSet( const VectorXs& q0, const VectorXs& q1, s
   active_set.clear();
 
   // Detect body-body collisions
-  //computeBodyBodyActiveSetAllPairs( q0, q1, active_set );
   computeBodyBodyActiveSetSpatialGrid( q0, q1, active_set );
 
   // Check all ball-drum pairs
