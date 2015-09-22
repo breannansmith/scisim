@@ -1,7 +1,7 @@
 // SphereBodyConstraint.cpp
 //
 // Breannan Smith
-// Last updated: 09/15/2015
+// Last updated: 09/22/2015
 
 #include "SphereBodyConstraint.h"
 
@@ -97,21 +97,6 @@ void SphereBodyConstraint::getSimulatedBodyIndices( std::pair<int,int>& bodies )
   std::exit( EXIT_FAILURE );
 //  bodies.first = m_i;
 //  bodies.second = m_j;
-}
-
-void SphereBodyConstraint::computeFrictionMask( const int nbodies, VectorXs& friction_mask ) const
-{
-  std::cerr << "SphereBodyConstraint::computeFrictionMask not done!" << std::endl;
-  std::exit( EXIT_FAILURE );
-//  assert( 3 * m_i + 2 < friction_mask.size() );
-//  assert( 3 * ( m_i + nbodies ) + 2 < friction_mask.size() );
-//  assert( 3 * m_j + 2 < friction_mask.size() );
-//  assert( 3 * ( m_j + nbodies ) + 2 < friction_mask.size() );
-//  
-//  friction_mask.segment<3>( 3 * m_i ).setConstant( 1.0 );
-//  friction_mask.segment<3>( 3 * ( m_i + nbodies ) ).setConstant( 1.0 );
-//  friction_mask.segment<3>( 3 * m_j ).setConstant( 1.0 );
-//  friction_mask.segment<3>( 3 * ( m_j + nbodies ) ).setConstant( 1.0 );
 }
 
 void SphereBodyConstraint::evalKinematicNormalRelVel( const VectorXs& q, const int strt_idx, VectorXs& gdotN ) const

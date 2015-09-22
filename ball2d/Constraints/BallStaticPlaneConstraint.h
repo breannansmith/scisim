@@ -1,7 +1,7 @@
 // BallStaticPlaneConstraint.h
 //
 // Breannan Smith
-// Last updated: 09/04/2015
+// Last updated: 09/22/2015
 
 #ifndef STATIC_PLANE_CONSTRAINT_H
 #define STATIC_PLANE_CONSTRAINT_H
@@ -51,9 +51,6 @@ private:
   virtual VectorXs computeRelativeVelocity( const VectorXs& q, const VectorXs& v ) const override;
 
   virtual void setBodyIndex0( const unsigned idx ) override;
-
-  virtual VectorXs projectImpulseOnFrictionBasis( const VectorXs& q, const VectorXs& f ) const override;
-  virtual bool basisSpansTangent() const override;
 
   Vector2s computePlaneCollisionPointVelocity( const VectorXs& q ) const;
 

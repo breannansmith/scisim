@@ -1,7 +1,7 @@
 // TeleportedSphereSphereConstraint.cpp
 //
 // Breannan Smith
-// Last updated: 09/15/2015
+// Last updated: 09/22/2015
 
 #include "TeleportedSphereSphereConstraint.h"
 
@@ -130,74 +130,6 @@ void TeleportedSphereSphereConstraint::computeGeneralizedFrictionDisk( const Vec
     // No relative velocity contribution from kinematic scripting
     assert( cur_col < drel.size() );
     drel( cur_col ) = 0.0;
-  }
-}
-
-void TeleportedSphereSphereConstraint::computeSmoothGeneralizedFrictionDisk( const VectorXs& q, const VectorXs& v, const int start_column, SparseMatrixsc& D ) const
-{
-  assert( start_column >= 0 );
-  assert( start_column < D.cols() );
-  assert( start_column+1 < D.cols() );
-  assert( q.size() % 12 == 0 );
-  assert( q.size() == 2 * v.size() );
-
-  std::vector<Vector3s> friction_disk{ 2 };
-
-  // Compute the relative velocity to use as a direction for the tangent sample
-  friction_disk[0] = computeRelativeVelocity( q, v );
-  // If the relative velocity is zero, any vector will do
-  if( friction_disk[0].cross( m_n ).squaredNorm() < 1.0e-9 )
-  {
-    friction_disk[0] = FrictionUtilities::orthogonalVector( m_n );
-  }
-  // Otherwise project out the component along the normal and normalize the relative velocity
-  else
-  {
-    friction_disk[0] = ( friction_disk[0] - friction_disk[0].dot( m_n ) * m_n ).normalized();
-  }
-  // Invert the tangent vector in order to oppose
-  friction_disk[0] *= -1.0;
-
-  // Create a second orthogonal sample in the tangent plane
-  friction_disk[1] = m_n.cross( friction_disk[0] ).normalized(); // Don't need to normalize but it won't hurt
-  assert( MathUtilities::isRightHandedOrthoNormal( m_n, friction_disk[0], friction_disk[1], 1.0e-6 ) );
-
-  // For each sample of the friction disk
-  assert( m_idx0 < m_idx1 );
-  const unsigned nbodies{ static_cast<unsigned>( q.size() / 12 ) };
-  for( int i = 0; i < 2; ++i )
-  {
-    const int cur_col{ start_column + i };
-    assert( cur_col >= 0 );
-    assert( cur_col < D.cols() );
-
-    // Effect on center of mass of body i
-    D.insert( 3 * m_idx0 + 0, cur_col ) = friction_disk[i].x();
-    D.insert( 3 * m_idx0 + 1, cur_col ) = friction_disk[i].y();
-    D.insert( 3 * m_idx0 + 2, cur_col ) = friction_disk[i].z();
-    // Effect on orientation of body i
-    {
-      assert( m_n.cross( m_r0 ).norm() <= 1.0e-6 );
-      const Vector3s ntilde{ m_r0.cross( friction_disk[i] ) };
-      assert( 3 * ( m_idx0 + nbodies ) + 2 < unsigned( D.rows() ) );
-      D.insert( 3 * ( m_idx0 + nbodies ) + 0, cur_col ) = ntilde.x();
-      D.insert( 3 * ( m_idx0 + nbodies ) + 1, cur_col ) = ntilde.y();
-      D.insert( 3 * ( m_idx0 + nbodies ) + 2, cur_col ) = ntilde.z();
-    }
-
-    // Effect on center of mass of body j
-    D.insert( 3 * m_idx1 + 0, cur_col ) = - friction_disk[i].x();
-    D.insert( 3 * m_idx1 + 1, cur_col ) = - friction_disk[i].y();
-    D.insert( 3 * m_idx1 + 2, cur_col ) = - friction_disk[i].z();
-    // Effect on orientation of body j
-    {
-      assert( m_n.cross( m_r1 ).norm() <= 1.0e-6 );
-      const Vector3s ntilde{ m_r1.cross( friction_disk[i] ) };
-      assert( 3 * ( m_idx1 + nbodies ) + 2 < unsigned( D.rows() ) );
-      D.insert( 3 * ( m_idx1 + nbodies ) + 0, cur_col ) = - ntilde.x();
-      D.insert( 3 * ( m_idx1 + nbodies ) + 1, cur_col ) = - ntilde.y();
-      D.insert( 3 * ( m_idx1 + nbodies ) + 2, cur_col ) = - ntilde.z();
-    }
   }
 }
 

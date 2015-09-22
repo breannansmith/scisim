@@ -1,7 +1,7 @@
 // StaticPlaneBodyConstraint.h
 //
 // Breannan Smith
-// Last updated: 09/16/2015
+// Last updated: 09/22/2015
 
 #ifndef STATIC_PLANE_BODY_CONSTRAINT_H
 #define STATIC_PLANE_BODY_CONSTRAINT_H
@@ -20,7 +20,6 @@ public:
   virtual scalar evalNdotV( const VectorXs& q, const VectorXs& v ) const override;
   virtual void evalgradg( const VectorXs& q, const int col, SparseMatrixsc& G, const FlowableSystem& fsys ) const override;
   virtual void computeGeneralizedFrictionDisk( const VectorXs& q, const VectorXs& v, const int start_column, const int num_samples, SparseMatrixsc& D, VectorXs& drel ) const override;
-  virtual void computeSmoothGeneralizedFrictionDisk( const VectorXs& q, const VectorXs& v, const int start_column, SparseMatrixsc& D ) const override;
   virtual void computeGeneralizedFrictionGivenTangentSample( const VectorXs& q, const VectorXs& t, const unsigned column, SparseMatrixsc& D ) const override;
   virtual int impactStencilSize() const override;
   virtual int frictionStencilSize() const override;

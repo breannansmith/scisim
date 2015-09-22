@@ -1,26 +1,11 @@
 // Constraint.cpp
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/22/2015
 
 #include "Constraint.h"
 
 #include <iostream>
-
-VectorXs Constraint::computeWorldSpaceContactNormal( const VectorXs& q ) const
-{
-  VectorXs n;
-  getWorldSpaceContactNormal( q, n );
-  assert( fabs( n.norm() - 1.0 ) <= 1.0e-6 );
-  return n;
-}
-
-MatrixXXsc Constraint::computeFrictionBasis( const VectorXs& q, const VectorXs& v ) const
-{
-  MatrixXXsc basis;
-  computeBasis( q, v, basis );
-  return basis.block( 0, 1, basis.rows(), basis.cols() - 1 );
-}
 
 void Constraint::computeBasis( const VectorXs& q, const VectorXs& v, MatrixXXsc& basis ) const
 {
@@ -46,64 +31,6 @@ void Constraint::computeForcingTerm( const VectorXs& q, const VectorXs& v, const
   {
     constant_term += basis.col( friction_sample + 1 ) * drel( friction_sample );
   }
-}
-
-// TODO: Don't do the if here, have children do what they need to do
-scalar Constraint::computeLambda( const VectorXs& q, const VectorXs& v ) const
-{
-  MatrixXXsc basis;
-  computeBasis( q, v, basis );
-  assert( basis.rows() == basis.cols() );
-  assert( basis.cols() == 2 || basis.cols() == 3 );
-  const VectorXs rel_vel = computeRelativeVelocity( q, v );
-  assert( rel_vel.size() == basis.rows() );
-  if( basis.cols() == 3 )
-  {
-    const Vector2s tangent_vel( rel_vel.dot( basis.col( 1 ) ), rel_vel.dot( basis.col( 2 ) ) );
-    return tangent_vel.norm();
-  }
-  else if( basis.cols() == 2 )
-  {
-    return fabs( rel_vel.dot( basis.col( 1 ) ) );
-  }
-  std::cerr << "Unhandled case in Constraint::computeLambda" << std::endl;
-  std::exit( EXIT_FAILURE );
-}
-
-VectorXs Constraint::projectOnFrictionBasis( const VectorXs& q, const VectorXs& f ) const
-{
-  // TODO: Move sanity checks here
-  return projectImpulseOnFrictionBasis( q, f );
-}
-
-bool Constraint::basisSpansTangentPlane() const
-{
-  return basisSpansTangent();
-}
-
-// TODO: Unspecialize from 3D
-void Constraint::computeNormalAndRelVelAlignedTangent( const VectorXs& q, const VectorXs& v, VectorXs& n, VectorXs& t, VectorXs& tangent_rel_vel ) const
-{
-  MatrixXXsc basis;
-  computeBasis( q, v, basis );
-  assert( basis.rows() == basis.cols() ); assert( basis.rows() == 3 );
-  n = basis.col( 0 );
-  t = basis.col( 1 );
-
-  // Compute the relative velocity
-  tangent_rel_vel = computeRelativeVelocity( q, v );
-  // Project out normal component of relative velocity
-  tangent_rel_vel = tangent_rel_vel - tangent_rel_vel.dot( n ) * n;
-
-  #ifndef NDEBUG
-  // Relative velocity and tangent should be parallel
-  assert( Eigen::Map<Vector3s>( tangent_rel_vel.data() ).cross( Eigen::Map<Vector3s>( t.data() ) ).lpNorm<Eigen::Infinity>() <= 1.0e-6 );
-  // If tangent relative velocity is non-negligble, tangent should oppose
-  if( tangent_rel_vel.norm() > 1.0e-9 )
-  {
-    assert( fabs( tangent_rel_vel.normalized().dot( t ) + 1.0 ) <= 1.0e-6 );
-  }
-  #endif
 }
 
 scalar Constraint::penetrationDepth( const VectorXs& q ) const
@@ -155,19 +82,19 @@ void Constraint::evalKinematicRelVelGivenBases( const VectorXs& q, const VectorX
   assert( drel.size() % constraints.size() == 0 );
 
   // Number of constraints in the system
-  const unsigned ncons = constraints.size();
+  const unsigned ncons{ static_cast<unsigned>( constraints.size() ) };
 
   // Number of tangent friction samples per constraint in the system
-  const unsigned friction_vectors_per_con = drel.size() / ncons;
+  const unsigned friction_vectors_per_con{ static_cast<unsigned>( drel.size() / ncons ) };
 
   for( unsigned con_num = 0; con_num < ncons; ++con_num )
   {
     // Grab the kinematic relative velocity
-    const VectorXs kinematic_rel_vel = constraints[con_num]->computeKinematicRelativeVelocity( q, v );
+    const VectorXs kinematic_rel_vel{ constraints[con_num]->computeKinematicRelativeVelocity( q, v ) };
     assert( kinematic_rel_vel.size() == bases.rows() );
 
     // Compute the column of the normal in the bases matrix
-    const unsigned n_idx = ( friction_vectors_per_con + 1 ) * con_num;
+    const unsigned n_idx{ ( friction_vectors_per_con + 1 ) * con_num };
     assert( n_idx < bases.cols() ); assert( fabs( bases.col( n_idx ).norm() - 1.0 ) <= 1.0e-6 );
     // Project the relative velocity onto the normal
     nrel( con_num ) = - kinematic_rel_vel.dot( bases.col( n_idx ) );
@@ -175,7 +102,7 @@ void Constraint::evalKinematicRelVelGivenBases( const VectorXs& q, const VectorX
     for( unsigned friction_sample = 0; friction_sample < friction_vectors_per_con; ++friction_sample )
     {
       // Compute the column of the current friction sample in the bases matrix
-      const unsigned f_idx = ( friction_vectors_per_con + 1 ) * con_num + friction_sample + 1;
+      const unsigned f_idx{ ( friction_vectors_per_con + 1 ) * con_num + friction_sample + 1 };
       assert( f_idx < bases.cols() );
       assert( fabs( bases.col( f_idx ).norm() - 1.0 ) <= 1.0e-6 );
       assert( fabs( bases.col( n_idx ).dot( bases.col( f_idx ) ) ) <= 1.0e-6 );
@@ -183,7 +110,6 @@ void Constraint::evalKinematicRelVelGivenBases( const VectorXs& q, const VectorX
     }
   }
 }
-
 
 Constraint::~Constraint()
 {}
@@ -197,12 +123,6 @@ void Constraint::resolveImpact( const scalar& CoR, const SparseMatrixsc& M, cons
 void Constraint::computeGeneralizedFrictionDisk( const VectorXs& q, const VectorXs& v, const int start_column, const int num_samples, SparseMatrixsc& D, VectorXs& drel ) const
 {
   std::cerr << "Constraint::computeGeneralizedFrictionDisk not implemented for: " << name() << std::endl;
-  std::exit( EXIT_FAILURE );
-}
-
-void Constraint::computeSmoothGeneralizedFrictionDisk( const VectorXs& q, const VectorXs& v, const int start_column, SparseMatrixsc& D ) const
-{
-  std::cerr << "Constraint::computeSmoothGeneralizedFrictionDisk not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
@@ -227,12 +147,6 @@ void Constraint::getSimulatedBodyIndices( std::pair<int,int>& bodies ) const
 void Constraint::getBodyIndices( std::pair<int,int>& bodies ) const
 {
   std::cerr << "Constraint::getBodyIndices not implemented for: " << name() << std::endl;
-  std::exit( EXIT_FAILURE );
-}
-
-void Constraint::computeFrictionMask( const int nbodies, VectorXs& friction_mask ) const
-{
-  std::cerr << "Constraint::computeFrictionMask not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
@@ -275,18 +189,6 @@ unsigned Constraint::getStaticObjectIndex() const
 VectorXs Constraint::computeRelativeVelocity( const VectorXs& q, const VectorXs& v ) const
 {
   std::cerr << "Constraint::computeRelativeVelocity not implemented for: " << name() << std::endl;
-  std::exit( EXIT_FAILURE );
-}
-
-VectorXs Constraint::projectImpulseOnFrictionBasis( const VectorXs& q, const VectorXs& f ) const
-{
-  std::cerr << "Constraint::projectImpulseOnFrictionBasis not implemented for: " << name() << std::endl;
-  std::exit( EXIT_FAILURE );
-}
-
-bool Constraint::basisSpansTangent() const
-{
-  std::cerr << "Constraint::basisSpansTangent not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 

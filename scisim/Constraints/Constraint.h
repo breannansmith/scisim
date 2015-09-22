@@ -1,7 +1,7 @@
 // Constraint.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/22/2015
 
 // TODO: This class has accumulated up lots of redundant code. Pare down to the minimum and cleanup.
 
@@ -20,24 +20,11 @@ class Constraint
 
 public:
 
-  VectorXs computeWorldSpaceContactNormal( const VectorXs& q ) const;
-
-  // Returns the friction basis only (no normal)
-  MatrixXXsc computeFrictionBasis( const VectorXs& q, const VectorXs& v ) const;
-
   // Returns the full contact basis
   void computeBasis( const VectorXs& q, const VectorXs& v, MatrixXXsc& basis ) const;
 
   // Computes the 'forcing' term as needed by So-bogus to handle restitution and collisions with kinematically scripted boundaries
   void computeForcingTerm( const VectorXs& q, const VectorXs& v, const MatrixXXsc& basis, const scalar& CoR, const scalar& nrel, const VectorXs& drel, VectorXs& constant_term ) const;
-
-  scalar computeLambda( const VectorXs& q, const VectorXs& v ) const;
-
-  VectorXs projectOnFrictionBasis( const VectorXs& q, const VectorXs& f ) const;
-
-  bool basisSpansTangentPlane() const;
-
-  void computeNormalAndRelVelAlignedTangent( const VectorXs& q, const VectorXs& v, VectorXs& n, VectorXs& t, VectorXs& tangent_rel_vel ) const;
 
   scalar penetrationDepth( const VectorXs& q ) const;
   scalar overlapVolume( const VectorXs& q ) const;
@@ -63,9 +50,6 @@ public:
   // Adds this constraint's friction disk to columns of a sparse matrix.
   virtual void computeGeneralizedFrictionDisk( const VectorXs& q, const VectorXs& v, const int start_column, const int num_samples, SparseMatrixsc& D, VectorXs& drel ) const;
 
-  // Adds this constraint's (smooth) friction disk to columns of a sparse matrix
-  virtual void computeSmoothGeneralizedFrictionDisk( const VectorXs& q, const VectorXs& v, const int start_column, SparseMatrixsc& D ) const;
-
   virtual void computeGeneralizedFrictionGivenTangentSample( const VectorXs& q, const VectorXs& t, const unsigned column, SparseMatrixsc& D ) const;
 
   // Returns the size of the impact stencil
@@ -80,9 +64,6 @@ public:
   // Indices of bodies whose degrees of freedom are stored in the global configuration. Will return
   // a body index in the second entry for kinematic bodies, -1 in the second entry for static geometry.
   virtual void getBodyIndices( std::pair<int,int>& bodies ) const;
-
-  // Places 1s in the DoFs touched by this constraint's friction solve
-  virtual void computeFrictionMask( const int nbodies, VectorXs& friction_mask ) const;
 
   // Compute relative velocity due to constraints
   virtual void evalKinematicNormalRelVel( const VectorXs& q, const int strt_idx, VectorXs& gdotN ) const;
@@ -108,8 +89,6 @@ public:
 private:
 
   virtual void computeContactBasis( const VectorXs& q, const VectorXs& v, MatrixXXsc& basis ) const;
-  virtual VectorXs projectImpulseOnFrictionBasis( const VectorXs& q, const VectorXs& f ) const;
-  virtual bool basisSpansTangent() const;
   virtual void setBodyIndex0( const unsigned idx );
   virtual void setBodyIndex1( const unsigned idx );
   virtual scalar computePenetrationDepth( const VectorXs& q ) const;

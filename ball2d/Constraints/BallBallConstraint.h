@@ -1,7 +1,7 @@
 // BallBallConstraint.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/22/2015
 
 // TODO: Break BallBallConstraint and TeleportedBallBallConstraint into separate classes
 
@@ -56,9 +56,6 @@ protected:
 
   virtual void setBodyIndex0( const unsigned idx ) override;
   virtual void setBodyIndex1( const unsigned idx ) override;
-
-  virtual VectorXs projectImpulseOnFrictionBasis( const VectorXs& q, const VectorXs& f ) const override;
-  virtual bool basisSpansTangent() const override;
 
   virtual scalar computePenetrationDepth( const VectorXs& q ) const override;
 

@@ -1,7 +1,7 @@
 // StaticPlaneBoxConstraint.cpp
 //
 // Breannan Smith
-// Last updated: 09/15/2015
+// Last updated: 09/22/2015
 
 #include "StaticPlaneBoxConstraint.h"
 
@@ -147,57 +147,6 @@ void StaticPlaneBoxConstraint::computeGeneralizedFrictionDisk( const VectorXs& q
   }
 }
 
-void StaticPlaneBoxConstraint::computeSmoothGeneralizedFrictionDisk( const VectorXs& q, const VectorXs& v, const int start_column, SparseMatrixsc& D ) const
-{
-  assert( start_column >= 0 );
-  assert( start_column < D.cols() );
-  assert( start_column + 1 < D.cols() );
-  assert( q.size() % 12 == 0 );
-  assert( q.size() == 2 * v.size() );
-
-  std::vector<Vector3s> friction_disk{ 2 };
-
-  // Compute the relative velocity to use as a direction for the tangent sample
-  friction_disk[0] = computeRelativeVelocity( q, v );
-  // If the relative velocity is zero, any vector will do
-  if( friction_disk[0].cross( m_n ).squaredNorm() < 1.0e-9 )
-  {
-    friction_disk[0] = FrictionUtilities::orthogonalVector( m_n );
-  }
-  // Otherwise project out the component along the normal and normalize the relative velocity
-  else
-  {
-    friction_disk[0] = ( friction_disk[0] - friction_disk[0].dot( m_n ) * m_n ).normalized();
-  }
-  // Invert the tangent vector in order to oppose
-  friction_disk[0] *= -1.0;
-
-  // Create a second orthogonal sample in the tangent plane
-  friction_disk[1] = m_n.cross( friction_disk[0] ).normalized(); // Don't need to normalize but it won't hurt
-  assert( MathUtilities::isRightHandedOrthoNormal( m_n, friction_disk[0], friction_disk[1], 1.0e-6 ) );
-
-  // For each sample of the friction disk
-  const unsigned nbodies{ static_cast<unsigned>( q.size() / 12 ) };
-  for( unsigned friction_sample = 0; friction_sample < 2; ++friction_sample )
-  {
-    const unsigned cur_col{ start_column + friction_sample };
-    assert( cur_col < unsigned( D.cols() ) );
-
-    // Effect on center of mass
-    D.insert( 3 * m_idx_box + 0, cur_col ) = friction_disk[friction_sample].x();
-    D.insert( 3 * m_idx_box + 1, cur_col ) = friction_disk[friction_sample].y();
-    D.insert( 3 * m_idx_box + 2, cur_col ) = friction_disk[friction_sample].z();
-
-    // Effect on orientation
-    {
-      const Vector3s ntilde{ m_r.cross( friction_disk[friction_sample] ) };
-      D.insert( 3 * ( nbodies + m_idx_box ) + 0, cur_col ) = ntilde.x();
-      D.insert( 3 * ( nbodies + m_idx_box ) + 1, cur_col ) = ntilde.y();
-      D.insert( 3 * ( nbodies + m_idx_box ) + 2, cur_col ) = ntilde.z();
-    }
-  }
-}
-
 void StaticPlaneBoxConstraint::computeGeneralizedFrictionGivenTangentSample( const VectorXs& q, const VectorXs& t, const unsigned column, SparseMatrixsc& D ) const
 {
   assert( column < unsigned( D.cols() ) );
@@ -235,14 +184,6 @@ void StaticPlaneBoxConstraint::getSimulatedBodyIndices( std::pair<int,int>& bodi
 {
   bodies.first = m_idx_box;
   bodies.second = -1;
-}
-
-void StaticPlaneBoxConstraint::computeFrictionMask( const int nbodies, VectorXs& friction_mask ) const
-{
-  assert( 3 * m_idx_box + 2 < friction_mask.size() );
-  friction_mask.segment<3>( 3 * m_idx_box ).setConstant( 1.0 );
-  assert( 3 * ( m_idx_box + nbodies ) + 2 < friction_mask.size() );
-  friction_mask.segment<3>( 3 * ( m_idx_box + nbodies ) ).setConstant( 1.0 );
 }
 
 void StaticPlaneBoxConstraint::evalKinematicNormalRelVel( const VectorXs& q, const int strt_idx, VectorXs& gdotN ) const

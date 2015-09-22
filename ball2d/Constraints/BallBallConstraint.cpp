@@ -1,7 +1,7 @@
 // BallBallConstraint.cpp
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/22/2015
 
 #include "BallBallConstraint.h"
 
@@ -229,18 +229,6 @@ unsigned BallBallConstraint::idx1() const
 bool BallBallConstraint::teleported() const
 {
   return m_teleported;
-}
-
-VectorXs BallBallConstraint::projectImpulseOnFrictionBasis( const VectorXs& q, const VectorXs& f ) const
-{
-  VectorXs projection{ 1 };
-  projection( 0 ) = f.dot( Vector2s{ -m_n.y(), m_n.x() } );
-  return projection;
-}
-
-bool BallBallConstraint::basisSpansTangent() const
-{
-  return true;
 }
 
 void BallBallConstraint::computeContactBasis( const VectorXs& q, const VectorXs& v, MatrixXXsc& basis ) const

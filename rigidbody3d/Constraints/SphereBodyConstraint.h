@@ -1,7 +1,7 @@
 // SphereBodyConstraint.h
 //
 // Breannan Smith
-// Last updated: 09/15/2015
+// Last updated: 09/22/2015
 // N.b. this class is effectively abandoned.
 
 #ifndef SPHERE_BODY_CONSTRAINT_H
@@ -27,7 +27,6 @@ public:
   virtual int impactStencilSize() const override;
   virtual int frictionStencilSize() const override;
   virtual void getSimulatedBodyIndices( std::pair<int,int>& bodies ) const override;
-  virtual void computeFrictionMask( const int nbodies, VectorXs& friction_mask ) const override;
   virtual void evalKinematicNormalRelVel( const VectorXs& q, const int strt_idx, VectorXs& gdotN ) const override;
   virtual bool conservesTranslationalMomentum() const override;
   virtual bool conservesAngularMomentumUnderImpact() const override;

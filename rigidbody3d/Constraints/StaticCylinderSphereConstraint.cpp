@@ -1,7 +1,7 @@
 // StaticCylinderSphereConstraint.cpp
 //
 // Breannan Smith
-// Last updated: 09/16/2015
+// Last updated: 09/22/2015
 
 #include "StaticCylinderSphereConstraint.h"
 
@@ -122,66 +122,6 @@ void StaticCylinderSphereConstraint::computeGeneralizedFrictionDisk( const Vecto
   }
 }
 
-void StaticCylinderSphereConstraint::computeSmoothGeneralizedFrictionDisk( const VectorXs& q, const VectorXs& v, const int start_column, SparseMatrixsc& D ) const
-{
-  assert( start_column >= 0 );
-  assert( start_column < D.cols() );
-  assert( start_column + 1 < D.cols() );
-  assert( q.size() % 12 == 0 );
-  assert( q.size() == 2 * v.size() );
-
-  const Vector3s n{ computeN( q ) };
-  assert( fabs( n.norm() - 1.0 ) <= 1.0e-6 );
-  assert( fabs( n.dot( m_cyl.axis() ) ) <= 1.0e-6 );
-
-  std::vector<Vector3s> friction_disk{ 2 };
-
-  // Compute the relative velocity to use as a direction for the tangent sample
-  friction_disk[0] = computeRelativeVelocity( q, v );
-  // If the relative velocity is zero, any vector will do
-  if( friction_disk[0].cross( n ).squaredNorm() < 1.0e-9 )
-  {
-    friction_disk[0] = FrictionUtilities::orthogonalVector( n );
-  }
-  // Otherwise project out the component along the normal and normalize the relative velocity
-  else
-  {
-    friction_disk[0] = ( friction_disk[0] - friction_disk[0].dot( n ) * n ).normalized();
-  }
-  // Invert the tangent vector in order to oppose
-  friction_disk[0] *= -1.0;
-
-  // Create a second orthogonal sample in the tangent plane
-  friction_disk[1] = n.cross( friction_disk[0] ).normalized(); // Don't need to normalize but it won't hurt
-  assert( MathUtilities::isRightHandedOrthoNormal( n, friction_disk[0], friction_disk[1], 1.0e-6 ) );
-
-  // Compute the displacement from the center of mass to the point of contact
-  assert( fabs( n.norm() - 1.0 ) <= 1.0e-10 );
-  assert( m_r >= 0.0 );
-  const Vector3s r_world{ - m_r * n };
-
-  // For each sample of the friction disk
-  const unsigned nbodies{ static_cast<unsigned>( q.size() / 12 ) };
-  for( unsigned friction_sample = 0; friction_sample < 2; ++friction_sample )
-  {
-    const unsigned cur_col{ start_column + friction_sample };
-    assert( cur_col < unsigned( D.cols() ) );
-
-    // Effect on center of mass
-    D.insert( 3 * m_idx_sphere + 0, cur_col ) = friction_disk[friction_sample].x();
-    D.insert( 3 * m_idx_sphere + 1, cur_col ) = friction_disk[friction_sample].y();
-    D.insert( 3 * m_idx_sphere + 2, cur_col ) = friction_disk[friction_sample].z();
-
-    // Effect on orientation
-    {
-      const Vector3s ntilde{ r_world.cross( friction_disk[friction_sample] ) };
-      D.insert( 3 * ( nbodies + m_idx_sphere ) + 0, cur_col ) = ntilde.x();
-      D.insert( 3 * ( nbodies + m_idx_sphere ) + 1, cur_col ) = ntilde.y();
-      D.insert( 3 * ( nbodies + m_idx_sphere ) + 2, cur_col ) = ntilde.z();
-    }
-  }
-}
-
 void StaticCylinderSphereConstraint::computeGeneralizedFrictionGivenTangentSample( const VectorXs& q, const VectorXs& t, const unsigned column, SparseMatrixsc& D ) const
 {
   assert( column < unsigned( D.cols() ) );
@@ -226,17 +166,6 @@ void StaticCylinderSphereConstraint::getSimulatedBodyIndices( std::pair<int,int>
 {
   bodies.first = m_idx_sphere;
   bodies.second = -1;
-}
-
-void StaticCylinderSphereConstraint::computeFrictionMask( const int nbodies, VectorXs& friction_mask ) const
-{
-  std::cerr << "StaticCylinderSphereConstraint::computeFrictionMask not implemented." << std::endl;
-  std::exit( EXIT_FAILURE );
-//  assert( 3 * m_i + 2 < friction_mask.size() );
-//  assert( 3 * ( m_i + nbodies ) + 2 < friction_mask.size() );
-//
-//  friction_mask.segment<3>( 3 * m_i ).setConstant( 1.0 );
-//  friction_mask.segment<3>( 3 * ( m_i + nbodies ) ).setConstant( 1.0 );
 }
 
 void StaticCylinderSphereConstraint::getBodyIndices( std::pair<int,int>& bodies ) const

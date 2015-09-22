@@ -1,7 +1,7 @@
 // BallStaticPlaneConstraint.cpp
 //
 // Breannan Smith
-// Last updated: 09/04/2015
+// Last updated: 09/22/2015
 
 #include "BallStaticPlaneConstraint.h"
 
@@ -184,18 +184,6 @@ unsigned StaticPlaneConstraint::planeIdx() const
 unsigned StaticPlaneConstraint::ballIdx() const
 {
   return m_ball_idx;
-}
-
-VectorXs StaticPlaneConstraint::projectImpulseOnFrictionBasis( const VectorXs& q, const VectorXs& f ) const
-{
-  VectorXs projection( 1 );
-  projection( 0 ) = f.dot( m_static_plane.t() );
-  return projection;
-}
-
-bool StaticPlaneConstraint::basisSpansTangent() const
-{
-  return true;
 }
 
 void StaticPlaneConstraint::computeContactBasis( const VectorXs& q, const VectorXs& v, MatrixXXsc& basis ) const
