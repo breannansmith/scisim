@@ -1,7 +1,7 @@
 // PythonTools.cpp
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/22/2015
 
 #include "PythonTools.h"
 
@@ -31,7 +31,7 @@ void PythonTools::loadModule( const std::string& path, const std::string& module
   #ifdef USE_PYTHON
   // Load the module
   PythonTools::pythonCommand( "sys.path.insert( 0, '" + path + "' )" );
-  loaded_module = PyImport_ImportModule( module_name.c_str() );
+  loaded_module = PythonObject{ PyImport_ImportModule( module_name.c_str() ) };
   // Ensure that the module loaded without error
   if( loaded_module == nullptr )
   {

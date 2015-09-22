@@ -1,7 +1,7 @@
 // PythonObject.cpp
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/22/2015
 
 #include "PythonObject.h"
 
@@ -26,6 +26,7 @@ PythonObject& PythonObject::operator=( PythonObject&& other )
 {
   if( this != &other )
   {
+    // We are discarding this object's PyObject so we must decrease the PyObject's reference count
     Py_XDECREF( m_object );
     m_object = other.m_object;
     other.m_object = nullptr;

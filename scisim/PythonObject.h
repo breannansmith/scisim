@@ -1,7 +1,7 @@
 // PythonObject.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/22/2015
 
 #ifndef PYTHON_OBJECT_H
 #define PYTHON_OBJECT_H
@@ -14,7 +14,7 @@ class PythonObject final
 
 public:
 
-  PythonObject( PyObject* object );
+  explicit PythonObject( PyObject* object );
 
   PythonObject( PythonObject&& other );
 
@@ -26,9 +26,13 @@ public:
 
 private:
 
+  PythonObject( PythonObject& ) = delete;
+  void operator=( const PythonObject& ) = delete;
+
   PyObject* m_object;
 
 };
+
 #endif
 
 #endif
