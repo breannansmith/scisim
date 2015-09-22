@@ -1,7 +1,7 @@
 // RigidBody3DSceneParser.cpp
 //
 // Breannan Smith
-// Last updated: 09/21/2015
+// Last updated: 09/22/2015
 
 #include "RigidBody3DSceneParser.h"
 
@@ -1716,8 +1716,8 @@ static bool loadStaggeredProjectionsFrictionSolver( const rapidxml::xml_node<>& 
     }
 
     // Attempt to load a warm start alpha setting
-    bool internal_warm_start_alpha;
     {
+      bool internal_warm_start_alpha;
       const rapidxml::xml_attribute<>* const attrib_nd{ node.first_attribute( "internal_warm_start_alpha" ) };
       if( attrib_nd == nullptr )
       {
@@ -1733,8 +1733,8 @@ static bool loadStaggeredProjectionsFrictionSolver( const rapidxml::xml_node<>& 
     }
 
     // Attempt to load a warm start beta setting
-    bool internal_warm_start_beta;
     {
+      bool internal_warm_start_beta;
       const rapidxml::xml_attribute<>* const attrib_nd{ node.first_attribute( "internal_warm_start_beta" ) };
       if( attrib_nd == nullptr )
       {
