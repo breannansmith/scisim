@@ -1,7 +1,7 @@
 // LCPOperatorIpopt.cpp
 //
 // Breannan Smith
-// Last updated: 09/08/2015
+// Last updated: 09/22/2015
 
 #include "LCPOperatorIpopt.h"
 
@@ -237,19 +237,6 @@ void LCPOperatorIpopt::serialize( std::ostream& output_stream ) const
   Utilities::serializeVectorCustomType( m_linear_solver_order, StringUtilities::serializeString, output_stream );
   Utilities::serializeBuiltInType( m_tol, output_stream );
 }
-
-bool LCPOperatorIpopt::supported()
-{
-  #ifdef IPOPT_FOUND
-  return true;
-  #else
-  return false;
-  #endif
-}
-
-
-
-
 
 
 

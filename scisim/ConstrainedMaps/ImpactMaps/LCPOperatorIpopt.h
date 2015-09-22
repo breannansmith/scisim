@@ -1,7 +1,7 @@
 // LCPOperatorIpopt.h
 //
 // Breannan Smith
-// Last updated: 09/21/2015
+// Last updated: 09/22/2015
 
 #ifndef LCP_OPERATOR_IPOPT_H
 #define LCP_OPERATOR_IPOPT_H
@@ -36,8 +36,6 @@ public:
   [[noreturn]]
   #endif
   void solveQP( const QPTerminationOperator& termination_operator, const SparseMatrixsc& Minv, const SparseMatrixsc& N, const VectorXs& b, VectorXs& alpha, scalar& achieved_tol ) const;
-
-  static bool supported();
 
 private:
 
