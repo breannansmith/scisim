@@ -505,17 +505,6 @@ void GLWidget::resetSystem()
   updateGL();
 }
 
-void GLWidget::getSimData( double& time, double& T, double& U, Eigen::Vector3d& p, Eigen::Vector3d& L )
-{
-  time = m_iteration * scalar( m_dt );
-
-  T = m_sim.computeKineticEnergy();
-  U = m_sim.computePotentialEnergy();
-
-  p = m_sim.computeTotalMomentum();
-  L = m_sim.computeTotalAngularMomentum();
-}
-
 void GLWidget::initializeGL()
 {
   glEnable( GL_DEPTH_TEST );
