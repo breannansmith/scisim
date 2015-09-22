@@ -12,7 +12,6 @@ set( Sources
   Geometry/RigidBodySphere.cpp
   Geometry/RigidBodyStaple.cpp
   Geometry/RigidBodyTriangleMesh.cpp
-  Geometry/ObjParser.cpp
   Portals/PlanarPortal.cpp
   UnconstrainedMaps/SplitHamMap.cpp
   UnconstrainedMaps/DMVMap.cpp
@@ -54,7 +53,6 @@ set( Headers
   Geometry/RigidBodySphere.h
   Geometry/RigidBodyStaple.h
   Geometry/RigidBodyTriangleMesh.h
-  Geometry/ObjParser.h
   Portals/PlanarPortal.h
   UnconstrainedMaps/SplitHamMap.h
   UnconstrainedMaps/DMVMap.h
