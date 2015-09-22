@@ -10,7 +10,7 @@
   <integrator type="split_ham" dt="0.1"/>
 
   <impact_operator type="lcp" CoR="1.0">
-    <solver name="ipopt" linear_solvers="ma97 ma57 mumps ma27 ma86" con_tol="1.0e-12"/>
+    <solver name="ipopt" linear_solvers="ma97 ma57 mumps ma27 ma86" tol="1.0e-12"/>
   </impact_operator>
 
   <static_plane x="-4 0 0" n="1 0 0"/>

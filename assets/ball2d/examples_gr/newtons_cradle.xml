@@ -9,7 +9,7 @@
   <integrator type="verlet" dt="0.001"/>
 
   <impact_operator type="gr" CoR="1.0" v_tol="1.0e-9">
-    <solver name="ipopt" linear_solvers="ma97 ma57 mumps ma27 ma86" con_tol="1.0e-12"/>
+    <solver name="ipopt" linear_solvers="ma97 ma57 mumps ma27 ma86" tol="1.0e-12"/>
   </impact_operator>
 
   <ball x="-2.0" y="+0.0" vx="+2.0" vy="+0.0" m="1.0" r="0.500001" fixed="0"/>

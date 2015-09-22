@@ -10,10 +10,10 @@
 
   <impact_operator type="grr" CoR="1.0">
     <elastic_operator type="gr" CoR="1.0" v_tol="1.0e-6">
-      <solver name="ipopt" linear_solvers="ma97 ma57 mumps ma27 ma86" con_tol="1.0e-12"/>
+      <solver name="ipopt" linear_solvers="ma97 ma57 mumps ma27 ma86" tol="1.0e-12"/>
     </elastic_operator>
     <inelastic_operator type="lcp" CoR="0.0">
-      <solver name="ipopt" linear_solvers="ma97 ma57 mumps ma27 ma86" con_tol="1.0e-12"/>
+      <solver name="ipopt" linear_solvers="ma97 ma57 mumps ma27 ma86" tol="1.0e-12"/>
     </inelastic_operator>
   </impact_operator>
 

@@ -7,7 +7,7 @@
   <camera center="0.457653 0.0" scale="2.16789" fps="50" render_at_fps="0" locked="0"/>
 
   <impact_operator type="gr" CoR="1.0" v_tol="1.0e-9">
-    <solver name="ipopt" linear_solvers="ma97 ma57 mumps ma27 ma86" con_tol="1.0e-12"/>
+    <solver name="ipopt" linear_solvers="ma97 ma57 mumps ma27 ma86" tol="1.0e-12"/>
   </impact_operator>
 
   <integrator type="symplectic_euler" dt="0.01"/>

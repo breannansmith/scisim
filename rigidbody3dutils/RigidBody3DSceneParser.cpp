@@ -1251,22 +1251,22 @@ static bool loadLCPSolver( const rapidxml::xml_node<>& node, std::unique_ptr<Imp
     // Attempt to read the convergence tolerance
     scalar con_tol = std::numeric_limits<scalar>::signaling_NaN();
     {
-      const rapidxml::xml_attribute<>* const attrib{ node.first_attribute( "con_tol" ) };
+      const rapidxml::xml_attribute<>* const attrib{ node.first_attribute( "tol" ) };
       if( attrib == nullptr )
       {
-        std::cerr << "Could not locate con_tol attribute for ipopt solver" << std::endl;
+        std::cerr << "Could not locate tol attribute for ipopt solver" << std::endl;
         return false;
       }
 
       if( !StringUtilities::extractFromString( attrib->value(), con_tol ) )
       {
-        std::cerr << "Could not load con_tol for ipopt solver" << std::endl;
+        std::cerr << "Could not load tol for ipopt solver" << std::endl;
         return false;
       }
 
       if( con_tol <= 0.0 )
       {
-        std::cerr << "Could not load con_tol for ipopt solver, value must be positive scalar." << std::endl;
+        std::cerr << "Could not load tol for ipopt solver, value must be positive scalar." << std::endl;
         return false;
       }
     }
@@ -1518,22 +1518,22 @@ static bool loadFrictionOperatorNoMu( const rapidxml::xml_node<>& node, std::uni
         // Attempt to read the convergence tolerance
         scalar con_tol{ std::numeric_limits<scalar>::signaling_NaN() };
         {
-          rapidxml::xml_attribute<>* attrib{ solver_node->first_attribute( "con_tol" ) };
+          rapidxml::xml_attribute<>* attrib{ solver_node->first_attribute( "tol" ) };
           if( attrib == nullptr )
           {
-            std::cerr << "Could not locate con_tol attribute for ipopt solver" << std::endl;
+            std::cerr << "Could not locate tol attribute for ipopt solver" << std::endl;
             return false;
           }
 
           if( !StringUtilities::extractFromString( attrib->value(), con_tol ) )
           {
-            std::cerr << "Could not load con_tol for ipopt solver" << std::endl;
+            std::cerr << "Could not load tol for ipopt solver" << std::endl;
             return false;
           }
 
           if( con_tol <= 0.0 )
           {
-            std::cerr << "Could not load con_tol for ipopt solver, value must be positive scalar." << std::endl;
+            std::cerr << "Could not load tol for ipopt solver, value must be positive scalar." << std::endl;
             return false;
           }
         }
@@ -1605,22 +1605,22 @@ static bool loadFrictionOperatorNoMu( const rapidxml::xml_node<>& node, std::uni
       // Attempt to read the convergence tolerance
       scalar con_tol{ std::numeric_limits<scalar>::signaling_NaN() };
       {
-        rapidxml::xml_attribute<>* attrib = solver_node->first_attribute( "con_tol" );
+        rapidxml::xml_attribute<>* attrib = solver_node->first_attribute( "tol" );
         if( attrib == nullptr )
         {
-          std::cerr << "Could not locate con_tol attribute for ipopt solver" << std::endl;
+          std::cerr << "Could not locate tol attribute for ipopt solver" << std::endl;
           return false;
         }
 
         if( !StringUtilities::extractFromString( attrib->value(), con_tol ) )
         {
-          std::cerr << "Could not load con_tol for ipopt solver" << std::endl;
+          std::cerr << "Could not load tol for ipopt solver" << std::endl;
           return false;
         }
 
         if( con_tol < 0.0 )
         {
-          std::cerr << "Could not load con_tol for ipopt solver, value must be positive scalar." << std::endl;
+          std::cerr << "Could not load tol for ipopt solver, value must be positive scalar." << std::endl;
           return false;
         }
       }
@@ -1662,8 +1662,8 @@ static bool loadFrictionOperatorNoMu( const rapidxml::xml_node<>& node, std::uni
 
 // Example:
 //  <staggerd_projections_friction_solver mu="2.0" CoR="0.8" max_iters="50" tol="1.0e-8" staggering="geometric" internal_warm_start_alpha="1" internal_warm_start_beta="1">
-//    <lcp_impact_solver name="ipopt" con_tol="1.0e-12" linear_solvers="ma97"/>
-//    <mdp_friction_solver name="ipopt" con_tol="1.0e-12" linear_solvers="ma97"/>
+//    <lcp_impact_solver name="ipopt" tol="1.0e-12" linear_solvers="ma97"/>
+//    <mdp_friction_solver name="ipopt" tol="1.0e-12" linear_solvers="ma97"/>
 //  </staggerd_projections_friction_solver>
 static bool loadStaggeredProjectionsFrictionSolver( const rapidxml::xml_node<>& node, scalar& mu, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, std::unique_ptr<ImpactFrictionMap>& if_map )
 {
@@ -2023,14 +2023,14 @@ static bool loadSobogusFrictionSolver( const rapidxml::xml_node<>& node, std::un
 //  <grr_friction_solver mu="2.0" CoR="0.8" staggering="geometric">
 //    <impact_operator type="grr">
 //      <elastic_operator type="gr" v_tol="1.0e-6">
-//        <solver name="ipopt" con_tol="1.0e-12" linear_solvers="ma97"/>
+//        <solver name="ipopt" tol="1.0e-12" linear_solvers="ma97"/>
 //      </elastic_operator>
 //      <inelastic_operator type="lcp">
-//        <solver name="ipopt" con_tol="1.0e-12" linear_solvers="ma97"/>
+//        <solver name="ipopt" tol="1.0e-12" linear_solvers="ma97"/>
 //      </inelastic_operator>
 //    </impact_operator>
 //    <friction_operator type="smooth">
-//      <solver name="ipopt" con_tol="1.0e-12" linear_solvers="ma97"/>
+//      <solver name="ipopt" tol="1.0e-12" linear_solvers="ma97"/>
 //    </friction_operator>
 //  </grr_friction_solver>
 static bool loadGRRFrictionSolver( const rapidxml::xml_node<>& node, scalar& mu, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, std::unique_ptr<ImpactFrictionMap>& if_map )
