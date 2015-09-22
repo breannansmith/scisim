@@ -1,7 +1,7 @@
 // PlanarPortal.h
 //
 // Breannan Smith
-// Last updated: 09/21/2015
+// Last updated: 09/22/2015
 
 #ifndef PLANAR_PORTAL_H
 #define PLANAR_PORTAL_H
@@ -72,7 +72,6 @@ public:
 
   // Returns true if the given point lies in the space covered by this portal
   bool pointInsidePortal( const Vector3s& x ) const;
-  bool sphereTouchesPortal( const Vector3s& x, const scalar& r, bool& intersecting_plane_idx ) const;
 
   // Returns true if the given AABB touches the space covered by this portal
   bool aabbTouchesPortal( const Array3s& min, const Array3s& max, bool& intersecting_plane_idx ) const;

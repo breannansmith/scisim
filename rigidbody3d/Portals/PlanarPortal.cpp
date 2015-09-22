@@ -1,7 +1,7 @@
 // PlanarPortal.cpp
 //
 // Breannan Smith
-// Last updated: 09/15/2015
+// Last updated: 09/22/2015
 
 #include "PlanarPortal.h"
 
@@ -109,26 +109,6 @@ const StaticPlane& PlanarPortal::planeB() const
 bool PlanarPortal::pointInsidePortal( const Vector3s& x ) const
 {
   return ( planeA().distanceToPoint( x ) < 0 ) || ( planeB().distanceToPoint( x ) < 0 );
-}
-
-bool PlanarPortal::sphereTouchesPortal( const Vector3s& x, const scalar& r, bool& intersecting_plane_idx ) const
-{
-  const bool touches_plane_A{ planeA().distanceToPoint( x ) <= r };
-  const bool touches_plane_B{ planeB().distanceToPoint( x ) <= r };
-  if( touches_plane_A && touches_plane_B )
-  {
-    std::cerr << "Unhandled case in PlanarPortal::sphereTouchesPortal. Sphere can't touch both planes of a portal at once." << std::endl;
-    std::exit( EXIT_FAILURE );
-  }
-  if( touches_plane_A )
-  {
-    intersecting_plane_idx = 0;
-  }
-  if( touches_plane_B )
-  {
-    intersecting_plane_idx = 1;
-  }
-  return touches_plane_A || touches_plane_B;
 }
 
 static bool aabbInHalfPlane( const Array3s& min, const Array3s& max, const StaticPlane& plane )
