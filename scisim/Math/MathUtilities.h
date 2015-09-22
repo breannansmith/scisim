@@ -1,7 +1,7 @@
 // MathUtilities.h
 //
 // Breannan Smith
-// Last updated: 09/14/2015
+// Last updated: 09/22/2015
 
 // TODO: Break these utilities into separate dense and sparse utility collections
 
@@ -25,8 +25,6 @@ namespace MathUtilities
 
   unsigned computeNumDigits( unsigned n );
 
-  VectorXs parallelTransport( const VectorXs& n0, const VectorXs& n1, const VectorXs& t0 );
-
   // Checks if the the two vectors when stacked as [ a b ] form an orthonormal matrix with positive determinant
   bool isRightHandedOrthoNormal( const Vector2s& a, const Vector2s& b, const scalar& tol );
   // Checks if the the three vectors when stacked as [ a b c ] form an orthonormal matrix with positive determinant
@@ -37,15 +35,6 @@ namespace MathUtilities
   bool isSquare( const SparseMatrixsc& matrix );
 
   bool isIdentity( const SparseMatrixsc& A, const scalar& tol );
-
-  // Saves a sparse matrix in a triplet format that can be imported into Matlab via:
-  //   load sparse_matrix.dat
-  //   H = spconvert( sparse_matrix )
-  bool writeToMatlabTripletText( const SparseMatrixsc& matrix, const std::string& file_name );
-
-  // Converts a dense matrix to a sparse matrix, optionally omitting zero entries
-  void convertDenseToSparse( const bool filter_zeros, const MatrixXXsc& dense_matrix, SparseMatrixsc& sparse_matrix );
-
 
   // The number of non-zeros on or below the diagonal
   int nzLowerTriangular( const SparseMatrixsc& A );
@@ -65,26 +54,13 @@ namespace MathUtilities
   // Extract elements on or below the diagonal
   int valuesLowerTriangular( const SparseMatrixsc& A, scalar* vals );
 
-  // Creates a sparse diagonal matrix D = c * Id
-  void createDiagonalMatrix( const scalar& c, SparseMatrixsc& D );
-
   // Generates a Compressed Column Sparse array representation of a sparse matrix
   void extractDataCCS( const SparseMatrixsc& A, VectorXi& col_ptr, VectorXi& row_ind, VectorXs& val );
-
-  // Generates a triplet representation of a sparse matrix
-  void extractTripletData( const SparseMatrixsc& matrix, VectorXi& rows, VectorXi& cols, VectorXs& vals );
 
   // Extracts columns in cols from A0, in order, and places them in A1
   void extractColumns( const SparseMatrixsc& A0, const std::vector<unsigned>& cols, SparseMatrixsc& A1 );
 
   SparseMatrixsc sparseIdentity( const unsigned size );
-
-  // TODO: These are ammenable to major speedups, if needed
-  void extractLowerTriangularMatrix( const SparseMatrixsc& A, SparseMatrixsr& B );
-  void extractLowerTriangularMatrix( const SparseMatrixsc& A, SparseMatrixsc& B );
-
-  void printSparseMathematicaMatrix( const SparseMatrixsr& A, const scalar& eps );
-  void printSparseMathematicaMatrix( const SparseMatrixsc& A, const scalar& eps );
 
   void serialize( const SparseMatrixsc& A, std::ostream& stm );
   void deserialize( SparseMatrixsc& A, std::istream& stm );

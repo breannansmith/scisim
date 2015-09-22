@@ -1,64 +1,12 @@
 // MathUtilities.cpp
 //
 // Breannan Smith
-// Last updated: 09/14/2015
+// Last updated: 09/22/2015
 
 #include "MathUtilities.h"
 
 #include <iostream>
 #include <fstream>
-
-static VectorXs parallelTransport2D( const VectorXs& n0, const VectorXs& n1, const VectorXs& t0 )
-{
-  assert( fabs( n0.norm() - 1.0 ) <= 1.0e-6 ); assert( fabs( n1.norm() - 1.0 ) <= 1.0e-6 );
-
-  // x is cos of angle, y is sin of angle
-  const Vector2s r{ n0.dot( n1 ), MathUtilities::cross( n0, n1 ) };
-  assert( fabs( r.norm() - 1.0 ) <= 1.0e-6 );
-
-  // Rotate t0
-  VectorXs t1{ 2 };
-  t1( 0 ) = r.x() * t0.x() - r.y() * t0.y();
-  t1( 1 ) = r.y() * t0.x() + r.x() * t0.y();
-  assert( fabs( t0.norm() - t1.norm() ) <= 1.0e-6 );
-  // TODO: Assert n0,t0 angle is same as n1,t1 angle
-
-  return t1;
-}
-
-static VectorXs parallelTransport3D( const VectorXs& n0, const VectorXs& n1, const VectorXs& t0 )
-{
-  assert( false );
-  return VectorXs::Constant( 3, SCALAR_NAN );
-}
-
-VectorXs MathUtilities::parallelTransport( const VectorXs& n0, const VectorXs& n1, const VectorXs& t0 )
-{
-  assert( n0.size() == n1.size() ); assert( n0.size() == n1.size() );
-  assert( n0.size() == 2 || n0.size() == 3 );
-  if( n0.size() == 2 ) { return parallelTransport2D( n0, n1, t0 ); }
-  if( n0.size() == 3 ) { return parallelTransport3D( n0, n1, t0 ); }
-  std::cerr << "Impossible code path in parallel transport, exiting." << std::endl;
-  std::exit( EXIT_FAILURE );
-}
-
-void MathUtilities::extractTripletData( const SparseMatrixsc& matrix, VectorXi& rows, VectorXi& cols, VectorXs& vals )
-{
-  rows.resize( matrix.nonZeros() );
-  cols.resize( matrix.nonZeros() );
-  vals.resize( matrix.nonZeros() );
-  int flat_index{ 0 };
-  for( int outer_index = 0; outer_index < matrix.outerSize(); ++outer_index )
-  {
-    for( Eigen::SparseMatrix<double>::InnerIterator it( matrix, outer_index ); it; ++it )
-    {
-      rows( flat_index ) = it.row();
-      cols( flat_index ) = it.col();
-      vals( flat_index++ ) = it.value();
-    }
-  }
-  assert( flat_index == matrix.nonZeros() );
-}
 
 bool MathUtilities::isRightHandedOrthoNormal( const Vector2s& a, const Vector2s& b, const scalar& tol )
 {
@@ -120,42 +68,6 @@ bool MathUtilities::isIdentity( const SparseMatrixsc& A, const scalar& tol )
     }
   }
   return true;
-}
-
-bool MathUtilities::writeToMatlabTripletText( const SparseMatrixsc& matrix, const std::string& file_name )
-{
-  std::ofstream output_file( file_name );
-  if( !output_file.is_open() )
-  {
-    return false;
-  }
-  for( int outer_idx = 0; outer_idx < matrix.outerSize(); ++outer_idx )
-  {
-    for( SparseMatrixsc::InnerIterator it( matrix, outer_idx ); it; ++it )
-    {
-      // Matlab is 1 indexed
-      output_file << it.row() + 1 << "\t" << it.col() + 1 << "\t" << it.value() << std::endl;
-    }
-  }
-  return true;
-}
-
-void MathUtilities::convertDenseToSparse( const bool filter_zeros, const MatrixXXsc& dense_matrix, SparseMatrixsc& sparse_matrix )
-{
-  std::vector<Eigen::Triplet<scalar>> triplets;
-  for( int row = 0; row < dense_matrix.rows(); ++row )
-  {
-    for( int col = 0; col < dense_matrix.cols(); ++col )
-    {
-      if( dense_matrix( row, col ) != 0.0 || !filter_zeros )
-      {
-        triplets.emplace_back( Eigen::Triplet<scalar>{ row, col, dense_matrix( row, col ) } );
-      }
-    }
-  }
-  sparse_matrix.resize( dense_matrix.rows(), dense_matrix.cols() );
-  sparse_matrix.setFromTriplets( std::begin( triplets ), std::end( triplets ) );
-  sparse_matrix.makeCompressed();
 }
 
 SparseMatrixsc MathUtilities::sparseIdentity( const unsigned size )
@@ -271,14 +183,6 @@ int MathUtilities::valuesLowerTriangular( const SparseMatrixsc& A, scalar* vals 
   return curel;
 }
 
-void MathUtilities::createDiagonalMatrix( const scalar& c, SparseMatrixsc& D )
-{
-  assert( D.rows() == D.cols() );
-  D.reserve( VectorXi::Constant( D.cols(), 1 ) );
-  for( int i = 0; i < D.cols(); ++i ) { D.insert(i,i) = c; }
-  D.makeCompressed();
-}
-
 void MathUtilities::extractDataCCS( const SparseMatrixsc& A, VectorXi& col_ptr, VectorXi& row_ind, VectorXs& val )
 {
   col_ptr.resize( A.cols() + 1 );
@@ -342,74 +246,6 @@ void MathUtilities::extractColumns( const SparseMatrixsc& A0, const std::vector<
     assert( ( A1.outerIndexPtr()[i+1] - A1.outerIndexPtr()[i] ) == column_nonzeros( i ) );
   }
   #endif
-}
-
-void MathUtilities::extractLowerTriangularMatrix( const SparseMatrixsc& A, SparseMatrixsr& B )
-{
-  std::vector< Eigen::Triplet<scalar> > triplets;
-  for( int col = 0; col < A.outerSize(); ++col )
-  {
-    for( SparseMatrixsc::InnerIterator it( A, col ); it; ++it )
-    {
-      if( col > it.row() ) { continue; }
-      triplets.push_back( Eigen::Triplet<scalar>( it.row(), col, it.value() ) );
-    }
-  }
-  B.resize( A.rows(), A.cols() );
-  B.setFromTriplets( triplets.begin(), triplets.end() );
-  B.makeCompressed();
-}
-  
-void MathUtilities::extractLowerTriangularMatrix( const SparseMatrixsc& A, SparseMatrixsc& B )
-{
-  std::vector< Eigen::Triplet<scalar> > triplets;
-  for( int col = 0; col < A.outerSize(); ++col )
-  {
-    for( SparseMatrixsc::InnerIterator it( A, col ); it; ++it )
-    {
-      if( col > it.row() ) { continue; }
-      triplets.push_back( Eigen::Triplet<scalar>( it.row(), col, it.value() ) );
-    }
-  }
-  B.resize( A.rows(), A.cols() );
-  B.setFromTriplets( triplets.begin(), triplets.end() );
-  B.makeCompressed();
-}
-  
-void MathUtilities::printSparseMathematicaMatrix( const SparseMatrixsr& A, const scalar& eps )
-{
-  std::cout << "{";
-  int entry_num{ 0 };
-  for( int k = 0; k < A.outerSize(); ++k )
-  {
-    for( typename SparseMatrixsr::InnerIterator it(A,k); it; ++it )
-    {
-      std::cout << "{" << (it.row()+1) << "," << (it.col()+1) << "}->";
-      if( fabs(it.value()) < eps ) { std::cout << 0.0; }
-      else { std::cout << it.value(); }
-      entry_num++;
-      if( entry_num != A.nonZeros() ) { std::cout << ","; }
-    }
-  }
-  std::cout << "}" << std::endl;
-}
-  
-void MathUtilities::printSparseMathematicaMatrix( const SparseMatrixsc& A, const scalar& eps )
-{
-  std::cout << "{";
-  int entry_num = 0;
-  for( int k = 0; k < A.outerSize(); ++k )
-  {
-    for( typename SparseMatrixsc::InnerIterator it(A,k); it; ++it )
-    {
-      std::cout << "{" << (it.row()+1) << "," << (it.col()+1) << "}->";
-      if( fabs(it.value()) < eps ) { std::cout << 0.0; }
-      else { std::cout << it.value(); }
-      entry_num++;
-      if( entry_num != A.nonZeros() ) { std::cout << ","; }
-    }
-  }
-  std::cout << "}" << std::endl;
 }
 
 void MathUtilities::serialize( const SparseMatrixsc& A, std::ostream& stm )
