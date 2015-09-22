@@ -5,8 +5,6 @@
 
 #include "SplitHamMap.h"
 
-#include "IntegrationUtils.h"
-
 #include "scisim/UnconstrainedMaps/FlowableSystem.h"
 
 #ifndef NDEBUG

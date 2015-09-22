@@ -5,8 +5,6 @@
 
 #include "DMVMap.h"
 
-#include "IntegrationUtils.h"
-
 #include "scisim/UnconstrainedMaps/FlowableSystem.h"
 
 #include <iostream>
