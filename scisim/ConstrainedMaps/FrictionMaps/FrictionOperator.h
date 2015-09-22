@@ -1,7 +1,7 @@
 // FrictionOperator.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/22/2015
 
 #ifndef FRICTION_OPERATOR_H
 #define FRICTION_OPERATOR_H
@@ -34,8 +34,7 @@ public:
 
   virtual bool isLinearized() const = 0;
 
-  // TODO: Move these to friction operator utilities
-  void formSingleSampleGeneralizedFrictionBasisGivenNormalsAndTangents( const unsigned ndofs, const unsigned ncons, const VectorXs& q, const std::vector<std::unique_ptr<Constraint>>& K, const std::vector<std::pair<Vector3s,Vector3s>>& basis_frames, SparseMatrixsc& D );
+  // TODO: Move to friction operator utilities
   static void formGeneralizedSmoothFrictionBasis( const unsigned ndofs, const unsigned ncons, const VectorXs& q, const std::vector<std::unique_ptr<Constraint>>& K, const MatrixXXsc& bases, SparseMatrixsc& D );
 
 };

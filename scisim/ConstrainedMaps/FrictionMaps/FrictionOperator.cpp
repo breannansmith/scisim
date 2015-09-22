@@ -1,7 +1,7 @@
 // FrictionOperator.cpp
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/22/2015
 
 #include "FrictionOperator.h"
 
@@ -9,33 +9,6 @@
 
 FrictionOperator::~FrictionOperator()
 {}
-
-void FrictionOperator::formSingleSampleGeneralizedFrictionBasisGivenNormalsAndTangents( const unsigned ndofs, const unsigned ncons, const VectorXs& q, const std::vector<std::unique_ptr<Constraint>>& K, const std::vector<std::pair<Vector3s,Vector3s>>& basis_frames, SparseMatrixsc& D )
-{
-  assert( ncons == K.size() );
-
-  D.resize( ndofs, ncons );
-
-  VectorXi column_nonzeros{ D.cols() };
-  std::vector<std::unique_ptr<Constraint>>::const_iterator itr{ K.begin() };
-  for( unsigned i = 0; i < ncons; ++i )
-  {
-    column_nonzeros( i ) = (*itr)->frictionStencilSize();
-    ++itr;
-  }
-  assert( itr == K.end() );
-  D.reserve( column_nonzeros );
-
-  itr = K.begin();
-  for( unsigned i = 0; i < ncons; ++i )
-  {
-    (*itr)->computeGeneralizedFrictionGivenTangentSample( q, basis_frames[i].second, i, D );
-    ++itr;
-  }
-  assert( itr == K.end() );
-
-  D.makeCompressed();
-}
 
 // TODO: Despecialize from smooth
 void FrictionOperator::formGeneralizedSmoothFrictionBasis( const unsigned ndofs, const unsigned ncons, const VectorXs& q, const std::vector<std::unique_ptr<Constraint>>& K, const MatrixXXsc& bases, SparseMatrixsc& D )
