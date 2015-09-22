@@ -1,7 +1,7 @@
 // StaticCylinder.h
 //
 // Breannan Smith
-// Last updated: 09/15/2015
+// Last updated: 09/21/2015
 
 // TODO: Store n directly instead of implicitly through a rotation. Using the rotation leads to subtle issues if a user expects a plane to align exactly with a cartesian axis.
 
@@ -17,7 +17,7 @@ public:
 
   StaticCylinder();
   StaticCylinder( const Vector3s& x, const Vector3s& axis, const scalar& radius );
-  StaticCylinder( std::istream& input_stream );
+  explicit StaticCylinder( std::istream& input_stream );
 
   const Vector3s& x() const;
 

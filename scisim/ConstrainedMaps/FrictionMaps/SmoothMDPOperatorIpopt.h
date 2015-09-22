@@ -1,7 +1,7 @@
 // SmoothMDPOperatorIpopt.h
 //
 // Breannan Smith
-// Last updated: 09/08/2015
+// Last updated: 09/21/2015
 
 // N.B. this solver can give quite large residuals in the friction disk constraint.
 // For the BallPlane01.xml exmaple, the residual when two contacts are active is 1e-4.
@@ -23,7 +23,7 @@ class SmoothMDPOperatorIpopt final : public FrictionOperator
 public:
 
   SmoothMDPOperatorIpopt( const std::vector<std::string>& linear_solvers, const scalar& tol );
-  SmoothMDPOperatorIpopt( std::istream& input_stream );
+  explicit SmoothMDPOperatorIpopt( std::istream& input_stream );
   SmoothMDPOperatorIpopt( const SmoothMDPOperatorIpopt& other );
   virtual ~SmoothMDPOperatorIpopt() override = default;
 

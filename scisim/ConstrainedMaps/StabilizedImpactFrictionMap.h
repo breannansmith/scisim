@@ -1,7 +1,7 @@
 // StabilizedImpactFrictionMap.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/21/2015
 
 #ifndef STABILIZED_IMPACT_FRICTION_MAP_H
 #define STABILIZED_IMPACT_FRICTION_MAP_H
@@ -18,7 +18,7 @@ class StabilizedImpactFrictionMap : public ImpactFrictionMap
 public:
 
   StabilizedImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters );
-  StabilizedImpactFrictionMap( std::istream& input_stream );
+  explicit StabilizedImpactFrictionMap( std::istream& input_stream );
   virtual ~StabilizedImpactFrictionMap() override;
 
   virtual void flow( ScriptingCallback& call_back, FlowableSystem& fsys, ConstrainedSystem& csys, UnconstrainedMap& umap, FrictionSolver& friction_solver, const unsigned iteration, const scalar& dt, const scalar& CoR_default, const scalar& mu_default, const VectorXs& q0, const VectorXs& v0, VectorXs& q1, VectorXs& v1 ) override;

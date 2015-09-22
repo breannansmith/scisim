@@ -26,7 +26,7 @@ class GLWidget : public QGLWidget
 
 public:
 
-  GLWidget( QWidget* parent = nullptr );
+  explicit GLWidget( QWidget* parent = nullptr );
   ~GLWidget();
 
   QSize minimumSizeHint() const;

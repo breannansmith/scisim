@@ -1,7 +1,7 @@
 // GaussSeidelOperator.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/21/2015
 
 #ifndef GAUSS_SEIDEL_OPERATOR
 #define GAUSS_SEIDEL_OPERATOR
@@ -13,8 +13,8 @@ class GaussSeidelOperator final : public ImpactOperator
 
 public:
 
-  GaussSeidelOperator( const scalar& v_tol );
-  GaussSeidelOperator( std::istream& input_stream );
+  explicit GaussSeidelOperator( const scalar& v_tol );
+  explicit GaussSeidelOperator( std::istream& input_stream );
   GaussSeidelOperator( const GaussSeidelOperator& other );
   virtual ~GaussSeidelOperator() override  = default;
 

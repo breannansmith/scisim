@@ -1,7 +1,7 @@
 // SymplecticEulerMap.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/21/2015
 
 #ifndef SYMPLECTIC_EULER_MAP_H
 #define SYMPLECTIC_EULER_MAP_H
@@ -14,7 +14,7 @@ class SymplecticEulerMap final : public UnconstrainedMap
 public:
 
   SymplecticEulerMap();
-  SymplecticEulerMap( std::istream& input_stream );
+  explicit SymplecticEulerMap( std::istream& input_stream );
   virtual ~SymplecticEulerMap() override;
 
   virtual void flow( const VectorXs& q0, const VectorXs& v0, FlowableSystem& fsys, const unsigned iteration, const scalar& dt, VectorXs& q1, VectorXs& v1 ) override;

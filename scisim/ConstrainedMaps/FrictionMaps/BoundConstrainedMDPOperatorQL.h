@@ -1,7 +1,7 @@
 // BoundConstrainedMDPOperatorQL.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/21/2015
 
 // Solves the problem:
 //   1/2 beta^T Q beta + beta^T ( D^T v0 + gdotD  )
@@ -18,8 +18,8 @@ class BoundConstrainedMDPOperatorQL final : public FrictionOperator
 
 public:
 
-  BoundConstrainedMDPOperatorQL( const scalar& tol );
-  BoundConstrainedMDPOperatorQL( std::istream& input_stream );
+  explicit BoundConstrainedMDPOperatorQL( const scalar& tol );
+  explicit BoundConstrainedMDPOperatorQL( std::istream& input_stream );
   BoundConstrainedMDPOperatorQL( const BoundConstrainedMDPOperatorQL& other );
   virtual ~BoundConstrainedMDPOperatorQL() override = default;
 

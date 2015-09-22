@@ -1,7 +1,7 @@
 // HertzianPenaltyForce.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/21/2015
 
 #ifndef HERTZIAN_PENALTY_FORCE_H
 #define HERTZIAN_PENALTY_FORCE_H
@@ -13,8 +13,8 @@ class HertzianPenaltyForce final : public Ball2DForce
 
 public:
 
-  HertzianPenaltyForce( const scalar& k );
-  HertzianPenaltyForce( std::istream& input_stream );
+  explicit HertzianPenaltyForce( const scalar& k );
+  explicit HertzianPenaltyForce( std::istream& input_stream );
 
   virtual ~HertzianPenaltyForce() override;
 

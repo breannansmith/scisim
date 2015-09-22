@@ -1,7 +1,7 @@
 // Ball2DForce.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/21/2015
 
 #ifndef BALL_2D_GRAVITY_FORCE_H
 #define BALL_2D_GRAVITY_FORCE_H
@@ -13,8 +13,8 @@ class Ball2DGravityForce final : public Ball2DForce
 
 public:
 
-  Ball2DGravityForce( const Vector2s& g );
-  Ball2DGravityForce( std::istream& input_stream );
+  explicit Ball2DGravityForce( const Vector2s& g );
+  explicit Ball2DGravityForce( std::istream& input_stream );
 
   virtual ~Ball2DGravityForce() override;
 

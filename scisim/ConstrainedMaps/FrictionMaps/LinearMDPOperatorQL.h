@@ -1,7 +1,7 @@
 // LinearMDPOperatorQL.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/21/2015
 
 #ifndef LINEAR_MDP_OPERATOR_QL
 #define LINEAR_MDP_OPERATOR_QL
@@ -15,7 +15,7 @@ class LinearMDPOperatorQL final : public FrictionOperator
 public:
 
   LinearMDPOperatorQL( const int disk_samples, const scalar& eps );
-  LinearMDPOperatorQL( std::istream& input_stream );
+  explicit LinearMDPOperatorQL( std::istream& input_stream );
   LinearMDPOperatorQL( const LinearMDPOperatorQL& other );
   virtual ~LinearMDPOperatorQL() override = default;
 

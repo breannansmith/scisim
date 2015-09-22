@@ -1,7 +1,7 @@
 // NearEarthGravityForce.h
 //
 // Breannan Smith
-// Last updated: 09/10/2015
+// Last updated: 09/21/2015
 
 #ifndef NEAR_EARTH_GRAVITY_FORCE_H
 #define NEAR_EARTH_GRAVITY_FORCE_H
@@ -14,8 +14,8 @@ class NearEarthGravityForce final : public RigidBody2DForce
 
 public:
 
-  NearEarthGravityForce( const Vector2s& g );
-  NearEarthGravityForce( std::istream& input_stream );
+  explicit NearEarthGravityForce( const Vector2s& g );
+  explicit NearEarthGravityForce( std::istream& input_stream );
 
   virtual ~NearEarthGravityForce() override = default;
 

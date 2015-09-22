@@ -1,7 +1,7 @@
 // GRRFriction.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/21/2015
 
 #ifndef GRR_FRICTION_H
 #define GRR_FRICTION_H
@@ -17,7 +17,7 @@ class GRRFriction final : public FrictionSolver
 public:
 
   GRRFriction( const ImpactOperator& impact_operator, const FrictionOperator& friction_operator );
-  GRRFriction( std::istream& input_stream );
+  explicit GRRFriction( std::istream& input_stream );
 
   virtual ~GRRFriction() override;
 

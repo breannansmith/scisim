@@ -1,7 +1,7 @@
 // BoundConstrainedMDPOperatorIpopt.h
 //
 // Breannan Smith
-// Last updated: 09/08/2015
+// Last updated: 09/21/2015
 
 #ifndef BOUND_CONSTRAINED_MDP_OPERATOR_IPOPT_H
 #define BOUND_CONSTRAINED_MDP_OPERATOR_IPOPT_H
@@ -24,7 +24,7 @@ class BoundConstrainedMDPOperatorIpopt final : public FrictionOperator
 public:
 
   BoundConstrainedMDPOperatorIpopt( const std::vector<std::string>& linear_solvers, const scalar& tol );
-  BoundConstrainedMDPOperatorIpopt( std::istream& input_stream );
+  explicit BoundConstrainedMDPOperatorIpopt( std::istream& input_stream );
   BoundConstrainedMDPOperatorIpopt( const BoundConstrainedMDPOperatorIpopt& other );
   virtual ~BoundConstrainedMDPOperatorIpopt() override = default;
 

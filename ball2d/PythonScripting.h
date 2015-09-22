@@ -1,7 +1,7 @@
 // PythonScripting.h
 //
 // Breannan Smith
-// Last updated: 09/05/2015
+// Last updated: 09/21/2015
 
 #ifndef PYTHON_SCRIPTING_H
 #define PYTHON_SCRIPTING_H
@@ -22,7 +22,7 @@ public:
 
   PythonScripting();
   PythonScripting( const std::string& path, const std::string& module_name );
-  PythonScripting( std::istream& input_stream );
+  explicit PythonScripting( std::istream& input_stream );
 
   virtual ~PythonScripting() override = default;
 

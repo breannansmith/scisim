@@ -1,7 +1,7 @@
 // RestrictedSampleMDPOperatorIpopt.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/21/2015
 
 #ifndef RESTRICTED_SAMPLE_MDP_OPERATOR_IPOPT_H
 #define RESTRICTED_SAMPLE_MDP_OPERATOR_IPOPT_H
@@ -18,7 +18,7 @@ class RestrictedSampleMDPOperatorIpopt final : public FrictionOperator
 public:
 
   RestrictedSampleMDPOperatorIpopt( const std::vector<std::string>& linear_solvers, const scalar& tol );
-  RestrictedSampleMDPOperatorIpopt( std::istream& input_stream );
+  explicit RestrictedSampleMDPOperatorIpopt( std::istream& input_stream );
   RestrictedSampleMDPOperatorIpopt( const RestrictedSampleMDPOperatorIpopt& other );
   virtual ~RestrictedSampleMDPOperatorIpopt() override = default;
 

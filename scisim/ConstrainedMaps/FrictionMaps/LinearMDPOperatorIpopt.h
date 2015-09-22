@@ -1,7 +1,7 @@
 // LinearMDPOperatorIpopt.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/21/2015
 
 #ifndef LINEAR_MDP_OPERATOR_IPOPT_H
 #define LINEAR_MDP_OPERATOR_IPOPT_H
@@ -21,7 +21,7 @@ class LinearMDPOperatorIpopt final : public FrictionOperator
 public:
 
   LinearMDPOperatorIpopt( const int disk_samples, const std::vector<std::string>& linear_solvers, const scalar& tol );
-  LinearMDPOperatorIpopt( std::istream& input_stream );
+  explicit LinearMDPOperatorIpopt( std::istream& input_stream );
   LinearMDPOperatorIpopt( const LinearMDPOperatorIpopt& other );
   virtual ~LinearMDPOperatorIpopt() override = default;
 

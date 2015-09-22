@@ -1,7 +1,7 @@
 // GeometricImpactFrictionMap.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/21/2015
 
 #ifndef GEOMETRIC_IMPACT_FRICTION_MAP_H
 #define GEOMETRIC_IMPACT_FRICTION_MAP_H
@@ -18,7 +18,7 @@ class GeometricImpactFrictionMap final : public ImpactFrictionMap
 public:
 
   GeometricImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters, const bool external_warm_start_alpha, const bool external_warm_start_beta );
-  GeometricImpactFrictionMap( std::istream& input_stream );
+  explicit GeometricImpactFrictionMap( std::istream& input_stream );
 
   virtual ~GeometricImpactFrictionMap() override = default;
 

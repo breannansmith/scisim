@@ -1,7 +1,7 @@
 // LCPOperatorIpopt.h
 //
 // Breannan Smith
-// Last updated: 09/08/2015
+// Last updated: 09/21/2015
 
 #ifndef LCP_OPERATOR_IPOPT_H
 #define LCP_OPERATOR_IPOPT_H
@@ -20,7 +20,7 @@ class LCPOperatorIpopt final : public ImpactOperator
 public:
 
   LCPOperatorIpopt( const std::vector<std::string>& linear_solvers, const scalar& tol );
-  LCPOperatorIpopt( std::istream& input_stream );
+  explicit LCPOperatorIpopt( std::istream& input_stream );
   LCPOperatorIpopt( const LCPOperatorIpopt& other );
   virtual ~LCPOperatorIpopt() override = default;
 

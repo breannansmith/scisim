@@ -1,7 +1,7 @@
 // PlanarPortal.h
 //
 // Breannan Smith
-// Last updated: 09/05/2015
+// Last updated: 09/21/2015
 
 #ifndef PLANAR_PORTAL_H
 #define PLANAR_PORTAL_H
@@ -87,7 +87,7 @@ class PlanarPortal final
 public:
 
   PlanarPortal( const StaticPlane& plane_a, const StaticPlane& plane_b, const scalar& va, const scalar& vb, const Vector2s& boundsa, const Vector2s& boundsb );
-  PlanarPortal( std::istream& input_stream );
+  explicit PlanarPortal( std::istream& input_stream );
 
   const StaticPlane& planeA() const;
   const StaticPlane& planeB() const;

@@ -1,7 +1,7 @@
 // RigidBodyTriangleMesh.h
 //
 // Breannan Smith
-// Last updated: 09/15/2015
+// Last updated: 09/21/2015
 
 #ifndef RIGID_BODY_TRIANGLE_MESH
 #define RIGID_BODY_TRIANGLE_MESH
@@ -14,8 +14,8 @@ class RigidBodyTriangleMesh final : public RigidBodyGeometry
 public:
 
   RigidBodyTriangleMesh( const RigidBodyTriangleMesh& other );
-  RigidBodyTriangleMesh( const std::string& input_file_name );
-  RigidBodyTriangleMesh( std::istream& input_stream );
+  explicit RigidBodyTriangleMesh( const std::string& input_file_name );
+  explicit RigidBodyTriangleMesh( std::istream& input_stream );
   virtual ~RigidBodyTriangleMesh() override;
 
   virtual RigidBodyGeometryType getType() const override;

@@ -1,7 +1,7 @@
 // CircleGeometry.h
 //
 // Breannan Smith
-// Last updated: 09/10/2015
+// Last updated: 09/21/2015
 
 #ifndef CIRCLE_GEOMETRY_H
 #define CIRCLE_GEOMETRY_H
@@ -13,8 +13,8 @@ class CircleGeometry final : public RigidBody2DGeometry
 
 public:
 
-  CircleGeometry( const scalar& r );
-  CircleGeometry( std::istream& input_stream );
+  explicit CircleGeometry( const scalar& r );
+  explicit CircleGeometry( std::istream& input_stream );
 
   virtual ~CircleGeometry() override = default;
 

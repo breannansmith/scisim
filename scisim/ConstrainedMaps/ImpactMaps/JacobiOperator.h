@@ -1,7 +1,7 @@
 // JacobiOperator.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/21/2015
 
 #ifndef JACOBI_OPERATOR
 #define JACOBI_OPERATOR
@@ -13,7 +13,7 @@ class JacobiOperator final : public ImpactOperator
 
 public:
 
-  JacobiOperator( const scalar& v_tol );
+  explicit JacobiOperator( const scalar& v_tol );
   JacobiOperator( const JacobiOperator& other );
   virtual ~JacobiOperator() override = default;
 

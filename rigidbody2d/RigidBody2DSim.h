@@ -1,7 +1,7 @@
 // RigidBody2DSim.h
 //
 // Breannan Smith
-// Last updated: 09/16/2015
+// Last updated: 09/21/2015
 
 #ifndef RIGID_BODY_2D_SIM_H
 #define RIGID_BODY_2D_SIM_H
@@ -25,7 +25,7 @@ public:
 
   RigidBody2DSim();
   RigidBody2DSim( const RigidBody2DSim& other );
-  RigidBody2DSim( const RigidBody2DState& state );
+  explicit RigidBody2DSim( const RigidBody2DState& state );
   virtual ~RigidBody2DSim() override = default;
   RigidBody2DSim& operator=( RigidBody2DSim other );
   friend void swap( RigidBody2DSim& first, RigidBody2DSim& second );

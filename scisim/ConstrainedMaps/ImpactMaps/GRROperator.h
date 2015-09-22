@@ -1,7 +1,7 @@
 // GRROperator.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/21/2015
 
 #ifndef GRR_OPERATOR_H
 #define GRR_OPERATOR_H
@@ -16,7 +16,7 @@ class GRROperator final : public ImpactOperator
 public:
 
   GRROperator( const ImpactOperator& elastic_operator, const ImpactOperator& inelastic_operator );
-  GRROperator( std::istream& input_stream );
+  explicit GRROperator( std::istream& input_stream );
   virtual ~GRROperator() override;
 
   virtual void flow( const std::vector<std::unique_ptr<Constraint>>& cons, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& q0, const VectorXs& v0, const VectorXs& v0F, const SparseMatrixsc& N, const SparseMatrixsc& Q, const VectorXs& nrel, const VectorXs& CoR, VectorXs& alpha ) override;

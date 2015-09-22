@@ -1,7 +1,7 @@
 // RigidBodySphere.h
 //
 // Breannan Smith
-// Last updated: 09/15/2015
+// Last updated: 09/21/2015
 
 #ifndef RIGID_BODY_SPHERE
 #define RIGID_BODY_SPHERE
@@ -13,8 +13,8 @@ class RigidBodySphere final : public RigidBodyGeometry
 
 public:
 
-  RigidBodySphere( const scalar& r );
-  RigidBodySphere( std::istream& input_stream );
+  explicit RigidBodySphere( const scalar& r );
+  explicit RigidBodySphere( std::istream& input_stream );
   virtual ~RigidBodySphere() override;
 
   virtual RigidBodyGeometryType getType() const override;

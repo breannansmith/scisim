@@ -1,7 +1,7 @@
 // LCPOperatorQL.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/21/2015
 
 #ifndef LCP_OPERATOR_QL
 #define LCP_OPERATOR_QL
@@ -13,8 +13,8 @@ class LCPOperatorQL final : public ImpactOperator
 
 public:
 
-  LCPOperatorQL( const scalar& eps );
-  LCPOperatorQL( std::istream& input_stream );
+  explicit LCPOperatorQL( const scalar& eps );
+  explicit LCPOperatorQL( std::istream& input_stream );
   LCPOperatorQL( const LCPOperatorQL& other );
   virtual ~LCPOperatorQL() override = default;
 

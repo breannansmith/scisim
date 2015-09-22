@@ -18,7 +18,7 @@ class OpenGL3DSphereRenderer final
 
 public:
 
-	OpenGL3DSphereRenderer( const unsigned num_subdivs = 0 );
+  explicit OpenGL3DSphereRenderer( const unsigned num_subdivs = 0 );
 
   void drawVertexArray( const Eigen::Matrix<GLfloat,3,1>& primary_color, const Eigen::Matrix<GLfloat,3,1>& secondary_color );
 

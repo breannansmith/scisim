@@ -1,7 +1,7 @@
 // StaggeredProjections.h
 //
 // Breannan Smith
-// Last updated: 09/07/2015
+// Last updated: 09/21/2015
 
 #ifndef STAGGERED_PROJECTIONS_H
 #define STAGGERED_PROJECTIONS_H
@@ -22,7 +22,7 @@ class StaggeredProjections final : public FrictionSolver
 public:
 
   StaggeredProjections( const bool warm_start_alpha, const bool warm_start_beta, const ImpactOperator& impact_operator, const FrictionOperator& friction_operator );
-  StaggeredProjections( std::istream& input_stream );
+  explicit StaggeredProjections( std::istream& input_stream );
 
   virtual ~StaggeredProjections() override;
 

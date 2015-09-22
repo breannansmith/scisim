@@ -1,7 +1,7 @@
 // StaticPlane.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/21/2015
 
 #ifndef STATIC_PLANE_H
 #define STATIC_PLANE_H
@@ -14,7 +14,7 @@ class StaticPlane final
 public:
 
   StaticPlane( const Vector2s& x, const Vector2s& n );
-  StaticPlane( std::istream& input_stream );
+  explicit StaticPlane( std::istream& input_stream );
   StaticPlane();
 
   Vector2s& x();

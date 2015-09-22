@@ -17,7 +17,7 @@ class GLCircleRenderer2D
 public:
 
   // num_pts: Number of points to sample the circle with
-  GLCircleRenderer2D( const unsigned num_pts = 16 );
+  explicit GLCircleRenderer2D( const unsigned num_pts = 16 );
 
   // x: Position of the circle's center
   // r: Radius of the circle

@@ -1,7 +1,7 @@
 // FischerBurmeisterImpact.h
 //
 // Breannan Smith
-// Last updated: 09/08/2015
+// Last updated: 09/21/2015
 
 #ifndef FISCHER_BURMEISTER_IMPACT_H
 #define FISCHER_BURMEISTER_IMPACT_H
@@ -14,7 +14,7 @@ class FischerBurmeisterImpact final : public QPTerminationOperator
 
 public:
 
-  FischerBurmeisterImpact( const scalar& tol );
+  explicit FischerBurmeisterImpact( const scalar& tol );
   virtual ~FischerBurmeisterImpact() override;
 
   virtual scalar operator()( const VectorXs& alpha, const VectorXs& grad_objective ) const override;
@@ -24,7 +24,7 @@ public:
 private:
 
   const scalar m_tol;
-  
+
 };
 
 #endif

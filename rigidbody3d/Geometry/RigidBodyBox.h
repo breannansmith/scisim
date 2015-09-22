@@ -1,7 +1,7 @@
 // RigidBodyBox.h
 //
 // Breannan Smith
-// Last updated: 09/15/2015
+// Last updated: 09/21/2015
 
 #ifndef RIGID_BODY_BOX
 #define RIGID_BODY_BOX
@@ -13,8 +13,8 @@ class RigidBodyBox final : public RigidBodyGeometry
 
 public:
 
-  RigidBodyBox( std::istream& input_stream );
-  RigidBodyBox( const Vector3s& half_widths );
+  explicit RigidBodyBox( std::istream& input_stream );
+  explicit RigidBodyBox( const Vector3s& half_widths );
   virtual ~RigidBodyBox() override;
 
   virtual RigidBodyGeometryType getType() const override;

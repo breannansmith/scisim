@@ -1,7 +1,7 @@
 // LCPOperatorQLVP.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/21/2015
 
 #ifndef LCP_OPERATOR_QL_VP
 #define LCP_OPERATOR_QL_VP
@@ -13,7 +13,7 @@ class LCPOperatorQLVP final : public ImpactOperator
 
 public:
 
-  LCPOperatorQLVP( const scalar& tol );
+  explicit LCPOperatorQLVP( const scalar& tol );
   LCPOperatorQLVP( const LCPOperatorQLVP& other );
   virtual ~LCPOperatorQLVP() override = default;
 

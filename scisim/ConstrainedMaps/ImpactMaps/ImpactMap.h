@@ -1,7 +1,7 @@
 // ImpactMap.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/21/2015
 
 #ifndef IMPACT_MAP_H
 #define IMPACT_MAP_H
@@ -20,8 +20,8 @@ class ImpactMap final
 
 public:
 
-  ImpactMap( const bool warm_start );
-  ImpactMap( std::istream& input_stream );
+  explicit ImpactMap( const bool warm_start );
+  explicit ImpactMap( std::istream& input_stream );
 
   void flow( ScriptingCallback& call_back, FlowableSystem& fsys, ConstrainedSystem& csys, UnconstrainedMap& umap, ImpactOperator& imap, const unsigned iteration, const scalar& dt, const scalar& CoR_default, const VectorXs& q0, const VectorXs& v0, VectorXs& q1, VectorXs& v1 );
 

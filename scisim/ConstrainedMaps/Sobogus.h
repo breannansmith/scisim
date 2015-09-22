@@ -1,7 +1,7 @@
 // Sobogus.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/21/2015
 
 // TODO: Break this into three classes
 // TODO: 2D solver has no need to cache H0 and H1
@@ -31,7 +31,7 @@ class SobogusFrictionProblem final
 
 public:
 
-  SobogusFrictionProblem( const SobogusSolverType& solver_type );
+  explicit SobogusFrictionProblem( const SobogusSolverType& solver_type );
   SobogusFrictionProblem( const SobogusSolverType& solver_type, const std::vector<std::unique_ptr<Constraint>>& active_set, const MatrixXXsc& contact_bases, VectorXs& masses, const VectorXs& q0, const VectorXs& v0, const VectorXs& CoR, const VectorXs& mu, const VectorXs& nrel, const VectorXs& drel );
 
   void initialize( const std::vector<std::unique_ptr<Constraint>>& active_set, const MatrixXXsc& contact_bases, VectorXs& masses, const VectorXs& q0, const VectorXs& v0, const VectorXs& CoR, const VectorXs& mu, const VectorXs& nrel, const VectorXs& drel );
@@ -81,7 +81,7 @@ class Sobogus final : public FrictionSolver
 public:
 
   Sobogus( const SobogusSolverType& solver_type, const unsigned eval_every );
-  Sobogus( std::istream& input_stream );
+  explicit Sobogus( std::istream& input_stream );
   virtual ~Sobogus() override;
 
   virtual void solve( const unsigned iteration, const scalar& dt, const FlowableSystem& fsys, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& CoR, const VectorXs& mu, const VectorXs& q0, const VectorXs& v0, std::vector<std::unique_ptr<Constraint>>& active_set, const MatrixXXsc& contact_bases, const unsigned max_iters, const scalar& tol, VectorXs& f, VectorXs& alpha, VectorXs& beta, VectorXs& vout, bool& solve_succeeded, scalar& error ) override;

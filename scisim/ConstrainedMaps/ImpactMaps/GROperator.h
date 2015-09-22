@@ -1,7 +1,7 @@
 // GROperator.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 09/21/2015
 
 #ifndef GR_OPERATOR_H
 #define GR_OPERATOR_H
@@ -16,7 +16,7 @@ class GROperator : public ImpactOperator
 public:
 
   GROperator( const scalar& v_tol, const ImpactOperator& impact_operator );
-  GROperator( std::istream& input_stream );
+  explicit GROperator( std::istream& input_stream );
   virtual ~GROperator() override;
 
   // TODO: Q isn't useful here, revise interface

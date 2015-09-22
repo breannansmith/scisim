@@ -1,7 +1,7 @@
 // HDF5File.h
 //
 // Breannan Smith
-// Last updated: 09/05/2015
+// Last updated: 09/21/2015
 
 // TODO: Store sparse matrix components in a struct to prevent polution of namespace
 // TODO: Support routines for users to create structs
@@ -26,7 +26,7 @@ class HDFID final
 
 public:
 
-  HDFID( const hid_t value )
+  explicit HDFID( const hid_t value )
   : m_hid_t( value )
   {}
 
