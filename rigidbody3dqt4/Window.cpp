@@ -15,8 +15,8 @@ Window::Window( const QString& scene_name, QWidget* parent )
 
   QMenu* view{ menuBar()->addMenu( tr( "View" ) ) };
   
-  QAction* seperator{ new QAction{ this } };
-  seperator->setSeparator( true );
+  QAction* separator{ new QAction{ this } };
+  separator->setSeparator( true );
 
   // File menu actions
 
@@ -32,8 +32,8 @@ Window::Window( const QString& scene_name, QWidget* parent )
   file->addAction( reload_scene );
   connect( reload_scene, SIGNAL( triggered() ), m_content_widget, SLOT( reloadScene() ) );
 
-  // Add a seperator
-  file->addAction( seperator );
+  // Add a separator
+  file->addAction( separator );
 
   // Export an image of the scene
   QAction* export_image{ new QAction{ tr( "Export Image..." ), this } };
@@ -47,10 +47,10 @@ Window::Window( const QString& scene_name, QWidget* parent )
   file->addAction( export_movie );
   connect( export_movie, SIGNAL( triggered() ), m_content_widget, SLOT( exportMovie() ) );
 
-  // Add a seperator
-  QAction* seperator2{ new QAction( this ) };
-  seperator2->setSeparator( true );
-  file->addAction( seperator2 );
+  // Add a separator
+  QAction* separator2{ new QAction( this ) };
+  separator2->setSeparator( true );
+  file->addAction( separator2 );
 
   // Export the current camera settings
   QAction* export_camera_settings{ new QAction{ tr( "Export Camera..." ), this } };
@@ -78,8 +78,8 @@ Window::Window( const QString& scene_name, QWidget* parent )
   view->addAction( toggle_xz_grid );
   connect( toggle_xz_grid, SIGNAL( triggered() ), m_content_widget, SLOT( toggleXZGrid() ) );
 
-  // Add a seperator
-  view->addAction( seperator );
+  // Add a separator
+  view->addAction( separator );
 
   // Center the camera
   QAction* center_camera{ new QAction{ tr( "Center Camera" ), this } };
