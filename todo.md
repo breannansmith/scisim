@@ -14,6 +14,8 @@ Updates
 New Features
 ------------
 
+* Full and generalized coordinate articulated rigid bodies.
+
 * Microsoft VC++ support.
 
 * User documentation.
