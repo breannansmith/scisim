@@ -541,7 +541,7 @@ void RigidBody2DSim::cacheConstraint( const Constraint& constraint, const Vector
 
 void RigidBody2DSim::getCachedConstraintImpulse( const Constraint& constraint, VectorXs& r ) const
 {
-  std::cerr << "TwoDBallSim::cacheConstraint" << std::endl;
+  std::cerr << "RigidBody2DSim::getCachedConstraintImpulse" << std::endl;
   std::exit( EXIT_FAILURE );
 //  m_constraint_cache.getCachedConstraint( constraint, r );
 }
