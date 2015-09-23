@@ -1,7 +1,7 @@
 // NearEarthGravityForce.h
 //
 // Breannan Smith
-// Last updated: 09/21/2015
+// Last updated: 09/22/2015
 
 #ifndef NEAR_EARTH_GRAVITY_FORCE_H
 #define NEAR_EARTH_GRAVITY_FORCE_H
@@ -27,7 +27,7 @@ public:
 
 private:
 
-  virtual std::string getName() const override;
+  virtual std::string forceName() const override;
 
   virtual void serializeState( std::ostream& output_stream ) const override;
 

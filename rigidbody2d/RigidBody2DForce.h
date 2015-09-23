@@ -1,7 +1,7 @@
 // RigidBody2DForce.h
 //
 // Breannan Smith
-// Last updated: 09/10/2015
+// Last updated: 09/22/2015
 
 #ifndef RIGID_BODY_2D_FORCE_H
 #define RIGID_BODY_2D_FORCE_H
@@ -29,7 +29,7 @@ public:
 
 private:
 
-  virtual std::string getName() const = 0;
+  virtual std::string forceName() const = 0;
   virtual void serializeState( std::ostream& output_stream ) const = 0;
 
 };

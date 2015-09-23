@@ -1,7 +1,7 @@
 // NearEarthGravityForce.cpp
 //
 // Breannan Smith
-// Last updated: 09/10/2015
+// Last updated: 09/22/2015
 
 #include "NearEarthGravityForce.h"
 
@@ -52,7 +52,7 @@ std::unique_ptr<RigidBody2DForce> NearEarthGravityForce::clone() const
   return std::unique_ptr<NearEarthGravityForce>{ new NearEarthGravityForce{ m_g } };
 }
 
-std::string NearEarthGravityForce::getName() const
+std::string NearEarthGravityForce::forceName() const
 {
   return "near_earth_gravity";
 }

@@ -47,14 +47,14 @@ void StabilizedImpactFrictionMap::flow( ScriptingCallback& call_back, FlowableSy
 //  // TODO: Sanity check input sizes
 //
 //  // Check if the given operators are currently supported
-//  if( !ImpactFrictionMap::impactOperatorSupported( imap.getName() ) )
+//  if( !ImpactFrictionMap::impactOperatorSupported( name() ) )
 //  {
-//    std::cerr << "Error, impact operator " << imap.getName() << " not supported in StabilizedImpactFrictionMap::flow" << std::endl;
+//    std::cerr << "Error, impact operator " << imap.name() << " not supported in StabilizedImpactFrictionMap::flow" << std::endl;
 //    std::exit( EXIT_FAILURE );
 //  }
-//  if( !ImpactFrictionMap::frictionOperatorSupported( fmap.getName() ) )
+//  if( !ImpactFrictionMap::frictionOperatorSupported( fmap.name() ) )
 //  {
-//    std::cerr << "Error, friction operator " << fmap.getName() << " not supported in StabilizedImpactFrictionMap::flow" << std::endl;
+//    std::cerr << "Error, friction operator " << fmap.name() << " not supported in StabilizedImpactFrictionMap::flow" << std::endl;
 //    std::exit( EXIT_FAILURE );
 //  }
 //
