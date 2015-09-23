@@ -97,27 +97,6 @@ int MathUtilities::nzLowerTriangular( const SparseMatrixsc& A )
   return num;
 }
 
-// Determine which elements are non-zero
-int MathUtilities::sparsityPattern( const SparseMatrixsc& A, int* rows, int* cols )
-{
-  assert( rows != nullptr );
-  assert( cols != nullptr );
-  
-  int curel{ 0 };
-  for( int col = 0; col < A.outerSize(); ++col )
-  {
-    for( SparseMatrixsc::InnerIterator it( A, col ); it; ++it )
-    {
-      rows[curel] = it.row();
-      cols[curel] = col;
-      ++curel;
-    }
-  }
-
-  assert( curel == A.nonZeros() );
-  return curel;
-}
-
 int MathUtilities::sparsityPatternLowerTriangular( const SparseMatrixsc& A, int* rows, int* cols )
 {
   assert( rows != nullptr );

@@ -39,12 +39,6 @@ namespace MathUtilities
   // The number of non-zeros on or below the diagonal
   int nzLowerTriangular( const SparseMatrixsc& A );
 
-  // The number of non-zeros in A below the diagonal
-  //int nzBelowDiagonal( const SparseMatrixsc& A );
-
-  // Determine which elements are non-zero
-  int sparsityPattern( const SparseMatrixsc& A, int* rows, int* cols );
-
   // Determine which elements on or below the diagonal are non-zero
   int sparsityPatternLowerTriangular( const SparseMatrixsc& A, int* rows, int* cols );
 
