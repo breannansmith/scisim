@@ -1,7 +1,7 @@
 // HDF5File.h
 //
 // Breannan Smith
-// Last updated: 09/22/2015
+// Last updated: 09/24/2015
 
 // TODO: Store sparse matrix components in a struct to prevent polution of namespace
 // TODO: Support routines for users to create structs
@@ -371,13 +371,14 @@ private:
     {
       throw std::string{ "Failed to open data space" };
     }
-    const int rank = H5Sget_simple_extent_ndims( space_id );
+    const int rank{ H5Sget_simple_extent_ndims( space_id ) };
     if( rank < 0 )
     {
       throw std::string{ "Failed to get rank" };
     }
     dimensions.resize( rank );
-    std::vector<hsize_t> dims{ static_cast<std::vector<hsize_t>::size_type>( rank ) };
+    std::vector<hsize_t> dims( static_cast<std::vector<hsize_t>::size_type>( rank ) );
+    assert( int( dims.size() ) == rank );
     const herr_t status_get_simple_extent_dims{ H5Sget_simple_extent_dims( space_id, dims.data(), nullptr ) };
     if( status_get_simple_extent_dims < 0 )
     {

@@ -1,7 +1,7 @@
 // RigidBody3DState.cpp
 //
 // Breannan Smith
-// Last updated: 09/16/2015
+// Last updated: 09/24/2015
 
 #include "RigidBody3DState.h"
 
@@ -578,7 +578,8 @@ void RigidBody3DState::serialize( std::ostream& output_stream ) const
 static std::vector<std::unique_ptr<RigidBodyGeometry>> deserializeGeometry( std::istream& input_stream )
 {
   const std::vector<std::unique_ptr<RigidBodyGeometry>>::size_type ngeo{ Utilities::deserialize<std::vector<std::unique_ptr<RigidBodyGeometry>>::size_type>( input_stream ) };
-  std::vector<std::unique_ptr<RigidBodyGeometry>> geometry{ ngeo };
+  std::vector<std::unique_ptr<RigidBodyGeometry>> geometry( ngeo );
+  assert( geometry.size() == ngeo );
   for( std::vector<std::unique_ptr<RigidBodyGeometry>>::size_type geo_idx = 0; geo_idx < geometry.size(); ++geo_idx )
   {
     // Read in the geometry type
@@ -606,7 +607,8 @@ static std::vector<std::unique_ptr<RigidBodyGeometry>> deserializeGeometry( std:
 static std::vector<std::unique_ptr<Force>> deserializeForces( std::istream& input_stream )
 {
   const std::vector<std::unique_ptr<Force>>::size_type nforces{ Utilities::deserialize<std::vector<std::unique_ptr<Force>>::size_type>( input_stream ) };
-  std::vector<std::unique_ptr<Force>> forces{ nforces };
+  std::vector<std::unique_ptr<Force>> forces( nforces );
+  assert( forces.size() == nforces );
   for( std::vector<std::unique_ptr<Force>>::size_type force_idx = 0; force_idx < forces.size(); ++force_idx )
   {
     // Read in the force name

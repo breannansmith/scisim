@@ -1,7 +1,7 @@
 // StaticPlaneSphereConstraint.cpp
 //
 // Breannan Smith
-// Last updated: 09/22/2015
+// Last updated: 09/24/2015
 
 #include "StaticPlaneSphereConstraint.h"
 
@@ -89,7 +89,8 @@ void StaticPlaneSphereConstraint::computeGeneralizedFrictionDisk( const VectorXs
   const Vector3s n{ m_plane.n() };
   assert( fabs( n.norm() - 1.0 ) <= 1.0e-6 );
 
-  std::vector<Vector3s> friction_disk{ static_cast<std::vector<Vector3s>::size_type>( num_samples ) };
+  std::vector<Vector3s> friction_disk( static_cast<std::vector<Vector3s>::size_type>( num_samples ) );
+  assert( friction_disk.size() == std::vector<Vector3s>::size_type( num_samples ) );
   {
     // Compute the relative velocity
     Vector3s tangent_suggestion{ computeRelativeVelocity( q, v ) };

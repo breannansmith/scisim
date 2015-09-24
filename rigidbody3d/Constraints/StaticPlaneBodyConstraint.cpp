@@ -1,7 +1,7 @@
 // StaticPlaneBodyConstraint.cpp
 //
 // Breannan Smith
-// Last updated: 09/22/2015
+// Last updated: 09/24/2015
 
 #include "StaticPlaneBodyConstraint.h"
 
@@ -78,7 +78,8 @@ void StaticPlaneBodyConstraint::computeGeneralizedFrictionDisk( const VectorXs& 
   assert( q.size() % 12 == 0 );
   assert( q.size() == 2 * v.size() );
 
-  std::vector<Vector3s> friction_disk{ static_cast<std::vector<Vector3s>::size_type>( num_samples ) };
+  std::vector<Vector3s> friction_disk( static_cast<std::vector<Vector3s>::size_type>( num_samples ) );
+  assert( friction_disk.size() == std::vector<Vector3s>::size_type( num_samples ) );
   {
     // Compute the relative velocity
     Vector3s tangent_suggestion{ computeRelativeVelocity( q, v ) };
