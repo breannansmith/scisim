@@ -1,7 +1,7 @@
 // RigidBodyTriangleMesh.cpp
 //
 // Breannan Smith
-// Last updated: 09/22/2015
+// Last updated: 09/28/2015
 
 #include "RigidBodyTriangleMesh.h"
 
@@ -45,7 +45,7 @@ RigidBodyTriangleMesh::RigidBodyTriangleMesh( const std::string& input_file_name
 , m_signed_distance()
 , m_grid_end()
 {
-  HDF5File mesh_file( input_file_name, HDF5File::READ_ONLY );
+  HDF5File mesh_file( input_file_name, HDF5AccessType::READ_ONLY );
 
   // TODO: Make value return versions of HDF5 readMatrix
   // Load the mesh

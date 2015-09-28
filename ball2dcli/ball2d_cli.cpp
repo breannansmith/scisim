@@ -1,7 +1,7 @@
 // ball2d_cli.cpp
 //
 // Breannan Smith
-// Last updated: 09/21/2015
+// Last updated: 09/28/2015
 
 #ifdef USE_PYTHON
 #include <Python.h>
@@ -193,7 +193,7 @@ static int saveState()
   // Save the simulation state
   try
   {
-    HDF5File output_file( output_file_name, HDF5File::READ_WRITE );
+    HDF5File output_file{ output_file_name, HDF5AccessType::READ_WRITE };
     // Save the iteration and time step and time
     output_file.writeScalar( "", "timestep", scalar( g_dt ) );
     output_file.writeScalar( "", "iteration", g_iteration );
@@ -381,7 +381,7 @@ static int stepSystem()
     #ifdef USE_HDF5
     try
     {
-      force_file.open( constraint_force_file_name, HDF5File::READ_WRITE );
+      force_file.open( constraint_force_file_name, HDF5AccessType::READ_WRITE );
       // Save the iteration and time step and time
       force_file.writeScalar( "", "timestep", scalar( g_dt ) );
       force_file.writeScalar( "", "iteration", g_iteration );

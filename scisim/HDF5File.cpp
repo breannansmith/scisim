@@ -1,7 +1,7 @@
 // HDF5File.cpp
 //
 // Breannan Smith
-// Last updated: 09/22/2015
+// Last updated: 09/28/2015
 
 #include "HDF5File.h"
 
@@ -21,7 +21,7 @@ HDF5File::HDF5File()
 , m_file_opened( false )
 {}
 
-HDF5File::HDF5File( const std::string& file_name, const AccessType& access_type )
+HDF5File::HDF5File( const std::string& file_name, const HDF5AccessType& access_type )
 : m_hdf_file_id( 0 )
 , m_file_opened( false )
 {
@@ -44,17 +44,18 @@ int HDF5File::fileID()
   return m_hdf_file_id;
 }
 
-void HDF5File::open( const std::string& file_name, const AccessType& access_type )
+void HDF5File::open( const std::string& file_name, const HDF5AccessType& access_type )
 {
   #ifdef USE_HDF5
   // Attempt to open a file
-  if( access_type == READ_WRITE )
+  switch( access_type )
   {
-    m_hdf_file_id = H5Fcreate( file_name.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT );
-  }
-  else
-  {
-    m_hdf_file_id = H5Fopen( file_name.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT );
+    case HDF5AccessType::READ_WRITE:
+      m_hdf_file_id = H5Fcreate( file_name.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT );
+      break;
+    case HDF5AccessType::READ_ONLY:
+      m_hdf_file_id = H5Fopen( file_name.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT );
+      break;
   }
   // Check that the file successfully opened
   if( m_hdf_file_id < 0 )

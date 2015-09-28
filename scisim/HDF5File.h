@@ -86,22 +86,22 @@ namespace HDF5SupportedTypes
   }
 }
 
+enum class HDF5AccessType : std::uint8_t
+{
+  READ_ONLY,
+  READ_WRITE
+};
+
 class HDF5File final
 {
 
 public:
 
-  enum AccessType
-  {
-    READ_ONLY,
-    READ_WRITE
-  };
-
   HDF5File();
   #ifndef USE_HDF5
   [[noreturn]]
   #endif
-  HDF5File( const std::string& file_name, const AccessType& access_type );
+  HDF5File( const std::string& file_name, const HDF5AccessType& access_type );
   ~HDF5File();
 
   int fileID();
@@ -109,7 +109,7 @@ public:
   #ifndef USE_HDF5
   [[noreturn]]
   #endif
-  void open( const std::string& file_name, const AccessType& access_type );
+  void open( const std::string& file_name, const HDF5AccessType& access_type );
 
   bool is_open() const;
 
