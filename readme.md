@@ -115,6 +115,7 @@ Platform Specific Issues
 * OS X
   * There are performance regressions with GCC and So-bogus when building with the GCC toolchain provided by MacPorts.
   * There are a number of strange behaviors with the Qt4 frontend when building against the version from MacPorts. I intend to upgrade to Qt5, which should remedy these issues.
+  * Building Ipopt with GCC is incompatible with building SCISim with Clang. 
   * CMake will often pull in different versions of the Python interpreter and the Python library, requiring the user to explicitly pass the location of the Python library to CMake. For example, to build with MacPorts' Python 2.7:
 
             cmake -DPYTHON_LIBRARY=/opt/local/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=/opt/local/Library/Frameworks/Python.framework/Headers ..
