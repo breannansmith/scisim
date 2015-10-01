@@ -1,7 +1,7 @@
 // StaticPlaneCircleConstraint.cpp
 //
 // Breannan Smith
-// Last updated: 09/10/2015
+// Last updated: 09/30/2015
 
 #include "StaticPlaneCircleConstraint.h"
 
@@ -175,9 +175,4 @@ unsigned StaticPlaneCircleConstraint::getStaticObjectIndex() const
 bool StaticPlaneCircleConstraint::operator==( const StaticPlaneCircleConstraint& other ) const
 {
   return std::tie( other.m_circle_idx, other.m_plane_idx ) == std::tie( m_circle_idx, m_plane_idx );
-}
-
-void StaticPlaneCircleConstraint::streamState( std::ostream& os ) const
-{
-  os << m_circle_idx << " " << m_plane_idx;
 }

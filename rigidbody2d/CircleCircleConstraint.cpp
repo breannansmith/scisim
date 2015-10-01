@@ -1,7 +1,7 @@
 // CircleCircleConstraint.cpp
 //
 // Breannan Smith
-// Last updated: 09/10/2015
+// Last updated: 09/30/2015
 
 #include "CircleCircleConstraint.h"
 
@@ -228,9 +228,4 @@ bool CircleCircleConstraint::operator==( const CircleCircleConstraint& other ) c
   assert( other.m_idx0 < other.m_idx1 );
   assert( m_idx0 < m_idx1 );
   return std::tie( other.m_idx0, other.m_idx1 ) == std::tie( m_idx0, m_idx1 );
-}
-
-void CircleCircleConstraint::streamState( std::ostream& os ) const
-{
-  os << m_idx0 << " " << m_idx1;
 }

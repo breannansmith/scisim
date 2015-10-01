@@ -1,7 +1,7 @@
 // StaticPlaneCircleConstraint.h
 //
 // Breannan Smith
-// Last updated: 09/10/2015
+// Last updated: 09/30/2015
 
 #ifndef STATIC_PLANE_CIRCLE_CONSTRAINT_H
 #define STATIC_PLANE_CIRCLE_CONSTRAINT_H
@@ -52,8 +52,6 @@ private:
   virtual VectorXs computeKinematicRelativeVelocity( const VectorXs& q, const VectorXs& v ) const override;
 
   Vector2s computePlaneCollisionPointVelocity( const VectorXs& q ) const;
-
-  virtual void streamState( std::ostream& output_stream ) const;
 
   // Index of the colliding circle
   unsigned m_circle_idx;

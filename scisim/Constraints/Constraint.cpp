@@ -1,7 +1,7 @@
 // Constraint.cpp
 //
 // Breannan Smith
-// Last updated: 09/22/2015
+// Last updated: 09/30/2015
 
 #include "Constraint.h"
 
@@ -212,17 +212,4 @@ scalar Constraint::computePenetrationDepth( const VectorXs& q ) const
 scalar Constraint::computeOverlapVolume( const VectorXs& q ) const
 {
   return SCALAR_NAN;
-}
-
-std::ostream& operator<<( std::ostream& output_stream, const Constraint& constraint )
-{
-  assert( output_stream.good() );
-  constraint.streamState( output_stream );
-  return output_stream;
-}
-
-void Constraint::streamState( std::ostream& os ) const
-{
-  std::cerr << "Constraint::streamState not implemented for: " << name() << std::endl;
-  std::exit( EXIT_FAILURE );
 }

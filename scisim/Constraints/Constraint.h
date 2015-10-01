@@ -1,7 +1,7 @@
 // Constraint.h
 //
 // Breannan Smith
-// Last updated: 09/22/2015
+// Last updated: 09/30/2015
 
 // TODO: This class has accumulated up lots of redundant code. Pare down to the minimum and cleanup.
 
@@ -84,8 +84,6 @@ public:
 
   virtual VectorXs computeRelativeVelocity( const VectorXs& q, const VectorXs& v ) const;
 
-  friend std::ostream& operator<<( std::ostream& os, const Constraint& constraint );
-
 private:
 
   virtual void computeContactBasis( const VectorXs& q, const VectorXs& v, MatrixXXsc& basis ) const;
@@ -94,7 +92,6 @@ private:
   virtual scalar computePenetrationDepth( const VectorXs& q ) const;
   virtual scalar computeOverlapVolume( const VectorXs& q ) const;
   virtual VectorXs computeKinematicRelativeVelocity( const VectorXs& q, const VectorXs& v ) const = 0;
-  virtual void streamState( std::ostream& output_stream ) const;
 
 };
 

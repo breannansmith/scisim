@@ -1,7 +1,7 @@
 // CircleCircleConstraint.h
 //
 // Breannan Smith
-// Last updated: 09/10/2015
+// Last updated: 09/30/2015
 
 #ifndef CIRCLE_CIRCLE_CONSTRAINT_H
 #define CIRCLE_CIRCLE_CONSTRAINT_H
@@ -55,8 +55,6 @@ private:
   //virtual scalar computeOverlapVolume( const VectorXs& q ) const;
 
   virtual VectorXs computeKinematicRelativeVelocity( const VectorXs& q, const VectorXs& v ) const override;
-
-  virtual void streamState( std::ostream& output_stream ) const;
 
   // Indices of the colliding balls
   unsigned m_idx0;
