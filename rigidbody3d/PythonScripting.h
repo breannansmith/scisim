@@ -1,7 +1,7 @@
 // PythonScripting.h
 //
 // Breannan Smith
-// Last updated: 09/21/2015
+// Last updated: 09/30/2015
 
 #ifndef PYTHON_SCRIPTING_H
 #define PYTHON_SCRIPTING_H
@@ -28,6 +28,9 @@ public:
 
   friend void swap( PythonScripting& first, PythonScripting& second );
 
+  #ifndef USE_PYTHON
+  [[noreturn]]
+  #endif
   static void initializeCallbacks();
 
   void setState( RigidBody3DState& state );
