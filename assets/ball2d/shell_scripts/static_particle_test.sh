@@ -36,6 +36,13 @@ if [ -d $output_directory ]; then
   exit 1
 fi
 
+# Check whether the proper Python modules are installed
+python -c "import h5py" 2> /dev/null
+if [ $? -ne 0 ] ; then
+  echo "Error, static particle test requires the 'h5py' Python module."
+  exit 1
+fi
+
 # Create a directory to store test output
 mkdir $output_directory
 if [ $? -ne 0 ] ; then

@@ -28,7 +28,7 @@ if( USE_HDF5 AND USE_PYTHON )
   # This test fails with So-bogus
   #add_test( ball2d_python_serialization_02 assets/shell_scripts/execute_serialization_test.sh assets/tests_python_serialization/insertion_test.xml 20.0 200 121 10 )
 else()
-  message( STATUS "Skipping Ball2D tests that require Python and HDF5 (USE_PYTHON or USER_HDF5 is disabled)." )
+  message( STATUS "Skipping Ball2D tests that require Python and HDF5 (USE_PYTHON or USE_HDF5 is disabled)." )
 endif()
 
 # Serialization tests for simulations that use Ipopt
@@ -36,11 +36,14 @@ if( USE_HDF5 AND USE_IPOPT )
   add_test( ball2d_ipopt_serialization_00 assets/shell_scripts/execute_serialization_test.sh assets/examples_gr/nine_ball_break_symmetric.xml 5.0 50 10 10 )
   add_test( ball2d_ipopt_serialization_01 assets/shell_scripts/execute_serialization_test.sh assets/examples_gr/butterfly.xml 30.0 300 100 10 )
 else()
-  message( STATUS "Skipping Ball2D tests that require Ipopt and HDF5 (USE_IPOPT or USER_HDF5 is disabled)." )
+  message( STATUS "Skipping Ball2D tests that require Ipopt and HDF5 (USE_IPOPT or USE_HDF5 is disabled)." )
 endif()
 
+# Check if the h5py Python module is installed
+execute_process( COMMAND python -c "import h5py" RESULT_VARIABLE H5PY_ABSENT OUTPUT_QUIET ERROR_QUIET )
+
 # Friction tests against analytical solutions for static and sliding
-if( USE_HDF5 )
+if( USE_HDF5 AND NOT H5PY_ABSENT )
   # Static friction tests, plane pointing positive x
   add_test( ball2d_static_friction_posx_00 assets/shell_scripts/static_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_posx/ball_slide_at_threshold.xml 3.0 1 )
   add_test( ball2d_static_friction_posx_01 assets/shell_scripts/static_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_posx/ball_slide_below_threshold_05_degree.xml 3.0 1 )
@@ -66,4 +69,6 @@ if( USE_HDF5 )
   add_test( ball2d_sliding_friction_negx_01 assets/shell_scripts/sliding_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_negx/ball_slide_above_threshold_10_degree.xml 3.0 1 )
   add_test( ball2d_sliding_friction_negx_02 assets/shell_scripts/sliding_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_negx/ball_slide_above_threshold_15_degree.xml 3.0 1 )
   add_test( ball2d_sliding_friction_negx_03 assets/shell_scripts/sliding_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_negx/ball_slide_above_threshold_20_degree.xml 3.0 1 )
+else()
+  message( STATUS "Skipping Ball2D tests that require HDF5 (USE_HDF5 is disabled) and the h5py Python module." )
 endif()
