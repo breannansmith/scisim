@@ -1,7 +1,7 @@
 // RigidBody2DSim.h
 //
 // Breannan Smith
-// Last updated: 09/22/2015
+// Last updated: 10/01/2015
 
 #ifndef RIGID_BODY_2D_SIM_H
 #define RIGID_BODY_2D_SIM_H
@@ -76,6 +76,9 @@ public:
   // Flow using an unconstrained map, an impact-friction map
   void flow( const unsigned iteration, const scalar& dt, UnconstrainedMap& umap, const scalar& CoR, const scalar& mu, FrictionSolver& solver, ImpactFrictionMap& ifmap );
 
+  #ifndef USE_HDF5
+  [[noreturn]]
+  #endif
   void writeBinaryState( HDF5File& output_file ) const;
 
   void serialize( std::ostream& output_stream ) const;

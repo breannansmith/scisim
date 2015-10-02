@@ -1,7 +1,7 @@
 // StateOutput.cpp
 //
 // Breannan Smith
-// Last updated: 09/10/2015
+// Last updated: 10/01/2015
 
 #include "StateOutput.h"
 
@@ -74,8 +74,10 @@ void RigidBody2DStateOutput::writeGeometryIndices( const std::vector<std::unique
   #endif
 }
 
-#include <iostream>
-void writeCircleGeometry( const std::vector<std::unique_ptr<RigidBody2DGeometry>>& geometry, const unsigned circle_count, const std::string& group, HDF5File& output_file )
+#ifndef USE_HDF5
+[[noreturn]]
+#endif
+static void writeCircleGeometry( const std::vector<std::unique_ptr<RigidBody2DGeometry>>& geometry, const unsigned circle_count, const std::string& group, HDF5File& output_file )
 {
   #ifdef USE_HDF5
   using HDFTID = HDFID<H5Tclose>;

@@ -1,7 +1,7 @@
-// threed_rigid_bodies_cli.cpp
+// rigidbody3d_cli.cpp
 //
 // Breannan Smith
-// Last updated: 09/28/2015
+// Last updated: 10/01/2015
 
 #ifdef USE_PYTHON
 #include <Python.h>
@@ -159,6 +159,7 @@ static std::string generateSimulationTimeString()
 
 static int saveState()
 {
+  #ifdef USE_HDF5
   // Generate a base filename
   const std::string output_file_name = generateOutputConfigurationDataFileName( "config", "h5" );
 
@@ -188,6 +189,10 @@ static int saveState()
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
+  #else
+  std::cerr << "Error, state output requires HDF5 support." << std::endl;
+  std::exit( EXIT_FAILURE );
+  #endif
 }
 
 static int serializeSystem()
@@ -327,6 +332,7 @@ static int exportConfigurationData()
   return EXIT_SUCCESS;
 }
 
+#ifdef USE_HDF5
 static std::string generateOutputConstraintForceDataFileName()
 {
   std::stringstream ss;
@@ -334,6 +340,7 @@ static std::string generateOutputConstraintForceDataFileName()
   ss << g_output_dir_name << "/forces_" << std::setfill('0') << std::setw( g_save_number_width ) << g_output_frame - 1 << ".h5";
   return ss.str();
 }
+#endif
 
 static int stepSystem()
 {
@@ -343,6 +350,7 @@ static int stepSystem()
   assert( g_steps_per_save != 0 );
   if( g_output_forces && g_iteration % g_steps_per_save == 0 )
   {
+    #ifdef USE_HDF5
     assert( !g_output_dir_name.empty() );
     const std::string constraint_force_file_name = generateOutputConstraintForceDataFileName();
     std::cout << "Saving forces at time " << generateSimulationTimeString() << " to " << constraint_force_file_name << std::endl;
@@ -364,6 +372,10 @@ static int stepSystem()
       std::cerr << error << std::endl;
       return EXIT_FAILURE;
     }
+    #else
+    std::cerr << "Error, force output requires HDF5 support." << std::endl;
+    std::exit( EXIT_FAILURE );
+    #endif
   }
 
   if( g_unconstrained_map == nullptr && g_impact_operator == nullptr && g_friction_solver == nullptr && g_impact_friction_map == nullptr )

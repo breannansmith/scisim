@@ -1,7 +1,7 @@
 // RigidBody3DSim.h
 //
 // Breannan Smith
-// Last updated: 09/22/2015
+// Last updated: 10/01/2015
 
 #ifndef RIGID_BODY_3D_SIM_H
 #define RIGID_BODY_3D_SIM_H
@@ -104,6 +104,9 @@ public:
 
   RigidBody3DState& state();
 
+  #ifndef USE_HDF5
+  [[noreturn]]
+  #endif
   void writeBinaryState( HDF5File& output_file ) const;
 
   void serialize( std::ostream& output_stream ) const;

@@ -1,7 +1,7 @@
 // StateOutput.cpp
 //
 // Breannan Smith
-// Last updated: 09/14/2015
+// Last updated: 10/01/2015
 
 #include "StateOutput.h"
 
@@ -81,6 +81,9 @@ void StateOutput::writeGeometryIndices( const std::vector<std::unique_ptr<RigidB
   #endif
 }
 
+#ifndef USE_HDF5
+[[noreturn]]
+#endif
 static void writeBoxGeometry( const std::vector<std::unique_ptr<RigidBodyGeometry>>& geometry, const unsigned box_count, const std::string& group, HDF5File& output_file )
 {
   #ifdef USE_HDF5
@@ -153,6 +156,9 @@ static void writeBoxGeometry( const std::vector<std::unique_ptr<RigidBodyGeometr
   #endif
 }
 
+#ifndef USE_HDF5
+[[noreturn]]
+#endif
 static void writeSphereGeometry( const std::vector<std::unique_ptr<RigidBodyGeometry>>& geometry, const unsigned sphere_count, const std::string& group, HDF5File& output_file )
 {
   #ifdef USE_HDF5
@@ -221,6 +227,9 @@ static void writeSphereGeometry( const std::vector<std::unique_ptr<RigidBodyGeom
   #endif
 }
 
+#ifndef USE_HDF5
+[[noreturn]]
+#endif
 static void writeMeshGeometry( const std::vector<std::unique_ptr<RigidBodyGeometry>>& geometry, const unsigned mesh_count, const std::string& group, HDF5File& output_file )
 {
   #ifdef USE_HDF5

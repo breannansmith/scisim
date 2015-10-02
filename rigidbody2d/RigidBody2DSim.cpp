@@ -1,7 +1,7 @@
 // RigidBody2DSim.cpp
 //
 // Breannan Smith
-// Last updated: 09/22/2015
+// Last updated: 10/01/2015
 
 #include "RigidBody2DSim.h"
 
@@ -812,6 +812,7 @@ void RigidBody2DSim::computeBodyBodyActiveSetSpatialGrid( const VectorXs& q0, co
 // TODO: 0 size plane matrices are not output due to a bug in an older version of HDF5
 void RigidBody2DSim::writeBinaryState( HDF5File& output_file ) const
 {
+  #ifdef USE_HDF5
   // Output the configuration
   output_file.writeMatrix( "", "q", m_state.q() );
   // Output the velocity
@@ -837,6 +838,10 @@ void RigidBody2DSim::writeBinaryState( HDF5File& output_file ) const
   {
     RigidBody2DStateOutput::writePlanarPortals( m_state.planarPortals(), "static_geometry", output_file );
   }
+  #else
+  std::cerr << "Error, RigidBody2DSim::writeBinaryState requires HDF5 support." << std::endl;
+  std::exit( EXIT_FAILURE );
+  #endif
 }
 
 void RigidBody2DSim::serialize( std::ostream& output_stream ) const

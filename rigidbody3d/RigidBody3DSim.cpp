@@ -1,7 +1,7 @@
 // RigidBody3DSim.cpp
 //
 // Breannan Smith
-// Last updated: 09/22/2015
+// Last updated: 10/01/2015
 
 #include "RigidBody3DSim.h"
 
@@ -1454,6 +1454,7 @@ void RigidBody3DSim::computeBodyCylinderActiveSetAllPairs( const VectorXs& q0, c
 
 void RigidBody3DSim::writeBinaryState( HDF5File& output_file ) const
 {
+  #ifdef USE_HDF5
   // Output the simulated geometry
   output_file.createGroup( "geometry" );
   StateOutput::writeGeometryIndices( m_sim_state.geometry(), m_sim_state.indices(), "geometry", output_file );
@@ -1481,6 +1482,10 @@ void RigidBody3DSim::writeBinaryState( HDF5File& output_file ) const
     }
     output_file.writeMatrix( "state", "kinematically_scripted", fixed );
   }
+  #else
+  std::cerr << "Error, RigidBody3DSim::writeBinaryState requires HDF5 support." << std::endl;
+  std::exit( EXIT_FAILURE );
+  #endif
 }
 
 void RigidBody3DSim::serialize( std::ostream& output_stream ) const
