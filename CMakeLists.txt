@@ -76,7 +76,7 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 ################################################################################
 ### Add options to allow the user to configure the build
 
-option( STRICT_BUILD "Enable agressive warnings and treat warnings as errors" OFF )
+option( STRICT_BUILD "Enable aggressive warnings and treat warnings as errors" OFF )
 
 option( USE_QT4 "Build Qt4 front ends" OFF )
 

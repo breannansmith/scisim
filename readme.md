@@ -49,10 +49,10 @@ To obtain a minimal demo build that simulates colliding triangle meshes:
 
 2. Clone this repository and change into the project root:
 
-        git clone git@github.com:breannansmith/scisim.git
+        git clone https://github.com/breannansmith/scisim.git
         cd scisim
 
-3. From the project root, run the script get_dependencies.sh to download, extract, and verify the required dependencies:
+3. From the project root, run the script get_dependencies.sh to download, extract, and verify the required dependencies. Note that this script requires the wget and md5sum utilities:
 
         ./get_dependencies.sh
 
@@ -96,7 +96,7 @@ Options of note include:
 
 * CMAKE_BUILD_TYPE: General build type that enables various optimization and compiler flags. Options are: Debug, Release, RelWithDebInfo, MinSizeRel
 
-* STRICT_BUILD: Enables agressive warnings and treats warnings as errors. Recommended for development.
+* STRICT_BUILD: Enables aggressive warnings and treats warnings as errors. Recommended for development.
 
 * USE_HDF5: Enables state and force output via [HDF5](https://www.hdfgroup.org/HDF5/) files.
 
@@ -149,7 +149,7 @@ Building Ipopt
 
 3. Extract Ipopt
 
-        tar -xvzf Ipopt-3.12.4.tgz
+        tar -xf Ipopt-3.12.4.tgz
 
 4. Download Metis
 
