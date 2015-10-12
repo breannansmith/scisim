@@ -1340,26 +1340,39 @@ static bool loadGravityForce( const rapidxml::xml_node<>& node, std::vector<std:
 
 static bool loadPenaltyForce( const rapidxml::xml_node<>& node, std::vector<std::unique_ptr<Ball2DForce>>& forces )
 {
-  // TODO: Rename hertzian_penalty to penalty
-  for( rapidxml::xml_node<>* nd = node.first_node( "hertzian_penalty" ); nd; nd = nd->next_sibling( "hertzian_penalty" ) )
+  for( rapidxml::xml_node<>* nd = node.first_node( "penalty" ); nd; nd = nd->next_sibling( "penalty" ) )
   {
-    // TODO: Rename k to stiffness
-    const rapidxml::xml_attribute<>* k_attrib{ nd->first_attribute( "k" ) };
-    if( !k_attrib )
+    scalar stiffness;
     {
-      std::cerr << "Failed to locate k attribute for hertzian_penalty." << std::endl;
-      return false;
+      const rapidxml::xml_attribute<>* stiffness_attrib{ nd->first_attribute( "stiffness" ) };
+      if( !stiffness_attrib )
+      {
+        std::cerr << "Failed to locate stiffness attribute for penalty." << std::endl;
+        return false;
+      }
+      if( !StringUtilities::extractFromString( stiffness_attrib->value(), stiffness ) || stiffness < 0.0 )
+      {
+        std::cerr << "Failed to load stiffness attribute for penalty. Value must be a positive scalar." << std::endl;
+        return false;
+      }
     }
-    scalar k;
-    if( !StringUtilities::extractFromString( k_attrib->value(), k ) || k < 0.0 )
-    {
-      std::cerr << "Failed to load k attribute for hertzian_penalty. Value must be a positive scalar." << std::endl;
-      return false;
-    }
-    // TODO: Load the power of the penalty force here
-    const scalar penalty_power{ 3.0 / 2.0 };
 
-    forces.emplace_back( new PenaltyForce{ k, penalty_power } );
+    scalar potential_power;
+    {
+      const rapidxml::xml_attribute<>* power_attrib{ nd->first_attribute( "potential_power" ) };
+      if( !power_attrib )
+      {
+        std::cerr << "Failed to locate potential_power attribute for penalty." << std::endl;
+        return false;
+      }
+      if( !StringUtilities::extractFromString( power_attrib->value(), potential_power ) )
+      {
+        std::cerr << "Failed to load potential_power attribute for penalty. Value must be a scalar." << std::endl;
+        return false;
+      }
+    }
+
+    forces.emplace_back( new PenaltyForce{ stiffness, potential_power } );
   }
   
   return true;
