@@ -1,29 +1,38 @@
-// HertzianPenaltyForce.cpp
+// PenaltyForce.cpp
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 10/11/2015
 
-#include "HertzianPenaltyForce.h"
+#include "PenaltyForce.h"
 
 #include "scisim/StringUtilities.h"
 #include "scisim/Utilities.h"
 
-HertzianPenaltyForce::HertzianPenaltyForce( const scalar& k )
+PenaltyForce::PenaltyForce( const scalar& k, const scalar& power )
 : m_k( k )
+, m_power( power )
 {
   assert( m_k > 0.0 );
 }
 
-HertzianPenaltyForce::HertzianPenaltyForce( std::istream& input_stream )
+PenaltyForce::PenaltyForce( const PenaltyForce& other )
+: m_k( other.m_k )
+, m_power( other.m_power )
+{
+  assert( m_k > 0.0 );
+}
+
+PenaltyForce::PenaltyForce( std::istream& input_stream )
 : m_k( Utilities::deserialize<scalar>( input_stream ) )
+, m_power( Utilities::deserialize<scalar>( input_stream ) )
 {
   assert( m_k > 0.0 );
 }
 
-HertzianPenaltyForce::~HertzianPenaltyForce()
+PenaltyForce::~PenaltyForce()
 {}
 
-scalar HertzianPenaltyForce::computePotential( const VectorXs& q, const SparseMatrixsc& M, const VectorXs& r ) const
+scalar PenaltyForce::computePotential( const VectorXs& q, const SparseMatrixsc& M, const VectorXs& r ) const
 {
   assert( q.size() % 2 == 0 ); assert( q.size() == M.rows() ); assert( q.size() == M.cols() ); assert( r.size() == q.size() / 2 );
 
@@ -46,15 +55,15 @@ scalar HertzianPenaltyForce::computePotential( const VectorXs& q, const SparseMa
       // Compute the penetration depth
       const scalar delta{ n.norm() - total_radius };
       assert( delta < 0.0 );
-      // U = 0.5 * k * pen_depth^(5/2)
-      U += 0.5 * m_k * std::pow( -delta, scalar( 2.5 ) );
+      // U = 0.5 * k * pen_depth ^ power
+      U += 0.5 * m_k * std::pow( -delta, m_power );
     }
   }
 
   return U;
 }
 
-void HertzianPenaltyForce::computeForce( const VectorXs& q, const VectorXs& v, const SparseMatrixsc& M, const VectorXs& r, VectorXs& result ) const
+void PenaltyForce::computeForce( const VectorXs& q, const VectorXs& v, const SparseMatrixsc& M, const VectorXs& r, VectorXs& result ) const
 {
   assert( q.size() % 2 == 0 ); assert( q.size() == v.size() ); assert( q.size() == M.rows() );
   assert( q.size() == M.cols() ); assert( r.size() == q.size() / 2 ); assert( q.size() == result.size() );
@@ -85,21 +94,23 @@ void HertzianPenaltyForce::computeForce( const VectorXs& q, const VectorXs& v, c
       d -= total_radius;
       assert( d < 0.0 );
       // F = 5 * k * pen_depth^(3/2) * n
-      const Vector2s F{ ( 5.0 / 4.0 ) * m_k * std::pow( -d, scalar( 1.5 ) ) * n };
+      // F = 0.5 * k * power * pen_depth ^ ( power - 1.0 )
+      const Vector2s F{ 0.5 * m_k * m_power * std::pow( -d, m_power - 1.0 ) * n };
       result.segment<2>( 2 * ball1 ) += F;
       result.segment<2>( 2 * ball0 ) -= F;
     }
   }
 }
 
-std::unique_ptr<Ball2DForce> HertzianPenaltyForce::clone() const
+std::unique_ptr<Ball2DForce> PenaltyForce::clone() const
 {
-  return std::unique_ptr<Ball2DForce>{ new HertzianPenaltyForce{ m_k } };
+  return std::unique_ptr<Ball2DForce>{ new PenaltyForce{ *this } };
 }
 
-void HertzianPenaltyForce::serialize( std::ostream& output_stream ) const
+void PenaltyForce::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
   StringUtilities::serializeString( "hertzian_penalty", output_stream );
   Utilities::serializeBuiltInType( m_k, output_stream );
+  Utilities::serializeBuiltInType( m_power, output_stream );
 }

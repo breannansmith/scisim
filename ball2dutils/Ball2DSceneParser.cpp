@@ -1,7 +1,7 @@
 // Ball2DSceneParser.cpp
 //
 // Breannan Smith
-// Last updated: 09/22/2015
+// Last updated: 10/11/2015
 
 #include "Ball2DSceneParser.h"
 
@@ -12,7 +12,7 @@
 
 #include "ball2d/Forces/Ball2DForce.h"
 #include "ball2d/Forces/Ball2DGravityForce.h"
-#include "ball2d/Forces/HertzianPenaltyForce.h"
+#include "ball2d/Forces/PenaltyForce.h"
 #include "ball2d/StaticGeometry/StaticDrum.h"
 #include "ball2d/StaticGeometry/StaticPlane.h"
 #include "ball2d/Portals/PlanarPortal.h"
@@ -1338,10 +1338,12 @@ static bool loadGravityForce( const rapidxml::xml_node<>& node, std::vector<std:
   return true;
 }
 
-static bool loadHertzianPenaltyForce( const rapidxml::xml_node<>& node, std::vector<std::unique_ptr<Ball2DForce>>& forces )
+static bool loadPenaltyForce( const rapidxml::xml_node<>& node, std::vector<std::unique_ptr<Ball2DForce>>& forces )
 {
+  // TODO: Rename hertzian_penalty to penalty
   for( rapidxml::xml_node<>* nd = node.first_node( "hertzian_penalty" ); nd; nd = nd->next_sibling( "hertzian_penalty" ) )
   {
+    // TODO: Rename k to stiffness
     const rapidxml::xml_attribute<>* k_attrib{ nd->first_attribute( "k" ) };
     if( !k_attrib )
     {
@@ -1354,8 +1356,10 @@ static bool loadHertzianPenaltyForce( const rapidxml::xml_node<>& node, std::vec
       std::cerr << "Failed to load k attribute for hertzian_penalty. Value must be a positive scalar." << std::endl;
       return false;
     }
-    
-    forces.emplace_back( new HertzianPenaltyForce{ k } );
+    // TODO: Load the power of the penalty force here
+    const scalar penalty_power{ 3.0 / 2.0 };
+
+    forces.emplace_back( new PenaltyForce{ k, penalty_power } );
   }
   
   return true;
@@ -1405,9 +1409,9 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::st
   }
 
   // Attempt to load a hertzian penalty force
-  if( !loadHertzianPenaltyForce( root_node, forces ) )
+  if( !loadPenaltyForce( root_node, forces ) )
   {
-    std::cerr << "Failed to load hertzian penalty force: " << file_name << std::endl;
+    std::cerr << "Failed to load penalty force: " << file_name << std::endl;
     return false;
   }
 

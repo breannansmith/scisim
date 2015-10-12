@@ -4,7 +4,7 @@ set( Sources
   Constraints/BallStaticDrumConstraint.cpp
   Constraints/BallStaticPlaneConstraint.cpp
   Constraints/KinematicKickBallBallConstraint.cpp
-  Forces/HertzianPenaltyForce.cpp
+  Forces/PenaltyForce.cpp
   Forces/Ball2DForce.cpp
   Forces/Ball2DGravityForce.cpp
   PythonScripting.cpp
@@ -25,7 +25,7 @@ set( Headers
   Constraints/BallStaticDrumConstraint.h
   Constraints/BallStaticPlaneConstraint.h
   Constraints/KinematicKickBallBallConstraint.h
-  Forces/HertzianPenaltyForce.h
+  Forces/PenaltyForce.h
   Forces/Ball2DForce.h
   Forces/Ball2DGravityForce.h
   PythonScripting.h
