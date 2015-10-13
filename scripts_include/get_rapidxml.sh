@@ -8,10 +8,10 @@ extracted_rapidxml_name="rapidxml-1.13"
 actual_installed_rapidxml_md5="d698fa3e3547874766de5ba8cb2177c9"
 
 # Verify that wget is installed
-command -v wget >/dev/null 2>&1 || { echo >&2 "Error, please install wget and rerun this script."; exit 1; }
+command -v wget >/dev/null 2>&1 || { echo >&2 "Error, please install wget and rerun get_rapidxml.sh."; exit 1; }
 
 # Verify that md5sum is installed
-command -v md5sum >/dev/null 2>&1 || { echo >&2 "Error, please install md5sum and rerun this script."; exit 1; }
+command -v md5sum >/dev/null 2>&1 || { echo >&2 "Error, please install md5sum and rerun get_rapidxml.sh."; exit 1; }
 
 # If the output directory exists
 if [ -d "include/rapidxml" ]; then
@@ -24,7 +24,7 @@ if [ -d "include/rapidxml" ]; then
   fi
   # Warn the user and exit
   #
-  echo "Error, directory include/rapidxml exists, please manually delete include/rapidxml and rerun this script."
+  echo "Error, directory include/rapidxml exists, please manually delete include/rapidxml and rerun get_rapidxml.sh."
   exit 1
 fi
 
@@ -45,7 +45,7 @@ trap cleanup EXIT
 
 # Download RapidXml
 echo "Downloading RapidXml source"
-wget "$rapidxml_url" -P "$temp_dir_name"
+wget -q "$rapidxml_url" -P "$temp_dir_name"
 
 # Run a checksum on the download
 echo "Verifying RapidXml checksum"
@@ -57,8 +57,10 @@ fi
 
 # Extract the zip archive
 echo "Extracting RapidXml"
-unzip "$temp_dir_name"/"$rapidxml_file_name" -d "$temp_dir_name"
+unzip -q "$temp_dir_name"/"$rapidxml_file_name" -d "$temp_dir_name"
 # Move the source to its final location
 echo "Moving RapidXml to destination"
 mkdir -p include/rapidxml
 mv $temp_dir_name/$extracted_rapidxml_name/*.hpp include/rapidxml/
+
+echo "Successfully installed RapidXml"

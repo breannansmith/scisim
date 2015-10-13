@@ -52,12 +52,12 @@ trap cleanup EXIT
 
 # Download So-bogus
 echo "Downloading So-bogus source"
-git clone $sobogus_url $temp_dir_name/so_bogus
+git clone $sobogus_url $temp_dir_name/so_bogus --quiet
 cd $temp_dir_name/so_bogus
 # Simpler, but requires git 1.8 (servers on 1.7)
 #git reset --hard a0710cf -C $temp_dir_name/so_bogus
-git reset --hard a0710cf 
-cd -
+git reset --hard a0710cf --quiet
+cd - > /dev/null
 
 # Run a checksum on the download
 echo "Verifying So-bogus checksum"
@@ -68,7 +68,7 @@ then
 fi
 
 # Patch the So-bogus source
-patch -d $temp_dir_name/so_bogus/src -p1 < scripts_include/sobogus_patch.patch
+patch -d $temp_dir_name/so_bogus/src -p1 --quiet < scripts_include/sobogus_patch.patch
 
 # Run a checksum on the patched download
 echo "Verifying patched So-bogus checksum"
@@ -87,3 +87,5 @@ cp -r $temp_dir_name/so_bogus/src/Extra include/sobogus
 cp $temp_dir_name/so_bogus/src/Interfaces/FrictionProblem.hpp scisim/ConstrainedMaps/bogus
 cp $temp_dir_name/so_bogus/src/Interfaces/FrictionProblem.cpp scisim/ConstrainedMaps/bogus
 cp $temp_dir_name/so_bogus/src/Interfaces/FrictionProblem.impl.hpp scisim/ConstrainedMaps/bogus
+
+echo "Successfully installed So-bogus"

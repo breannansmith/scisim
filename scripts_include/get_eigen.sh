@@ -8,10 +8,10 @@ extracted_eigen_name="eigen-eigen-bdd17ee3b1b3"
 actual_installed_eigen_md5="2539903ddef842de07c5a6047922ee8b"
 
 # Verify that wget is installed
-command -v wget >/dev/null 2>&1 || { echo >&2 "Error, please install wget and rerun this script."; exit 1; }
+command -v wget >/dev/null 2>&1 || { echo >&2 "Error, please install wget and rerun get_eigen.sh."; exit 1; }
 
 # Verify that md5sum is installed
-command -v md5sum >/dev/null 2>&1 || { echo >&2 "Error, please install md5sum and rerun this script."; exit 1; }
+command -v md5sum >/dev/null 2>&1 || { echo >&2 "Error, please install md5sum and rerun get_eigen.sh."; exit 1; }
 
 # If the output directory exists
 if [ -d "include/eigen" ]; then
@@ -23,7 +23,7 @@ if [ -d "include/eigen" ]; then
     exit 0
   fi
   # Otherwise, warn the user and exit
-  echo "Error, directory include/eigen exists, please manually delete include/eigen manually and rerun this script."
+  echo "Error, directory include/eigen exists, please manually delete include/eigen manually and rerun get_eigen.sh."
   exit 1
 fi
 
@@ -44,7 +44,7 @@ trap cleanup EXIT
 
 # Download Eigen
 echo "Downloading Eigen source"
-wget "$eigen_url" -P "$temp_dir_name"
+wget -q "$eigen_url" -P "$temp_dir_name"
 
 # Run a checksum on the download
 echo "Verifying Eigen checksum"
@@ -62,3 +62,5 @@ echo "Moving Eigen to destination"
 mkdir -p include/eigen
 mv $temp_dir_name/$extracted_eigen_name/Eigen include/eigen/
 mv $temp_dir_name/$extracted_eigen_name/signature_of_eigen3_matrix_library include/eigen/
+
+echo "Successfully installed Eigen"
