@@ -3,7 +3,9 @@ Updates
 
 * Update all GUIs to Qt5.
 
-  * Upgrading to Qt5 should fix numerous issues on OS X (including improved retina support, etc).
+  * Upgrading to Qt5 should fix numerous issues on OS X (including improved retina support, bugs with regards to keyboard input and menus, etc).
+
+* Restore support for energy and momentum tracking from the GUI
 
 * Update Python callbacks to Python 3.
 
