@@ -28,27 +28,29 @@ if [ -d "include/rapidxml" ]; then
   exit 1
 fi
 
+echo "Installing RapidXml"
+
 # Create a temporary working directory
 temp_dir_name=`uuidgen`
 if [ -d "$temp_dir_name" ]; then
   echo "Error, temporary working directory $temp_dir_name exists, this is a bug. Please contact the maintainer."
   exit 1
 fi
-echo "Creating temporary directory $temp_dir_name"
+echo "--->  Creating temporary directory $temp_dir_name"
 mkdir $temp_dir_name
 
 function cleanup {
-  echo "Removing temporary directory $temp_dir_name"
+  echo "--->  Removing temporary directory $temp_dir_name"
   rm -fr "$temp_dir_name"
 }
 trap cleanup EXIT
 
 # Download RapidXml
-echo "Downloading RapidXml source"
+echo "--->  Downloading RapidXml source"
 wget -q "$rapidxml_url" -P "$temp_dir_name"
 
 # Run a checksum on the download
-echo "Verifying RapidXml checksum"
+echo "--->  Verifying RapidXml checksum"
 computed_rapidxml_zip_md5=`md5sum $temp_dir_name/$rapidxml_file_name | cut -c -32`
 if [ "$actual_rapidxml_zip_md5" != "$computed_rapidxml_zip_md5" ]
 then
@@ -56,11 +58,13 @@ then
 fi
 
 # Extract the zip archive
-echo "Extracting RapidXml"
+echo "--->  Extracting RapidXml"
 unzip -q "$temp_dir_name"/"$rapidxml_file_name" -d "$temp_dir_name"
 # Move the source to its final location
-echo "Moving RapidXml to destination"
+echo "--->  Moving RapidXml to destination"
 mkdir -p include/rapidxml
 mv $temp_dir_name/$extracted_rapidxml_name/*.hpp include/rapidxml/
 
+trap - EXIT
+cleanup
 echo "Successfully installed RapidXml"

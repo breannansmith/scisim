@@ -27,27 +27,29 @@ if [ -d "include/eigen" ]; then
   exit 1
 fi
 
+echo "Installing Eigen"
+
 # Create a temporary working directory
 temp_dir_name=`uuidgen`
 if [ -d "$temp_dir_name" ]; then
   echo "Error, temporary working directory $temp_dir_name exists, this is a bug. Please contact the maintainer."
   exit 1
 fi
-echo "Creating temporary directory $temp_dir_name"
+echo "--->  Creating temporary directory $temp_dir_name"
 mkdir $temp_dir_name
 
 function cleanup {
-  echo "Removing temporary directory $temp_dir_name"
+  echo "--->  Removing temporary directory $temp_dir_name"
   rm -fr "$temp_dir_name"
 }
 trap cleanup EXIT
 
 # Download Eigen
-echo "Downloading Eigen source"
+echo "--->  Downloading Eigen source"
 wget -q "$eigen_url" -P "$temp_dir_name"
 
 # Run a checksum on the download
-echo "Verifying Eigen checksum"
+echo "--->  Verifying Eigen checksum"
 computed_eigen_tar_md5=`md5sum $temp_dir_name/$eigen_file_name | cut -c -32`
 if [ "$actual_eigen_tar_md5" != "$computed_eigen_tar_md5" ]
 then
@@ -55,12 +57,14 @@ then
 fi
 
 # Extract the tar archive
-echo "Extracting Eigen"
+echo "--->  Extracting Eigen"
 tar -xf "$temp_dir_name"/"$eigen_file_name" -C "$temp_dir_name"
 # Move the source to its final location
-echo "Moving Eigen to destination"
+echo "--->  Moving Eigen to destination"
 mkdir -p include/eigen
 mv $temp_dir_name/$extracted_eigen_name/Eigen include/eigen/
 mv $temp_dir_name/$extracted_eigen_name/signature_of_eigen3_matrix_library include/eigen/
 
+trap - EXIT
+cleanup
 echo "Successfully installed Eigen"

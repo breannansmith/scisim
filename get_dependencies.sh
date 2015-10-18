@@ -1,11 +1,14 @@
 #!/bin/bash
 
-echo "Downloading and installing Eigen."
+command -v wget >/dev/null 2>&1 || { echo >&2 "Error, please install wget and rerun get_dependencies.sh."; exit 1; }
+command -v git >/dev/null 2>&1 || { echo >&2 "Error, please install git and rerun get_dependencies.sh."; exit 1; }
+command -v md5sum >/dev/null 2>&1 || { echo >&2 "Error, please install md5sum and rerun get_dependencies.sh."; exit 1; }
+
 ./scripts_include/get_eigen.sh
 echo ""
-echo "Downloading and installing RapidXml."
 ./scripts_include/get_rapidxml.sh
 echo ""
-echo "Downloading and installing So-bogus."
 ./scripts_include/get_sobogus.sh
+echo ""
+echo "All dependencies successfully installed."
 echo ""
