@@ -453,13 +453,13 @@ void SobogusFrictionProblem::solve3D( const std::vector<std::unique_ptr<Constrai
     }
     // Add contribution to f from current friction force to angular momentum
     const Vector3s stilde0{ m_H_0_store.block<1,3>( 3 * clsn_idx + 1, 3 ) };
-    const Vector3s ttilde0{ m_H_0_store.block<1,3>( 3 * clsn_idx + 1, 3 ) };
+    const Vector3s ttilde0{ m_H_0_store.block<1,3>( 3 * clsn_idx + 2, 3 ) };
     const Vector3s f0_torque{ beta0_local * stilde0 + beta1_local * ttilde0 };
     f.segment<3>( 3 * m_num_bodies + 3 * object_ids.first ) += f0_torque;
     if( object_ids.second >= 0 )
     {
       const Vector3s stilde1{ m_H_1_store.block<1,3>( 3 * clsn_idx + 1, 3 ) };
-      const Vector3s ttilde1{ m_H_1_store.block<1,3>( 3 * clsn_idx + 1, 3 ) };
+      const Vector3s ttilde1{ m_H_1_store.block<1,3>( 3 * clsn_idx + 2, 3 ) };
       const Vector3s f1_torque{ beta0_local * stilde1 + beta1_local * ttilde1 };
       f.segment<3>( 3 * m_num_bodies + 3 * object_ids.second ) -= f1_torque;
     }
