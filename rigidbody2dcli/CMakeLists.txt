@@ -29,7 +29,7 @@ if( USE_HDF5 )
   add_test( rigidbody2d_serialization_18 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/vertical_no_horizontal_with_rotation_1.xml 1.5 150 098 100 )
   add_test( rigidbody2d_serialization_19 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/portal_lots_of_collisions.xml 10.0 1000 0374 100 )
 else()
-  message( STATUS "Skipping Ball2D tests that require HDF5 (USE_HDF5 is disabled)." )
+  message( STATUS "Skipping RigidBody2D tests that require HDF5 (USE_HDF5 is disabled)." )
 endif()
 
 # Serialization tests for simulations that use Ipopt
