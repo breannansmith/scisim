@@ -231,6 +231,7 @@ void StaggeredProjections::solve( const unsigned iteration, const scalar& dt, co
   assert( v0.size() == M.cols() ); assert( vout.size() == v0.size() );
   assert( contact_bases.cols() % contact_bases.rows() == 0 );
   assert( active_set.size() == unsigned( contact_bases.cols() / contact_bases.rows() ) );
+  assert( beta.size() == contact_bases.cols() - alpha.size() );
 
   // Friction basis
   SparseMatrixsc D;
@@ -350,7 +351,7 @@ void StaggeredProjections::solve( const unsigned iteration, const scalar& dt, co
     beta = best_beta;
     alpha = best_alpha;
     vout = v0 + Minv * ( N * alpha + D * beta );
-    std::cerr << "Warning, staggered projections solve failed, falling back to solution at iteration " << best_iteration << std::endl;
+    std::cerr << "Warning, staggered projections failed with best error " << error << ", falling back to best solution at iteration " << best_iteration << std::endl;
   }
   assert( ( beta.array() == best_beta.array() ).all() );
   assert( ( f - D * beta ).lpNorm<Eigen::Infinity>() <= 1.0e-10 );
