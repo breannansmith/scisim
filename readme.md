@@ -7,7 +7,7 @@ Welcome to **SCISim** (pronounced skiz-em), the Structured Contact Impact Simula
 Required Dependencies
 ---------------------
 
-SCISim requires three dependencies for a minimal build: 
+SCISim requires three dependencies for a minimal build:
 
 * [RapidXML](http://rapidxml.sourceforge.net/): An XML parser to read simulation descriptions.
 
@@ -15,7 +15,7 @@ SCISim requires three dependencies for a minimal build:
 
 * [So-bogus](https://bitbucket.org/gdaviet/so-bogus): A non-smooth Coulomb friction solver.
 
-We provide a 'get_dependencies.sh' script to automatically download, verify, and extract the supported versions of these libraries. 
+We provide a 'get_dependencies.sh' script to automatically download, verify, and extract the supported versions of these libraries.
 
 
 Recommended Dependencies
@@ -27,7 +27,7 @@ We recommend a few dependencies for full featured builds:
 
 * [HDF5](https://www.hdfgroup.org/HDF5/): A binary file format for configuration and force output. Available through most standard package managers.
 
-* [Ipopt](https://projects.coin-or.org/Ipopt): A nonlinear optimization package for global LCP solves, for the Staggered Projections friction solver, and for the Generalized Reflections and Generalized Restitution impact models. Ipopt requires a Fortran compiler.
+* [Ipopt](https://projects.coin-or.org/Ipopt): A nonlinear optimization package for global LCP solves, for the Staggered Projections friction solver, and for the Generalized Reflections and Generalized Restitution impact models. Ipopt requires a Fortran compiler. See the included [Ipopt build instructions](readme_ipopt.md).
 
 * [HSL2013](http://www.hsl.rl.ac.uk/ipopt/): A collection of sparse linear solvers suggested for use with Ipopt.
 
@@ -115,7 +115,7 @@ Platform Specific Issues
 * OS X
   * There are performance regressions with GCC and So-bogus when building with the GCC toolchain provided by MacPorts.
   * There are a number of strange behaviors with the Qt4 frontend when building against the version from MacPorts. I intend to upgrade to Qt5, which should remedy these issues.
-  * Building Ipopt with GCC is incompatible with building SCISim with Clang. 
+  * Building Ipopt with GCC is incompatible with building SCISim with Clang.
   * CMake will often pull in different versions of the Python interpreter and the Python library, requiring the user to explicitly pass the location of the Python library to CMake. For example, to build with MacPorts' Python 2.7:
 
             cmake -DPYTHON_LIBRARY=/opt/local/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=/opt/local/Library/Frameworks/Python.framework/Headers ..
@@ -134,63 +134,3 @@ For further details on the algorithms and models available in SCISim, see the fo
 * [*Staggered Projections for Frictional Contact in Multibody Systems*](http://www.cs.ubc.ca/labs/sensorimotor/projects/sp_sigasia08/)  
 [Danny M. Kaufman](http://www.adobe.com/technology/people/seattle/danny-kaufman.html), [Shinjiro Sueda](http://www.calpoly.edu/~ssueda/), [Doug L. James](http://www.cs.cornell.edu/~djames/), [Dinesh K. Pai](http://www.cs.ubc.ca/~pai/)
   * Describes the globally coupled Staggered Projections friction solver.
-
-
-Building Ipopt
---------------
-
-1. Create a directory in which to install Ipopt and export the path. Replace YOUR_INSTALL_DIR with the actual desired installation directory.
-
-        export IPOPT_DIR=YOUR_INSTALL_DIR
-
-2. Download Ipopt
-
-        wget http://www.coin-or.org/download/source/Ipopt/Ipopt-3.12.4.tgz
-
-3. Extract Ipopt
-
-        tar -xf Ipopt-3.12.4.tgz
-
-4. Download Metis
-
-        ./ThirdParty/Metis/get.Metis
-
-5. Download the HSL Solvers
-    1. Complete the registration form at http://www.hsl.rl.ac.uk/ipopt/ for HSL2013
-    2. When you receive an email with a download link, extract the archive coinhsl-2014.01.10.tar.gz to ThirdParty/HSL/coinhsl
-
-6. Create and change into a build directory
-
-7. Configure Ipopt (see examples below)
-
-8. Execute make
-
-9. Execute make test
-
-10. Check for errors
-
-11. Execute make install
-
-(Note that if you are building with GCC, but have the Intel compilers in your path via /opt/intel/iccvars.sh, the Ipopt settings get polluted with Intel includes, for some reaosn.)
-
-Some example configurations for Ipopt include:
-
-* MacPort GCC toolchain, OS X Accelerate framework, single threaded
-
-        ../configure CXX=g++-mp-5 CC=gcc-mp-5 F77=gfortran-mp-5 --with-blas="-framework accelerate" --prefix=$IPOPT_DIR
-
-* Intel compiler toolchain, MKL BLAS, multithreaded
-
-        ../configure CXX=icpc CC=icc F77=ifort ADD_CFLAGS=-openmp ADD_FFLAGS=-openmp ADD_CXXFLAGS=-openmp --with-blas="-L$MKLROOT/lib/intel64 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core" --prefix=$IPOPT_DIR
-
-* The Intel compiler toolchain with MKL BLAS and MKL Pardiso. Note that Pardiso support in Ipopt is still experimental.
-    
-        ../configure CXX=icpc CC=icc F77=ifort ADD_CXXFLAGS="-DHAVE_PARDISO_MKL -DHAVE_PARDISO_PARALLEL" --with-blas="-L${MKLROOT}/lib -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread -lpthread -lm" --with-pardiso="-L${MKLROOT}/lib -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread -lpthread -lm" --prefix=$IPOPT_DIR
-
-* The GCC compiler toolchain and MKL BLAS
-
-        ../configure CXX=g++ CC=gcc F77=gfortran ADD_CFLAGS=-fopenmp ADD_FFLAGS=-fopenmp ADD_CXXFLAGS=-fopenmp --with-blas="-L$MKLROOT/lib/intel64 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lm" --prefix=$IPOPT_DIR
-
-* To build with debug support, add the following to any of the above commands
-
-        --enable-debug -with-ipopt-checklevel=1
