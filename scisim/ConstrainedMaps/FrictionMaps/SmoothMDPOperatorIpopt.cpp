@@ -1,7 +1,7 @@
 // SmoothMDPOperatorIpopt.cpp
 //
 // Breannan Smith
-// Last updated: 09/22/2015
+// Last updated: 10/23/2015
 
 #include "SmoothMDPOperatorIpopt.h"
 
@@ -188,23 +188,23 @@ void SmoothMDPOperatorIpopt::flow( const scalar& t, const SparseMatrixsc& Minv, 
 
   // Check the optimality conditions
   // TODO: Replace with single call to min-map functional
-  #ifndef NDEBUG
-  {
-    VectorXs friction_disk_constraints( alpha.size() );
-    for( int con_num = 0; con_num < alpha.size(); ++con_num )
-    {
-      friction_disk_constraints( con_num ) = mu( con_num ) * alpha( con_num ) - beta.segment<2>( 2 * con_num ).norm();
-    }
-    assert( ( lambda.array() >= 0.0 ).all() );
-    assert( ( friction_disk_constraints.array() >= - 100000.0 * m_tol ).all() );
-    for( int con_num = 0; con_num < alpha.size(); ++con_num )
-    {
-      assert( fabs( lambda( con_num ) ) <= 100000.0 * m_tol || fabs( friction_disk_constraints( con_num ) ) <= 100000.0 * m_tol );
-    }
-    // || friction_disk_constraints ||_\inf can be big
-    //std::cout << "Friction Constraints: " << friction_disk_constraints.transpose() << std::endl;
-  }
-  #endif
+  //#ifndef NDEBUG
+  //{
+  //  VectorXs friction_disk_constraints( alpha.size() );
+  //  for( int con_num = 0; con_num < alpha.size(); ++con_num )
+  //  {
+  //    friction_disk_constraints( con_num ) = mu( con_num ) * alpha( con_num ) - beta.segment<2>( 2 * con_num ).norm();
+  //  }
+  //  assert( ( lambda.array() >= 0.0 ).all() );
+  //  assert( ( friction_disk_constraints.array() >= - 100000.0 * m_tol ).all() );
+  //  for( int con_num = 0; con_num < alpha.size(); ++con_num )
+  //  {
+  //    assert( fabs( lambda( con_num ) ) <= 100000.0 * m_tol || fabs( friction_disk_constraints( con_num ) ) <= 100000.0 * m_tol );
+  //  }
+  //  // || friction_disk_constraints ||_\inf can be big
+  //  //std::cout << "Friction Constraints: " << friction_disk_constraints.transpose() << std::endl;
+  //}
+  //#endif
 
 #else
   std::cerr << " Error, please rebuild with Ipopt support before executing SmoothMDPOperatorIpopt::flow." << std::endl;
