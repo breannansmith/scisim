@@ -1,7 +1,7 @@
 // RigidBody3DSceneParser.cpp
 //
 // Breannan Smith
-// Last updated: 09/22/2015
+// Last updated: 10/23/2015
 
 #include "RigidBody3DSceneParser.h"
 
@@ -1586,6 +1586,7 @@ static bool loadStaggeredProjectionsFrictionSolver( const rapidxml::xml_node<>& 
       }
       if( !loadLCPSolver( *impact_operator_node, impact_operator ) )
       {
+        std::cerr << "Failed to load LCP solver for staggered_projections_friction_solver" << std::endl;
         return false;
       }
     }
@@ -1601,6 +1602,7 @@ static bool loadStaggeredProjectionsFrictionSolver( const rapidxml::xml_node<>& 
       }
       if( !loadSmoothFrictionOperatorNoMu( *friction_operator_node, friction_operator ) )
       {
+        std::cerr << "Failed to load friction solver for staggered_projections_friction_solver" << std::endl;
         return false;
       }
     }
