@@ -34,7 +34,7 @@ else()
 endif()
 
 # Eigen3 is header only and required for callers of the scisim library
-find_package( Eigen3 3.2.5 REQUIRED )
+find_package( Eigen3 3.2.7 REQUIRED )
 target_include_directories( scisim SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR} )
 # Disable Eigen's built in multithreading as we will use OpenMP around Eigen
 target_compile_definitions( scisim PUBLIC EIGEN_DONT_PARALLELIZE )
