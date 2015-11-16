@@ -38,15 +38,13 @@ private:
   // For saving out constraint forces
   void exportConstraintForcesToBinary( const VectorXs& q, const std::vector<std::unique_ptr<Constraint>>& constraints, const MatrixXXsc& contact_bases, const VectorXs& alpha, const VectorXs& beta, const scalar& dt );
 
-  // True -> staggered projections, False -> So-bogus
-  bool m_use_staggered_projections;
-
   // Cached friction impulse from last solve
   VectorXs m_f;
 
   // SP solver controls
   scalar m_abs_tol;
   unsigned m_max_iters;
+
   // If true, initialize solve with alpha/beta from last time step, otherwise initialize alpha/beta to zero
   bool m_external_warm_start_alpha;
   bool m_external_warm_start_beta;

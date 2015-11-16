@@ -9,10 +9,7 @@
 #include <iostream>
 
 #include "scisim/Math/MathUtilities.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
-#include "scisim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
-#include "scisim/ConstrainedMaps/StaggeredProjections.h"
+#include "scisim/ConstrainedMaps/FrictionSolver.h"
 #include "scisim/Constraints/Constraint.h"
 #include "scisim/Constraints/ConstrainedSystem.h"
 #include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
@@ -21,8 +18,7 @@
 #include "scisim/Utilities.h"
 
 GeometricImpactFrictionMap::GeometricImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters, const bool external_warm_start_alpha, const bool external_warm_start_beta )
-: m_use_staggered_projections( true )
-, m_f( VectorXs::Zero( 0 ) )
+: m_f( VectorXs::Zero( 0 ) )
 , m_abs_tol( abs_tol )
 , m_max_iters( max_iters )
 , m_external_warm_start_alpha( external_warm_start_alpha )
@@ -34,8 +30,7 @@ GeometricImpactFrictionMap::GeometricImpactFrictionMap( const scalar& abs_tol, c
 }
 
 GeometricImpactFrictionMap::GeometricImpactFrictionMap( std::istream& input_stream )
-: m_use_staggered_projections( Utilities::deserialize<bool>( input_stream ) )
-, m_f( MathUtilities::deserialize<VectorXs>( input_stream ) )
+: m_f( MathUtilities::deserialize<VectorXs>( input_stream ) )
 , m_abs_tol( Utilities::deserialize<scalar>( input_stream ) )
 , m_max_iters( Utilities::deserialize<unsigned>( input_stream ) )
 , m_external_warm_start_alpha( Utilities::deserialize<bool>( input_stream ) )
@@ -68,7 +63,7 @@ void GeometricImpactFrictionMap::flow( ScriptingCallback& call_back, FlowableSys
   {
     if( m_write_constraint_forces )
     {
-      exportConstraintForcesToBinary( q0, active_set, MatrixXXsc( fsys.ambientSpaceDimensions(), 0 ), VectorXs::Zero(0), VectorXs::Zero(0), dt );
+      exportConstraintForcesToBinary( q0, active_set, MatrixXXsc{ fsys.ambientSpaceDimensions(), 0 }, VectorXs::Zero(0), VectorXs::Zero(0), dt );
     }
     m_write_constraint_forces = false;
     m_constraint_force_stream = nullptr;
@@ -130,39 +125,6 @@ void GeometricImpactFrictionMap::flow( ScriptingCallback& call_back, FlowableSys
     }
   }
 
-  //{
-  //  VectorXs bogus_f( m_f.size() );
-  //  VectorXs bogus_alpha( alpha.size() );
-  //  VectorXs bogus_beta( 2 * alpha.size() );
-  //  VectorXs bogus_v2( v2.size() );
-  //  scalar bogus_error;
-  //  bool bogus_success;
-  //  Sobogus so_bogus;
-  //  so_bogus.solve( iteration * dt, fsys, fsys.M(), fsys.Minv(), CoR, mu, q0, v0, active_set, contact_bases, 0, m_abs_tol, bogus_f, bogus_alpha, bogus_beta, bogus_v2, bogus_success, bogus_error );
-  //  if( ( bogus_alpha - alpha ).lpNorm<Eigen::Infinity>() > 1.0e-6 || ( bogus_beta - beta ).lpNorm<Eigen::Infinity>() > 1.0e-6 ||
-  //            ( v2 - bogus_v2 ).lpNorm<Eigen::Infinity>() > 1.0e-6 )
-  //  {
-  //    std::cout << "Failure time: " << iteration * dt << std::endl;
-  //    //std::cout << "delta alpha: " << ( alpha - bogus_alpha ).lpNorm<Eigen::Infinity>() << std::endl;
-  //    std::cout << "      alpha: " << alpha.transpose() << std::endl;
-  //    std::cout << "bogus_alpha: " << bogus_alpha.transpose() << std::endl;
-  //    std::cout << "      beta: " << beta.transpose() << std::endl;
-  //    std::cout << "bogus_beta: " << bogus_beta.transpose() << std::endl;
-  //    //std::cout << "    delta f: " << ( m_f - bogus_f ).lpNorm<Eigen::Infinity>() << std::endl;
-  //    std::cout << "          f: " << m_f.transpose() << std::endl;
-  //    std::cout << "    bogus_f: " << bogus_f.transpose() << std::endl;
-  //    std::cout << "         v2: " << v2.transpose() << std::endl;
-  //    std::cout << "   bogus_v2: " << bogus_v2.transpose() << std::endl;
-  //    std::cout << "   delta_v2: " << ( v2 - bogus_v2 ).lpNorm<Eigen::Infinity>() << std::endl;
-  //    std::cout << "      error: " << error << std::endl;
-  //    std::cout << "bogus_error: " << bogus_error << std::endl;
-  //  }
-  //  assert( ( alpha - bogus_alpha ).lpNorm<Eigen::Infinity>() <= 1.0e-6 );
-  //  assert( ( beta - bogus_beta ).lpNorm<Eigen::Infinity>() <= 1.0e-6 );
-  //  assert( ( m_f - bogus_f ).lpNorm<Eigen::Infinity>() <= 1.0e-6 );
-  //  assert( ( v2 - bogus_v2 ).lpNorm<Eigen::Infinity>() <= 1.0e-6 );
-  //}
-
   // Verify that momentum and angular momentum are conserved
   #ifndef NDEBUG
   if( momentum_should_be_conserved )
@@ -209,41 +171,6 @@ void GeometricImpactFrictionMap::flow( ScriptingCallback& call_back, FlowableSys
   umap.flow( q0, v2, fsys, iteration, dt, q1, v1 );
 }
 
-//{
-//    if( m_use_staggered_projections )
-//    {
-//      StaggeredProjections::solve( fsys.M(), fsys.Minv(), N, gdotN, CoR, D, gdotD, mu, q0, v0, active_set, m_max_iters, m_abs_tol, m_internal_warm_start_alpha, m_internal_warm_start_beta, imap, fmap, m_f, alpha, beta, solve_succeeded, error );
-//    }
-//    else
-//    {
-//      Sobogus::solve( fsys.M(), q0, v0, active_set, CoR, mu, m_abs_tol, m_f, alpha, beta, solve_succeeded, error );
-//    }
-//    assert( ( m_f - D * beta ).lpNorm<Eigen::Infinity>() <= 1.0e-10 );
-
-//VectorXs bogus_lambda( mu.size() );
-//recoverLambda( active_set, q0, v0, fsys.Minv(), N, bogus_alpha, D, bogus_beta, bogus_lambda );
-//VectorXs sp_lambda( mu.size() );
-//recoverLambda( active_set, q0, v0, fsys.Minv(), N, alpha, D, beta, sp_lambda );
-//{
-//const scalar sp_error = fabs( StaggeredProjections::globalObjective( active_set, fsys.Minv(), q0, v0, CoR, mu, N, alpha, D, beta, gdotN, gdotD ) );
-//assert( sp_error == error );
-//const scalar sb_error = fabs( StaggeredProjections::globalObjective( active_set, fsys.Minv(), q0, v0, CoR, mu, N, bogus_alpha, D, bogus_beta, gdotN, gdotD ) );
-//std::cout << "bogus_alpha: " << bogus_alpha.transpose() << std::endl;
-//std::cout << "stagg_alpha: " << alpha.transpose() << std::endl;
-//std::cout << "delta_alpha: " << ( bogus_alpha - alpha ).transpose() << std::endl;
-//std::cout << "bogus_beta: " << bogus_beta.transpose() << std::endl;
-//std::cout << "stagg_beta: " << beta.transpose() << std::endl;
-//std::cout << "bf: " << bogus_f.transpose() << std::endl;
-//std::cout << "sf: " << m_f.transpose() << std::endl;
-//std::cout << "bogus_error: " << bogus_error << std::endl;
-//std::cout << "stagg_error: " << error << std::endl;
-//}
-//assert( ( bogus_alpha - alpha ).lpNorm<Eigen::Infinity>() <= 1.0e-6 );
-//assert( ( bogus_beta - beta ).lpNorm<Eigen::Infinity>() <= 1.0e-6 );
-//assert( ( bogus_lambda - sp_lambda ).lpNorm<Eigen::Infinity>() <= 1.0e-6 );
-//assert( ( bogus_f - m_f ).lpNorm<Eigen::Infinity>() <= 1.0e-6 );
-//}
-
 void GeometricImpactFrictionMap::resetCachedData()
 {
   m_f = VectorXs::Zero( 0 );
@@ -259,7 +186,6 @@ void GeometricImpactFrictionMap::exportConstraintForcesToBinary( const VectorXs&
 void GeometricImpactFrictionMap::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
-  Utilities::serializeBuiltInType( m_use_staggered_projections, output_stream );
   MathUtilities::serialize( m_f, output_stream );
   Utilities::serializeBuiltInType( m_abs_tol, output_stream );
   Utilities::serializeBuiltInType( m_max_iters, output_stream );
