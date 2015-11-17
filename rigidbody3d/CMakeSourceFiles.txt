@@ -16,6 +16,7 @@ set( Sources
   UnconstrainedMaps/SplitHamMap.cpp
   UnconstrainedMaps/DMVMap.cpp
   UnconstrainedMaps/ExponentialEulerMap.cpp
+  UnconstrainedMaps/IntegrationTools.cpp
   Constraints/CollisionUtilities.cpp
   Constraints/SphereSphereConstraint.cpp
   Constraints/SphereBodyConstraint.cpp
@@ -56,6 +57,7 @@ set( Headers
   UnconstrainedMaps/SplitHamMap.h
   UnconstrainedMaps/DMVMap.h
   UnconstrainedMaps/ExponentialEulerMap.h
+  UnconstrainedMaps/IntegrationTools.h
   Constraints/CollisionUtilities.h
   Constraints/SphereSphereConstraint.h
   Constraints/SphereBodyConstraint.h

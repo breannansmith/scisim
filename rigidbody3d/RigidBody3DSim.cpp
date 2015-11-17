@@ -36,6 +36,7 @@
 #include "Constraints/KinematicObjectBodyConstraint.h"
 #include "Constraints/CollisionUtilities.h"
 #include "StaticGeometry/StaticCylinder.h"
+#include "UnconstrainedMaps/IntegrationTools.h"
 #include "SpatialGridDetector.h"
 #include "Portals/PlanarPortal.h"
 #include "StateOutput.h"
@@ -193,6 +194,11 @@ void RigidBody3DSim::computeForce( const VectorXs& q, const VectorXs& v, const s
   {
     m_sim_state.forces()[frc_idx]->computeForce( m_sim_state.q(), m_sim_state.v(), m_sim_state.M(), F );
   }
+}
+
+void RigidBody3DSim::linearInertialConfigurationUpdate( const VectorXs& q0, const VectorXs& v0, const scalar& dt, VectorXs& q1 ) const
+{
+  IntegrationTools::exponentialEuler( q0, v0, dt, q1 );
 }
 
 const SparseMatrixsc& RigidBody3DSim::M() const

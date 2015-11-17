@@ -1,0 +1,24 @@
+<rigidbody2d_scene>
+
+  <camera center="0.135874 1.05179" scale="1.4" fps="50" render_at_fps="0" locked="0"/>
+
+  <integrator type="symplectic_euler" dt="0.01"/>
+
+  <sobogus_friction_solver mu="0.5" CoR="0.0" max_iters="5000" tol="1.0e-12" eval_every="1" staggering="stabilized"/>
+
+  <near_earth_gravity f="0.0 -10.0"/>
+
+  <static_plane x="0 0" n="1 1"/>
+  <static_plane x="0 0" n="-1 1"/>
+
+  <geometry type="circle" r="0.25"/>
+  <geometry type="circle" r="0.35"/>
+  <geometry type="circle" r="0.25"/>
+  <geometry type="circle" r="0.30"/>
+
+  <rigid_body x="1.0 2.0" theta="0" v="0 0" omega="0" rho="1" geo_idx="0"/>
+  <rigid_body x="-0.5 1.25" theta="0" v="0 0" omega="0" rho="1" geo_idx="1"/>
+  <rigid_body x="0.1 0.5" theta="0" v="0 0" omega="0" rho="1" geo_idx="2"/>
+  <rigid_body x="-0.2 1.9" theta="0" v="0 0" omega="0" rho="1" geo_idx="3"/>
+
+</rigidbody2d_scene>

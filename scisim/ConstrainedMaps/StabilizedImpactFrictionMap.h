@@ -1,7 +1,7 @@
 // StabilizedImpactFrictionMap.h
 //
 // Breannan Smith
-// Last updated: 09/21/2015
+// Last updated: 11/16/2015
 
 #ifndef STABILIZED_IMPACT_FRICTION_MAP_H
 #define STABILIZED_IMPACT_FRICTION_MAP_H
@@ -12,14 +12,15 @@ class Constraint;
 class HDF5File;
 class FrictionSolver;
 
-class StabilizedImpactFrictionMap : public ImpactFrictionMap
+class StabilizedImpactFrictionMap final : public ImpactFrictionMap
 {
 
 public:
 
-  StabilizedImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters );
+  StabilizedImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters, const bool external_warm_start_alpha, const bool external_warm_start_beta );
   explicit StabilizedImpactFrictionMap( std::istream& input_stream );
-  virtual ~StabilizedImpactFrictionMap() override;
+
+  virtual ~StabilizedImpactFrictionMap() override = default;
 
   virtual void flow( ScriptingCallback& call_back, FlowableSystem& fsys, ConstrainedSystem& csys, UnconstrainedMap& umap, FrictionSolver& friction_solver, const unsigned iteration, const scalar& dt, const scalar& CoR_default, const scalar& mu_default, const VectorXs& q0, const VectorXs& v0, VectorXs& q1, VectorXs& v1 ) override;
 
@@ -35,7 +36,7 @@ public:
 private:
 
   // For saving out constraint forces
-  [[noreturn]] void exportConstraintForcesToBinary( const unsigned ambient_space_dims, const VectorXs& q, const std::vector<std::unique_ptr<Constraint>>& constraints, const SparseMatrixsc& N, const VectorXs& alpha, const SparseMatrixsc& D, const VectorXs& beta, const scalar& dt );
+  void exportConstraintForcesToBinary( const VectorXs& q, const std::vector<std::unique_ptr<Constraint>>& constraints, const MatrixXXsc& contact_bases, const VectorXs& alpha, const VectorXs& beta, const scalar& dt );
 
   // Cached friction impulse from last solve
   VectorXs m_f;
@@ -43,6 +44,10 @@ private:
   // SP solver controls
   scalar m_abs_tol;
   unsigned m_max_iters;
+
+  // If true, initialize solve with alpha/beta from last time step, otherwise initialize alpha/beta to zero
+  bool m_external_warm_start_alpha;
+  bool m_external_warm_start_beta;
 
   // Temporary state for writing constraint forces
   bool m_write_constraint_forces;

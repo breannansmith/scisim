@@ -1151,7 +1151,7 @@ static bool loadStaggeredProjectionsFrictionSolver( const rapidxml::xml_node<>& 
     }
     else if( staggering_type == "stabilized" )
     {
-      if_map.reset( new StabilizedImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ) } );
+      if_map.reset( new StabilizedImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ), false, false } );
     }
     else
     {
@@ -1305,7 +1305,7 @@ static bool loadSobogusFrictionSolver( const rapidxml::xml_node<>& node, std::un
   }
   else if( staggering_type == "stabilized" )
   {
-    if_map.reset( new StabilizedImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ) } );
+    if_map.reset( new StabilizedImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ), false, false } );
   }
   else
   {

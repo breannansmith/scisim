@@ -30,6 +30,9 @@ public:
   // Given positions and velocities, computes the force acting on the DoFs, overwriting the contents of F
   virtual void computeForce( const VectorXs& q, const VectorXs& v, const scalar& t, VectorXs& F ) = 0;
 
+  // Updates the configuration at q0 to q1 using v0 and dt with a linear update.
+  virtual void linearInertialConfigurationUpdate( const VectorXs& q0, const VectorXs& v0, const scalar& dt, VectorXs& q1 ) const = 0;
+
   // Returns the mass matrix as a sparse matrix
   virtual const SparseMatrixsc& M() const = 0;
   // Returns the inverse mass matrix as a sparse matrix

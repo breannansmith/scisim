@@ -128,6 +128,7 @@ static bool loadSimState( const rapidxml::xml_node<>& node, RigidBody3DState& si
       const rapidxml::xml_attribute<>* const attrib{ nd->first_attribute( "type" ) };
       if( !attrib )
       {
+        std::cerr << "Invalid type" << std::endl;
         return false;
       }
       geom_type = attrib->value();
@@ -282,6 +283,7 @@ static bool loadSimState( const rapidxml::xml_node<>& node, RigidBody3DState& si
       const rapidxml::xml_attribute<>* const attrib{ nd->first_attribute( "x" ) };
       if( !attrib )
       {
+        std::cerr << "Failed to load x" << std::endl;
         return false;
       }
 
@@ -295,6 +297,7 @@ static bool loadSimState( const rapidxml::xml_node<>& node, RigidBody3DState& si
       }
       if( vals.size() != 3 )
       {
+        std::cerr << "Failed to load x" << std::endl;
         return false;
       }
 
@@ -306,6 +309,7 @@ static bool loadSimState( const rapidxml::xml_node<>& node, RigidBody3DState& si
       const rapidxml::xml_attribute<>* const attrib{ nd->first_attribute( "v" ) };
       if( !attrib )
       {
+        std::cerr << "Failed to load v" << std::endl;
         return false;
       }
 
@@ -319,6 +323,7 @@ static bool loadSimState( const rapidxml::xml_node<>& node, RigidBody3DState& si
       }
       if( vals.size() != 3 )
       {
+        std::cerr << "Failed to load v" << std::endl;
         return false;
       }
 
@@ -331,6 +336,7 @@ static bool loadSimState( const rapidxml::xml_node<>& node, RigidBody3DState& si
       const rapidxml::xml_attribute<>* const attrib{ nd->first_attribute( "omega" ) };
       if( !attrib )
       {
+        std::cerr << "Failed to load omega" << std::endl;
         return false;
       }
 
@@ -344,6 +350,7 @@ static bool loadSimState( const rapidxml::xml_node<>& node, RigidBody3DState& si
       }
       if( vals.size() != 3 )
       {
+        std::cerr << "Failed to load omega" << std::endl;
         return false;
       }
 
@@ -356,11 +363,13 @@ static bool loadSimState( const rapidxml::xml_node<>& node, RigidBody3DState& si
       const rapidxml::xml_attribute<>* const attrib{ nd->first_attribute( "rho" ) };
       if( !attrib )
       {
+        std::cerr << "Failed to load rho" << std::endl;
         return false;
       }
       const bool parsed{ StringUtilities::extractFromString( attrib->value(), rho ) };
       if( !parsed )
       {
+        std::cerr << "Failed to load rho" << std::endl;
         return false;
       }
     }
@@ -370,11 +379,13 @@ static bool loadSimState( const rapidxml::xml_node<>& node, RigidBody3DState& si
       const rapidxml::xml_attribute<>* const attrib{ nd->first_attribute( "fixed" ) };
       if( !attrib )
       {
+        std::cerr << "Failed to load fixed" << std::endl;
         return false;
       }
       const bool parsed{ StringUtilities::extractFromString( attrib->value(), fixed ) };
       if( !parsed )
       {
+        std::cerr << "Failed to load fixed" << std::endl;
         return false;
       }
     }
@@ -385,11 +396,13 @@ static bool loadSimState( const rapidxml::xml_node<>& node, RigidBody3DState& si
       const rapidxml::xml_attribute<>* const attrib{ nd->first_attribute( "geo_idx" ) };
       if( !attrib )
       {
+        std::cerr << "Failed to load geo_idx" << std::endl;
         return false;
       }
       const bool parsed{ StringUtilities::extractFromString( attrib->value(), geometry_index ) };
       if( !parsed )
       {
+        std::cerr << "Failed to load geo_idx" << std::endl;
         return false;
       }
     }
@@ -1677,7 +1690,7 @@ static bool loadStaggeredProjectionsFrictionSolver( const rapidxml::xml_node<>& 
     }
     else if( staggering_type == "stabilized" )
     {
-      if_map.reset( new StabilizedImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ) } );
+      if_map.reset( new StabilizedImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ), false, false } );
     }
     else
     {
@@ -1831,7 +1844,7 @@ static bool loadSobogusFrictionSolver( const rapidxml::xml_node<>& node, std::un
   }
   else if( staggering_type == "stabilized" )
   {
-    if_map.reset( new StabilizedImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ) } );
+    if_map.reset( new StabilizedImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ), false, false } );
   }
   else
   {
@@ -1963,7 +1976,7 @@ static bool loadGRRFrictionSolver( const rapidxml::xml_node<>& node, scalar& mu,
     else if( staggering_type == "stabilized" )
     {
       // 0.0, 0 are dummy parameters, for now
-      if_map.reset( new StabilizedImpactFrictionMap{ 0.0, 0 } );
+      if_map.reset( new StabilizedImpactFrictionMap{ 0.0, 0, false, false } );
     }
     else
     {

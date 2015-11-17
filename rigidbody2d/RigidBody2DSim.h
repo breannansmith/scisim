@@ -50,6 +50,8 @@ public:
 
   virtual void computeForce( const VectorXs& q, const VectorXs& v, const scalar& t, VectorXs& F ) override;
 
+  virtual void linearInertialConfigurationUpdate( const VectorXs& q0, const VectorXs& v0, const scalar& dt, VectorXs& q1 ) const override;
+
   virtual const SparseMatrixsc& M() const override;
   virtual const SparseMatrixsc& Minv() const override;
   virtual const SparseMatrixsc& M0() const override;

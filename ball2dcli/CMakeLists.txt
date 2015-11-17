@@ -12,6 +12,11 @@ if( USE_HDF5 )
   add_test( ball2d_serialization_00 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/ball_slide_at_threshold_big_dt.xml 0.5 50 27 100 )
   add_test( ball2d_serialization_01 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/everything_no_friction.xml 10.0 0999 0287 )
   add_test( ball2d_serialization_02 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/everything_friction.xml 10.0 0999 0287 )
+  # Stabilized map tests
+  add_test( ball2d_serialization_03 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/drift_safe_ball_on_plane.xml 4.5 45 22 10 )
+  add_test( ball2d_serialization_04 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/drift_safe_balls_on_planes_00.xml 2.7 27 09 10 )
+  add_test( ball2d_serialization_05 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/drift_safe_balls_on_planes_01.xml 3.0 30 07 10 )
+  add_test( ball2d_serialization_06 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/drift_safe_symmetric_break.xml 24.0 240 012 10 )
   # These tests are slow
   #add_test( twod_balls_serialization_test_02 assets/shell_scripts/execute_serialization_test.sh assets/ColumnCollapse01.xml 0.04 2 4 120 )
   #add_test( twod_balls_serialization_test_04 assets/shell_scripts/execute_serialization_test.sh assets/ColumnCollapse07_frictionless_grr.xml 0.05 3 6 120 )

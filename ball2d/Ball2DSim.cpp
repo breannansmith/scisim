@@ -97,6 +97,14 @@ void Ball2DSim::computeForce( const VectorXs& q, const VectorXs& v, const scalar
   m_state.accumulateForce( q, v, F );
 }
 
+void Ball2DSim::linearInertialConfigurationUpdate( const VectorXs& q0, const VectorXs& v0, const scalar& dt, VectorXs& q1 ) const
+{
+  assert( q0.size() == v0.size() );
+  assert( q0.size() == q1.size() );
+  assert( dt > 0.0 );
+  q1 = q0 + dt * v0;
+}
+
 const SparseMatrixsc& Ball2DSim::M() const
 {
   return m_state.M();
