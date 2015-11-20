@@ -9,6 +9,7 @@
 #include "ball2d/StaticGeometry/StaticPlane.h"
 #include "scisim/Math/MathDefines.h"
 
+// TODO: Move out of here
 class TeleportedBall final
 {
 
@@ -30,6 +31,7 @@ private:
 
 };
 
+// TODO: Move out of here
 class TeleportedCollision final
 {
 
@@ -86,20 +88,17 @@ class PlanarPortal final
 
 public:
 
-  PlanarPortal( const StaticPlane& plane_a, const StaticPlane& plane_b, const scalar& va, const scalar& vb, const Vector2s& boundsa, const Vector2s& boundsb );
+  PlanarPortal( const StaticPlane& plane_a, const StaticPlane& plane_b, const scalar& velocity, const scalar& bounds );
   explicit PlanarPortal( std::istream& input_stream );
 
   const StaticPlane& planeA() const;
   const StaticPlane& planeB() const;
 
-  const Vector2s& boundsA() const;
-  const Vector2s& boundsB() const;
+  const scalar& bounds() const;
 
   // Current translated position
-  scalar planeAx() const;
-  scalar planeAy() const;
-  scalar planeBx() const;
-  scalar planeBy() const;
+  Vector2s transformedAx() const;
+  Vector2s transformedBx() const;
 
   // Returns true if the given point lies in the space covered by this portal
   bool pointInsidePortal( const Vector2s& x ) const;
@@ -113,8 +112,6 @@ public:
   // Teleports a ball
   void teleportBall( const Vector2s& xin, const scalar& r, Vector2s& xout ) const;
 
-  //void getTeleportedSamplePoints( const VectorXs& q, const TeleportedCollision& teleported_collision, Vector2s& x0, Vector2s& x1 ) const;
-
   void teleportPointThroughPlaneA( const Vector2s& xin, Vector2s& xout ) const;
   void teleportPointThroughPlaneB( const Vector2s& xin, Vector2s& xout ) const;
 
@@ -125,23 +122,18 @@ public:
   bool isLeesEdwards() const;
 
   Vector2s getKinematicVelocityOfBall( const Vector2s& x, const scalar& r ) const;
+  Vector2s getKinematicVelocityOfPoint( const Vector2s& x ) const;
 
 private:
-
-  bool ballInPlaneA( const Vector2s& x, const scalar& r ) const;
-  bool ballInPlaneB( const Vector2s& x, const scalar& r ) const;
 
   StaticPlane m_plane_a;
   StaticPlane m_plane_b;
 
   // For Lees-Edwards boundary conditions
-  scalar m_v_a; // Velocity of plane a in the tangent direction
-  scalar m_v_b; // Velocity of plane b in the tangent direction
-  Vector2s m_bounds_a; // Where to wrap plane a around
-  Vector2s m_bounds_b; // Where to wrap plane b around
+  scalar m_v;
+  scalar m_bounds;
 
-  scalar m_dx_a;
-  scalar m_dx_b;
+  scalar m_dx;
 
 };
 

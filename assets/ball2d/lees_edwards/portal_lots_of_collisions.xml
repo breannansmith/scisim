@@ -1,0 +1,40 @@
+<ball2d_scene>
+
+  <camera cx="0.0" cy="0.0" scale_factor="3.80562" fps="50" render_at_fps="1" locked="0"/>
+
+  <integrator type="verlet" dt="0.01"/>
+
+  <sobogus_friction_solver mu="0.3" CoR="0.7" max_iters="50000" eval_every="25" tol="1.0e-12" staggering="geometric"/>
+
+  <static_plane x="-2 0" n="1 0"/>
+  <static_plane x="2 0" n="-1 0"/>
+
+  <static_plane x="0 -3" n="0 1"/>
+  <static_plane x="0 3" n="0 -1"/>
+
+  <lees_edwards_portal planeA="0" planeB="1" v="1.0" bounds="3.0"/>
+  <planar_portal planeA="2" planeB="3"/>
+
+  <ball x="1.9" y="-0.1" vx="0" vy="0" m="0.1" r="0.5" fixed="0"/>
+  <ball x="-1.9" y="2" vx="0" vy="0" m="0.1" r="0.25" fixed="0"/>
+  <ball x="0" y="0" vx="0" vy="0" m="0.1" r="0.15" fixed="0"/>
+  <ball x="1.0" y="2.1" vx="0" vy="0" m="0.1" r="0.6" fixed="0"/>
+  <ball x="-1.0" y="-2.1" vx="0" vy="0" m="0.1" r="0.43" fixed="0"/>
+  <ball x="0.9" y="-1.8" vx="0" vy="0" m="0.1" r="0.37" fixed="0"/>
+  <ball x="-0.8" y="0.2" vx="0" vy="0" m="0.1" r="0.47" fixed="0"/>
+  <ball x="-0.7" y="1.2" vx="0" vy="0" m="0.1" r="0.5" fixed="0"/>
+  <ball x="-0.7" y="2.2" vx="0" vy="0" m="0.1" r="0.393" fixed="0"/>
+  <ball x="0.7" y="-0.4" vx="0" vy="0" m="0.1" r="0.6" fixed="0"/>
+  <ball x="-0.4" y="-0.75" vx="0" vy="0" m="0.1" r="0.432" fixed="0"/>
+  <ball x="-1.5" y="-1.0" vx="0" vy="0" m="0.1" r="0.51" fixed="0"/>
+  <ball x="0.0" y="-2.0" vx="0" vy="0" m="0.1" r="0.41" fixed="0"/>
+  <ball x="0.2" y="1.4" vx="0" vy="0" m="0.1" r="0.37" fixed="0"/>
+  <ball x="0.7" y="0.66" vx="0" vy="0" m="0.1" r="0.437" fixed="0"/>
+  <ball x="-1.6" y="0.76" vx="0" vy="0" m="0.1" r="0.42" fixed="0"/>
+  <ball x="1.7" y="-2.2" vx="0" vy="0" m="0.1" r="0.452" fixed="0"/>
+  <ball x="0.0" y="2.2" vx="0" vy="0" m="0.1" r="0.3" fixed="0"/>
+  <ball x="1.5" y="1.2" vx="0" vy="0" m="0.1" r="0.4" fixed="0"/>
+  <ball x="-1.5" y="2.6" vx="0" vy="0" m="0.1" r="0.4" fixed="0"/>
+  <ball x="0.8" y="-2.6" vx="0" vy="0" m="0.1" r="0.4" fixed="0"/>
+
+</ball2d_scene>

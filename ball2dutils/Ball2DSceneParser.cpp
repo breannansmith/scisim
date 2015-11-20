@@ -372,8 +372,8 @@ static bool loadPlanarPortals( const rapidxml::xml_node<>& node, std::vector<Sta
 
   // Pairs of planes to turn into portals
   std::vector<std::pair<unsigned,unsigned>> plane_pairs;
-  std::vector<std::pair<scalar,scalar>> plane_tangent_velocities;
-  std::vector<std::pair<Vector2s,Vector2s>> plane_bounds;
+  std::vector<scalar> plane_tangent_velocities;
+  std::vector<scalar> plane_bounds;
 
   // Load planes without kinematic velocities
   for( rapidxml::xml_node<>* nd = node.first_node( "planar_portal" ); nd; nd = nd->next_sibling( "planar_portal" ) )
@@ -439,8 +439,8 @@ static bool loadPlanarPortals( const rapidxml::xml_node<>& node, std::vector<Sta
     }
 
     plane_pairs.emplace_back( index_a, index_b );
-    plane_tangent_velocities.emplace_back( 0.0, 0.0 );
-    plane_bounds.emplace_back( Vector2s{ -SCALAR_INFINITY, SCALAR_INFINITY }, Vector2s{ -SCALAR_INFINITY, SCALAR_INFINITY } );
+    plane_tangent_velocities.emplace_back( 0.0 );
+    plane_bounds.emplace_back( 0.0 );
   }
 
   // Load planes with kinematic velocities
@@ -509,108 +509,51 @@ static bool loadPlanarPortals( const rapidxml::xml_node<>& node, std::vector<Sta
     plane_pairs.emplace_back( index_a, index_b );
 
     // Load the velocity of portal a
-    scalar va;
+    scalar v;
     {
-      if( nd->first_attribute( "va" ) == nullptr )
+      if( nd->first_attribute( "v" ) == nullptr )
       {
-        std::cerr << "Could not locate va attribue for lees_edwards_portal" << std::endl;
+        std::cerr << "Could not locate v attribue for lees_edwards_portal" << std::endl;
         return false;
       }
-      const rapidxml::xml_attribute<>& va_attrib{ *nd->first_attribute( "va" ) };
-      if( !StringUtilities::extractFromString( std::string{ va_attrib.value() }, va ) )
+      const rapidxml::xml_attribute<>& v_attrib{ *nd->first_attribute( "v" ) };
+      if( !StringUtilities::extractFromString( std::string{ v_attrib.value() }, v ) )
       {
-        std::cerr << "Could not load va attribue for lees_edwards_portal, value must be a scalar" << std::endl;
+        std::cerr << "Could not load v attribue for lees_edwards_portal, value must be a scalar" << std::endl;
         return false;
       }
     }
 
-    // Load the velocity of portal b
-    scalar vb;
+    // Load the bounds on the portal translation
+    scalar bounds;
     {
-      if( nd->first_attribute( "vb" ) == nullptr )
+      if( nd->first_attribute( "bounds" ) == nullptr )
       {
-        std::cerr << "Could not locate vb attribue for lees_edwards_portal" << std::endl;
+        std::cerr << "Could not locate bounds attribue for lees_edwards_portal" << std::endl;
         return false;
       }
-      const rapidxml::xml_attribute<>& vb_attrib{ *nd->first_attribute( "vb" ) };
-      if( !StringUtilities::extractFromString( std::string{ vb_attrib.value() }, vb ) )
+      const rapidxml::xml_attribute<>& bounds_attrib{ *nd->first_attribute( "bounds" ) };
+      if( !StringUtilities::extractFromString( std::string{ bounds_attrib.value() }, bounds ) )
       {
-        std::cerr << "Could not load vb attribue for lees_edwards_portal, value must be a scalar" << std::endl;
+        std::cerr << "Could not load bounds attribue for lees_edwards_portal, value must be a scalar" << std::endl;
+        return false;
+      }
+      if( bounds <= 0.0 )
+      {
+        std::cerr << "Could not load bounds attribue for lees_edwards_portal, value must be a positive scalar" << std::endl;
         return false;
       }
     }
 
-    // Load the bounds on portal a's translation
-    VectorXs boundsa;
-    {
-      if( nd->first_attribute( "boundsa" ) == nullptr )
-      {
-        std::cerr << "Could not locate boundsa attribue for lees_edwards_portal" << std::endl;
-        return false;
-      }
-      const rapidxml::xml_attribute<>& boundsa_attrib{ *nd->first_attribute( "boundsa" ) };
-      if( !StringUtilities::readScalarList( boundsa_attrib.value(), 2, ' ', boundsa ) )
-      {
-        std::cerr << "Failed to load boundsa attribute for lees_edwards_portal, must provide 2 scalars" << std::endl;
-        return false;
-      }
-      if( boundsa(0) > 0 )
-      {
-        std::cerr << "Failed to load boundsa attribute for lees_edwards_portal, first scalar must be non-positive" << std::endl;
-        return false;
-      }
-      if( boundsa(1) < 0 )
-      {
-        std::cerr << "Failed to load boundsa attribute for lees_edwards_portal, first scalar must be non-negative" << std::endl;
-        return false;
-      }
-      if( !( ( boundsa.x() != -SCALAR_INFINITY && boundsa.y() != SCALAR_INFINITY ) || ( boundsa.x() == -SCALAR_INFINITY && boundsa.y() == SCALAR_INFINITY ) ) )
-      {
-        std::cerr << "Failed to load boundsa attribute for lees_edwards_portal, if first scalar is negative infinity second scalar must be positive infinity" << std::endl;
-        return false;
-      }
-    }
-
-    // Load the bounds on portal b's translation
-    VectorXs boundsb;
-    {
-      if( nd->first_attribute( "boundsb" ) == nullptr )
-      {
-        std::cerr << "Could not locate boundsb attribue for lees_edwards_portal" << std::endl;
-        return false;
-      }
-      const rapidxml::xml_attribute<>& boundsb_attrib{ *nd->first_attribute( "boundsb" ) };
-      if( !StringUtilities::readScalarList( boundsb_attrib.value(), 2, ' ', boundsb ) )
-      {
-        std::cerr << "Failed to load boundsb attribute for lees_edwards_portal, must provide 2 scalars" << std::endl;
-        return false;
-      }
-      if( boundsb(0) > 0 )
-      {
-        std::cerr << "Failed to load boundsb attribute for lees_edwards_portal, first scalar must be non-positive" << std::endl;
-        return false;
-      }
-      if( boundsb(1) < 0 )
-      {
-        std::cerr << "Failed to load boundsb attribute for lees_edwards_portal, first scalar must be non-negative" << std::endl;
-        return false;
-      }
-      if( !( ( boundsb.x() != -SCALAR_INFINITY && boundsb.y() != SCALAR_INFINITY ) || ( boundsb.x() == -SCALAR_INFINITY && boundsb.y() == SCALAR_INFINITY ) ) )
-      {
-        std::cerr << "Failed to load boundsb attribute for lees_edwards_portal, if first scalar is negative infinity second scalar must be positive infinity" << std::endl;
-        return false;
-      }
-    }
-
-    plane_tangent_velocities.emplace_back( va, vb );
-    plane_bounds.emplace_back( boundsa, boundsb );
+    plane_tangent_velocities.emplace_back( v );
+    plane_bounds.emplace_back( bounds );
   }
 
   assert( plane_pairs.size() == plane_tangent_velocities.size() );
   assert( plane_pairs.size() == plane_bounds.size() );
   for( std::vector<std::pair<unsigned,unsigned>>::size_type i = 0; i < plane_pairs.size(); ++i )
   {
-    planar_portals.emplace_back( planes[plane_pairs[i].first], planes[plane_pairs[i].second], plane_tangent_velocities[i].first, plane_tangent_velocities[i].second, plane_bounds[i].first, plane_bounds[i].second );
+    planar_portals.emplace_back( planes[plane_pairs[i].first], planes[plane_pairs[i].second], plane_tangent_velocities[i], plane_bounds[i] );
   }
 
   // TODO: This could get slow if there are a ton of portals, but probably not too big of a deal for now

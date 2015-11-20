@@ -27,9 +27,9 @@ public:
 
   const Vector2s& t() const;
 
-  bool distanceLessThanZero( const Vector2s& plane_dx, const Vector2s& x ) const;
+  bool distanceLessThanZero( const Vector2s& x ) const;
 
-  bool distanceLessThanOrEqualZero( const Vector2s& plane_dx, const Vector2s& x, const scalar& r ) const;
+  bool distanceLessThanOrEqualZero( const Vector2s& x, const scalar& r ) const;
 
   void serialize( std::ostream& output_stream ) const;
 

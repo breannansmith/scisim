@@ -68,14 +68,14 @@ const Vector2s& StaticPlane::t() const
   return m_t;
 }
 
-bool StaticPlane::distanceLessThanZero( const Vector2s& plane_dx, const Vector2s& x ) const
+bool StaticPlane::distanceLessThanZero( const Vector2s& x ) const
 {
-  return m_n.dot( x - m_x - plane_dx ) < 0.0;
+  return m_n.dot( x - m_x ) < 0.0;
 }
 
-bool StaticPlane::distanceLessThanOrEqualZero( const Vector2s& plane_dx, const Vector2s& x, const scalar& r ) const
+bool StaticPlane::distanceLessThanOrEqualZero( const Vector2s& x, const scalar& r ) const
 {
-  return m_n.dot( x - m_x - plane_dx ) <= r;
+  return m_n.dot( x - m_x ) <= r;
 }
 
 void StaticPlane::serialize( std::ostream& output_stream ) const

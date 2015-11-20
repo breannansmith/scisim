@@ -337,14 +337,22 @@ void Ball2DSim::enforcePeriodicBoundaryConditions()
     // For each body
     for( unsigned bdy_idx = 0; bdy_idx < nbodies; ++bdy_idx )
     {
+      const Vector2s xin{ m_state.q().segment<2>( 2 * bdy_idx ) };
       // TODO: Calling pointInsidePortal and teleportPointInsidePortal is a bit redundant, clean this up!
       // If the body is inside a portal
-      if( planar_portal.pointInsidePortal( m_state.q().segment<2>( 2 * bdy_idx ) ) )
+      if( planar_portal.pointInsidePortal( xin ) )
       {
         // Teleport to the other side of the portal
         Vector2s x_out;
-        planar_portal.teleportPointInsidePortal( m_state.q().segment<2>( 2 * bdy_idx ), x_out );
+        planar_portal.teleportPointInsidePortal( xin, x_out );
         m_state.q().segment<2>( 2 * bdy_idx ) = x_out;
+        // TODO: This check probably isn't needed, additional_vel should be 0 for non-LE portals
+        // Lees-Edwards Boundary conditions also update the velocity
+        if( planar_portal.isLeesEdwards() )
+        {
+          const Vector2s additional_vel{ planar_portal.getKinematicVelocityOfPoint( xin ) };
+          m_state.v().segment<2>( 2 * bdy_idx ) += additional_vel;
+        }
       }
     }
   }
