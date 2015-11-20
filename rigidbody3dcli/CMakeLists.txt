@@ -18,7 +18,7 @@ if( USE_HDF5 )
   add_test( rb3d_serialization_07 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/box_box_test_0.xml 2.0 200 033 )
   add_test( rb3d_serialization_08 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/box_box_test_1.xml 2.0 200 033 )
   add_test( rb3d_serialization_09 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/box_box_test_2.xml 2.0 200 033 )
-  add_test( rb3d_serialization_10 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/box_box_test_2.xml 0.75 37 13 50 )
+  add_test( rb3d_serialization_10 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/box_box_test_3.xml 0.75 37 13 50 )
   add_test( rb3d_serialization_11 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/two_dragon_drop.xml 1.0 50 27 50 )
   # Stabilized map tests
   add_test( rb3d_serialization_12 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/drift_safe_ball_on_plane.xml 2.0 20 05 10 )
