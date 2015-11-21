@@ -265,7 +265,7 @@ void RigidBody2DStateOutput::writePlanarPortals( const std::vector<PlanarPortal>
   using HDFSID = HDFID<H5Sclose>;
   using HDFDID = HDFID<H5Dclose>;
 
-  struct LocalPlanarPortalData
+  struct LocalPlanarPortalData final
   {
     // Data for the first plane
     scalar x0[2];
@@ -274,12 +274,9 @@ void RigidBody2DStateOutput::writePlanarPortals( const std::vector<PlanarPortal>
     scalar x1[2];
     scalar n1[2];
     // Lees-Edwards data
-    scalar v0;
-    scalar v1;
-    scalar bounds0[2];
-    scalar bounds1[2];
-    scalar delta0;
-    scalar delta1;
+    scalar v;
+    scalar width;
+    scalar delta;
   };
 
   // Create an HDF5 dataspace
@@ -348,51 +345,20 @@ void RigidBody2DStateOutput::writePlanarPortals( const std::vector<PlanarPortal>
       throw std::string{ "Failed to insert n1 in HDF struct for planar portals" };
     }
   }
-  // Insert the v0 type in the struct
-  if( H5Tinsert( struct_tid, "v0", HOFFSET(LocalPlanarPortalData,v0), H5T_NATIVE_DOUBLE ) < 0 )
+  // Insert the v type in the struct
+  if( H5Tinsert( struct_tid, "v", HOFFSET( LocalPlanarPortalData, v ), H5T_NATIVE_DOUBLE ) < 0 )
   {
-    throw std::string{ "Failed to create HDF v0 type for planar portals" };
+    throw std::string{ "Failed to create HDF v type for planar portals" };
   }
-  // Insert the v1 type in the struct
-  if( H5Tinsert( struct_tid, "v1", HOFFSET(LocalPlanarPortalData,v1), H5T_NATIVE_DOUBLE ) < 0 )
+  // Insert the width type in the struct
+  if( H5Tinsert( struct_tid, "width", HOFFSET( LocalPlanarPortalData, width ), H5T_NATIVE_DOUBLE ) < 0 )
   {
-    throw std::string{ "Failed to create HDF v1 type for planar portals" };
+    throw std::string{ "Failed to create HDF width type for planar portals" };
   }
-  // Insert the bounds0 type in the struct
+  // Insert the delta type in the struct
+  if( H5Tinsert( struct_tid, "delta", HOFFSET( LocalPlanarPortalData, delta ), H5T_NATIVE_DOUBLE ) < 0 )
   {
-    const hsize_t array_dim[]{ 2 };
-    const HDFTID array_tid{ H5Tarray_create2( H5T_NATIVE_DOUBLE, 1, array_dim ) };
-    if( array_tid < 0 )
-    {
-      throw std::string{ "Failed to create HDF bounds0 type for planar portals" };
-    }
-    if( H5Tinsert( struct_tid, "bounds0", HOFFSET(LocalPlanarPortalData,bounds0), array_tid ) < 0 )
-    {
-      throw std::string{ "Failed to insert bounds0 in HDF struct for planar portals" };
-    }
-  }
-  // Insert the bounds1 type in the struct
-  {
-    const hsize_t array_dim[]{ 2 };
-    const HDFTID array_tid{ H5Tarray_create2( H5T_NATIVE_DOUBLE, 1, array_dim ) };
-    if( array_tid < 0 )
-    {
-      throw std::string{ "Failed to create HDF bounds1 type for planar portals" };
-    }
-    if( H5Tinsert( struct_tid, "bounds1", HOFFSET(LocalPlanarPortalData,bounds1), array_tid ) < 0 )
-    {
-      throw std::string{ "Failed to insert bounds1 in HDF struct for planar portals" };
-    }
-  }
-  // Insert the delta0 type in the struct
-  if( H5Tinsert( struct_tid, "delta0", HOFFSET(LocalPlanarPortalData,delta0), H5T_NATIVE_DOUBLE ) < 0 )
-  {
-    throw std::string{ "Failed to create HDF delta0 type for planar portals" };
-  }
-  // Insert the delta1 type in the struct
-  if( H5Tinsert( struct_tid, "delta1", HOFFSET(LocalPlanarPortalData,delta1), H5T_NATIVE_DOUBLE ) < 0 )
-  {
-    throw std::string{ "Failed to create HDF delta1 type for planar portals" };
+    throw std::string{ "Failed to create HDF delta type for planar portals" };
   }
 
   // Create an HDF5 dataset
@@ -418,12 +384,9 @@ void RigidBody2DStateOutput::writePlanarPortals( const std::vector<PlanarPortal>
     Eigen::Map<Vector2s>{ local_data.n0 } = planar_portal.planeA().n();
     Eigen::Map<Vector2s>{ local_data.x1 } = planar_portal.planeB().x();
     Eigen::Map<Vector2s>{ local_data.n1 } = planar_portal.planeB().n();
-    local_data.v0 = planar_portal.vA();
-    local_data.v1 = planar_portal.vB();
-    Eigen::Map<Vector2s>{ local_data.bounds0 } = planar_portal.boundsA();
-    Eigen::Map<Vector2s>{ local_data.bounds1 } = planar_portal.boundsB();
-    local_data.delta0 = planar_portal.deltaA();
-    local_data.delta1 = planar_portal.deltaB();
+    local_data.v = planar_portal.v();
+    local_data.width = planar_portal.bounds();
+    local_data.delta = planar_portal.delta();
     const hsize_t count[]{ 1 };
     const hsize_t offset[]{ current_portal++ };
     const hsize_t mem_offset[]{ 0 };

@@ -9,6 +9,7 @@
 #include "RigidBody2DStaticPlane.h"
 #include "scisim/Math/MathDefines.h"
 
+// TODO: Move out of here
 class TeleportedBody final
 {
 
@@ -30,6 +31,7 @@ private:
 
 };
 
+// TODO: Move out of here
 class TeleportedCollision final
 {
 
@@ -65,31 +67,27 @@ class PlanarPortal final
 public:
 
   PlanarPortal( const RigidBody2DStaticPlane& plane_a, const RigidBody2DStaticPlane& plane_b );
-  PlanarPortal( const RigidBody2DStaticPlane& plane_a, const RigidBody2DStaticPlane& plane_b, const scalar& va, const scalar& vb, const Vector2s& boundsa, const Vector2s& boundsb );
+  PlanarPortal( const RigidBody2DStaticPlane& plane_a, const RigidBody2DStaticPlane& plane_b, const scalar& velocity, const scalar& bounds );
   explicit PlanarPortal( std::istream& input_stream );
 
   const RigidBody2DStaticPlane& planeA() const;
   const RigidBody2DStaticPlane& planeB() const;
 
-  const Vector2s& boundsA() const;
-  const Vector2s& boundsB() const;
+  const scalar& bounds() const;
 
-  const scalar& vA() const;
-  const scalar& vB() const;
+  const scalar& v() const;
 
-  const scalar& deltaA() const;
-  const scalar& deltaB() const;
+  const scalar& delta() const;
 
   // Current translated position
-  scalar planeAx() const;
-  scalar planeAy() const;
-  scalar planeBx() const;
-  scalar planeBy() const;
+  Vector2s transformedAx() const;
+  Vector2s transformedBx() const;
 
   // Returns true if the given point lies in the space covered by this portal
   bool pointInsidePortal( const Vector2s& x ) const;
 
   // Returns true if the given AABB touches the space covered by this portal
+  // TODO: Replace the boolean parameter with an enum class
   bool aabbTouchesPortal( const Array2s& min, const Array2s& max, bool& intersecting_plane_idx ) const;
 
   // Teleports a point that is inside the portal
@@ -108,6 +106,7 @@ public:
   bool isLeesEdwards() const;
 
   Vector2s getKinematicVelocityOfAABB( const Array2s& min, const Array2s& max ) const;
+  Vector2s getKinematicVelocityOfPoint( const Vector2s& x ) const;
 
 private:
 
@@ -118,13 +117,10 @@ private:
   RigidBody2DStaticPlane m_plane_b;
 
   // For Lees-Edwards boundary conditions
-  scalar m_v_a; // Velocity of plane a in the tangent direction
-  scalar m_v_b; // Velocity of plane b in the tangent direction
-  Vector2s m_bounds_a; // Where to wrap plane a around
-  Vector2s m_bounds_b; // Where to wrap plane b around
+  scalar m_v;
+  scalar m_bounds;
 
-  scalar m_dx_a;
-  scalar m_dx_b;
+  scalar m_dx;
 
 };
 

@@ -31,6 +31,7 @@ public:
   VectorXs& q();
   const VectorXs& q() const;
 
+  VectorXs& v();
   const VectorXs& v() const;
 
   const SparseMatrixsc& M() const;

@@ -44,14 +44,14 @@ const Vector2s& RigidBody2DStaticPlane::t() const
   return m_t;
 }
 
-bool RigidBody2DStaticPlane::distanceLessThanZero( const Vector2s& plane_dx, const Vector2s& x ) const
+bool RigidBody2DStaticPlane::distanceLessThanZero( const Vector2s& x ) const
 {
-  return m_n.dot( x - m_x - plane_dx ) < 0.0;
+  return m_n.dot( x - m_x ) < 0.0;
 }
 
-scalar RigidBody2DStaticPlane::distanceToPoint( const Vector2s& plane_dx, const Vector2s& x ) const
+scalar RigidBody2DStaticPlane::distanceToPoint( const Vector2s& x ) const
 {
-  return m_n.dot( x - m_x - plane_dx );
+  return m_n.dot( x - m_x );
 }
 
 void RigidBody2DStaticPlane::serialize( std::ostream& output_stream ) const

@@ -171,6 +171,11 @@ const VectorXs& RigidBody2DState::q() const
   return m_q;
 }
 
+VectorXs& RigidBody2DState::v()
+{
+  return m_v;
+}
+
 const VectorXs& RigidBody2DState::v() const
 {
   return m_v;

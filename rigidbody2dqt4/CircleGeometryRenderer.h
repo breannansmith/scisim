@@ -17,6 +17,8 @@ public:
 
   virtual void render( const Eigen::Matrix<GLdouble,3,1>& color ) override;
 
+  virtual void renderTeleported( const Eigen::Matrix<GLdouble,3,1>& color ) override;
+
 private:
 
   const CircleGeometry& m_circle_geo;

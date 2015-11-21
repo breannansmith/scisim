@@ -1,0 +1,23 @@
+<rigidbody2d_scene>
+
+  <camera center="0.0 0.0" scale="3.80562" fps="50" render_at_fps="0" locked="0"/>
+
+  <integrator type="symplectic_euler" dt="0.01"/>
+
+  <sobogus_friction_solver mu="0.3" CoR="0.7" max_iters="5000" eval_every="25" tol="1.0e-12" staggering="geometric"/>
+
+  <static_plane x="-2 0" n="1 0"/>
+  <static_plane x="2 0" n="-1 0"/>
+
+  <static_plane x="0 -3" n="0 1"/>
+  <static_plane x="0 3" n="0 -1"/>
+
+  <lees_edwards_portal planeA="0" planeB="1" v="1.0" bounds="3.0"/>
+  <planar_portal planeA="2" planeB="3"/>
+
+  <geometry type="circle" r="0.5"/>
+
+  <rigid_body x="1.4 0" theta="0" v="0 0" omega="0" rho="1" geo_idx="0"/>
+  <rigid_body x="-1.9 2" theta="0" v="0 0" omega="0" rho="1" geo_idx="0"/>
+
+</rigidbody2d_scene>

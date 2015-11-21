@@ -86,7 +86,7 @@ public:
   void serialize( std::ostream& output_stream ) const;
   void deserialize( std::istream& input_stream );
 
-  void enforcePeriodicBoundaryConditions( VectorXs& q );
+  void enforcePeriodicBoundaryConditions( VectorXs& q, VectorXs& v );
 
 private:
 

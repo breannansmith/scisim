@@ -656,15 +656,14 @@ static void paintPlanarPortal( const PlanarPortal& planar_portal )
 
     glPopMatrix();
 
-    assert( planar_portal.boundsA()(0) < planar_portal.boundsA()(1) );
-    assert( ( planar_portal.boundsA()(0) != -SCALAR_INFINITY && planar_portal.boundsA()(1) != SCALAR_INFINITY ) || ( planar_portal.boundsA()(0) == -SCALAR_INFINITY && planar_portal.boundsA()(1) == SCALAR_INFINITY ) );
-    if( planar_portal.boundsA()(0) != -SCALAR_INFINITY )
+    assert( planar_portal.bounds() >= 0.0 );
+    if( planar_portal.isLeesEdwards() )
     {
       // Draw the lower bound
       glPushMatrix();
       glTranslated( GLdouble( planar_portal.planeA().x().x() ), GLdouble( planar_portal.planeA().x().y() ), 0.0 );
       glRotated( GLdouble( theta ), 0.0, 0.0, 1.0 );
-      glTranslated( planar_portal.boundsA()(0), 0.0, 0.0 );
+      glTranslated( -planar_portal.bounds(), 0.0, 0.0 );
       glLineStipple( 8, 0x5555 );
       glEnable( GL_LINE_STIPPLE );
       glBegin( GL_LINES );
@@ -678,7 +677,7 @@ static void paintPlanarPortal( const PlanarPortal& planar_portal )
       glPushMatrix();
       glTranslated( GLdouble( planar_portal.planeA().x().x() ), GLdouble( planar_portal.planeA().x().y() ), 0.0 );
       glRotated( GLdouble( theta ), 0.0, 0.0, 1.0 );
-      glTranslated( planar_portal.boundsA()(1), 0.0, 0.0 );
+      glTranslated( planar_portal.bounds(), 0.0, 0.0 );
       glLineStipple( 8, 0x5555 );
       glEnable( GL_LINE_STIPPLE );
       glBegin( GL_LINES );
@@ -688,17 +687,31 @@ static void paintPlanarPortal( const PlanarPortal& planar_portal )
       glDisable( GL_LINE_STIPPLE );
       glPopMatrix();
 
-      // Draw a short line to indicate the current position of the center of the portal
+      // Draw a short line to indicate the rest position of the center of the portal
       glPushMatrix();
-      glTranslated( GLdouble( planar_portal.planeAx() ), GLdouble( planar_portal.planeAy() ), 0.0 );
+      glTranslated( planar_portal.planeA().x().x(), GLdouble( planar_portal.planeA().x().y() ), 0.0 );
       glRotated( GLdouble( theta ), 0.0, 0.0, 1.0 );
 
-      // Draw an infinite line to show what half of portal is free
       glLineStipple( 8, 0x5555 );
       glEnable( GL_LINE_STIPPLE );
       glBegin( GL_LINES );
       glVertex2d( 0.0, 0.0 );
-      glVertex2d( 0.0, - 0.1 * ( planar_portal.boundsA()(1) - planar_portal.boundsA()(0) ) );
+      glVertex2d( 0.0, - 0.2 * planar_portal.bounds() );
+      glEnd();
+      glDisable( GL_LINE_STIPPLE );
+
+      glPopMatrix();
+      
+      // Draw a short line to indicate the current position of the center of the portal
+      glPushMatrix();
+      glTranslated( GLdouble( planar_portal.transformedAx().x() ), GLdouble( planar_portal.transformedAx().y() ), 0.0 );
+      glRotated( GLdouble( theta ), 0.0, 0.0, 1.0 );
+
+      glLineStipple( 8, 0x5555 );
+      glEnable( GL_LINE_STIPPLE );
+      glBegin( GL_LINES );
+      glVertex2d( 0.0, 0.0 );
+      glVertex2d( 0.0, - 0.2 * planar_portal.bounds() );
       glEnd();
       glDisable( GL_LINE_STIPPLE );
 
@@ -749,15 +762,14 @@ static void paintPlanarPortal( const PlanarPortal& planar_portal )
 
     glPopMatrix();
 
-    assert( planar_portal.boundsB()(0) < planar_portal.boundsB()(1) );
-    assert( ( planar_portal.boundsB()(0) != -SCALAR_INFINITY && planar_portal.boundsB()(1) != SCALAR_INFINITY ) || ( planar_portal.boundsB()(0) == -SCALAR_INFINITY && planar_portal.boundsB()(1) == SCALAR_INFINITY ) );
-    if( planar_portal.boundsA()(0) != -SCALAR_INFINITY )
+    assert( planar_portal.bounds() >= 0.0 );
+    if( planar_portal.isLeesEdwards() )
     {
       // Draw the lower bound
       glPushMatrix();
       glTranslated( GLdouble( planar_portal.planeB().x().x() ), GLdouble( planar_portal.planeB().x().y() ), 0.0 );
       glRotated( GLdouble( theta ), 0.0, 0.0, 1.0 );
-      glTranslated( planar_portal.boundsB()(0), 0.0, 0.0 );
+      glTranslated( -planar_portal.bounds(), 0.0, 0.0 );
       glLineStipple( 8, 0x5555 );
       glEnable( GL_LINE_STIPPLE );
       glBegin( GL_LINES );
@@ -771,7 +783,7 @@ static void paintPlanarPortal( const PlanarPortal& planar_portal )
       glPushMatrix();
       glTranslated( GLdouble( planar_portal.planeB().x().x() ), GLdouble( planar_portal.planeB().x().y() ), 0.0 );
       glRotated( GLdouble( theta ), 0.0, 0.0, 1.0 );
-      glTranslated( planar_portal.boundsB()(1), 0.0, 0.0 );
+      glTranslated( planar_portal.bounds(), 0.0, 0.0 );
       glLineStipple( 8, 0x5555 );
       glEnable( GL_LINE_STIPPLE );
       glBegin( GL_LINES );
@@ -781,17 +793,31 @@ static void paintPlanarPortal( const PlanarPortal& planar_portal )
       glDisable( GL_LINE_STIPPLE );
       glPopMatrix();
 
-      // Draw a short line to indicate the current position of the center of the portal
+      // Draw a short line to indicate the rest position of the center of the portal
       glPushMatrix();
-      glTranslated( GLdouble( planar_portal.planeBx() ), GLdouble( planar_portal.planeBy() ), 0.0 );
+      glTranslated( planar_portal.planeB().x().x(), GLdouble( planar_portal.planeB().x().y() ), 0.0 );
       glRotated( GLdouble( theta ), 0.0, 0.0, 1.0 );
 
-      // Draw an infinite line to show what half of portal is free
       glLineStipple( 8, 0x5555 );
       glEnable( GL_LINE_STIPPLE );
       glBegin( GL_LINES );
       glVertex2d( 0.0, 0.0 );
-      glVertex2d( 0.0, - 0.1 * ( planar_portal.boundsB()(1) - planar_portal.boundsB()(0) ) );
+      glVertex2d( 0.0, - 0.2 * planar_portal.bounds() );
+      glEnd();
+      glDisable( GL_LINE_STIPPLE );
+
+      glPopMatrix();
+
+      // Draw a short line to indicate the current position of the center of the portal
+      glPushMatrix();
+      glTranslated( GLdouble( planar_portal.transformedBx().x() ), GLdouble( planar_portal.transformedBx().y() ), 0.0 );
+      glRotated( GLdouble( theta ), 0.0, 0.0, 1.0 );
+
+      glLineStipple( 8, 0x5555 );
+      glEnable( GL_LINE_STIPPLE );
+      glBegin( GL_LINES );
+      glVertex2d( 0.0, 0.0 );
+      glVertex2d( 0.0, - 0.2 * planar_portal.bounds() );
       glEnd();
       glDisable( GL_LINE_STIPPLE );
 
@@ -819,6 +845,64 @@ static void paintPlanarPortal( const PlanarPortal& planar_portal )
 
 void GLWidget::paintSystem() const
 {
+  // Draw each body
+  {
+    const VectorXs& q{ m_sim.state().q() };
+    assert( q.size() % 3 == 0 );
+    const unsigned nbodies{ static_cast<unsigned>( q.size() / 3 ) };
+    for( unsigned bdy_idx = 0; bdy_idx < nbodies; ++bdy_idx )
+    {
+      glPushMatrix();
+      glTranslated( GLdouble( q( 3 * bdy_idx + 0 ) ), GLdouble( q( 3 * bdy_idx + 1 ) ), GLdouble( 0.0 ) );
+      const scalar theta_degrees{ 180.0 * q( 3 * bdy_idx + 2 ) / MathDefines::PI<scalar>() };
+      glRotated( theta_degrees, 0.0, 0.0, 1.0 );
+      assert( bdy_idx < m_body_colors.size() / 3 );
+      assert( bdy_idx < m_sim.state().geometryIndices().size() );
+      assert( m_sim.state().geometryIndices()(bdy_idx) < m_body_renderers.size() );
+      m_body_renderers[ m_sim.state().geometryIndices()(bdy_idx) ]->render( m_body_colors.segment<3>( 3 * bdy_idx ) );
+      glPopMatrix();
+    }
+  }
+
+  // Draw teleported versions of each body
+  {
+    const VectorXs& q{ m_sim.state().q() };
+    assert( q.size() % 3 == 0 );
+    const unsigned nbodies{ static_cast<unsigned>( q.size() / 3 ) };
+    const std::vector<PlanarPortal>& planar_portals{ m_sim.state().planarPortals() };
+    // For each planar portal
+    // TODO: More efficient to invert these loops, only cache out pos, theta once per body
+    for( const PlanarPortal& planar_portal : planar_portals )
+    {
+      for( unsigned bdy_idx = 0; bdy_idx < nbodies; ++bdy_idx )
+      {
+        const Vector2s pos{ q.segment<2>( 3 * bdy_idx ) };
+        const scalar theta{ q( 3 * bdy_idx + 2) };
+        // Compute the AABB for the current body
+        Array2s min;
+        Array2s max;
+        m_sim.state().bodyGeometry( bdy_idx )->computeAABB( pos, theta, min, max );
+        assert( ( min < max ).all() );
+        // If the AABB intersects a periodic boundary
+        bool intersecting_index;
+        if( planar_portal.aabbTouchesPortal( min, max, intersecting_index ) )
+        {
+          Vector2s teleported_pos;
+          planar_portal.teleportPoint( pos, intersecting_index, teleported_pos );
+          glPushMatrix();
+          glTranslated( GLdouble( teleported_pos.x() ), GLdouble( teleported_pos.y() ), GLdouble( 0.0 ) );
+          const scalar theta_degrees{ 180.0 * q( 3 * bdy_idx + 2 ) / MathDefines::PI<scalar>() };
+          glRotated( theta_degrees, 0.0, 0.0, 1.0 );
+          assert( bdy_idx < m_body_colors.size() / 3 );
+          assert( bdy_idx < m_sim.state().geometryIndices().size() );
+          assert( m_sim.state().geometryIndices()(bdy_idx) < m_body_renderers.size() );
+          m_body_renderers[ m_sim.state().geometryIndices()(bdy_idx) ]->renderTeleported( m_body_colors.segment<3>( 3 * bdy_idx ) );
+          glPopMatrix();
+        }
+      }
+    }
+  }
+
   // Draw each planar portal
   glPushAttrib( GL_COLOR );
   glPushAttrib( GL_LINE_WIDTH );
@@ -854,25 +938,6 @@ void GLWidget::paintSystem() const
   }
   glPopAttrib();
   glPopAttrib();
-
-  // Draw each body
-  {
-    const VectorXs& q{ m_sim.state().q() };
-    assert( q.size() % 3 == 0 );
-    const unsigned nbodies{ static_cast<unsigned>( q.size() / 3 ) };
-    for( unsigned bdy_idx = 0; bdy_idx < nbodies; ++bdy_idx )
-    {
-      glPushMatrix();
-      glTranslated( GLdouble( q( 3 * bdy_idx + 0 ) ), GLdouble( q( 3 * bdy_idx + 1 ) ), GLdouble( 0.0 ) );
-      const scalar theta_degrees{ 180.0 * q( 3 * bdy_idx + 2 ) / MathDefines::PI<scalar>() };
-      glRotated( theta_degrees, 0.0, 0.0, 1.0 );
-      assert( bdy_idx < m_body_colors.size() / 3 );
-      assert( bdy_idx < m_sim.state().geometryIndices().size() );
-      assert( m_sim.state().geometryIndices()(bdy_idx) < m_body_renderers.size() );
-      m_body_renderers[ m_sim.state().geometryIndices()(bdy_idx) ]->render( m_body_colors.segment<3>( 3 * bdy_idx ) );
-      glPopMatrix();
-    }
-  }
 }
 
 static QString generateTimeString( const unsigned iteration, const Rational<std::intmax_t>& dt, const int display_precision, const scalar& end_time )

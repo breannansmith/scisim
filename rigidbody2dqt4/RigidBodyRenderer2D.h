@@ -1,7 +1,7 @@
 #ifndef RIGID_BODY_RENDERER_2D_H
 #define RIGID_BODY_RENDERER_2D_H
 
-#include "scisim/Math/MathDefines.h"
+#include <Eigen/Core>
 
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
@@ -18,6 +18,8 @@ public:
   virtual ~RigidBodyRenderer2D() = 0;
 
   virtual void render( const Eigen::Matrix<GLdouble,3,1>& color ) = 0;
+
+  virtual void renderTeleported( const Eigen::Matrix<GLdouble,3,1>& color ) = 0;
 
 };
 

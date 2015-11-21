@@ -566,7 +566,7 @@ void RigidBody2DSim::flow( const unsigned iteration, const scalar& dt, Unconstra
   q1.swap( m_state.q() );
   v1.swap( m_state.v() );
 
-  enforcePeriodicBoundaryConditions( m_state.q() );
+  enforcePeriodicBoundaryConditions( m_state.q(), m_state.v() );
 }
 
 void RigidBody2DSim::flow( const unsigned iteration, const scalar& dt, UnconstrainedMap& umap, ImpactOperator& iop, const scalar& CoR, ImpactMap& imap )
@@ -582,7 +582,7 @@ void RigidBody2DSim::flow( const unsigned iteration, const scalar& dt, Unconstra
   q1.swap( m_state.q() );
   v1.swap( m_state.v() );
 
-  enforcePeriodicBoundaryConditions( m_state.q() );
+  enforcePeriodicBoundaryConditions( m_state.q(), m_state.v() );
 }
 
 void RigidBody2DSim::flow( const unsigned iteration, const scalar& dt, UnconstrainedMap& umap, const scalar& CoR, const scalar& mu, FrictionSolver& solver, ImpactFrictionMap& ifmap )
@@ -598,7 +598,7 @@ void RigidBody2DSim::flow( const unsigned iteration, const scalar& dt, Unconstra
   q1.swap( m_state.q() );
   v1.swap( m_state.v() );
 
-  enforcePeriodicBoundaryConditions( m_state.q() );
+  enforcePeriodicBoundaryConditions( m_state.q(), m_state.v() );
 }
 
 void RigidBody2DSim::updatePeriodicBoundaryConditionsStartOfStep( const unsigned next_iteration, const scalar& dt )
@@ -610,26 +610,36 @@ void RigidBody2DSim::updatePeriodicBoundaryConditionsStartOfStep( const unsigned
   }
 }
 
-void RigidBody2DSim::enforcePeriodicBoundaryConditions( VectorXs& q )
+void RigidBody2DSim::enforcePeriodicBoundaryConditions( VectorXs& q, VectorXs& v )
 {
   assert( q.size() % 3 == 0 );
+  assert( q.size() == v.size() );
 
   const unsigned nbodies{ static_cast<unsigned>( q.size() / 3 ) };
 
+  // TODO: Probably faster to invert the loop here, only cache xin once per body
   // For each portal
   for( const PlanarPortal& planar_portal : m_state.planarPortals() )
   {
     // For each body
     for( unsigned bdy_idx = 0; bdy_idx < nbodies; ++bdy_idx )
     {
+      const Vector2s xin{ q.segment<2>( 3 * bdy_idx ) };
       // TODO: Calling pointInsidePortal and teleportPointInsidePortal is a bit redundant, clean this up!
       // If the body is inside a portal
-      if( planar_portal.pointInsidePortal( q.segment<2>( 3 * bdy_idx ) ) )
+      if( planar_portal.pointInsidePortal( xin ) )
       {
         // Teleport to the other side of the portal
         Vector2s x_out;
-        planar_portal.teleportPointInsidePortal( q.segment<2>( 3 * bdy_idx ), x_out );
+        planar_portal.teleportPointInsidePortal( xin, x_out );
         q.segment<2>( 3 * bdy_idx ) = x_out;
+        // TODO: This check probably isn't needed, additional_vel should be 0 for non-LE portals
+        // Lees-Edwards Boundary conditions also update the velocity
+        if( planar_portal.isLeesEdwards() )
+        {
+          const Vector2s additional_vel{ planar_portal.getKinematicVelocityOfPoint( xin ) };
+          v.segment<2>( 3 * bdy_idx ) += additional_vel;
+        }
       }
     }
   }

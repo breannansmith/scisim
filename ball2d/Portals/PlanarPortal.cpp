@@ -179,11 +179,11 @@ Vector2s PlanarPortal::getKinematicVelocityOfPoint( const Vector2s& x ) const
 
   if( planeA().distanceLessThanZero( x ) )
   {
-    return -m_v * m_plane_a.t();;
+    return -m_v * m_plane_a.t();
   }
   else
   {
-    return -m_v * m_plane_b.t();;
+    return -m_v * m_plane_b.t();
   }
 }
 
