@@ -36,3 +36,11 @@ Performance Improvements
 ------------------------
 
 * Significant speedups are possible for broad phase collision detection. In the examples that we have tested, broad phase detection is not the bottleneck, but if the speed of broad phase is important in your applications please get in touch.
+
+* Fix consistency issues with So-bogus across compilers and platforms.
+
+Known Issues
+------------
+
+* Lees-Edwards boundary conditions for 3D rigid bodies are inconsistent with the 2D implementations.
+
