@@ -1,11 +1,11 @@
 #!/bin/bash
 
-original_sobogus_md5="fd502f6a24be313ea38410093e8df36d"
-patched_sobogus_md5="a824f74df64ed5592acfd322a9b53497"
+original_sobogus_md5="5a4f4e761d6b306d1ff2fc0acde863fd"
+patched_sobogus_md5="d41d8cd98f00b204e9800998ecf8427e"
 sobogus_url="https://bitbucket.org/gdaviet/so-bogus.git"
-desired_sobogus_revision="fd97f98c41c331e28870775ecf2802dfea57c3a7"
+desired_sobogus_revision="104e9d74f4345a8f9ff54d948e61fffe57c4390e"
 # md5 on installed So-bogus source files
-actual_installed_sobogus_dir_md5="6e13d2b085f6893e75151d2a611ce8fd"
+actual_installed_sobogus_dir_md5="6fae3cf752dcabb49a4102fd20bff118"
 actual_installed_hpp_md5="1bcfc6b838e0b84652c66e02550df5d3"
 actual_installed_cpp_md5="ce26cfc11cb73e8c156f61cca487c11b"
 actual_installed_impl_md5="b94ef20cd897ba9c4954f8f77c0fcbd5"
@@ -31,7 +31,7 @@ if [ -d "include/sobogus" ] || [ -e "scisim/ConstrainedMaps/bogus/FrictionProble
     exit 0
   fi
   # Warn the user and exit
-  echo "Error, So-bogus source exists, please manually delete include/sobogus, scisim/ConstrainedMaps/bogus/FrictionProblem.hpp, scisim/ConstrainedMaps/bogus/FrictionProblem.cpp, and scisim/ConstrainedMaps/bogus/FrictionProblem.impl.hpp and rerun get_sobogus.sh."
+  echo "Error, So-bogus source exists or has an incorrect checksum, please manually delete include/sobogus, scisim/ConstrainedMaps/bogus/FrictionProblem.hpp, scisim/ConstrainedMaps/bogus/FrictionProblem.cpp, and scisim/ConstrainedMaps/bogus/FrictionProblem.impl.hpp and rerun get_sobogus.sh."
   exit 1
 fi
 
@@ -57,7 +57,7 @@ echo "--->  Downloading So-bogus source"
 git clone $sobogus_url $temp_dir_name/so_bogus --quiet
 cd $temp_dir_name/so_bogus
 # Simpler, but requires git 1.8 (servers on 1.7)
-#git reset --hard a0710cf -C $temp_dir_name/so_bogus
+#git -C $temp_dir_name/so_bogus reset --hard a0710cf
 git reset --hard $desired_sobogus_revision --quiet
 cd - > /dev/null
 

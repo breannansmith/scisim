@@ -4,19 +4,19 @@ cmake_minimum_required( VERSION 3.2.1 )
 # Check that the Eigen is installed
 execute_process( COMMAND ./scripts_include/eigen_found.sh RESULT_VARIABLE EIGEN_NOT_FOUND WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
 if( EIGEN_NOT_FOUND )
-  message( FATAL_ERROR "Failed to locate Eigen. Please run get_dependencies.sh." )
+  message( FATAL_ERROR "Failed to locate Eigen or checksum is incorrect. Please run get_dependencies.sh." )
 endif()
 
 # Check that RapidXml is installed
 execute_process( COMMAND ./scripts_include/rapidxml_found.sh RESULT_VARIABLE RAPIDXML_NOT_FOUND WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
 if( RAPIDXML_NOT_FOUND )
-  message( FATAL_ERROR "Failed to locate RapidXml. Please run get_dependencies.sh." )
+  message( FATAL_ERROR "Failed to locate RapidXml or checksum is incorrect. Please run get_dependencies.sh." )
 endif()
 
 # Check that So-bogus is installed
 execute_process( COMMAND ./scripts_include/sobogus_found.sh RESULT_VARIABLE SOBOGUS_NOT_FOUND WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
 if( SOBOGUS_NOT_FOUND )
-  message( FATAL_ERROR "Failed to locate So-bogus. Please run get_dependencies.sh." )
+  message( FATAL_ERROR "Failed to locate So-bogus or checksum is incorrect. Please run get_dependencies.sh." )
 endif()
 
 # Enable Fortran if the user provided a Fortran compiler

@@ -9,4 +9,3 @@ esac
 
 rm -fr include/sobogus scisim/ConstrainedMaps/bogus/FrictionProblem.hpp scisim/ConstrainedMaps/bogus/FrictionProblem.cpp scisim/ConstrainedMaps/bogus/FrictionProblem.impl.hpp
 echo "So-bogus removed."
-
