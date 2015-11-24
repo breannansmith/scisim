@@ -407,7 +407,7 @@ static bool loadPlanarPortals( const rapidxml::xml_node<>& node, std::vector<Rig
     {
       if( nd->first_attribute( "v" ) == nullptr )
       {
-        std::cerr << "Could not locate va attribue for lees_edwards_portal" << std::endl;
+        std::cerr << "Could not locate v attribue for lees_edwards_portal" << std::endl;
         return false;
       }
       const rapidxml::xml_attribute<>& v_attrib{ *nd->first_attribute( "v" ) };

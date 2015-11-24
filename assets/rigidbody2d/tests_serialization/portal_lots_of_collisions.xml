@@ -16,7 +16,7 @@
   <static_plane x="0 -3" n="0 1"/>
   <static_plane x="0 3" n="0 -1"/>
 
-  <lees_edwards_portal planeA="0" planeB="1" va="-1.0" vb="-1.0" boundsa="-3.0 3.0" boundsb="-3.0 3.0"/>
+  <lees_edwards_portal planeA="0" planeB="1" v="-1.0" bounds="3.0"/>
   <planar_portal planeA="2" planeB="3"/>
 
   <geometry type="circle" r="0.5"/>
