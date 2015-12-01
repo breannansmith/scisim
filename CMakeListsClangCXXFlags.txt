@@ -12,4 +12,4 @@ if( STRICT_BUILD )
 endif()
 
 # Enable extra optimizations
-set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native" )
+set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native -flto" )
