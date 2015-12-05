@@ -13,6 +13,6 @@ if( STRICT_BUILD )
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter -Wno-deprecated-declarations -Wno-vector-operation-performance -Wno-array-bounds" )
 endif()
 
-# TODO: benchmark extra optimization flags
+# TODO: Benchmark optimization flags on Linux. The march=native and flto flags seem to degrade performance on OS X.
 # Enable extra optimizations
-#set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native" )
+#set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native -flto" )
