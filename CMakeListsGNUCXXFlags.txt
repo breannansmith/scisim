@@ -4,11 +4,10 @@ if( STRICT_BUILD )
 
   # Enable as many warnings as possible
   # Flags that don't work with Eigen: -Wconversion -Wctor-dtor-privacy -Wfloat-equal -Wlogical-op -Wold-style-cast -Wshadow -Wsign-conversion -Wzero-as-null-pointer-constant -Wunsafe-loop-optimizations -Weffc++ -Wstrict-overflow=5 -Wabi
-
   # Flags that don't work with Qt: -Werror=double-promotion
   # Flags that don't work with my current code: -Wcast-qual -Wmissing-declarations -Wredundant-decls -Wuseless-cast
-  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -Wpedantic -Wcast-align -Wdisabled-optimization -Wformat=2 -Winit-self -Winvalid-pch -Wmissing-include-dirs -Wnoexcept -Woverloaded-virtual -Wsign-promo -Wstrict-null-sentinel -Wtrampolines -Wundef -Wvector-operation-performance" )
-
+  # Flags that trigger false positives: -Wsuggest-final-types -Wsuggest-final-methods
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -Werror -Wall -Wextra -Wpedantic -Wcast-align -Wdisabled-optimization -Wformat=2 -Winit-self -Winvalid-pch -Wmissing-include-dirs -Wnoexcept -Woverloaded-virtual -Wsign-promo -Wstrict-null-sentinel -Wtrampolines -Wundef -Wvector-operation-performance" )
   # Remove a few warnings that cause trouble
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter -Wno-deprecated-declarations -Wno-vector-operation-performance -Wno-array-bounds" )
 endif()
