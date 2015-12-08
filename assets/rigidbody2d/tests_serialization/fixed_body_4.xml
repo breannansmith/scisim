@@ -2,7 +2,7 @@
 
   <camera center="0 0" scale="3" fps="50" render_at_fps="0" locked="0"/>
 
-  <integrator type="symplectic_euler" dt="0.01"/>
+  <integrator type="verlet" dt="0.01"/>
 
   <sobogus_friction_solver mu="0.0" CoR="1.0" max_iters="50000" eval_every="25" tol="1.0e-12" staggering="geometric"/>
 

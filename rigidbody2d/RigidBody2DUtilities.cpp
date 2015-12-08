@@ -1,7 +1,7 @@
 // RigidBody2DUtilities.cpp
 //
 // Breannan Smith
-// Last updated: 09/10/2015
+// Last updated: 12/08/2015
 
 #include "RigidBody2DUtilities.h"
 
@@ -13,6 +13,7 @@
 #include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
 
 #include "SymplecticEulerMap.h"
+#include "VerletMap.h"
 
 void RigidBody2DUtilities::serialize( const std::unique_ptr<UnconstrainedMap>& unconstrained_map, std::ostream& output_stream )
 {
@@ -39,6 +40,10 @@ std::unique_ptr<UnconstrainedMap> RigidBody2DUtilities::deserializeUnconstrained
   if( "symplectic_euler" == integrator_name )
   {
     unconstrained_map.reset( new SymplecticEulerMap{ input_stream } );
+  }
+  else if( "verlet" == integrator_name )
+  {
+    unconstrained_map.reset( new VerletMap{ input_stream } );
   }
   else
   {

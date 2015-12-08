@@ -1,7 +1,7 @@
 // RigidBody2DSceneParser.cpp
 //
 // Breannan Smith
-// Last updated: 12/07/2015
+// Last updated: 12/08/2015
 
 #include "RigidBody2DSceneParser.h"
 
@@ -14,6 +14,7 @@
 #include "rigidbody2d/RigidBody2DGeometry.h"
 #include "rigidbody2d/CircleGeometry.h"
 #include "rigidbody2d/SymplecticEulerMap.h"
+#include "rigidbody2d/VerletMap.h"
 #include "rigidbody2d/RigidBody2DForce.h"
 #include "rigidbody2d/NearEarthGravityForce.h"
 #include "rigidbody2d/RigidBody2DStaticPlane.h"
@@ -510,9 +511,13 @@ static bool loadIntegrator( const rapidxml::xml_node<>& node, std::unique_ptr<Un
     {
       integrator.reset( new SymplecticEulerMap );
     }
+    else if( integrator_type == "verlet" )
+    {
+      integrator.reset( new VerletMap );
+    }
     else
     {
-      std::cerr << "Invalid integrator 'type' attribute specified for integrator node. Options are: symplectic_euler." << std::endl;
+      std::cerr << "Invalid integrator 'type' attribute specified for integrator node. Options are: symplectic_euler, verlet" << std::endl;
       return false;
     }
   }

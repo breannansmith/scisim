@@ -17,6 +17,7 @@ set( Sources
   StaticPlaneCircleConstraint.cpp
   SymplecticEulerMap.cpp
   TeleportedCircleCircleConstraint.cpp
+  VerletMap.cpp
 )
 
 set( Headers
@@ -38,4 +39,5 @@ set( Headers
   StaticPlaneCircleConstraint.h
   SymplecticEulerMap.h
   TeleportedCircleCircleConstraint.h
+  VerletMap.h
 )
