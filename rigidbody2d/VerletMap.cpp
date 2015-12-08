@@ -1,7 +1,7 @@
 // VerletMap.cpp
 //
 // Breannan Smith
-// Last updated:
+// Last updated: 12/08/2015
 
 #include "VerletMap.h"
 
