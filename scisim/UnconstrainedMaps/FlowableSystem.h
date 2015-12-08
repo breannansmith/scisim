@@ -1,7 +1,7 @@
 // FlowableSystem.h
 //
 // Breannan Smith
-// Last updated: 09/03/2015
+// Last updated: 12/07/2015
 
 #ifndef FLOWABLE_SYSTEM_H
 #define FLOWABLE_SYSTEM_H
@@ -13,6 +13,11 @@ class FlowableSystem
 
 public:
 
+  FlowableSystem() = default;
+  FlowableSystem( const FlowableSystem& ) = default;
+  FlowableSystem( FlowableSystem&& ) = default;
+  FlowableSystem& operator=( const FlowableSystem& other ) = default;
+  FlowableSystem& operator=( FlowableSystem&& other ) = default;
   virtual ~FlowableSystem() = 0;
 
   // TODO: Change to unsigned

@@ -1,7 +1,7 @@
 // ConstrainedSystem.h
 //
 // Breannan Smith
-// Last updated: 09/22/2015
+// Last updated: 12/07/2015
 
 #ifndef CONSTRAINED_SYSTEM_H
 #define CONSTRAINED_SYSTEM_H
@@ -17,6 +17,11 @@ class ConstrainedSystem
 
 public:
 
+  ConstrainedSystem() = default;
+  ConstrainedSystem( const ConstrainedSystem& ) = default;
+  ConstrainedSystem( ConstrainedSystem&& ) = default;
+  ConstrainedSystem& operator=( const ConstrainedSystem& other ) = default;
+  ConstrainedSystem& operator=( ConstrainedSystem&& other ) = default;
   virtual ~ConstrainedSystem() = 0;
 
   virtual void computeActiveSet( const VectorXs& q0, const VectorXs& qp, std::vector<std::unique_ptr<Constraint>>& active_set ) = 0;

@@ -859,7 +859,14 @@ void GLWidget::paintSystem() const
       assert( bdy_idx < m_body_colors.size() / 3 );
       assert( bdy_idx < m_sim.state().geometryIndices().size() );
       assert( m_sim.state().geometryIndices()(bdy_idx) < m_body_renderers.size() );
-      m_body_renderers[ m_sim.state().geometryIndices()(bdy_idx) ]->render( m_body_colors.segment<3>( 3 * bdy_idx ) );
+      if( !m_sim.isKinematicallyScripted( bdy_idx ) )
+      {
+        m_body_renderers[ m_sim.state().geometryIndices()(bdy_idx) ]->render( m_body_colors.segment<3>( 3 * bdy_idx ) );
+      }
+      else
+      {
+        m_body_renderers[ m_sim.state().geometryIndices()(bdy_idx) ]->render( Vector3s{ 0.5, 0.5, 0.5 } );
+      }
       glPopMatrix();
     }
   }

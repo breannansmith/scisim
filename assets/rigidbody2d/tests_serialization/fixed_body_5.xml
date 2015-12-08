@@ -1,0 +1,67 @@
+<rigidbody2d_scene>
+
+  <camera center="0 0" scale="7" fps="50" render_at_fps="1" locked="0"/>
+
+  <near_earth_gravity f="0.0 -10.0"/>
+
+  <integrator type="symplectic_euler" dt="0.001"/>
+
+  <sobogus_friction_solver mu="0.5" CoR="0.7" max_iters="50000" eval_every="25" tol="1.0e-12" staggering="geometric"/>
+
+  <geometry type="circle" r="0.5"/>
+  <geometry type="circle" r="0.3"/>
+  <geometry type="circle" r="0.4"/>
+  <geometry type="circle" r="0.45"/>
+  <geometry type="circle" r="0.52"/>
+
+  <rigid_body x="0 0" theta=".56" v="5 7" omega="9" rho="5" fixed="0" geo_idx="1"/>
+  <rigid_body x="3 2" theta="1.56" v="-3 -5" omega="-4" rho="5" fixed="0" geo_idx="2"/>
+  <rigid_body x="-3 2" theta=".55" v="4 6" omega=".23" rho="5" fixed="0" geo_idx="3"/>
+  <rigid_body x="3 -3" theta=".55" v="5 -6" omega=".56" rho="5" fixed="0" geo_idx="4"/>
+
+  <!-- Bottom wall -->
+  <rigid_body x="-5 -5" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="-4 -5" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="-3 -5" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="-2 -5" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="-1 -5" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="0 -5" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="1 -5" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="2 -5" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="3 -5" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="4 -5" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="5 -5" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <!-- Top wall -->
+  <rigid_body x="-5 5" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="-4 5" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="-3 5" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="-2 5" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="-1 5" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="0 5" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="1 5" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="2 5" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="3 5" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="4 5" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="5 5" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <!-- Left wall -->
+  <rigid_body x="-5 -4" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="-5 -3" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="-5 -2" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="-5 -1" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="-5 0" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="-5 1" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="-5 2" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="-5 3" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="-5 4" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <!-- Right wall -->
+  <rigid_body x="5 -4" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="5 -3" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="5 -2" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="5 -1" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="5 0" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="5 1" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="5 2" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="5 3" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+  <rigid_body x="5 4" theta="0" v="0 0" omega="0" rho="5" fixed="1" geo_idx="0"/>
+
+</rigidbody2d_scene>

@@ -1,7 +1,7 @@
 // SymplecticEulerMap.cpp
 //
 // Breannan Smith
-// Last updated: 09/11/2015
+// Last updated: 12/07/2015
 
 #include "SymplecticEulerMap.h"
 
@@ -17,10 +17,37 @@ void SymplecticEulerMap::flow( const VectorXs& q0, const VectorXs& v0, FlowableS
   assert( iteration > 0 );
   const scalar next_time{ iteration * dt };
 
+  // Ensure that kinematic bodies are not expecting to get integrated
+  #ifndef NDEBUG
+  {
+    const unsigned nbodies{ fsys.numBodies() };
+    for( unsigned bdy_idx = 0; bdy_idx < nbodies; ++bdy_idx )
+    {
+      if( fsys.isKinematicallyScripted( bdy_idx ) )
+      {
+        assert( ( v0.segment<3>( 3 * bdy_idx ).array() == 0.0 ).all() );
+      }
+    }
+  }
+  #endif
+
   // Use q1 as temporary storage for the force
   fsys.computeForce( q0, v0, next_time, q1 );
+
+  // TODO: Probably faster to store an explicit list of fixed bodies
+  // Zero the force for fixed bodies
+  const unsigned nbodies{ fsys.numBodies() };
+  for( unsigned bdy_idx = 0; bdy_idx < nbodies; ++bdy_idx )
+  {
+    if( fsys.isKinematicallyScripted( bdy_idx ) )
+    {
+      q1.segment<3>( 3 * bdy_idx ).setZero();
+    }
+  }
+
   // Velocity update
   v1 = v0 + dt * fsys.Minv() * q1;
+
   // Position update
   q1 = q0 + dt * v1;
 }

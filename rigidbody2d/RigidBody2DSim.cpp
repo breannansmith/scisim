@@ -1,7 +1,7 @@
 // RigidBody2DSim.cpp
 //
 // Breannan Smith
-// Last updated: 10/01/2015
+// Last updated: 12/07/2015
 
 #include "RigidBody2DSim.h"
 
@@ -18,35 +18,16 @@
 #include "CircleCircleConstraint.h"
 #include "TeleportedCircleCircleConstraint.h"
 #include "KinematicKickCircleCircleConstraint.h"
+#include "KinematicObjectCircleConstraint.h"
 #include "SpatialGrid.h"
 #include "StateOutput.h"
 #include "PythonScripting.h"
 
 #include <iostream>
 
-RigidBody2DSim::RigidBody2DSim()
-: m_state()
-{}
-
-RigidBody2DSim::RigidBody2DSim( const RigidBody2DSim& other )
-: m_state( other.m_state )
-{}
-
 RigidBody2DSim::RigidBody2DSim( const RigidBody2DState& state )
 : m_state( state )
 {}
-
-RigidBody2DSim& RigidBody2DSim::operator=( RigidBody2DSim other )
-{
-  swap( *this, other );
-  return *this;
-}
-
-void swap( RigidBody2DSim& first, RigidBody2DSim& second )
-{
-  using std::swap;
-  swap( first.m_state, second.m_state );
-}
 
 RigidBody2DState& RigidBody2DSim::state()
 {
@@ -66,7 +47,7 @@ scalar RigidBody2DSim::computeKineticEnergy() const
 scalar RigidBody2DSim::computePotentialEnergy() const
 {
   scalar U{ 0.0 };
-  const std::vector<std::unique_ptr<RigidBody2DForce>>& forces = m_state.forces();
+  const std::vector<std::unique_ptr<RigidBody2DForce>>& forces{ m_state.forces() };
   for( const std::unique_ptr<RigidBody2DForce>& force : forces )
   {
     U += force->computePotential( m_state.q(), m_state.M() );
@@ -117,7 +98,7 @@ unsigned RigidBody2DSim::ambientSpaceDimensions() const
 
 bool RigidBody2DSim::isKinematicallyScripted( const int i ) const
 {
-  return false;
+  return m_state.fixed( i );
 }
 
 void RigidBody2DSim::computeForce( const VectorXs& q, const VectorXs& v, const scalar& t, VectorXs& F )
@@ -190,9 +171,24 @@ void RigidBody2DSim::computeAngularMomentum( const VectorXs& v, VectorXs& L ) co
 }
 
 // TODO: Replace nested switch statements with jump table or something similar
-static void dispatchNarrowPhaseCollision( const unsigned idx0, const unsigned idx1, const std::unique_ptr<RigidBody2DGeometry>& geo0, const std::unique_ptr<RigidBody2DGeometry>& geo1, const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set )
+void RigidBody2DSim::dispatchNarrowPhaseCollision( unsigned idx0, unsigned idx1, const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const
 {
   assert( q0.size() % 3 == 0 ); assert( q0.size() == q1.size() );
+
+  if( isKinematicallyScripted( idx0 ) && isKinematicallyScripted( idx1 ) )
+  {
+    return;
+  }
+
+  // Ensure that the kinematic body is always listed second
+  if( isKinematicallyScripted( idx0 ) )
+  {
+    using std::swap;
+    swap( idx0, idx1 );
+  }
+
+  const std::unique_ptr<RigidBody2DGeometry>& geo0{ m_state.bodyGeometry( idx0 ) };
+  const std::unique_ptr<RigidBody2DGeometry>& geo1{ m_state.bodyGeometry( idx1 ) };
 
   switch( geo0->type() )
   {
@@ -208,8 +204,16 @@ static void dispatchNarrowPhaseCollision( const unsigned idx0, const unsigned id
           {
             // Creation of constraints at q0 to preserve angular momentum
             const Vector2s n{ ( q0.segment<2>( 3 * idx0 ) - q0.segment<2>( 3 * idx1 ) ).normalized() };
-            const Vector2s p{ q0.segment<2>( 3 * idx0 ) + ( circle_geo0.r() / ( circle_geo0.r() + circle_geo1.r() ) ) * ( q0.segment<2>( 3 * idx1 ) - q0.segment<2>( 3 * idx0 ) ) };
-            active_set.emplace_back( new CircleCircleConstraint{ idx0, idx1, n, p, circle_geo0.r(), circle_geo1.r() } );
+            assert( !isKinematicallyScripted( idx0 ) );
+            if( !isKinematicallyScripted( idx1 ) )
+            {
+              const Vector2s p{ q0.segment<2>( 3 * idx0 ) + ( circle_geo0.r() / ( circle_geo0.r() + circle_geo1.r() ) ) * ( q0.segment<2>( 3 * idx1 ) - q0.segment<2>( 3 * idx0 ) ) };
+              active_set.emplace_back( new CircleCircleConstraint{ idx0, idx1, n, p, circle_geo0.r(), circle_geo1.r() } );
+            }
+            else
+            {
+              active_set.emplace_back( new KinematicObjectCircleConstraint{ idx0, circle_geo0.r(), n, idx1 } );
+            }
           }
           break;
         }
@@ -243,13 +247,13 @@ static bool collisionIsActive( const Vector2s& x0, const scalar& theta0, const s
       }
     }
     // GCC and Intel don't realize that we've exhausted all cases and complain about no return here.
-#ifndef CMAKE_DETECTED_CLANG_COMPILER
+    #ifndef CMAKE_DETECTED_CLANG_COMPILER
     default:
     {
       std::cerr << "Invalid geometry type in RigidBody2DSim::collisionIsActive, this is a bug." << std::endl;
       std::exit( EXIT_FAILURE );
     }
-#endif
+    #endif
   }
 }
 
@@ -333,6 +337,12 @@ void RigidBody2DSim::getTeleportedCollisionCenters( const VectorXs& q, const Tel
 void RigidBody2DSim::dispatchTeleportedNarrowPhaseCollision( const TeleportedCollision& teleported_collision, const std::unique_ptr<RigidBody2DGeometry>& geo0, const std::unique_ptr<RigidBody2DGeometry>& geo1, const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const
 {
   assert( q0.size() % 3 == 0 ); assert( q0.size() == q1.size() );
+
+  if( isKinematicallyScripted( teleported_collision.bodyIndex0() ) || isKinematicallyScripted( teleported_collision.bodyIndex1() ) )
+  {
+    std::cerr << "Kinematic geometry not supported with periodic boundary conditions for 2D rigid body sims." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
 
   // Get the center of mass of each body after the teleportation for the start and end of the step
   Vector2s x0_t0;
@@ -475,6 +485,12 @@ void RigidBody2DSim::computeBodyPlaneActiveSetAllPairs( const VectorXs& q0, cons
   {
     for( unsigned bdy_idx = 0; bdy_idx < nbodies; ++bdy_idx )
     {
+      // Skip kinematically scripted bodies
+      if( isKinematicallyScripted( bdy_idx ) )
+      {
+        continue;
+      }
+
       switch( m_state.geometry()[ m_state.geometryIndices()( bdy_idx ) ]->type() )
       {
         case RigidBody2DGeometry::CIRCLE:
@@ -556,6 +572,26 @@ void RigidBody2DSim::getCachedConstraintImpulse( const Constraint& constraint, V
 
 void RigidBody2DSim::flow( const unsigned iteration, const scalar& dt, UnconstrainedMap& umap )
 {
+  // Ensure that fixed bodies do not move
+  #ifndef NDEBUG
+  VectorXs fixed_q{ VectorXs::Zero( m_state.q().size() ) };
+  for( unsigned body_index = 0; body_index < numBodies(); ++body_index )
+  {
+    if( isKinematicallyScripted( body_index ) )
+    {
+      fixed_q.segment<3>( 3 * body_index ) = m_state.q().segment<3>( 3 * body_index );
+    }
+  }
+  VectorXs fixed_v{ VectorXs::Zero( m_state.v().size() ) };
+  for( unsigned body_index = 0; body_index < numBodies(); ++body_index )
+  {
+    if( isKinematicallyScripted( body_index ) )
+    {
+      fixed_v.segment<3>( 3 * body_index ) = m_state.v().segment<3>( 3 * body_index );
+    }
+  }
+  #endif
+
   VectorXs q1{ m_state.q().size() };
   VectorXs v1{ m_state.v().size() };
 
@@ -567,10 +603,48 @@ void RigidBody2DSim::flow( const unsigned iteration, const scalar& dt, Unconstra
   v1.swap( m_state.v() );
 
   enforcePeriodicBoundaryConditions( m_state.q(), m_state.v() );
+
+  // Ensure that fixed bodies do not move
+  #ifndef NDEBUG
+  for( unsigned body_index = 0; body_index < numBodies(); ++body_index )
+  {
+    if( isKinematicallyScripted( body_index ) )
+    {
+      assert( ( fixed_q.segment<3>( 3 * body_index ).array() == m_state.q().segment<3>( 3 * body_index ).array() ).all() );
+    }
+  }
+  for( unsigned body_index = 0; body_index < numBodies(); ++body_index )
+  {
+    if( isKinematicallyScripted( body_index ) )
+    {
+      assert( ( fixed_v.segment<3>( 3 * body_index ).array() == m_state.v().segment<3>( 3 * body_index ).array() ).all() );
+    }
+  }
+  #endif
 }
 
 void RigidBody2DSim::flow( const unsigned iteration, const scalar& dt, UnconstrainedMap& umap, ImpactOperator& iop, const scalar& CoR, ImpactMap& imap )
 {
+  // Ensure that fixed bodies do not move
+  #ifndef NDEBUG
+  VectorXs fixed_q{ VectorXs::Zero( m_state.q().size() ) };
+  for( unsigned body_index = 0; body_index < numBodies(); ++body_index )
+  {
+    if( isKinematicallyScripted( body_index ) )
+    {
+      fixed_q.segment<3>( 3 * body_index ) = m_state.q().segment<3>( 3 * body_index );
+    }
+  }
+  VectorXs fixed_v{ VectorXs::Zero( m_state.v().size() ) };
+  for( unsigned body_index = 0; body_index < numBodies(); ++body_index )
+  {
+    if( isKinematicallyScripted( body_index ) )
+    {
+      fixed_v.segment<3>( 3 * body_index ) = m_state.v().segment<3>( 3 * body_index );
+    }
+  }
+  #endif
+
   VectorXs q1{ m_state.q().size() };
   VectorXs v1{ m_state.v().size() };
 
@@ -583,10 +657,48 @@ void RigidBody2DSim::flow( const unsigned iteration, const scalar& dt, Unconstra
   v1.swap( m_state.v() );
 
   enforcePeriodicBoundaryConditions( m_state.q(), m_state.v() );
+
+  // Ensure that fixed bodies do not move
+  #ifndef NDEBUG
+  for( unsigned body_index = 0; body_index < numBodies(); ++body_index )
+  {
+    if( isKinematicallyScripted( body_index ) )
+    {
+      assert( ( fixed_q.segment<3>( 3 * body_index ).array() == m_state.q().segment<3>( 3 * body_index ).array() ).all() );
+    }
+  }
+  for( unsigned body_index = 0; body_index < numBodies(); ++body_index )
+  {
+    if( isKinematicallyScripted( body_index ) )
+    {
+      assert( ( fixed_v.segment<3>( 3 * body_index ).array() == m_state.v().segment<3>( 3 * body_index ).array() ).all() );
+    }
+  }
+  #endif
 }
 
 void RigidBody2DSim::flow( const unsigned iteration, const scalar& dt, UnconstrainedMap& umap, const scalar& CoR, const scalar& mu, FrictionSolver& solver, ImpactFrictionMap& ifmap )
 {
+  // Ensure that fixed bodies do not move
+  #ifndef NDEBUG
+  VectorXs fixed_q{ VectorXs::Zero( m_state.q().size() ) };
+  for( unsigned body_index = 0; body_index < numBodies(); ++body_index )
+  {
+    if( isKinematicallyScripted( body_index ) )
+    {
+      fixed_q.segment<3>( 3 * body_index ) = m_state.q().segment<3>( 3 * body_index );
+    }
+  }
+  VectorXs fixed_v{ VectorXs::Zero( m_state.v().size() ) };
+  for( unsigned body_index = 0; body_index < numBodies(); ++body_index )
+  {
+    if( isKinematicallyScripted( body_index ) )
+    {
+      fixed_v.segment<3>( 3 * body_index ) = m_state.v().segment<3>( 3 * body_index );
+    }
+  }
+  #endif
+
   VectorXs q1{ m_state.q().size() };
   VectorXs v1{ m_state.v().size() };
 
@@ -599,6 +711,24 @@ void RigidBody2DSim::flow( const unsigned iteration, const scalar& dt, Unconstra
   v1.swap( m_state.v() );
 
   enforcePeriodicBoundaryConditions( m_state.q(), m_state.v() );
+
+  // Ensure that fixed bodies do not move
+  #ifndef NDEBUG
+  for( unsigned body_index = 0; body_index < numBodies(); ++body_index )
+  {
+    if( isKinematicallyScripted( body_index ) )
+    {
+      assert( ( fixed_q.segment<3>( 3 * body_index ).array() == m_state.q().segment<3>( 3 * body_index ).array() ).all() );
+    }
+  }
+  for( unsigned body_index = 0; body_index < numBodies(); ++body_index )
+  {
+    if( isKinematicallyScripted( body_index ) )
+    {
+      assert( ( fixed_v.segment<3>( 3 * body_index ).array() == m_state.v().segment<3>( 3 * body_index ).array() ).all() );
+    }
+  }
+  #endif
 }
 
 void RigidBody2DSim::updatePeriodicBoundaryConditionsStartOfStep( const unsigned next_iteration, const scalar& dt )
@@ -715,7 +845,7 @@ void RigidBody2DSim::computeBodyBodyActiveSetSpatialGrid( const VectorXs& q0, co
     if( !first_teleported && !second_teleported )
     {
       // We can run standard narrow phase
-      dispatchNarrowPhaseCollision( possible_overlap_pair.first, possible_overlap_pair.second, m_state.bodyGeometry( possible_overlap_pair.first ), m_state.bodyGeometry( possible_overlap_pair.second ), q0, q1, active_set );
+      dispatchNarrowPhaseCollision( possible_overlap_pair.first, possible_overlap_pair.second, q0, q1, active_set );
     }
     // If at least one of the balls was teleported
     else
@@ -761,6 +891,10 @@ void RigidBody2DSim::computeBodyBodyActiveSetSpatialGrid( const VectorXs& q0, co
       }
 
       // Check if the teleported collision happens
+      if( isKinematicallyScripted( bdy_idx_0 ) && isKinematicallyScripted( bdy_idx_1 ) )
+      {
+        continue;
+      }
       const TeleportedCollision possible_collision{ bdy_idx_0, bdy_idx_1, prtl_idx_0,  prtl_idx_1, prtl_plane_0, prtl_plane_1 };
       if( teleportedCollisionIsActive( possible_collision, m_state.bodyGeometry( bdy_idx_0 ), m_state.bodyGeometry( bdy_idx_1 ), q1 ) )
       {
@@ -841,6 +975,14 @@ void RigidBody2DSim::writeBinaryState( HDF5File& output_file ) const
     assert( m_state.M().nonZeros() == m_state.q().size() );
     const VectorXs m{ Eigen::Map<const VectorXs>{ &m_state.M().data().value(0), m_state.q().size() } };
     output_file.writeMatrix( "", "m", m );
+  }
+  {
+    VectorXu fixed{ numBodies() };
+    for( int body_index = 0; body_index < fixed.size(); ++body_index )
+    {
+      fixed( body_index ) = isKinematicallyScripted( body_index ) ? 1 : 0;
+    }
+    output_file.writeMatrix( "", "kinematically_scripted", fixed );
   }
   // Output the simulated geometry
   output_file.createGroup( "geometry" );

@@ -2,6 +2,7 @@ set( Sources
   CircleCircleConstraint.cpp
   CircleGeometry.cpp
   KinematicKickCircleCircleConstraint.cpp
+  KinematicObjectCircleConstraint.cpp
   NearEarthGravityForce.cpp
   PlanarPortal.cpp
   PythonScripting.cpp
@@ -22,6 +23,7 @@ set( Headers
   CircleCircleConstraint.h
   CircleGeometry.h
   KinematicKickCircleCircleConstraint.h
+  KinematicObjectCircleConstraint.h
   NearEarthGravityForce.h
   PlanarPortal.h
   PythonScripting.h

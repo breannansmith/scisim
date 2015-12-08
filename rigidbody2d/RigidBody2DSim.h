@@ -1,7 +1,7 @@
 // RigidBody2DSim.h
 //
 // Breannan Smith
-// Last updated: 10/01/2015
+// Last updated: 12/07/2015
 
 #ifndef RIGID_BODY_2D_SIM_H
 #define RIGID_BODY_2D_SIM_H
@@ -23,12 +23,13 @@ class RigidBody2DSim final : private FlowableSystem, private ConstrainedSystem
 
 public:
 
-  RigidBody2DSim();
-  RigidBody2DSim( const RigidBody2DSim& other );
+  RigidBody2DSim() = default;
+  RigidBody2DSim( const RigidBody2DSim& other ) = default;
+  RigidBody2DSim( RigidBody2DSim&& other ) = default;
   explicit RigidBody2DSim( const RigidBody2DState& state );
   virtual ~RigidBody2DSim() override = default;
-  RigidBody2DSim& operator=( RigidBody2DSim other );
-  friend void swap( RigidBody2DSim& first, RigidBody2DSim& second );
+  RigidBody2DSim& operator=( const RigidBody2DSim& other ) = default;
+  RigidBody2DSim& operator=( RigidBody2DSim&& other ) = default;
 
   RigidBody2DState& state();
   const RigidBody2DState& state() const;
@@ -101,6 +102,8 @@ private:
 
   void computeBodyBodyActiveSetSpatialGrid( const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const;
   void computeBodyPlaneActiveSetAllPairs( const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const;
+
+  void dispatchNarrowPhaseCollision( unsigned idx0, unsigned idx1, const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const;
 
   RigidBody2DState m_state;
   //ConstraintCache m_constraint_cache;

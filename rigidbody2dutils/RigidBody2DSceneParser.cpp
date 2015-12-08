@@ -1,7 +1,7 @@
 // RigidBody2DSceneParser.cpp
 //
 // Breannan Smith
-// Last updated: 09/22/2015
+// Last updated: 12/07/2015
 
 #include "RigidBody2DSceneParser.h"
 
@@ -1224,7 +1224,7 @@ static bool loadGeometry( const rapidxml::xml_node<>& node, std::vector<std::uni
   return true;
 }
 
-static bool loadBodies( const rapidxml::xml_node<>& node, const std::vector<std::unique_ptr<RigidBody2DGeometry>>& geometry, VectorXs& q, VectorXs& v, VectorXs& m, VectorXu& indices )
+static bool loadBodies( const rapidxml::xml_node<>& node, const std::vector<std::unique_ptr<RigidBody2DGeometry>>& geometry, VectorXs& q, VectorXs& v, VectorXs& m, VectorXu& indices, std::vector<bool>& fixed )
 {
   std::vector<Vector2s> xs;
   std::vector<scalar> thetas;
@@ -1232,6 +1232,7 @@ static bool loadBodies( const rapidxml::xml_node<>& node, const std::vector<std:
   std::vector<scalar> omegas;
   std::vector<scalar> densities;
   std::vector<unsigned> geometry_indices;
+  assert( fixed.empty() );
 
   for( rapidxml::xml_node<>* nd = node.first_node( "rigid_body" ); nd; nd = nd->next_sibling( "rigid_body" ) )
   {
@@ -1336,9 +1337,28 @@ static bool loadBodies( const rapidxml::xml_node<>& node, const std::vector<std:
       }
       geometry_indices.emplace_back( unsigned( geometry_index ) );
     }
+
+    // Load the optional fixed attribute
+    {
+      const rapidxml::xml_attribute<>* const fixed_attrib{ nd->first_attribute( "fixed" ) };
+      if( fixed_attrib == nullptr )
+      {
+        fixed.emplace_back( false );
+      }
+      else
+      {
+        bool fixed_val;
+        if( !StringUtilities::extractFromString( fixed_attrib->value(), fixed_val ) )
+        {
+          std::cerr << "Failed to load fixed attribute for rigid_body node, fixed must be a boolean." << std::endl;
+          return false;
+        }
+        fixed.emplace_back( fixed_val );
+      }
+    }
   }
 
-  const unsigned nbodies = xs.size();
+  const unsigned nbodies{ static_cast<unsigned>( xs.size() ) };
 
   // Build the generalized configuration
   q.resize( 3 * nbodies );
@@ -1504,12 +1524,13 @@ bool RigidBody2DSceneParser::parseXMLSceneFile( const std::string& file_name, st
   VectorXs v;
   VectorXs m;
   VectorXu indices;
-  if( !loadBodies( root_node, geometry, q, v, m, indices ) )
+  std::vector<bool> fixed;
+  if( !loadBodies( root_node, geometry, q, v, m, indices, fixed ) )
   {
     return false;
   }
 
-  RigidBody2DState new_state{ q, v, m, indices, geometry, forces, planes, planar_portals };
+  RigidBody2DState new_state{ q, v, m, fixed, indices, geometry, forces, planes, planar_portals };
 
   swap( sim_state, new_state );
 

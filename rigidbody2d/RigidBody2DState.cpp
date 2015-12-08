@@ -1,7 +1,7 @@
 // RigidBody2DState.cpp
 //
 // Breannan Smith
-// Last updated: 09/22/2015
+// Last updated: 12/07/2015
 
 #include "RigidBody2DState.h"
 
@@ -13,17 +13,6 @@
 #include "NearEarthGravityForce.h"
 
 #include <iostream>
-
-RigidBody2DState::RigidBody2DState()
-: m_q()
-, m_v()
-, m_M()
-, m_geometry_indices()
-, m_geometry()
-, m_forces()
-, m_planes()
-, m_planar_portals()
-{}
 
 static SparseMatrixsc generateM( const VectorXs& m )
 {
@@ -55,11 +44,12 @@ static SparseMatrixsc generateMinv( const VectorXs& m )
   return Minv;
 }
 
-RigidBody2DState::RigidBody2DState( const VectorXs& q, const VectorXs& v, const VectorXs& m, const VectorXu& geometry_indices, const std::vector<std::unique_ptr<RigidBody2DGeometry>>& geometry, const std::vector<std::unique_ptr<RigidBody2DForce>>& forces, const std::vector<RigidBody2DStaticPlane>& planes, const std::vector<PlanarPortal>& planar_portals )
+RigidBody2DState::RigidBody2DState( const VectorXs& q, const VectorXs& v, const VectorXs& m, const std::vector<bool>& fixed, const VectorXu& geometry_indices, const std::vector<std::unique_ptr<RigidBody2DGeometry>>& geometry, const std::vector<std::unique_ptr<RigidBody2DForce>>& forces, const std::vector<RigidBody2DStaticPlane>& planes, const std::vector<PlanarPortal>& planar_portals )
 : m_q( q )
 , m_v( v )
 , m_M( generateM( m ) )
 , m_Minv( generateMinv( m ) )
+, m_fixed( fixed )
 , m_geometry_indices( geometry_indices )
 , m_geometry( Utilities::cloneVector( geometry ) )
 , m_forces( Utilities::cloneVector( forces ) )
@@ -90,6 +80,7 @@ RigidBody2DState::RigidBody2DState( const VectorXs& q, const VectorXs& v, const 
   }
   #endif
   assert( ( m_geometry_indices.array() < m_geometry.size() ).all() );
+  assert( static_cast<int>( m_fixed.size() ) == m_q.size() / 3 );
 }
 
 RigidBody2DState::RigidBody2DState( const RigidBody2DState& rhs )
@@ -97,6 +88,7 @@ RigidBody2DState::RigidBody2DState( const RigidBody2DState& rhs )
 , m_v( rhs.m_v )
 , m_M( rhs.m_M )
 , m_Minv( rhs.m_Minv )
+, m_fixed( rhs.m_fixed )
 , m_geometry_indices( rhs.m_geometry_indices )
 , m_geometry( Utilities::cloneVector( rhs.m_geometry ) )
 , m_forces( Utilities::cloneVector( rhs.m_forces ) )
@@ -129,31 +121,21 @@ RigidBody2DState::RigidBody2DState( const RigidBody2DState& rhs )
   assert( ( m_geometry_indices.array() < m_geometry.size() ).all() );
 }
 
-RigidBody2DState::~RigidBody2DState() noexcept
-{}
-
 RigidBody2DState& RigidBody2DState::operator=( RigidBody2DState rhs )
 {
+  using std::swap;
   swap( *this, rhs );
   return *this;
 }
 
-RigidBody2DState& RigidBody2DState::operator=( RigidBody2DState&& rhs ) noexcept
-{
-  if( this != &rhs )
-  {
-    swap( *this, rhs );
-  }
-  return *this;
-}
-
-void swap( RigidBody2DState& lhs, RigidBody2DState& rhs ) noexcept
+void swap( RigidBody2DState& lhs, RigidBody2DState& rhs )
 {
   using std::swap;
   swap( lhs.m_q, rhs.m_q );
   swap( lhs.m_v, rhs.m_v );
   swap( lhs.m_M, rhs.m_M );
   swap( lhs.m_Minv, rhs.m_Minv );
+  swap( lhs.m_fixed, rhs.m_fixed );
   swap( lhs.m_geometry_indices, rhs.m_geometry_indices );
   swap( lhs.m_geometry, rhs.m_geometry );
   swap( lhs.m_forces, rhs.m_forces );
@@ -204,6 +186,13 @@ const scalar& RigidBody2DState::I( const unsigned bdy_idx ) const
   assert( bdy_idx < m_q.size() / 3 );
   assert( m_M.valuePtr()[ 3 * bdy_idx + 2 ] > 0.0 );
   return m_M.valuePtr()[ 3 * bdy_idx + 2 ];
+}
+
+bool RigidBody2DState::fixed( const int idx ) const
+{
+  assert( idx >= 0 );
+  assert( idx < static_cast<int>( m_fixed.size() ) );
+  return m_fixed[idx];
 }
 
 std::vector<std::unique_ptr<RigidBody2DGeometry>>& RigidBody2DState::geometry()
@@ -283,6 +272,7 @@ void RigidBody2DState::serialize( std::ostream& output_stream ) const
   MathUtilities::serialize( m_v, output_stream );
   MathUtilities::serialize( m_M, output_stream );
   MathUtilities::serialize( m_Minv, output_stream );
+  Utilities::serializeVectorBuiltInType( m_fixed, output_stream );
   MathUtilities::serialize( m_geometry_indices, output_stream );
   Utilities::serializeVectorCustomTypePointers( m_geometry, output_stream );
   Utilities::serializeVectorCustomTypePointers( m_forces, output_stream );
@@ -339,6 +329,7 @@ void RigidBody2DState::deserialize( std::istream& input_stream )
   m_v = MathUtilities::deserialize<VectorXs>( input_stream );
   MathUtilities::deserialize( m_M, input_stream );
   MathUtilities::deserialize( m_Minv, input_stream );
+  Utilities::deserializeVectorBuiltInType( m_fixed, input_stream );
   m_geometry_indices = MathUtilities::deserialize<VectorXu>( input_stream );
   deserializeGeo( input_stream, m_geometry );
   deserializeForces( input_stream, m_forces );
