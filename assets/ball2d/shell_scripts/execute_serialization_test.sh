@@ -9,7 +9,7 @@ die()
 }
 
 isnumber() { test "$1" && printf '%f' "$1" >/dev/null; }
-isnonnegative() { echo "$1"'>='0 | bc -l; }
+isnonnegative() { [ "1" = `echo "$1"'>='0 | bc -l` ]; }
 integerregexp='^[0-9]+$'
 
 # Ensure that the user provided the correct number of arguments
