@@ -128,7 +128,7 @@ If this library helped you in a publication, please cite our [*Reflections on Si
 For further details on the algorithms and models available in SCISim, see the following publications:
 
 * [*Reflections on Simultaneous Impact*](http://www.cs.columbia.edu/cg/rosi/)  
-[Breannan Smith](http://breannansmith.com), [Danny M. Kaufman](http://www.adobe.com/technology/people/seattle/danny-kaufman.html), [Etienne Vouga](http://www.cs.utexas.edu/users/evouga/index.html), [Rasmus Tamstorf](http://www.disneyresearch.com/people/rasmus-tamstorf/), [Eitan Grinpsun](http://www.cs.columbia.edu/~eitan/)
+[Breannan Smith](http://breannansmith.com), [Danny M. Kaufman](http://www.adobe.com/technology/people/seattle/danny-kaufman.html), [Etienne Vouga](http://www.cs.utexas.edu/users/evouga/index.html), [Rasmus Tamstorf](http://www.disneyresearch.com/people/rasmus-tamstorf/), [Eitan Grinspun](http://www.cs.columbia.edu/~eitan/)
   * Describes the Generalized Reflections and Generalized Restitution impact models.
 
 * [*Staggered Projections for Frictional Contact in Multibody Systems*](http://www.cs.ubc.ca/labs/sensorimotor/projects/sp_sigasia08/)  
