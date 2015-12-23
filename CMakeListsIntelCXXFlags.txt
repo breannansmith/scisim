@@ -26,7 +26,7 @@ if( STRICT_BUILD )
   #    239: floating point underflow
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -wd1418,304,981,522,383,1572,367,280,68,1599,444,239" )
 
-  # Remove warnigns that cause issues with So-bogus
+  # Remove warnings that cause issues with So-bogus
   #    111: statement is unreachable
   #   2259: non-pointer conversion from "double" to "unsigned char" may lose significant bits
   #  11074: Inlining inhibited by limit max-size
