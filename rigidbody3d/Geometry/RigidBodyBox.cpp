@@ -1,17 +1,16 @@
 // RigidBodyBox.cpp
 //
 // Breannan Smith
-// Last updated: 09/15/2015
+// Last updated: 01/05/2016
 
 #include "RigidBodyBox.h"
 
 #include "scisim/Math/MathUtilities.h"
 #include "scisim/Utilities.h"
 
-#include <iostream>
-
 void RigidBodyBox::computeMassAndInertia( const scalar& density, scalar& M, Vector3s& CM, Vector3s& I, Matrix33sr& R ) const
 {
+  assert( density > 0.0 );
   M = density * volume();
   computeInertia( M, I );
   CM.setZero();
@@ -45,31 +44,17 @@ std::unique_ptr<RigidBodyGeometry> RigidBodyBox::clone() const
 
 void RigidBodyBox::computeAABB( const Vector3s& cm, const Matrix33sr& R, Array3s& min, Array3s& max ) const
 {
-  min.setConstant(  std::numeric_limits<scalar>::infinity() );
-  max.setConstant( -std::numeric_limits<scalar>::infinity() );
-
-  // For each vertex of a unit-half-width cube
-  for( signed char i = -1; i <= 1; i += 2 )
-  {
-    for( signed char j = -1; j <= 1; j += 2 )
-    {
-      for( signed char k = -1; k <= 1; k += 2 )
-      {
-        const Array3s transformed_vertex{ R * ( m_half_widths.array() * Array3s{ scalar(i), scalar(j), scalar(k) } ).matrix() + cm };
-        min = min.min( transformed_vertex );
-        max = max.max( transformed_vertex );
-      }
-    }
-  }
-
+  const Array3s extents{ R.array().abs().matrix() * m_half_widths };
+  min = cm.array() - extents;
+  max = cm.array() + extents;
   assert( ( min < max ).all() );
 }
 
 void RigidBodyBox::computeInertia( const scalar& M, Vector3s& I ) const
 {
-  I( 0 ) = m_half_widths.y() * m_half_widths.y() + m_half_widths.z() * m_half_widths.z();
-  I( 1 ) = m_half_widths.x() * m_half_widths.x() + m_half_widths.z() * m_half_widths.z();
-  I( 2 ) = m_half_widths.x() * m_half_widths.x() + m_half_widths.y() * m_half_widths.y();
+  I.x() = m_half_widths.y() * m_half_widths.y() + m_half_widths.z() * m_half_widths.z();
+  I.y() = m_half_widths.x() * m_half_widths.x() + m_half_widths.z() * m_half_widths.z();
+  I.z() = m_half_widths.x() * m_half_widths.x() + m_half_widths.y() * m_half_widths.y();
   I *= M / 3.0;
 }
 

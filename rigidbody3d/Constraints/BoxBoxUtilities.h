@@ -1,7 +1,7 @@
 // BoxBoxUtilities.h
 //
 // Adapted from ODE
-// Last updated: 09/15/2015
+// Last updated: 01/05/2016
 
 #ifndef BOX_BOX_UTILITIES_H
 #define BOX_BOX_UTILITIES_H
