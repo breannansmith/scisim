@@ -72,11 +72,16 @@ void GLWidget::generateRenderers( const std::vector<std::unique_ptr<RigidBody2DG
   {
     switch( geo->type() )
     {
-      case RigidBody2DGeometry::CIRCLE:
+      case RigidBody2DGeometryType::CIRCLE:
       {
         const CircleGeometry& circle{ sd_cast<CircleGeometry&>( *geo ) };
         m_body_renderers.emplace_back( new CircleGeometryRenderer{ circle, m_circle_renderer } );
         break;
+      }
+      case RigidBody2DGeometryType::BOX:
+      {
+        std::cerr << "BOX not handled in GLWidget::generateRenderers" << std::endl;
+        std::exit( EXIT_FAILURE );
       }
     }
   }
@@ -93,11 +98,16 @@ void GLWidget::updateRenderers( const std::vector<std::unique_ptr<RigidBody2DGeo
   {
     switch( geometry[new_idx]->type() )
     {
-      case RigidBody2DGeometry::CIRCLE:
+      case RigidBody2DGeometryType::CIRCLE:
       {
         const CircleGeometry& circle{ sd_cast<CircleGeometry&>( *geometry[new_idx] ) };
         m_body_renderers.emplace_back( new CircleGeometryRenderer{ circle, m_circle_renderer } );
         break;
+      }
+      case RigidBody2DGeometryType::BOX:
+      {
+        std::cerr << "BOX not handled in GLWidget::updateRenderers" << std::endl;
+        std::exit( EXIT_FAILURE );
       }
     }
   }

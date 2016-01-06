@@ -13,6 +13,7 @@
 #include "rigidbody2d/RigidBody2DState.h"
 #include "rigidbody2d/RigidBody2DGeometry.h"
 #include "rigidbody2d/CircleGeometry.h"
+#include "rigidbody2d/BoxGeometry.h"
 #include "rigidbody2d/SymplecticEulerMap.h"
 #include "rigidbody2d/VerletMap.h"
 #include "rigidbody2d/RigidBody2DForce.h"
@@ -1204,19 +1205,36 @@ static bool loadGeometry( const rapidxml::xml_node<>& node, std::vector<std::uni
       if( geom_type == "circle" )
       {
         // Read the radius
-        scalar r;
         const rapidxml::xml_attribute<>* const r_attrib{ nd->first_attribute( "r" ) };
         if( r_attrib == nullptr )
         {
           std::cerr << "Failed to locate r attribute for circle geometry node." << std::endl;
           return false;
         }
+        scalar r;
         if( !StringUtilities::extractFromString( r_attrib->value(), r ) || r <= 0.0 )
         {
           std::cerr << "Failed to read r attribute for circle geometry, must provide a positive scalar." << std::endl;
           return false;
         }
         geometry.emplace_back( new CircleGeometry{ r } );
+      }
+      else if( geom_type == "box" )
+      {
+        // Read the half-widths
+        const rapidxml::xml_attribute<>* const r_attrib{ nd->first_attribute( "r" ) };
+        if( r_attrib == nullptr )
+        {
+          std::cerr << "Failed to locate r attribute for box geometry node." << std::endl;
+          return false;
+        }
+        Vector2s r;
+        if( !StringUtilities::readScalarList( r_attrib->value(), 2, ' ', r ) || ( r.array() <= 0.0 ).any() )
+        {
+          std::cerr << "Failed to read r attribute for box geometry, must provide two positive scalars." << std::endl;
+          return false;
+        }
+        geometry.emplace_back( new BoxGeometry{ r } );
       }
       else
       {

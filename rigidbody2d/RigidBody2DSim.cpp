@@ -192,12 +192,12 @@ void RigidBody2DSim::dispatchNarrowPhaseCollision( unsigned idx0, unsigned idx1,
 
   switch( geo0->type() )
   {
-    case RigidBody2DGeometry::CIRCLE:
+    case RigidBody2DGeometryType::CIRCLE:
     {
       const CircleGeometry& circle_geo0{ sd_cast<CircleGeometry&>( *geo0 ) };
       switch( geo1->type() )
       {
-        case RigidBody2DGeometry::CIRCLE:
+        case RigidBody2DGeometryType::CIRCLE:
         {
           const CircleGeometry& circle_geo1{ sd_cast<CircleGeometry&>( *geo1 ) };
           if( CircleCircleConstraint::isActive( q1.segment<2>( 3 * idx0 ), q1.segment<2>( 3 * idx1 ), circle_geo0.r(), circle_geo1.r() ) )
@@ -217,8 +217,18 @@ void RigidBody2DSim::dispatchNarrowPhaseCollision( unsigned idx0, unsigned idx1,
           }
           break;
         }
+        case RigidBody2DGeometryType::BOX:
+        {
+          std::cerr << "CIRCLE-BOX case not handled in RigidBody2DSim::dispatchNarrowPhaseCollision" << std::endl;
+          std::exit( EXIT_FAILURE );
+        }
       }
       break;
+    }
+    case RigidBody2DGeometryType::BOX:
+    {
+      std::cerr << "BOX case not handled in RigidBody2DSim::dispatchNarrowPhaseCollision" << std::endl;
+      std::exit( EXIT_FAILURE );
     }
   }
 }
@@ -227,12 +237,12 @@ static bool collisionIsActive( const Vector2s& x0, const scalar& theta0, const s
 {
   switch( geo0->type() )
   {
-    case RigidBody2DGeometry::CIRCLE:
+    case RigidBody2DGeometryType::CIRCLE:
     {
       const CircleGeometry& circle_geo0{ sd_cast<CircleGeometry&>( *geo0 ) };
       switch( geo1->type() )
       {
-        case RigidBody2DGeometry::CIRCLE:
+        case RigidBody2DGeometryType::CIRCLE:
         {
           const CircleGeometry& circle_geo1{ sd_cast<CircleGeometry&>( *geo1 ) };
           if( CircleCircleConstraint::isActive( x0, x1, circle_geo0.r(), circle_geo1.r() ) )
@@ -243,8 +253,19 @@ static bool collisionIsActive( const Vector2s& x0, const scalar& theta0, const s
           {
             return false;
           }
+          break;
+        }
+        case RigidBody2DGeometryType::BOX:
+        {
+          std::cerr << "CIRCLE-BOX case not handled in collisionIsActive" << std::endl;
+          std::exit( EXIT_FAILURE );
         }
       }
+    }
+    case RigidBody2DGeometryType::BOX:
+    {
+      std::cerr << "BOX case not handled in collisionIsActive" << std::endl;
+      std::exit( EXIT_FAILURE );
     }
     // GCC and Intel don't realize that we've exhausted all cases and complain about no return here.
     #ifndef CMAKE_DETECTED_CLANG_COMPILER
@@ -407,12 +428,12 @@ void RigidBody2DSim::dispatchTeleportedNarrowPhaseCollision( const TeleportedCol
   {
     switch( geo0->type() )
     {
-      case RigidBody2DGeometry::CIRCLE:
+      case RigidBody2DGeometryType::CIRCLE:
       {
         const CircleGeometry& circle_geo0{ sd_cast<CircleGeometry&>( *geo0 ) };
         switch( geo1->type() )
         {
-          case RigidBody2DGeometry::CIRCLE:
+          case RigidBody2DGeometryType::CIRCLE:
           {
             const CircleGeometry& circle_geo1{ sd_cast<CircleGeometry&>( *geo1 ) };
             if( CircleCircleConstraint::isActive( x0_t1, x1_t1, circle_geo0.r(), circle_geo1.r() ) )
@@ -422,8 +443,18 @@ void RigidBody2DSim::dispatchTeleportedNarrowPhaseCollision( const TeleportedCol
             }
             break;
           }
+          case RigidBody2DGeometryType::BOX:
+          {
+            std::cerr << "CIRCLE-BOX case not handled in RigidBody2DSim::dispatchTeleportedNarrowPhaseCollision" << std::endl;
+            std::exit( EXIT_FAILURE );
+          }
         }
         break;
+      }
+      case RigidBody2DGeometryType::BOX:
+      {
+        std::cerr << "BOX case not handled in RigidBody2DSim::dispatchTeleportedNarrowPhaseCollision" << std::endl;
+        std::exit( EXIT_FAILURE );
       }
     }
   }
@@ -452,12 +483,12 @@ void RigidBody2DSim::dispatchTeleportedNarrowPhaseCollision( const TeleportedCol
     }
     switch( geo0->type() )
     {
-      case RigidBody2DGeometry::CIRCLE:
+      case RigidBody2DGeometryType::CIRCLE:
       {
         const CircleGeometry& circle_geo0{ sd_cast<CircleGeometry&>( *geo0 ) };
         switch( geo1->type() )
         {
-          case RigidBody2DGeometry::CIRCLE:
+          case RigidBody2DGeometryType::CIRCLE:
           {
             const CircleGeometry& circle_geo1{ sd_cast<CircleGeometry&>( *geo1 ) };
             if( CircleCircleConstraint::isActive( x0_t1, x1_t1, circle_geo0.r(), circle_geo1.r() ) )
@@ -467,8 +498,18 @@ void RigidBody2DSim::dispatchTeleportedNarrowPhaseCollision( const TeleportedCol
             }
             break;
           }
+          case RigidBody2DGeometryType::BOX:
+          {
+            std::cerr << "CIRCLE-BOX case not handled in RigidBody2DSim::dispatchTeleportedNarrowPhaseCollision" << std::endl;
+            std::exit( EXIT_FAILURE );
+          }
         }
         break;
+      }
+      case RigidBody2DGeometryType::BOX:
+      {
+        std::cerr << "BOX case not handled in RigidBody2DSim::dispatchTeleportedNarrowPhaseCollision" << std::endl;
+        std::exit( EXIT_FAILURE );
       }
     }
   }
@@ -493,7 +534,7 @@ void RigidBody2DSim::computeBodyPlaneActiveSetAllPairs( const VectorXs& q0, cons
 
       switch( m_state.geometry()[ m_state.geometryIndices()( bdy_idx ) ]->type() )
       {
-        case RigidBody2DGeometry::CIRCLE:
+        case RigidBody2DGeometryType::CIRCLE:
         {
           const CircleGeometry& circle_geo{ sd_cast<CircleGeometry&>( *m_state.geometry()[ m_state.geometryIndices()( bdy_idx ) ] ) };
           if( StaticPlaneCircleConstraint::isActive( q1.segment<2>( 3 * bdy_idx ), circle_geo.r(), m_state.planes()[plane_idx] ) )
@@ -501,6 +542,11 @@ void RigidBody2DSim::computeBodyPlaneActiveSetAllPairs( const VectorXs& q0, cons
             active_set.emplace_back( new StaticPlaneCircleConstraint{ bdy_idx, plane_idx, circle_geo.r(), m_state.planes()[plane_idx] } );
           }
           break;
+        }
+        case RigidBody2DGeometryType::BOX:
+        {
+          std::cerr << "BOX case not handled in RigidBody2DSim::computeBodyPlaneActiveSetAllPairs" << std::endl;
+          std::exit( EXIT_FAILURE );
         }
       }
     }

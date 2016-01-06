@@ -1,4 +1,5 @@
 set( Sources
+  BoxGeometry.cpp
   CircleCircleConstraint.cpp
   CircleGeometry.cpp
   KinematicKickCircleCircleConstraint.cpp
@@ -21,6 +22,7 @@ set( Sources
 )
 
 set( Headers
+  BoxGeometry.h
   CircleCircleConstraint.h
   CircleGeometry.h
   KinematicKickCircleCircleConstraint.h

@@ -12,6 +12,9 @@
 #include "PlanarPortal.h"
 #include "CircleGeometry.h"
 
+// TEMP
+#include <iostream>
+
 void RigidBody2DStateOutput::writeGeometryIndices( const std::vector<std::unique_ptr<RigidBody2DGeometry>>& geometry, const VectorXu& indices, const std::string& group, HDF5File& output_file )
 {
   #ifdef USE_HDF5
@@ -25,8 +28,8 @@ void RigidBody2DStateOutput::writeGeometryIndices( const std::vector<std::unique
     Vector1u geo_type_local_indices{ Vector1u::Zero() };
     for( const std::unique_ptr<RigidBody2DGeometry>& current_geo : geometry )
     {
-      assert(current_geo->type() <= geo_type_local_indices.size() - 1 );
-      global_local_geo_mapping( current_geo_idx++ ) = geo_type_local_indices( current_geo->type() )++;
+      assert( long( current_geo->type() ) <= geo_type_local_indices.size() - 1 );
+      global_local_geo_mapping( current_geo_idx++ ) = geo_type_local_indices( long( current_geo->type() ) )++;
     }
   }
 
@@ -128,18 +131,27 @@ static void writeCircleGeometry( const std::vector<std::unique_ptr<RigidBody2DGe
   CircleData data;
   for( const std::unique_ptr<RigidBody2DGeometry>& geometry_instance : geometry )
   {
-    if( geometry_instance->type() == RigidBody2DGeometry::CIRCLE )
+    switch( geometry_instance->type() )
     {
-      const CircleGeometry& circle{ sd_cast<const CircleGeometry&>( *geometry_instance ) };
-      hsize_t count[]{ 1 };
-      hsize_t offset[]{ current_circle++ };
-      hsize_t mem_offset[]{ 0 };
-      H5Sselect_hyperslab( data_space, H5S_SELECT_SET, offset, nullptr, count, nullptr );
-      H5Sselect_hyperslab( mem_space, H5S_SELECT_SET, mem_offset, nullptr, count, nullptr );
-      data.r = circle.r();
-      if( H5Dwrite( data_set, struct_tid, mem_space, data_space, H5P_DEFAULT, &data ) < 0 )
+      case RigidBody2DGeometryType::CIRCLE:
       {
-        throw std::string{ "Failed to write circle geometry struct to HDF" };
+        const CircleGeometry& circle{ sd_cast<const CircleGeometry&>( *geometry_instance ) };
+        hsize_t count[]{ 1 };
+        hsize_t offset[]{ current_circle++ };
+        hsize_t mem_offset[]{ 0 };
+        H5Sselect_hyperslab( data_space, H5S_SELECT_SET, offset, nullptr, count, nullptr );
+        H5Sselect_hyperslab( mem_space, H5S_SELECT_SET, mem_offset, nullptr, count, nullptr );
+        data.r = circle.r();
+        if( H5Dwrite( data_set, struct_tid, mem_space, data_space, H5P_DEFAULT, &data ) < 0 )
+        {
+          throw std::string{ "Failed to write circle geometry struct to HDF" };
+        }
+        break;
+      }
+      case RigidBody2DGeometryType::BOX:
+      {
+        std::cerr << "Box case not handled in state output" << std::endl;
+        std::exit( EXIT_FAILURE );
       }
     }
   }
@@ -154,8 +166,8 @@ void RigidBody2DStateOutput::writeGeometry( const std::vector<std::unique_ptr<Ri
   Vector1u body_count{ Vector1u::Zero() };
   for( const std::unique_ptr<RigidBody2DGeometry>& geometry_instance : geometry )
   {
-    assert( geometry_instance->type() < body_count.size() );
-    ++body_count( geometry_instance->type() );
+    assert( long( geometry_instance->type() ) < body_count.size() );
+    ++body_count( long( geometry_instance->type() ) );
   }
   assert( body_count.sum() == geometry.size() );
 

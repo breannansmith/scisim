@@ -1,7 +1,7 @@
 // RigidBody2DState.cpp
 //
 // Breannan Smith
-// Last updated: 12/07/2015
+// Last updated: 01/05/2016
 
 #include "RigidBody2DState.h"
 
@@ -9,6 +9,7 @@
 #include "scisim/Math/MathUtilities.h"
 #include "scisim/StringUtilities.h"
 
+#include "BoxGeometry.h"
 #include "CircleGeometry.h"
 #include "NearEarthGravityForce.h"
 
@@ -288,12 +289,17 @@ static void deserializeGeo( std::istream& input_stream, std::vector<std::unique_
   for( std::vector<std::unique_ptr<RigidBody2DGeometry>>::size_type geo_idx = 0; geo_idx < ngeo; ++geo_idx )
   {
     // Read in the geometry type
-    const RigidBody2DGeometry::RigidBody2DGeometryType geo_type{ Utilities::deserialize<RigidBody2DGeometry::RigidBody2DGeometryType>( input_stream ) };
+    const RigidBody2DGeometryType geo_type{ Utilities::deserialize<RigidBody2DGeometryType>( input_stream ) };
     switch( geo_type )
     {
-      case RigidBody2DGeometry::CIRCLE:
+      case RigidBody2DGeometryType::CIRCLE:
       {
         geo[geo_idx].reset( new CircleGeometry{ input_stream } );
+        break;
+      }
+      case RigidBody2DGeometryType::BOX:
+      {
+        geo[geo_idx].reset( new BoxGeometry{ input_stream } );
         break;
       }
     }

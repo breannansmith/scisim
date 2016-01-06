@@ -1,7 +1,7 @@
 // CircleGeometry.cpp
 //
 // Breannan Smith
-// Last updated: 09/10/2015
+// Last updated: 01/05/2016
 
 #include "CircleGeometry.h"
 
@@ -19,9 +19,9 @@ CircleGeometry::CircleGeometry( std::istream& input_stream )
   assert( m_r > 0.0 );
 }
 
-RigidBody2DGeometry::RigidBody2DGeometryType CircleGeometry::type() const
+RigidBody2DGeometryType CircleGeometry::type() const
 {
-  return RigidBody2DGeometry::CIRCLE;
+  return RigidBody2DGeometryType::CIRCLE;
 }
 
 std::unique_ptr<RigidBody2DGeometry> CircleGeometry::clone() const

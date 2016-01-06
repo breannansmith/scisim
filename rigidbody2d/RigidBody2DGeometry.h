@@ -1,7 +1,7 @@
 // RigidBody2DGeometry.h
 //
 // Breannan Smith
-// Last updated: 09/10/2015
+// Last updated: 01/05/2016
 
 #ifndef RIGID_BODY_2D_GEOMETRY_H
 #define RIGID_BODY_2D_GEOMETRY_H
@@ -10,15 +10,15 @@
 
 #include <memory>
 
+enum class RigidBody2DGeometryType
+{
+  CIRCLE, BOX
+};
+
 class RigidBody2DGeometry
 {
 
 public:
-
-  enum RigidBody2DGeometryType
-  {
-    CIRCLE = 0
-  };
 
   virtual ~RigidBody2DGeometry() = 0;
 
