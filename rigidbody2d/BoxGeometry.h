@@ -22,6 +22,8 @@ public:
 
   virtual std::unique_ptr<RigidBody2DGeometry> clone() const override;
 
+  const Vector2s& r() const;
+
 private:
 
   virtual void AABB( const Vector2s& x, const scalar& theta, Array2s& min, Array2s& max ) const override;

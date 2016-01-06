@@ -253,7 +253,7 @@ static bool collisionIsActive( const Vector2s& x0, const scalar& theta0, const s
           {
             return false;
           }
-          break;
+          //break;
         }
         case RigidBody2DGeometryType::BOX:
         {

@@ -13,7 +13,7 @@ public:
 
   CircleGeometryRenderer( const CircleGeometry& geo, const GLCircleRenderer2D& circle_renderer );
 
-  virtual ~CircleGeometryRenderer() override;
+  virtual ~CircleGeometryRenderer() override = default;
 
   virtual void render( const Eigen::Matrix<GLdouble,3,1>& color ) override;
 

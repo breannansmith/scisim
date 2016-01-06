@@ -11,12 +11,14 @@
 #include "scisim/ConstrainedMaps/FrictionSolver.h"
 #include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
 
+#include "rigidbody2d/BoxGeometry.h"
 #include "rigidbody2d/CircleGeometry.h"
 #include "rigidbody2d/RigidBody2DState.h"
 
 #include "RigidBody2DUtils/RigidBody2DSceneParser.h"
 #include "RigidBody2DUtils/CameraSettings2D.h"
 
+#include "BoxGeometryRenderer.h"
 #include "CircleGeometryRenderer.h"
 
 #ifndef NDEBUG
@@ -80,8 +82,9 @@ void GLWidget::generateRenderers( const std::vector<std::unique_ptr<RigidBody2DG
       }
       case RigidBody2DGeometryType::BOX:
       {
-        std::cerr << "BOX not handled in GLWidget::generateRenderers" << std::endl;
-        std::exit( EXIT_FAILURE );
+        const BoxGeometry& box{ sd_cast<BoxGeometry&>( *geo ) };
+        m_body_renderers.emplace_back( new BoxGeometryRenderer{ box } );
+        break;
       }
     }
   }

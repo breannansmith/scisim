@@ -32,23 +32,39 @@ std::unique_ptr<RigidBody2DGeometry> BoxGeometry::clone() const
 // TMP
 #include <iostream>
 
+static Matrix22sr absR( const scalar& theta )
+{
+  Matrix22sr Q;
+  Q(0,0) = fabs( cos( theta ) );
+  Q(1,0) = fabs( sin( theta ) );
+  Q(1,1) = Q(0,0);
+  Q(0,1) = Q(1,0);
+  return Q;
+}
+
 void BoxGeometry::AABB( const Vector2s& x, const scalar& theta, Array2s& min, Array2s& max ) const
 {
-  std::cerr << "BoxGeometry::AABB" << std::endl;
-  std::exit( EXIT_FAILURE );
-  //min = x.array() - m_r;
-  //max = x.array() + m_r;
+  const Matrix22sr Q{ absR( theta ) };
+  const Array2s extents{ Q * m_r };
+  min = x.array() - extents;
+  max = x.array() + extents;
+  std::cout << "BBOX: " << min.transpose() << "  ->  " << max.transpose() << std::endl;
 }
 
 void BoxGeometry::massAndInertia( const scalar& density, scalar& m, scalar& I ) const
 {
-  std::cerr << "BoxGeometry::massAndInertia" << std::endl;
-  std::exit( EXIT_FAILURE );
-  //m = density * MathDefines::PI<scalar>() * m_r * m_r;
-  //I = 0.5 * m * m_r * m_r;
+  m = density * 4.0 * m_r.x() * m_r.y();
+  std::cout << "m: " << m << std::endl;
+  I = m * m_r.squaredNorm() / 3.0;
+  std::cout << "I: " << I << std::endl;
 }
 
 void BoxGeometry::serializeState( std::ostream& output_stream ) const
 {
   MathUtilities::serialize( m_r, output_stream );
+}
+
+const Vector2s& BoxGeometry::r() const
+{
+  return m_r;
 }

@@ -8,9 +8,6 @@ CircleGeometryRenderer::CircleGeometryRenderer( const CircleGeometry& geo, const
 , m_circle_renderer( circle_renderer )
 {}
 
-CircleGeometryRenderer::~CircleGeometryRenderer()
-{}
-
 void CircleGeometryRenderer::render( const Eigen::Matrix<GLdouble,3,1>& color )
 {
   glPushMatrix();
