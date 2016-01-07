@@ -144,6 +144,11 @@ private:
   Vector2s m_delta_p0;
   scalar m_delta_L0;
 
+  // For rendering collision points and normals
+  bool m_render_contacts;
+  std::vector<Vector2s> m_collision_points;
+  std::vector<Vector2s> m_collision_normals;
+
 };
 
 #endif

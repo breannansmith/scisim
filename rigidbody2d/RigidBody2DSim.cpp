@@ -1063,3 +1063,22 @@ void RigidBody2DSim::deserialize( std::istream& input_stream )
   m_state.deserialize( input_stream );
   //m_constraint_cache.deserialize( input_stream );
 }
+
+void RigidBody2DSim::computeContactPoints( std::vector<Vector2s>& points, std::vector<Vector2s>& normals )
+{
+  points.clear();
+  normals.clear();
+
+  std::vector<std::unique_ptr<Constraint>> active_set;
+  computeActiveSet( m_state.q(), m_state.q(), active_set );
+
+  for( const std::unique_ptr<Constraint>& con : active_set )
+  {
+    VectorXs point;
+    con->getWorldSpaceContactPoint( m_state.q(), point );
+    points.emplace_back( point );
+    VectorXs normal;
+    con->getWorldSpaceContactNormal( m_state.q(), normal );
+    normals.emplace_back( normal );
+  }
+}

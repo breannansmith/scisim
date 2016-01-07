@@ -89,6 +89,8 @@ public:
 
   void enforcePeriodicBoundaryConditions( VectorXs& q, VectorXs& v );
 
+  void computeContactPoints( std::vector<Vector2s>& points, std::vector<Vector2s>& normals );
+
 private:
 
   // TODO: Most of these methods don't need to be methods...

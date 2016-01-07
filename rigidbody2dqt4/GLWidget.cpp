@@ -155,6 +155,9 @@ GLWidget::GLWidget( QWidget* parent )
 , m_delta_H0( 0.0 )
 , m_delta_p0( Vector2s::Zero() )
 , m_delta_L0( 0.0 )
+, m_render_contacts( false )
+, m_collision_points()
+, m_collision_normals()
 {}
 
 GLWidget::~GLWidget()
@@ -268,12 +271,19 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   // Backup the simulation
   m_sim0 = m_sim;
 
+  // Initially, no change in energy
   m_H0 = m_sim.computeTotalEnergy();
   m_p0 = m_sim.computeTotalMomentum();
   m_L0 = m_sim.computeTotalAngularMomentum();
   m_delta_H0 = 0.0;
   m_delta_p0.setZero();
   m_delta_L0 = 0.0;
+
+  // Cache the initial contacts for rendering, if needed
+  if( m_render_contacts )
+  {
+    m_sim.computeContactPoints( m_collision_points, m_collision_normals );
+  }
 
   generateBodyColors();
   generateRenderers( m_sim.state().geometry() );
@@ -284,7 +294,6 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   m_iteration = 0;
   m_end_time = end_time;
   assert( m_end_time > 0.0 );
-  //std::cout << "end_time: " << m_end_time << std::endl;
 
   m_output_fps = camera_settings.fps;
   m_render_at_fps = camera_settings.render_at_fps;
@@ -365,6 +374,12 @@ void GLWidget::stepSystem()
   }
   m_delta_L0 = std::max( m_delta_L0, fabs( m_L0 - m_sim.computeTotalAngularMomentum() ) );
 
+  // Cache the contacts for rendering, if needed
+  if( m_render_contacts )
+  {
+    m_sim.computeContactPoints( m_collision_points, m_collision_normals );
+  }
+
   // If the number of bodies changed
   if( m_body_colors.size() != m_sim.state().q().size() )
   {
@@ -408,6 +423,9 @@ void GLWidget::resetSystem()
   m_delta_H0 = 0.0;
   m_delta_p0.setZero();
   m_delta_L0 = 0.0;
+
+  m_collision_points.clear();
+  m_collision_normals.clear();
 
   // Reset the output movie option
   m_movie_dir_name = QString{};
@@ -921,6 +939,39 @@ void GLWidget::paintSystem() const
         }
       }
     }
+  }
+
+  if( m_render_contacts )
+  {
+    assert( m_collision_points.size() == m_collision_normals.size() );
+    // TODO: Draw with circles so they scale nicer
+    // Draw the contact points
+    glPushAttrib( GL_POINT_SIZE );
+    glPushAttrib( GL_COLOR );
+    glColor3d( 1.0, 0.0, 0.0 );
+    glPointSize( 20.0 / m_camera_controller.scaleFactor() );
+    glBegin( GL_POINTS );
+    for( const Vector2s& point : m_collision_points )
+    {
+      glVertex2d( point.x(), point.y() );
+    }
+    glEnd();
+    glPopAttrib();
+    glPopAttrib();
+    // Draw the contact normals
+    glPushAttrib( GL_LINE_WIDTH );
+    glPushAttrib( GL_COLOR );
+    glColor3d( 1.0, 0.0, 0.0 );
+    glLineWidth( 4.0 / m_camera_controller.scaleFactor() );
+    glBegin( GL_LINES );
+    for( std::vector<Vector2s>::size_type idx = 0; idx < m_collision_points.size(); ++idx )
+    {
+      glVertex2d( m_collision_points[idx].x(), m_collision_points[idx].y() );
+      glVertex2d( m_collision_points[idx].x() + 0.5 * m_collision_normals[idx].x(), m_collision_points[idx].y() + 0.5 * m_collision_normals[idx].y() );
+    }
+    glEnd();
+    glPopAttrib();
+    glPopAttrib();
   }
 
   // Draw each planar portal
