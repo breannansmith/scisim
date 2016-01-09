@@ -1,7 +1,7 @@
 // StateOutput.cpp
 //
 // Breannan Smith
-// Last updated: 10/01/2015
+// Last updated: 01/08/2016
 
 #include "StateOutput.h"
 
@@ -10,14 +10,13 @@
 #include "RigidBody2DGeometry.h"
 #include "RigidBody2DStaticPlane.h"
 #include "PlanarPortal.h"
+#include "BoxGeometry.h"
 #include "CircleGeometry.h"
-
-// TEMP
-#include <iostream>
 
 void RigidBody2DStateOutput::writeGeometryIndices( const std::vector<std::unique_ptr<RigidBody2DGeometry>>& geometry, const VectorXu& indices, const std::string& group, HDF5File& output_file )
 {
   #ifdef USE_HDF5
+  using enum_type = std::underlying_type<RigidBody2DGeometryType>::type;
   using HDFSID = HDFID<H5Sclose>;
   using HDFDID = HDFID<H5Dclose>;
 
@@ -25,11 +24,11 @@ void RigidBody2DStateOutput::writeGeometryIndices( const std::vector<std::unique
   VectorXu global_local_geo_mapping( geometry.size() );
   {
     unsigned current_geo_idx{ 0 };
-    Vector1u geo_type_local_indices{ Vector1u::Zero() };
+    Vector2u geo_type_local_indices{ Vector2u::Zero() };
     for( const std::unique_ptr<RigidBody2DGeometry>& current_geo : geometry )
     {
-      assert( long( current_geo->type() ) <= geo_type_local_indices.size() - 1 );
-      global_local_geo_mapping( current_geo_idx++ ) = geo_type_local_indices( long( current_geo->type() ) )++;
+      assert( enum_type( current_geo->type() ) <= geo_type_local_indices.size() - 1 );
+      global_local_geo_mapping( current_geo_idx++ ) = geo_type_local_indices( enum_type( current_geo->type() ) )++;
     }
   }
 
@@ -77,6 +76,7 @@ void RigidBody2DStateOutput::writeGeometryIndices( const std::vector<std::unique
   #endif
 }
 
+// TODO: Combine the write circle geometry and write box geometry code into one function
 #ifndef USE_HDF5
 [[noreturn]]
 #endif
@@ -150,8 +150,8 @@ static void writeCircleGeometry( const std::vector<std::unique_ptr<RigidBody2DGe
       }
       case RigidBody2DGeometryType::BOX:
       {
-        std::cerr << "Box case not handled in state output" << std::endl;
-        std::exit( EXIT_FAILURE );
+        // Nothing to do for boxes here
+        break;
       }
     }
   }
@@ -161,19 +161,116 @@ static void writeCircleGeometry( const std::vector<std::unique_ptr<RigidBody2DGe
   #endif
 }
 
-void RigidBody2DStateOutput::writeGeometry( const std::vector<std::unique_ptr<RigidBody2DGeometry>>& geometry, const std::string& group, HDF5File& output_file )
+#ifndef USE_HDF5
+[[noreturn]]
+#endif
+static void writeBoxGeometry( const std::vector<std::unique_ptr<RigidBody2DGeometry>>& geometry, const unsigned box_count, const std::string& group, HDF5File& output_file )
 {
-  Vector1u body_count{ Vector1u::Zero() };
+  #ifdef USE_HDF5
+  using HDFTID = HDFID<H5Tclose>;
+  using HDFSID = HDFID<H5Sclose>;
+  using HDFDID = HDFID<H5Dclose>;
+
+  struct BoxData
+  {
+    scalar r[2];
+  };
+
+  // Create an HDF5 dataspace
+  const hsize_t dim[]{ box_count };
+  const HDFSID data_space{ H5Screate_simple( 1, dim, nullptr ) };
+  if( data_space < 0 )
+  {
+    throw std::string{ "Failed to create HDF dataspace for box geometry" };
+  }
+
+  // Create an HDF5 struct for the data
+  const HDFTID struct_tid{ H5Tcreate( H5T_COMPOUND, sizeof(BoxData) ) };
+  if( struct_tid < 0 )
+  {
+    throw std::string{ "Failed to create HDF struct" };
+  }
+  // Insert the r type in the struct
+  {
+    const hsize_t array_dim[]{ 2 };
+    const HDFTID array_tid{ H5Tarray_create2( H5T_NATIVE_DOUBLE, 1, array_dim ) };
+    if( array_tid < 0 )
+    {
+      throw std::string{ "Failed to create HDF r type for box geometry" };
+    }
+    if( H5Tinsert( struct_tid, "r", HOFFSET(BoxData,r), array_tid ) < 0 )
+    {
+      throw std::string{ "Failed to insert r in HDF struct for box geometry" };
+    }
+  }
+
+  // Create an HDF5 dataset
+  const HDFDID data_set{ H5Dcreate2( output_file.fileID(), ( group + "/boxes" ).c_str(), struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
+  if( data_set < 0 )
+  {
+    throw std::string{ "Failed to create HDF dataset for box geometry" };
+  }
+
+  // Create an HDF5 memspace to allow us to insert elements one by one
+  const HDFSID mem_space{ H5Screate_simple( 1, dim, nullptr ) };
+  if( mem_space < 0 )
+  {
+    throw std::string{ "Failed to create HDF memspace for box geometry" };
+  }
+
+  // Insert the boxes one by one
+  unsigned current_box{ 0 };
+  BoxData data;
   for( const std::unique_ptr<RigidBody2DGeometry>& geometry_instance : geometry )
   {
-    assert( long( geometry_instance->type() ) < body_count.size() );
-    ++body_count( long( geometry_instance->type() ) );
+    switch( geometry_instance->type() )
+    {
+      case RigidBody2DGeometryType::CIRCLE:
+      {
+        // Nothing to do for boxes here
+        break;
+      }
+      case RigidBody2DGeometryType::BOX:
+      {
+        const BoxGeometry& box{ sd_cast<const BoxGeometry&>( *geometry_instance ) };
+        Eigen::Map<Vector2s>{ data.r } = box.r();
+        const hsize_t count[]{ 1 };
+        const hsize_t offset[]{ current_box++ };
+        const hsize_t mem_offset[]{ 0 };
+        H5Sselect_hyperslab( data_space, H5S_SELECT_SET, offset, nullptr, count, nullptr );
+        H5Sselect_hyperslab( mem_space, H5S_SELECT_SET, mem_offset, nullptr, count, nullptr );
+        if( H5Dwrite( data_set, struct_tid, mem_space, data_space, H5P_DEFAULT, &data ) < 0 )
+        {
+          throw std::string{ "Failed to write box geometry struct to HDF" };
+        }
+      }
+    }
+  }
+  assert( current_box == box_count );
+  #else
+  throw std::string{ "writeBoxGeometry not compiled with HDF5 support" };
+  #endif
+}
+
+void RigidBody2DStateOutput::writeGeometry( const std::vector<std::unique_ptr<RigidBody2DGeometry>>& geometry, const std::string& group, HDF5File& output_file )
+{
+  using enum_type = std::underlying_type<RigidBody2DGeometryType>::type;
+
+  Vector2u body_count{ Vector2u::Zero() };
+  for( const std::unique_ptr<RigidBody2DGeometry>& geometry_instance : geometry )
+  {
+    assert( enum_type( geometry_instance->type() ) < body_count.size() );
+    ++body_count( enum_type( geometry_instance->type() ) );
   }
   assert( body_count.sum() == geometry.size() );
 
   if( body_count( 0 ) != 0 )
   {
     writeCircleGeometry( geometry, body_count( 0 ), group, output_file );
+  }
+  if( body_count( 1 ) != 0 )
+  {
+    writeBoxGeometry( geometry, body_count( 1 ), group, output_file );
   }
 }
 

@@ -1,0 +1,15 @@
+<rigidbody2d_scene>
+
+  <camera center="0 -2.25" scale="6" fps="50" render_at_fps="0" locked="0"/>
+
+  <integrator type="verlet" dt="0.01"/>
+
+  <static_plane x="-3.2 -3.3" n="0.2 0.7"/>
+  <static_plane x="-1.5 0.0" n="1.0 0.0"/>
+  <static_plane x="2.5 0.0" n="-1.0 0.3"/>
+
+  <geometry type="box" r="2.3 0.21"/>
+
+  <rigid_body x="0 -2.25" theta="1.2" v="0 0" omega="3.2" rho="1" geo_idx="0"/>
+
+</rigidbody2d_scene>

@@ -120,6 +120,12 @@ void Constraint::resolveImpact( const scalar& CoR, const SparseMatrixsc& M, cons
   std::exit( EXIT_FAILURE );
 }
 
+void Constraint::evalgradg( const VectorXs& q, const int col, SparseMatrixsc& G, const FlowableSystem& fsys ) const
+{
+  std::cerr << "Constraint::evalgradg not implemented for: " << name() << std::endl;
+  std::exit( EXIT_FAILURE );
+}
+
 void Constraint::computeGeneralizedFrictionDisk( const VectorXs& q, const VectorXs& v, const int start_column, const int num_samples, SparseMatrixsc& D, VectorXs& drel ) const
 {
   std::cerr << "Constraint::computeGeneralizedFrictionDisk not implemented for: " << name() << std::endl;

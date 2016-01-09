@@ -17,6 +17,7 @@ class ImpactMap;
 class ImpactFrictionMap;
 class HDF5File;
 class FrictionSolver;
+class BoxGeometry;
 
 class RigidBody2DSim final : private FlowableSystem, private ConstrainedSystem
 {
@@ -105,6 +106,7 @@ private:
   void computeBodyBodyActiveSetSpatialGrid( const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const;
   void computeBodyPlaneActiveSetAllPairs( const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const;
 
+  void boxBoxNarrowPhaseCollision( const unsigned idx0, const unsigned idx1, const BoxGeometry& box0, const BoxGeometry& box1, const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const;
   void dispatchNarrowPhaseCollision( unsigned idx0, unsigned idx1, const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const;
 
   RigidBody2DState m_state;

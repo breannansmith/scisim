@@ -1,7 +1,7 @@
 // BodyBodyConstraint.cpp
 //
 // Breannan Smith
-// Last updated: 09/22/2015
+// Last updated: 01/07/2016
 
 #include "BodyBodyConstraint.h"
 
@@ -20,9 +20,6 @@ BodyBodyConstraint::BodyBodyConstraint( const unsigned idx0, const unsigned idx1
   assert( m_idx0 < m_idx1 );
   assert( fabs( m_n.norm() - 1.0 ) <= 1.0e-6 );
 }
-
-BodyBodyConstraint::~BodyBodyConstraint()
-{}
 
 scalar BodyBodyConstraint::evalNdotV( const VectorXs& q, const VectorXs& v ) const
 {

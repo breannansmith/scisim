@@ -1,7 +1,7 @@
 // RigidBody2DGeometry.h
 //
 // Breannan Smith
-// Last updated: 01/05/2016
+// Last updated: 01/07/2016
 
 #ifndef RIGID_BODY_2D_GEOMETRY_H
 #define RIGID_BODY_2D_GEOMETRY_H
@@ -10,7 +10,7 @@
 
 #include <memory>
 
-enum class RigidBody2DGeometryType
+enum class RigidBody2DGeometryType : std::uint8_t
 {
   CIRCLE, BOX
 };

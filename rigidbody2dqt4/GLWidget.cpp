@@ -251,9 +251,6 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
          ( new_unconstrained_map != nullptr && new_impact_operator != nullptr && new_friction_solver == nullptr && new_impact_friction_map == nullptr && new_imap != nullptr ) ||
          ( new_unconstrained_map != nullptr && new_impact_operator == nullptr && new_friction_solver != nullptr && new_impact_friction_map != nullptr && new_imap == nullptr ) );
 
-//  m_scripting_callback = KinematicScripting::initializeScriptingCallback( scripting_callback );
-//  assert( m_scripting_callback != nullptr );
-
   m_CoR = CoR;
   m_mu = mu;
 
@@ -313,7 +310,7 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
     }
     else
     {
-      centerCamera();
+      centerCamera( false );
     }
 
     m_lock_camera = lock_backup;
@@ -321,6 +318,10 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
 
   if( render_on_load )
   {
+    GLint width;
+    GLint height;
+    getViewportDimensions( width, height );
+    m_camera_controller.reshape( width, height );
     updateGL();
   }
 
@@ -424,8 +425,11 @@ void GLWidget::resetSystem()
   m_delta_p0.setZero();
   m_delta_L0 = 0.0;
 
-  m_collision_points.clear();
-  m_collision_normals.clear();
+  // Cache the initial contacts for rendering, if needed
+  if( m_render_contacts )
+  {
+    m_sim.computeContactPoints( m_collision_points, m_collision_normals );
+  }
 
   // Reset the output movie option
   m_movie_dir_name = QString{};
@@ -545,9 +549,19 @@ void GLWidget::centerCamera( const bool update_gl )
     return;
   }
 
-  GLint width;
-  GLint height;
-  getViewportDimensions( width, height );
+  const GLint width{ sizeHint().width() };
+  const GLint height{ sizeHint().height() };
+
+  #ifndef NDEBUG
+  if( update_gl )
+  {
+    GLint gl_width;
+    GLint gl_height;
+    getViewportDimensions( gl_width, gl_height );
+    assert( gl_width == width );
+    assert( gl_height == height );
+  }
+  #endif
 
   if( m_sim.state().q().size() == 0 )
   {

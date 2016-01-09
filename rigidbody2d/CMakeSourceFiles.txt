@@ -1,4 +1,6 @@
 set( Sources
+  BodyBodyConstraint.cpp
+  BoxBoxTools.cpp
   BoxGeometry.cpp
   CircleCircleConstraint.cpp
   CircleGeometry.cpp
@@ -15,6 +17,7 @@ set( Sources
   RigidBody2DUtilities.cpp
   SpatialGrid.cpp
   StateOutput.cpp
+  StaticPlaneBodyConstraint.cpp
   StaticPlaneCircleConstraint.cpp
   SymplecticEulerMap.cpp
   TeleportedCircleCircleConstraint.cpp
@@ -22,6 +25,8 @@ set( Sources
 )
 
 set( Headers
+  BodyBodyConstraint.h
+  BoxBoxTools.h
   BoxGeometry.h
   CircleCircleConstraint.h
   CircleGeometry.h
@@ -38,6 +43,7 @@ set( Headers
   RigidBody2DUtilities.h
   SpatialGrid.h
   StateOutput.h
+  StaticPlaneBodyConstraint.h
   StaticPlaneCircleConstraint.h
   SymplecticEulerMap.h
   TeleportedCircleCircleConstraint.h

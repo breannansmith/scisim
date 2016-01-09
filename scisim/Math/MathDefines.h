@@ -33,6 +33,7 @@ typedef double scalar;
 // Define integer-valued version of Eigen types
 typedef Eigen::Vector3i Vector3i;
 typedef Eigen::Matrix<unsigned,1,1> Vector1u;
+typedef Eigen::Matrix<unsigned,2,1> Vector2u;
 typedef Eigen::Matrix<unsigned,3,1> Vector3u;
 typedef Eigen::Matrix<unsigned,4,1> Vector4u;
 typedef Eigen::VectorXi VectorXi;

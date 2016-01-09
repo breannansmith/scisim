@@ -13,8 +13,12 @@
 #include "scisim/Utilities.h"
 #include "scisim/HDF5File.h"
 
+#include "BoxBoxTools.h"
+#include "BoxGeometry.h"
 #include "CircleGeometry.h"
+#include "StaticPlaneBodyConstraint.h"
 #include "StaticPlaneCircleConstraint.h"
+#include "BodyBodyConstraint.h"
 #include "CircleCircleConstraint.h"
 #include "TeleportedCircleCircleConstraint.h"
 #include "KinematicKickCircleCircleConstraint.h"
@@ -170,6 +174,31 @@ void RigidBody2DSim::computeAngularMomentum( const VectorXs& v, VectorXs& L ) co
   }
 }
 
+void RigidBody2DSim::boxBoxNarrowPhaseCollision( const unsigned idx0, const unsigned idx1, const BoxGeometry& box0, const BoxGeometry& box1, const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const
+{
+  if( isKinematicallyScripted( idx0 ) || isKinematicallyScripted( idx1 ) )
+  {
+    std::cerr << "Box-Box kinematic collisions not yet supported." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+
+  // Note: Detection is at q1...
+  const Vector2s x0_t1{ q1.segment<2>( 3 * idx0 ) };
+  const scalar theta0_t1{ q1( 3 * idx0 + 2 ) };
+  const Vector2s x1_t1{ q1.segment<2>( 3 * idx1 ) };
+  const scalar theta1_t1{ q1( 3 * idx1 + 2 ) };
+  Vector2s n;
+  std::vector<Vector2s> points;
+  BoxBoxTools::isActive( x0_t1, theta0_t1, box0.r(), x1_t1, theta1_t1, box1.r(), n, points );
+
+  // ... but constraint construction is at q0 to conserve angular momentum
+  for( const Vector2s& point : points )
+  {
+    active_set.emplace_back( new BodyBodyConstraint{ idx0, idx1, point, n, q0 } );
+  }
+}
+
+
 // TODO: Replace nested switch statements with jump table or something similar
 void RigidBody2DSim::dispatchNarrowPhaseCollision( unsigned idx0, unsigned idx1, const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const
 {
@@ -227,8 +256,21 @@ void RigidBody2DSim::dispatchNarrowPhaseCollision( unsigned idx0, unsigned idx1,
     }
     case RigidBody2DGeometryType::BOX:
     {
-      std::cerr << "BOX case not handled in RigidBody2DSim::dispatchNarrowPhaseCollision" << std::endl;
-      std::exit( EXIT_FAILURE );
+      const BoxGeometry& box_geo0{ sd_cast<BoxGeometry&>( *geo0 ) };
+      switch( geo1->type() )
+      {
+        case RigidBody2DGeometryType::CIRCLE:
+        {
+          std::cerr << "BOX-CIRCLE case not handled in RigidBody2DSim::dispatchNarrowPhaseCollision" << std::endl;
+          std::exit( EXIT_FAILURE );
+        }
+        case RigidBody2DGeometryType::BOX:
+        {
+          const BoxGeometry& box_geo1{ sd_cast<BoxGeometry&>( *geo1 ) };
+          boxBoxNarrowPhaseCollision( idx0, idx1, box_geo0, box_geo1, q0, q1, active_set );
+          break;
+        }
+      }
     }
   }
 }
@@ -524,6 +566,7 @@ void RigidBody2DSim::computeBodyPlaneActiveSetAllPairs( const VectorXs& q0, cons
   // Check all body-plane pairs
   for( unsigned plane_idx = 0; plane_idx < m_state.planes().size(); ++plane_idx )
   {
+    const RigidBody2DStaticPlane& plane{ m_state.planes()[plane_idx] };
     for( unsigned bdy_idx = 0; bdy_idx < nbodies; ++bdy_idx )
     {
       // Skip kinematically scripted bodies
@@ -537,16 +580,35 @@ void RigidBody2DSim::computeBodyPlaneActiveSetAllPairs( const VectorXs& q0, cons
         case RigidBody2DGeometryType::CIRCLE:
         {
           const CircleGeometry& circle_geo{ sd_cast<CircleGeometry&>( *m_state.geometry()[ m_state.geometryIndices()( bdy_idx ) ] ) };
-          if( StaticPlaneCircleConstraint::isActive( q1.segment<2>( 3 * bdy_idx ), circle_geo.r(), m_state.planes()[plane_idx] ) )
+          if( StaticPlaneCircleConstraint::isActive( q1.segment<2>( 3 * bdy_idx ), circle_geo.r(), plane ) )
           {
-            active_set.emplace_back( new StaticPlaneCircleConstraint{ bdy_idx, plane_idx, circle_geo.r(), m_state.planes()[plane_idx] } );
+            active_set.emplace_back( new StaticPlaneCircleConstraint{ bdy_idx, plane_idx, circle_geo.r(), plane } );
           }
           break;
         }
         case RigidBody2DGeometryType::BOX:
         {
-          std::cerr << "BOX case not handled in RigidBody2DSim::computeBodyPlaneActiveSetAllPairs" << std::endl;
-          std::exit( EXIT_FAILURE );
+          // TODO: Make this faster, if needed
+          const BoxGeometry& box_geo{ sd_cast<BoxGeometry&>( *m_state.geometry()[ m_state.geometryIndices()( bdy_idx ) ] ) };
+
+          const Vector2s x{ q1.segment<2>( 3 * bdy_idx ) };
+          const Eigen::Rotation2D<scalar> R{ q1( 3 * bdy_idx + 2 ) };
+          const Array2s r{ box_geo.r() };
+
+          // Check each vertex of the box
+          for( int i = -1; i < 2; i += 2 )
+          {
+            for( int j = -1; j < 2; j += 2 )
+            {
+              const Vector2s body_space_arm{ ( Array2s{ i, j } * r ).matrix() };
+              const Vector2s transformed_vertex{ x + R * body_space_arm };
+              const scalar dist{ plane.n().dot( transformed_vertex - plane.x() ) };
+              if( dist <= 0.0 )
+              {
+                active_set.emplace_back( new StaticPlaneBodyConstraint( bdy_idx, body_space_arm, plane, plane_idx ) );
+              }
+            }
+          }
         }
       }
     }
@@ -986,25 +1048,26 @@ void RigidBody2DSim::computeBodyBodyActiveSetSpatialGrid( const VectorXs& q0, co
     dispatchTeleportedNarrowPhaseCollision( teleported_collision, m_state.bodyGeometry( teleported_collision.bodyIndex0() ), m_state.bodyGeometry( teleported_collision.bodyIndex1() ), q0, q1, active_set );
   }
 
-  #ifndef NDEBUG
-  // Do an all pairs check for duplicates
-  const unsigned ncons{ static_cast<unsigned>( active_set.size() ) };
-  for( unsigned con_idx_0 = 0; con_idx_0 < ncons; ++con_idx_0 )
-  {
-    std::pair<int,int> indices0;
-    active_set[con_idx_0]->getBodyIndices( indices0 );
-    const int idx_0a{ std::min( indices0.first, indices0.second ) };
-    const int idx_1a{ std::max( indices0.first, indices0.second ) };
-    for( unsigned con_idx_1 = con_idx_0 + 1; con_idx_1 < ncons; ++con_idx_1 )
-    {
-      std::pair<int,int> indices1;
-      active_set[con_idx_1]->getBodyIndices( indices1 );
-      const int idx_0b{ std::min( indices1.first, indices1.second ) };
-      const int idx_1b{ std::max( indices1.first, indices1.second ) };
-      assert( !( ( idx_0a == idx_0b ) && ( idx_1a == idx_1b ) ) );
-    }
-  }
-  #endif
+  // This debug check only works when there is a single collision point for any given pair of bodies
+  //#ifndef NDEBUG
+  //// Do an all pairs check for duplicates
+  //const unsigned ncons{ static_cast<unsigned>( active_set.size() ) };
+  //for( unsigned con_idx_0 = 0; con_idx_0 < ncons; ++con_idx_0 )
+  //{
+  //  std::pair<int,int> indices0;
+  //  active_set[con_idx_0]->getBodyIndices( indices0 );
+  //  const int idx_0a{ std::min( indices0.first, indices0.second ) };
+  //  const int idx_1a{ std::max( indices0.first, indices0.second ) };
+  //  for( unsigned con_idx_1 = con_idx_0 + 1; con_idx_1 < ncons; ++con_idx_1 )
+  //  {
+  //    std::pair<int,int> indices1;
+  //    active_set[con_idx_1]->getBodyIndices( indices1 );
+  //    const int idx_0b{ std::min( indices1.first, indices1.second ) };
+  //    const int idx_1b{ std::max( indices1.first, indices1.second ) };
+  //    assert( !( ( idx_0a == idx_0b ) && ( idx_1a == idx_1b ) ) );
+  //  }
+  //}
+  //#endif
 }
 
 // TODO: 0 size plane matrices are not output due to a bug in an older version of HDF5
