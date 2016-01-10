@@ -16,7 +16,7 @@
 void RigidBody2DStateOutput::writeGeometryIndices( const std::vector<std::unique_ptr<RigidBody2DGeometry>>& geometry, const VectorXu& indices, const std::string& group, HDF5File& output_file )
 {
   #ifdef USE_HDF5
-  using enum_type = std::underlying_type<RigidBody2DGeometryType>::type;
+  using enum_type = std::uint8_t; //std::underlying_type<RigidBody2DGeometryType>::type;
   using HDFSID = HDFID<H5Sclose>;
   using HDFDID = HDFID<H5Dclose>;
 
@@ -254,7 +254,7 @@ static void writeBoxGeometry( const std::vector<std::unique_ptr<RigidBody2DGeome
 
 void RigidBody2DStateOutput::writeGeometry( const std::vector<std::unique_ptr<RigidBody2DGeometry>>& geometry, const std::string& group, HDF5File& output_file )
 {
-  using enum_type = std::underlying_type<RigidBody2DGeometryType>::type;
+  using enum_type = std::uint8_t; // std::underlying_type<RigidBody2DGeometryType>::type;
 
   Vector2u body_count{ Vector2u::Zero() };
   for( const std::unique_ptr<RigidBody2DGeometry>& geometry_instance : geometry )

@@ -46,7 +46,8 @@ static bool pointInBox( const Vector2s& x, const Matrix22sc& R, const Vector2s& 
 
 void BoxBoxTools::isActive( const Vector2s& x0, const scalar& theta0, const Vector2s& r0, const Vector2s& x1, const scalar& theta1, const Vector2s& r1, Vector2s& n, std::vector<Vector2s>& points )
 {
-  using enum_type = std::underlying_type<CollidingFeature>::type;
+  //using enum_type = std::underlying_type<CollidingFeature>::type;
+  using enum_type = std::uint8_t;
 
   // Principle axes of the bodies
   const Matrix22sc R0{ Eigen::Rotation2D<scalar>{ theta0 } };

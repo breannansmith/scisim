@@ -1366,7 +1366,7 @@ static bool loadBodies( const rapidxml::xml_node<>& node, const std::vector<std:
       const rapidxml::xml_attribute<>* const fixed_attrib{ nd->first_attribute( "fixed" ) };
       if( fixed_attrib == nullptr )
       {
-        fixed.emplace_back( false );
+        fixed.push_back( false );
       }
       else
       {
@@ -1376,7 +1376,7 @@ static bool loadBodies( const rapidxml::xml_node<>& node, const std::vector<std:
           std::cerr << "Failed to load fixed attribute for rigid_body node, fixed must be a boolean." << std::endl;
           return false;
         }
-        fixed.emplace_back( fixed_val );
+        fixed.push_back( fixed_val );
       }
     }
   }
