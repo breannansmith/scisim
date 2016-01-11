@@ -54,6 +54,7 @@ computed_eigen_tar_md5=`md5sum $temp_dir_name/$eigen_file_name | cut -c -32`
 if [ "$actual_eigen_tar_md5" != "$computed_eigen_tar_md5" ]
 then
   echo "Error, md5 checksum for $eigen_file_name does not match $actual_eigen_tar_md5."
+  exit 1
 fi
 
 # Extract the tar archive

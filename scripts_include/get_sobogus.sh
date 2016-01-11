@@ -1,14 +1,14 @@
 #!/bin/bash
 
-original_sobogus_md5="5a4f4e761d6b306d1ff2fc0acde863fd"
-patched_sobogus_md5="d41d8cd98f00b204e9800998ecf8427e"
+original_sobogus_md5="d6ec5a6733cc9d4a0047b7c0ba4db64e"
+patched_sobogus_md5="d968ed2dbe6ce8e3d709c7bc2d17dd0b"
 sobogus_url="https://bitbucket.org/gdaviet/so-bogus.git"
-desired_sobogus_revision="104e9d74f4345a8f9ff54d948e61fffe57c4390e"
+desired_sobogus_revision="44acb51687655760058cf0bbb879d14c18eff6b1"
 # md5 on installed So-bogus source files
-actual_installed_sobogus_dir_md5="6fae3cf752dcabb49a4102fd20bff118"
-actual_installed_hpp_md5="1bcfc6b838e0b84652c66e02550df5d3"
-actual_installed_cpp_md5="ce26cfc11cb73e8c156f61cca487c11b"
-actual_installed_impl_md5="b94ef20cd897ba9c4954f8f77c0fcbd5"
+actual_installed_sobogus_dir_md5="d0541b424d14aa99b69d710c87e6309d"
+actual_installed_hpp_md5="1b87f8666802292e68766095262b941d"
+actual_installed_cpp_md5="4ab02502b7bc3432e05a257ad252fa60"
+actual_installed_impl_md5="15a6292d5dcb9ac377dbbce539341d58"
 
 # Verify that git is installed
 command -v git >/dev/null 2>&1 || { echo >&2 "Error, please install git and rerun get_sobogus.sh."; exit 1; }
@@ -67,10 +67,11 @@ computed_original_sobogus_md5=`find $temp_dir_name/so_bogus/src -type f -name '*
 if [ "$original_sobogus_md5" != "$computed_original_sobogus_md5" ]
 then
   echo "Error, md5 checksum for So-bogus of $computed_original_sobogus_md5 is not $original_sobogus_md5."
+  exit 1
 fi
 
 # Patch the So-bogus source
-patch -d $temp_dir_name/so_bogus/src -p1 --quiet < scripts_include/sobogus_patch.patch
+patch -d $temp_dir_name/so_bogus/src -p2 --quiet < scripts_include/sobogus_patch.patch
 
 # Run a checksum on the patched download
 echo "--->  Verifying patched So-bogus checksum"
@@ -78,6 +79,7 @@ computed_patched_sobogus_md5=`find $temp_dir_name/so_bogus/src -type f -name '*.
 if [ "$patched_sobogus_md5" != "$computed_patched_sobogus_md5" ]
 then
   echo "Error, patched md5 checksum for So-bogus of $computed_patched_sobogus_md5 is not $patched_sobogus_md5."
+  exit 1
 fi
 
 # Move the source files to their final destinations

@@ -55,6 +55,7 @@ computed_rapidxml_zip_md5=`md5sum $temp_dir_name/$rapidxml_file_name | cut -c -3
 if [ "$actual_rapidxml_zip_md5" != "$computed_rapidxml_zip_md5" ]
 then
   echo "Error, md5 checksum for $rapidxml_file_name does not match $actual_rapidxml_zip_md5."
+  exit 1
 fi
 
 # Extract the zip archive
