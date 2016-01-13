@@ -10,7 +10,7 @@ class BoxGeometryRenderer final : public RigidBodyRenderer2D
 
 public:
 
-  BoxGeometryRenderer( const BoxGeometry& geo );
+  explicit BoxGeometryRenderer( const BoxGeometry& geo );
 
   virtual ~BoxGeometryRenderer() override = default;
 
