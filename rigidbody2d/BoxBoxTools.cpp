@@ -163,7 +163,9 @@ void BoxBoxTools::isActive( const Vector2s& x0, const scalar& theta0, const Vect
 
   // Intersect the reference face (in its frame) with the projected extents of the incident face
   assert( projected_extents(0) <= projected_extents(1) );
-  assert( projected_extents(1) >= -ra( a_tngt_idx ) && projected_extents(0) <= ra( a_tngt_idx ) );
+  assert( projected_extents(1) >= -ra( a_tngt_idx ) - 1.0e-15 && projected_extents(0) <= ra( a_tngt_idx ) + 1.0e-15 );
+  projected_extents(0) = std::min( projected_extents(0), ra( a_tngt_idx ) );
+  projected_extents(1) = std::max( projected_extents(1), -ra( a_tngt_idx ) );
   const Vector2s intersection{ std::max( -ra( a_tngt_idx ), projected_extents(0) ), std::min( ra( a_tngt_idx ), projected_extents(1) ) };
   assert( intersection(1) >= intersection(0) );
 
