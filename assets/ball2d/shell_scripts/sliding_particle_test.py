@@ -43,7 +43,7 @@ if pln_nrmls[0,0] > 0:
   dx *= -1.0
 dy = dplane * math.sin(theta)
 # Compute the analytical velocity of the ball
-vplane = time * ( -10.0 * math.sin(theta) + 5.0 * math.cos(theta) )
+vplane = time * ( -gravity_magnitude * math.sin(theta) + gravity_magnitude * mu * math.cos(theta) )
 vx = vplane * math.cos(theta)
 if pln_nrmls[0,0] > 0:
   vx *= -1.0
