@@ -60,6 +60,7 @@ if( USE_HDF5 )
   add_test( rb2d_serialization_box_plane_01 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/boxes/box_plane_01.xml 3.5 35 07 10 )
   add_test( rb2d_serialization_box_plane_02 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/boxes/box_plane_02.xml 2.0 20 06 10 )
   add_test( rb2d_serialization_box_plane_03 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/boxes/box_plane_03.xml 4.5 45 08 10 )
+  add_test( rb2d_serialization_box_plane_04 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/boxes/box_plane_04.xml 6.0 60 25 10 )
   # Box-box-plane tests
   add_test( rb2d_serialization_box_box_plane_00 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/boxes/box_box_plane_00.xml 3.5 35 06 10 )
   add_test( rb2d_serialization_box_box_plane_01 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/boxes/box_box_plane_01.xml 2.0 20 06 10 )
