@@ -26,7 +26,7 @@ scalar BodyBodyConstraint::evalNdotV( const VectorXs& q, const VectorXs& v ) con
 
 int BodyBodyConstraint::impactStencilSize() const
 {
-  return 3;
+  return 6;
 }
 
 void BodyBodyConstraint::getSimulatedBodyIndices( std::pair<int,int>& bodies ) const
