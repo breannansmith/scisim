@@ -53,9 +53,7 @@ void BoxBoxTools::isActive( const Vector2s& x0, const scalar& theta0, const Vect
   const Matrix22sc R0{ Eigen::Rotation2D<scalar>{ theta0 } };
   const Matrix22sc R1{ Eigen::Rotation2D<scalar>{ theta1 } };
 
-  // Track the feature with the smallest magnitude penetrating velocity
   CollidingFeature colliding_feature;
-  scalar min_pen_depth{ -SCALAR_INFINITY };
   // False if a front face, true if a back face
   bool invert_normal{ false };
   //bool box0_is_reference;
@@ -64,6 +62,9 @@ void BoxBoxTools::isActive( const Vector2s& x0, const scalar& theta0, const Vect
   // TODO: Pull this into a support function
   // Run a full separating axis test
   {
+    // Track the feature with the smallest magnitude penetrating velocity
+    scalar min_pen_depth{ -SCALAR_INFINITY };
+
     // Component-wise absolute value of relative rotation between body 0 and body 1
     // (Trick to easily compute AABB for a body in the other body's frame)
     const Matrix22sc Q{ ( R0.transpose() * R1 ).cwiseAbs() };
@@ -118,7 +119,6 @@ void BoxBoxTools::isActive( const Vector2s& x0, const scalar& theta0, const Vect
     n *= -1.0;
   }
   assert( fabs( n.norm() - 1.0 ) <= 1.0e-9 );
-  min_pen_depth *= -1.0;
 
   // TODO: Can avoid copies here by reworking to use swaps
   // Let face 'a' be the reference face (the face the normal is perpendicular to)
