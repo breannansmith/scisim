@@ -1,0 +1,19 @@
+<rigidbody2d_scene>
+
+  <camera center="0 0" scale="1.5" fps="50" render_at_fps="1" locked="0"/>
+
+  <integrator type="symplectic_euler" dt="0.0001"/>
+
+  <collision_detection broadphase="spatial_grid" cell_scale="1.0" bandwidth_reduction="none"/>
+
+  <sobogus_friction_solver mu="0.3" CoR="0.0" max_iters="50000" eval_every="25" tol="1.0e-12" staggering="geometric"/>
+
+  <near_earth_gravity f="0.0 -10.0"/>
+
+  <static_plane x="-0.19028927241458032527 -0.98172806459015402809" n="0.19028927241458032527 0.98172806459015402809"/>
+
+  <geometry type="box" r="1 1"/>
+
+  <rigid_body x="0 0" theta="-0.19145679447786709200" v="0 0" omega="0" rho="1" geo_idx="0"/>
+
+</rigidbody2d_scene>

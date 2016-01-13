@@ -63,6 +63,11 @@ if( USE_HDF5 )
   # Box-box-plane tests
   add_test( rb2d_serialization_box_box_plane_00 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/boxes/box_box_plane_00.xml 3.5 35 06 10 )
   add_test( rb2d_serialization_box_box_plane_01 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/boxes/box_box_plane_01.xml 2.0 20 06 10 )
+  # Friction tests for box-plane
+  add_test( rb2d_friction_box_static_00 assets/shell_scripts/static_particle_test.sh assets/tests_serialization/boxes/box_slide_flat_plane.xml 2.0 10  )
+  add_test( rb2d_friction_box_static_01 assets/shell_scripts/static_particle_test.sh assets/tests_serialization/boxes/box_slide_below_threshold.xml 2.0 10  )
+  add_test( rb2d_friction_box_static_02 assets/shell_scripts/static_particle_test.sh assets/tests_serialization/boxes/box_slide_at_threshold.xml 2.0 10  )
+  add_test( rb2d_friction_box_sliding_00 assets/shell_scripts/sliding_particle_test.sh assets/tests_serialization/boxes/box_slide_above_threshold.xml 2.0 10 )
 else()
   message( STATUS "Skipping RigidBody2D tests that require HDF5 (USE_HDF5 is disabled)." )
 endif()
