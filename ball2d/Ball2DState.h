@@ -22,13 +22,14 @@ public:
 
   friend void swap( Ball2DState& first, Ball2DState& second );
 
-  Ball2DState();
-  Ball2DState( const Ball2DState& other );
+  Ball2DState() = default;
   Ball2DState( const VectorXs& q, const VectorXs& v, const VectorXs& m, const VectorXs& r, const std::vector<bool>& fixed, const std::vector<StaticDrum>& drums, const std::vector<StaticPlane>& planes, const std::vector<PlanarPortal>& planar_portals, const std::vector<std::unique_ptr<Ball2DForce>>& forces );
-
+  Ball2DState( const Ball2DState& other );
+  // TODO: 'copy and swap' and move assignment seems weird together ...
   Ball2DState& operator=( Ball2DState other );
-
-  ~Ball2DState();
+  Ball2DState( Ball2DState&& ) = default;
+  Ball2DState& operator=( Ball2DState&& ) = default;
+  ~Ball2DState() = default;
 
   // Configuration, velocity, mass, and geometry of the system
   unsigned nballs() const;

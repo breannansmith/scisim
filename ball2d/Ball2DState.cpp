@@ -31,19 +31,6 @@ void swap( Ball2DState& first, Ball2DState& second )
   swap( first.m_forces, second.m_forces );
 }
 
-Ball2DState::Ball2DState()
-: m_q()
-, m_v()
-, m_r()
-, m_fixed()
-, m_M()
-, m_Minv()
-, m_static_drums()
-, m_static_planes()
-, m_planar_portals()
-, m_forces()
-{}
-
 Ball2DState::Ball2DState( const Ball2DState& other )
 : m_q( other.m_q )
 , m_v( other.m_v )
@@ -56,6 +43,13 @@ Ball2DState::Ball2DState( const Ball2DState& other )
 , m_planar_portals( other.m_planar_portals )
 , m_forces( Utilities::cloneVector( other.m_forces ) )
 {}
+
+Ball2DState& Ball2DState::operator=( Ball2DState other )
+{
+  using std::swap;
+  swap( *this, other );
+  return *this;
+}
 
 static SparseMatrixsc createM( const VectorXs& m )
 {
@@ -111,16 +105,6 @@ Ball2DState::Ball2DState( const VectorXs& q, const VectorXs& v, const VectorXs& 
   assert( ( ( should_be_id_data - 1.0 ).abs() <= 1.0e-6 ).all() );
   #endif
 }
-
-Ball2DState& Ball2DState::operator=( Ball2DState other )
-{
-  using std::swap;
-  swap( *this, other );
-  return *this;
-}
-
-Ball2DState::~Ball2DState()
-{}
 
 unsigned Ball2DState::nballs() const
 {

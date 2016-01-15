@@ -105,6 +105,26 @@ static unsigned computeTimestepDisplayPrecision( const Rational<std::intmax_t>& 
   }
 }
 
+// TODO: Move all of this into the 2D ball scene reader
+static Ball2DState initializeState( const std::vector<Ball2D>& balls, const std::vector<StaticDrum>& drums, const std::vector<StaticPlane>& planes, const std::vector<PlanarPortal>& planar_portals, const std::vector<std::unique_ptr<Ball2DForce>>& forces )
+{
+  VectorXs q0{ static_cast<VectorXs::Index>( 2 * balls.size() ) };
+  VectorXs v0{ static_cast<VectorXs::Index>( 2 * balls.size() ) };
+  VectorXs m0{ static_cast<VectorXs::Index>( 2 * balls.size() ) };
+  VectorXs r0{ static_cast<VectorXs::Index>(  balls.size() ) };
+  std::vector<bool> fixed0( balls.size() );
+  for( std::vector<Ball2D>::size_type ball_idx = 0; ball_idx < balls.size(); ++ball_idx )
+  {
+    q0.segment<2>( 2 * ball_idx ) = balls[ball_idx].x();
+    v0.segment<2>( 2 * ball_idx ) = balls[ball_idx].v();
+    m0.segment<2>( 2 * ball_idx ).setConstant( balls[ball_idx].m() );
+    r0( ball_idx ) = balls[ball_idx].r();
+    fixed0[ ball_idx ] = balls[ball_idx].fixed();
+  }
+
+  return Ball2DState{ q0, v0, m0, r0, fixed0, drums, planes, planar_portals, forces };
+}
+
 static bool loadXMLScene( const std::string& xml_file_name )
 {
   std::vector<Ball2D> balls;
@@ -132,30 +152,12 @@ static bool loadXMLScene( const std::string& xml_file_name )
 
     g_dt_string_precision = computeTimestepDisplayPrecision( g_dt, dt_string );
   }
+  Ball2DState new_simulation_state{ initializeState( balls, drums, planes, planar_portals, forces ) };
 
-  // Copy the new state over to the simulation
-  Ball2DState new_simulation_state;
-  // TODO: Move this code to a factory function
-  {
-    VectorXs q0{ static_cast<VectorXs::Index>( 2 * balls.size() ) };
-    VectorXs v0{ static_cast<VectorXs::Index>( 2 * balls.size() ) };
-    VectorXs m0{ static_cast<VectorXs::Index>( 2 * balls.size() ) };
-    VectorXs r0{ static_cast<VectorXs::Index>(  balls.size() ) };
-    std::vector<bool> fixed0( balls.size() );
-    for( std::vector<Ball2D>::size_type ball_idx = 0; ball_idx < balls.size(); ++ball_idx )
-    {
-      q0.segment<2>( 2 * ball_idx ) = balls[ball_idx].x();
-      v0.segment<2>( 2 * ball_idx ) = balls[ball_idx].v();
-      m0.segment<2>( 2 * ball_idx ).setConstant( balls[ball_idx].m() );
-      r0( ball_idx ) = balls[ball_idx].r();
-      fixed0[ ball_idx ] = balls[ball_idx].fixed();
-    }
-
-    Ball2DState new_state{ q0, v0, m0, r0, fixed0, drums, planes, planar_portals, forces };
-    using std::swap;
-    swap( new_simulation_state, new_state );
-  }
-  g_sim.swapState( new_simulation_state );
+  // Move the new state over to the simulation
+  using std::swap;
+  swap( new_simulation_state, g_sim.state() );
+  g_sim.clearConstraintCache();
 
   {
     std::string path;

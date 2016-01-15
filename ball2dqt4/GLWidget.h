@@ -123,9 +123,8 @@ private:
   scalar m_mu;
 
   // Initial state of the simulation
-  Ball2DState m_state0;
-
-  // Simulation
+  Ball2DSim m_sim0;
+  // Current state of the simulation
   Ball2DSim m_sim;
 
   // Initial energy, momentum, and angular momentum of the simulation

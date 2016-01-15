@@ -89,7 +89,7 @@ GLWidget::GLWidget( QWidget* parent )
 , m_end_time( SCALAR_INFINITY )
 , m_CoR( SCALAR_NAN )
 , m_mu( SCALAR_NAN )
-, m_state0()
+, m_sim0()
 , m_sim()
 , m_H0()
 , m_p0()
@@ -126,6 +126,26 @@ static int computeTimestepDisplayPrecision( const Rational<std::intmax_t>& dt, c
     ss >> converted_dt_string;
     return int( StringUtilities::computeNumCharactersToRight( converted_dt_string, '.' ) );
   }
+}
+
+// TODO: Move all of this into the 2D ball scene reader
+static Ball2DState initializeState( const std::vector<Ball2D>& balls, const std::vector<StaticDrum>& drums, const std::vector<StaticPlane>& planes, const std::vector<PlanarPortal>& planar_portals, const std::vector<std::unique_ptr<Ball2DForce>>& forces )
+{
+  VectorXs q0{ static_cast<VectorXs::Index>( 2 * balls.size() ) };
+  VectorXs v0{ static_cast<VectorXs::Index>( 2 * balls.size() ) };
+  VectorXs m0{ static_cast<VectorXs::Index>( 2 * balls.size() ) };
+  VectorXs r0{ static_cast<VectorXs::Index>(  balls.size() ) };
+  std::vector<bool> fixed0( balls.size() );
+  for( std::vector<Ball2D>::size_type ball_idx = 0; ball_idx < balls.size(); ++ball_idx )
+  {
+    q0.segment<2>( 2 * ball_idx ) = balls[ball_idx].x();
+    v0.segment<2>( 2 * ball_idx ) = balls[ball_idx].v();
+    m0.segment<2>( 2 * ball_idx ).setConstant( balls[ball_idx].m() );
+    r0( ball_idx ) = balls[ball_idx].r();
+    fixed0[ ball_idx ] = balls[ball_idx].fixed();
+  }
+
+  return Ball2DState{ q0, v0, m0, r0, fixed0, drums, planes, planar_portals, forces };
 }
 
 bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render_on_load, unsigned& fps, bool& render_at_fps, bool& lock_camera )
@@ -196,33 +216,15 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   m_mu = new_mu;
 
   // Copy the new state over to the simulation
-  Ball2DState new_simulation_state;
-  // TODO: Move this code to a factory function
-  {
-    VectorXs q0{ static_cast<VectorXs::Index>( 2 * new_balls.size() ) };
-    VectorXs v0{ static_cast<VectorXs::Index>( 2 * new_balls.size() ) };
-    VectorXs m0{ static_cast<VectorXs::Index>( 2 * new_balls.size() ) };
-    VectorXs r0{ static_cast<VectorXs::Index>( new_balls.size() ) };
-    std::vector<bool> fixed0( new_balls.size() );
-    for( std::vector<Ball2D>::size_type i = 0; i < new_balls.size(); ++i )
-    {
-      q0.segment<2>( 2 * i ) = new_balls[i].x();
-      v0.segment<2>( 2 * i ) = new_balls[i].v();
-      m0.segment<2>( 2 * i ).setConstant( new_balls[i].m() );
-      r0( i ) = new_balls[i].r();
-      fixed0[ i ] = new_balls[i].fixed();
-    }
-
-    Ball2DState new_state{ q0, v0, m0, r0, fixed0, new_drums, new_planes, new_planar_portals, new_forces };
-    using std::swap;
-    swap( new_simulation_state, new_state );
-  }
-
-  // Cache the new state locally to allow one to reset a simulation
-  m_state0 = new_simulation_state;
+  Ball2DState new_simulation_state{ initializeState( new_balls, new_drums, new_planes, new_planar_portals, new_forces ) };
 
   // Push the new state to the simulation
-  m_sim.swapState( new_simulation_state );
+  using std::swap;
+  swap( new_simulation_state, m_sim.state() );
+  m_sim.clearConstraintCache();
+
+  // Cache the new state locally to allow one to reset a simulation
+  m_sim0 = m_sim;
 
   // Save the timestep and compute related quantities
   m_dt = new_dt;
@@ -247,9 +249,9 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   lock_camera = m_lock_camera;
 
   // Compute the initial energy, momentum, and angular momentum
-  m_H0 = m_state0.computeTotalEnergy();
-  m_p0 = m_state0.computeMomentum();
-  m_L0 = m_state0.computeAngularMomentum();
+  m_H0 = m_sim.state().computeTotalEnergy();
+  m_p0 = m_sim.state().computeMomentum();
+  m_L0 = m_sim.state().computeAngularMomentum();
   // Trivially there is no change in energy, momentum, and angular momentum until we take a timestep
   m_delta_H0 = 0.0;
   m_delta_p0 = Vector2s::Zero();
@@ -260,7 +262,7 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
 
   // Generate a random color for each ball
   // TODO: Initialize these directly in HSV of CMYK and save as QColor objects
-  m_ball_colors.resize( 3 * m_state0.nballs() );
+  m_ball_colors.resize( 3 * m_sim.state().nballs() );
   {
     m_ball_color_gen = std::mt19937_64( 1337 );
     std::uniform_real_distribution<scalar> color_gen( 0.0, 1.0 );
@@ -398,7 +400,7 @@ void GLWidget::stepSystem()
 
 void GLWidget::resetSystem()
 {
-  m_sim.setState( m_state0 );
+  m_sim = m_sim0;
 
   m_iteration = 0;
 
@@ -412,7 +414,7 @@ void GLWidget::resetSystem()
   m_output_frame = 0;
 
   // Reset ball colors, in case the number of balls changed
-  m_ball_colors.resize( 3 * m_state0.nballs() );
+  m_ball_colors.resize( 3 * m_sim.state().nballs() );
   {
     m_ball_color_gen = std::mt19937_64( 1337 );
     std::uniform_real_distribution<scalar> color_gen( 0.0, 1.0 );

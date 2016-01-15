@@ -30,24 +30,6 @@
 
 #include <iostream>
 
-Ball2DSim::Ball2DSim()
-: m_state()
-, m_constraint_cache()
-{}
-
-void Ball2DSim::setState( const Ball2DState& new_state )
-{
-  m_state = new_state;
-  m_constraint_cache.clear();
-}
-
-void Ball2DSim::swapState( Ball2DState& new_state )
-{
-  // TODO: Also swap constraint cache when that is back
-  swap( m_state, new_state );
-  m_constraint_cache.clear();
-}
-
 Ball2DState& Ball2DSim::state()
 {
   return m_state;

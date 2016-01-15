@@ -30,11 +30,12 @@ class Ball2DSim final : private FlowableSystem, private ConstrainedSystem
 
 public:
 
-  Ball2DSim();
+  Ball2DSim() = default;
+  Ball2DSim( const Ball2DSim& ) = default;
+  Ball2DSim& operator=( const Ball2DSim& ) = default;
+  Ball2DSim( Ball2DSim&& ) = default;
+  Ball2DSim& operator=( Ball2DSim&& ) = default;
   virtual ~Ball2DSim() override = default;
-
-  void setState( const Ball2DState& new_state );
-  void swapState( Ball2DState& new_state );
 
   Ball2DState& state();
   const Ball2DState& state() const;
