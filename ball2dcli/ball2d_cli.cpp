@@ -133,25 +133,15 @@ static bool loadXMLScene( const std::string& xml_file_name )
   std::vector<PlanarPortal> planar_portals;
   std::vector<std::unique_ptr<Ball2DForce>> forces;
   std::string scripting_callback_name;
+  std::string dt_string;
 
   // Attempt to load the user-requested file
+  const bool loaded_successfully{ Ball2DSceneParser::parseXMLSceneFile( xml_file_name, scripting_callback_name, balls, drums, planes, planar_portals, g_unconstrained_map, dt_string, g_dt, g_end_time, g_impact_operator, g_impact_map, g_CoR, g_friction_solver, g_mu, g_impact_friction_map, forces ) };
+  if( !loaded_successfully )
   {
-    std::string dt_string;
-    bool camera_set;
-    Eigen::Vector2d camera_center;
-    double camera_scale_factor;
-    unsigned camera_fps;
-    bool camera_render_at_fps;
-    bool camera_lock_camera;
-
-    const bool loaded_successfully{ Ball2DSceneParser::parseXMLSceneFile( xml_file_name, scripting_callback_name, balls, drums, planes, planar_portals, g_unconstrained_map, dt_string, g_dt, g_end_time, g_impact_operator, g_impact_map, g_CoR, g_friction_solver, g_mu, g_impact_friction_map, forces, camera_set, camera_center, camera_scale_factor, camera_fps, camera_render_at_fps, camera_lock_camera ) };
-    if( !loaded_successfully )
-    {
-      return false;
-    }
-
-    g_dt_string_precision = computeTimestepDisplayPrecision( g_dt, dt_string );
+    return false;
   }
+  g_dt_string_precision = computeTimestepDisplayPrecision( g_dt, dt_string );
   Ball2DState new_simulation_state{ initializeState( balls, drums, planes, planar_portals, forces ) };
 
   // Move the new state over to the simulation

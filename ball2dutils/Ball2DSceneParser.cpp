@@ -1321,24 +1321,8 @@ static bool loadPenaltyForce( const rapidxml::xml_node<>& node, std::vector<std:
   return true;
 }
 
-bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::string& scripting_callback_name, std::vector<Ball2D>& balls, std::vector<StaticDrum>& drums, std::vector<StaticPlane>& planes, std::vector<PlanarPortal>& planar_portals, std::unique_ptr<UnconstrainedMap>& integrator, std::string& dt_string, Rational<std::intmax_t>& dt, scalar& end_time, std::unique_ptr<ImpactOperator>& impact_operator, std::unique_ptr<ImpactMap>& impact_map, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, scalar& mu, std::unique_ptr<ImpactFrictionMap>& if_map, std::vector<std::unique_ptr<Ball2DForce>>& forces, bool& camera_set, Eigen::Vector2d& camera_center, double& camera_scale_factor, unsigned& fps, bool& render_at_fps, bool& lock_camera )
+static bool loadSimulationState( const rapidxml::xml_node<>& root_node, const std::string& file_name, std::string& scripting_callback_name, std::vector<Ball2D>& balls, std::vector<StaticDrum>& drums, std::vector<StaticPlane>& planes, std::vector<PlanarPortal>& planar_portals, std::unique_ptr<UnconstrainedMap>& integrator, std::string& dt_string, Rational<std::intmax_t>& dt, scalar& end_time, std::unique_ptr<ImpactOperator>& impact_operator, std::unique_ptr<ImpactMap>& impact_map, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, scalar& mu, std::unique_ptr<ImpactFrictionMap>& if_map, std::vector<std::unique_ptr<Ball2DForce>>& forces )
 {
-  // Attempt to load the xml document
-  std::vector<char> xmlchars;
-  rapidxml::xml_document<> doc;
-  if( !loadXMLFile( file_name, xmlchars, doc ) )
-  {
-    return false;
-  }
-
-  // Attempt to locate the root node
-  if( doc.first_node( "ball2d_scene" ) == nullptr )
-  {
-    std::cerr << "Failed to locate root node in xml scene file: " << file_name << std::endl;
-    return false;
-  }
-  const rapidxml::xml_node<>& root_node{ *doc.first_node( "ball2d_scene" ) };
-
   // Attempt to determine if scirpting is enabled and if so, the coresponding callback
   if( !loadScriptingSetup( root_node, scripting_callback_name ) )
   {
@@ -1369,18 +1353,6 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::st
   {
     std::cerr << "Failed to load penalty force: " << file_name << std::endl;
     return false;
-  }
-
-  // Attempt to load camera settings, if present
-  camera_set = false;
-  if( root_node.first_node( "camera" ) != nullptr )
-  {
-    camera_set = true;
-    if( !loadCameraSettings( *root_node.first_node( "camera" ), camera_center, camera_scale_factor, fps, render_at_fps, lock_camera ) )
-    {
-      std::cerr << "Failed to parse camera node: " << file_name << std::endl;
-      return false;
-    }
   }
 
   // Attempt to load the unconstrained integrator
@@ -1478,6 +1450,74 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::st
   if( !loadBalls( root_node, balls ) )
   {
     std::cerr << "Failed to load balls: " << file_name << std::endl;
+    return false;
+  }
+
+  return true;
+}
+
+bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::string& scripting_callback_name, std::vector<Ball2D>& balls, std::vector<StaticDrum>& drums, std::vector<StaticPlane>& planes, std::vector<PlanarPortal>& planar_portals, std::unique_ptr<UnconstrainedMap>& integrator, std::string& dt_string, Rational<std::intmax_t>& dt, scalar& end_time, std::unique_ptr<ImpactOperator>& impact_operator, std::unique_ptr<ImpactMap>& impact_map, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, scalar& mu, std::unique_ptr<ImpactFrictionMap>& if_map, std::vector<std::unique_ptr<Ball2DForce>>& forces )
+{
+  // Attempt to load the xml document
+  std::vector<char> xmlchars;
+  rapidxml::xml_document<> doc;
+  if( !loadXMLFile( file_name, xmlchars, doc ) )
+  {
+    return false;
+  }
+
+  // Attempt to locate the root node
+  if( doc.first_node( "ball2d_scene" ) == nullptr )
+  {
+    std::cerr << "Failed to locate root node in xml scene file: " << file_name << std::endl;
+    return false;
+  }
+  const rapidxml::xml_node<>& root_node{ *doc.first_node( "ball2d_scene" ) };
+
+  // Attempt to load the state
+  const bool loaded{ loadSimulationState( root_node, file_name, scripting_callback_name, balls, drums, planes, planar_portals, integrator, dt_string, dt, end_time, impact_operator, impact_map, CoR, friction_solver, mu, if_map, forces ) };
+  if( !loaded )
+  {
+    return false;
+  }
+
+  return true;
+}
+
+bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::string& scripting_callback_name, std::vector<Ball2D>& balls, std::vector<StaticDrum>& drums, std::vector<StaticPlane>& planes, std::vector<PlanarPortal>& planar_portals, std::unique_ptr<UnconstrainedMap>& integrator, std::string& dt_string, Rational<std::intmax_t>& dt, scalar& end_time, std::unique_ptr<ImpactOperator>& impact_operator, std::unique_ptr<ImpactMap>& impact_map, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, scalar& mu, std::unique_ptr<ImpactFrictionMap>& if_map, std::vector<std::unique_ptr<Ball2DForce>>& forces, bool& camera_set, Eigen::Vector2d& camera_center, double& camera_scale_factor, unsigned& fps, bool& render_at_fps, bool& lock_camera )
+{
+  // Attempt to load the xml document
+  std::vector<char> xmlchars;
+  rapidxml::xml_document<> doc;
+  if( !loadXMLFile( file_name, xmlchars, doc ) )
+  {
+    return false;
+  }
+
+  // Attempt to locate the root node
+  if( doc.first_node( "ball2d_scene" ) == nullptr )
+  {
+    std::cerr << "Failed to locate root node in xml scene file: " << file_name << std::endl;
+    return false;
+  }
+  const rapidxml::xml_node<>& root_node{ *doc.first_node( "ball2d_scene" ) };
+
+  // Attempt to load the optional camera settings
+  camera_set = false;
+  if( root_node.first_node( "camera" ) != nullptr )
+  {
+    camera_set = true;
+    if( !loadCameraSettings( *root_node.first_node( "camera" ), camera_center, camera_scale_factor, fps, render_at_fps, lock_camera ) )
+    {
+      std::cerr << "Failed to parse camera node: " << file_name << std::endl;
+      return false;
+    }
+  }
+
+  // Attempt to load the state
+  const bool loaded{ loadSimulationState( root_node, file_name, scripting_callback_name, balls, drums, planes, planar_portals, integrator, dt_string, dt, end_time, impact_operator, impact_map, CoR, friction_solver, mu, if_map, forces ) };
+  if( !loaded )
+  {
     return false;
   }
 
