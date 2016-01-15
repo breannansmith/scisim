@@ -10,10 +10,9 @@
 
 #include "scisim/Math/MathDefines.h"
 #include "Forces/Ball2DForce.h"
-
-class StaticDrum;
-class StaticPlane;
-class PlanarPortal;
+#include "StaticGeometry/StaticDrum.h"
+#include "StaticGeometry/StaticPlane.h"
+#include "Portals/PlanarPortal.h"
 
 class Ball2DState final
 {
@@ -23,7 +22,6 @@ public:
   friend void swap( Ball2DState& first, Ball2DState& second );
 
   Ball2DState() = default;
-  Ball2DState( const VectorXs& q, const VectorXs& v, const VectorXs& m, const VectorXs& r, const std::vector<bool>& fixed, const std::vector<StaticDrum>& drums, const std::vector<StaticPlane>& planes, const std::vector<PlanarPortal>& planar_portals, const std::vector<std::unique_ptr<Ball2DForce>>& forces );
   Ball2DState( const Ball2DState& other );
   // TODO: 'copy and swap' and move assignment seems weird together ...
   Ball2DState& operator=( Ball2DState other );
@@ -31,10 +29,14 @@ public:
   Ball2DState& operator=( Ball2DState&& ) = default;
   ~Ball2DState() = default;
 
+  void setMass( const VectorXs& m );
+
   // Configuration, velocity, mass, and geometry of the system
   unsigned nballs() const;
   VectorXs& q();
   VectorXs& v();
+  VectorXs& r();
+  std::vector<bool>& fixed();
   const VectorXs& q() const;
   const VectorXs& v() const;
   const VectorXs& r() const;
@@ -42,11 +44,15 @@ public:
   const SparseMatrixsc& Minv() const;
 
   // Kinematic boundary conditions
+  std::vector<StaticDrum>& staticDrums();
   std::vector<StaticPlane>& staticPlanes();
+  std::vector<PlanarPortal>& planarPortals();
   const std::vector<StaticDrum>& staticDrums() const;
   const std::vector<StaticPlane>& staticPlanes() const;
-  std::vector<PlanarPortal>& planarPortals();
   const std::vector<PlanarPortal>& planarPortals() const;
+
+
+  std::vector<std::unique_ptr<Ball2DForce>>& forces();
 
   // Energy, momentum, etc computations
   scalar computeKineticEnergy() const;

@@ -79,29 +79,13 @@ static SparseMatrixsc createMinv( const VectorXs& m )
   return Minv;
 }
 
-Ball2DState::Ball2DState( const VectorXs& q, const VectorXs& v, const VectorXs& m, const VectorXs& r, const std::vector<bool>& fixed, const std::vector<StaticDrum>& drums, const std::vector<StaticPlane>& planes, const std::vector<PlanarPortal>& planar_portals, const std::vector<std::unique_ptr<Ball2DForce>>& forces )
-: m_q( q )
-, m_v( v )
-, m_r( r )
-, m_fixed( fixed )
-, m_M( createM( m ) )
-, m_Minv( createMinv( m ) )
-, m_static_drums( drums )
-, m_static_planes( planes )
-, m_planar_portals( planar_portals )
-, m_forces( Utilities::cloneVector( forces ) )
+void Ball2DState::setMass( const VectorXs& m )
 {
-  assert( m_q.size() % 2 == 0 );
-  assert( m_q.size() == m_v.size() );
-  assert( m_q.size() == m_M.rows() );
-  assert( m_q.size() == m_M.cols() );
-  assert( m_q.size() == m_Minv.rows() );
-  assert( m_q.size() == m_Minv.rows() );
-  assert( m_q.size() / 2 == m_r.size() );
-  assert( m_q.size() / 2 == int( m_fixed.size() ) );
+  m_M = createM( m );
+  m_Minv = createMinv( m );
   #ifndef NDEBUG
-  const SparseMatrixsc should_be_id = m_M * m_Minv;
-  Eigen::Map<const ArrayXs> should_be_id_data{ should_be_id.valuePtr(), should_be_id.nonZeros() };
+  const SparseMatrixsc should_be_id{ m_M * m_Minv };
+  const Eigen::Map<const ArrayXs> should_be_id_data{ should_be_id.valuePtr(), should_be_id.nonZeros() };
   assert( ( ( should_be_id_data - 1.0 ).abs() <= 1.0e-6 ).all() );
   #endif
 }
@@ -119,6 +103,16 @@ VectorXs& Ball2DState::q()
 VectorXs& Ball2DState::v()
 {
   return m_v;
+}
+
+VectorXs& Ball2DState::r()
+{
+  return m_r;
+}
+
+std::vector<bool>& Ball2DState::fixed()
+{
+  return m_fixed;
 }
 
 const VectorXs& Ball2DState::q() const
@@ -146,9 +140,19 @@ const SparseMatrixsc& Ball2DState::Minv() const
   return m_Minv;
 }
 
+std::vector<StaticDrum>& Ball2DState::staticDrums()
+{
+  return m_static_drums;
+}
+
 std::vector<StaticPlane>& Ball2DState::staticPlanes()
 {
   return m_static_planes;
+}
+
+std::vector<PlanarPortal>& Ball2DState::planarPortals()
+{
+  return m_planar_portals;
 }
 
 const std::vector<StaticDrum>& Ball2DState::staticDrums() const
@@ -161,14 +165,14 @@ const std::vector<StaticPlane>& Ball2DState::staticPlanes() const
   return m_static_planes;
 }
 
-std::vector<PlanarPortal>& Ball2DState::planarPortals()
+const std::vector<PlanarPortal>& Ball2DState::planarPortals() const
 {
   return m_planar_portals;
 }
 
-const std::vector<PlanarPortal>& Ball2DState::planarPortals() const
+std::vector<std::unique_ptr<Ball2DForce>>& Ball2DState::forces()
 {
-  return m_planar_portals;
+  return m_forces;
 }
 
 scalar Ball2DState::computeKineticEnergy() const

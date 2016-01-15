@@ -14,9 +14,6 @@
 #include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
 
-#include "ball2dutils/Ball2D.h"
-
-#include "ball2d/Forces/Ball2DForce.h"
 #include "ball2d/StaticGeometry/StaticPlane.h"
 #include "ball2d/StaticGeometry/StaticDrum.h"
 #include "ball2d/Portals/PlanarPortal.h"
@@ -128,35 +125,24 @@ static int computeTimestepDisplayPrecision( const Rational<std::intmax_t>& dt, c
   }
 }
 
-// TODO: Move all of this into the 2D ball scene reader
-static Ball2DState initializeState( const std::vector<Ball2D>& balls, const std::vector<StaticDrum>& drums, const std::vector<StaticPlane>& planes, const std::vector<PlanarPortal>& planar_portals, const std::vector<std::unique_ptr<Ball2DForce>>& forces )
+static std::string xmlFilePath( const std::string& xml_file_name )
 {
-  VectorXs q0{ static_cast<VectorXs::Index>( 2 * balls.size() ) };
-  VectorXs v0{ static_cast<VectorXs::Index>( 2 * balls.size() ) };
-  VectorXs m0{ static_cast<VectorXs::Index>( 2 * balls.size() ) };
-  VectorXs r0{ static_cast<VectorXs::Index>(  balls.size() ) };
-  std::vector<bool> fixed0( balls.size() );
-  for( std::vector<Ball2D>::size_type ball_idx = 0; ball_idx < balls.size(); ++ball_idx )
+  std::string path;
+  std::string file_name;
+  StringUtilities::splitAtLastCharacterOccurence( xml_file_name, path, file_name, '/' );
+  if( file_name.empty() )
   {
-    q0.segment<2>( 2 * ball_idx ) = balls[ball_idx].x();
-    v0.segment<2>( 2 * ball_idx ) = balls[ball_idx].v();
-    m0.segment<2>( 2 * ball_idx ).setConstant( balls[ball_idx].m() );
-    r0( ball_idx ) = balls[ball_idx].r();
-    fixed0[ ball_idx ] = balls[ball_idx].fixed();
+    using std::swap;
+    swap( path, file_name );
   }
-
-  return Ball2DState{ q0, v0, m0, r0, fixed0, drums, planes, planar_portals, forces };
+  return path;
 }
 
 bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render_on_load, unsigned& fps, bool& render_at_fps, bool& lock_camera )
 {
-  // TODO: Directly read state into SimulationStateBalls2D
   // State provided by config files
   std::string new_scripting_callback_name;
-  std::vector<Ball2D> new_balls;
-  std::vector<StaticDrum> new_drums;
-  std::vector<StaticPlane> new_planes;
-  std::vector<PlanarPortal> new_planar_portals;
+  Ball2DState new_simulation_state;
   std::string new_dt_string;
   Rational<std::intmax_t> new_dt;
   scalar new_end_time = SCALAR_NAN;
@@ -167,7 +153,6 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   std::unique_ptr<FrictionSolver> new_friction_solver{ nullptr };
   scalar new_mu = SCALAR_NAN;
   std::unique_ptr<ImpactFrictionMap> new_if_map{ nullptr };
-  std::vector<std::unique_ptr<Ball2DForce>> new_forces;
   bool camera_set{ false };
   Eigen::Vector2d camera_center{ Eigen::Vector2d::Constant( std::numeric_limits<double>::signaling_NaN() ) };
   double camera_scale_factor{ std::numeric_limits<double>::signaling_NaN() };
@@ -176,7 +161,7 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   bool new_lock_camera;
 
   // TODO: Instead of std::string as input, just take PythonScripting directly
-  const bool loaded_successfully{ Ball2DSceneParser::parseXMLSceneFile( xml_scene_file_name.toStdString(), new_scripting_callback_name, new_balls, new_drums, new_planes, new_planar_portals, new_unconstrained_map, new_dt_string, new_dt, new_end_time, new_impact_operator, new_imap, new_CoR, new_friction_solver, new_mu, new_if_map, new_forces, camera_set, camera_center, camera_scale_factor, new_fps, new_render_at_fps, new_lock_camera ) };
+  const bool loaded_successfully{ Ball2DSceneParser::parseXMLSceneFile( xml_scene_file_name.toStdString(), new_scripting_callback_name, new_simulation_state, new_unconstrained_map, new_dt_string, new_dt, new_end_time, new_impact_operator, new_imap, new_CoR, new_friction_solver, new_mu, new_if_map, camera_set, camera_center, camera_scale_factor, new_fps, new_render_at_fps, new_lock_camera ) };
 
   if( !loaded_successfully )
   {
@@ -199,24 +184,13 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
 
   // Initialize the scripting callback
   {
-    std::string path;
-    std::string file_name;
-    StringUtilities::splitAtLastCharacterOccurence( xml_scene_file_name.toStdString(), path, file_name, '/' );
-    if( file_name.empty() )
-    {
-      using std::swap;
-      swap( path, file_name );
-    }
-    PythonScripting new_scripting{ path, new_scripting_callback_name };
+    PythonScripting new_scripting{ xmlFilePath( xml_scene_file_name.toStdString() ), new_scripting_callback_name };
     swap( m_scripting, new_scripting );
   }
 
   // Save the coefficient of restitution and the coefficient of friction
   m_CoR = new_CoR;
   m_mu = new_mu;
-
-  // Copy the new state over to the simulation
-  Ball2DState new_simulation_state{ initializeState( new_balls, new_drums, new_planes, new_planar_portals, new_forces ) };
 
   // Push the new state to the simulation
   using std::swap;

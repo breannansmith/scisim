@@ -34,9 +34,6 @@
 #include "ball2d/Ball2DUtilities.h"
 #include "ball2d/Ball2DSim.h"
 #include "ball2d/PythonScripting.h"
-#include "ball2d/StaticGeometry/StaticDrum.h"
-#include "ball2d/StaticGeometry/StaticPlane.h"
-#include "ball2d/Portals/PlanarPortal.h"
 
 #include "ball2dutils/Ball2DSceneParser.h"
 #include "ball2dutils/Ball2D.h"
@@ -105,62 +102,42 @@ static unsigned computeTimestepDisplayPrecision( const Rational<std::intmax_t>& 
   }
 }
 
-// TODO: Move all of this into the 2D ball scene reader
-static Ball2DState initializeState( const std::vector<Ball2D>& balls, const std::vector<StaticDrum>& drums, const std::vector<StaticPlane>& planes, const std::vector<PlanarPortal>& planar_portals, const std::vector<std::unique_ptr<Ball2DForce>>& forces )
+static std::string xmlFilePath( const std::string& xml_file_name )
 {
-  VectorXs q0{ static_cast<VectorXs::Index>( 2 * balls.size() ) };
-  VectorXs v0{ static_cast<VectorXs::Index>( 2 * balls.size() ) };
-  VectorXs m0{ static_cast<VectorXs::Index>( 2 * balls.size() ) };
-  VectorXs r0{ static_cast<VectorXs::Index>(  balls.size() ) };
-  std::vector<bool> fixed0( balls.size() );
-  for( std::vector<Ball2D>::size_type ball_idx = 0; ball_idx < balls.size(); ++ball_idx )
+  std::string path;
+  std::string file_name;
+  StringUtilities::splitAtLastCharacterOccurence( xml_file_name, path, file_name, '/' );
+  if( file_name.empty() )
   {
-    q0.segment<2>( 2 * ball_idx ) = balls[ball_idx].x();
-    v0.segment<2>( 2 * ball_idx ) = balls[ball_idx].v();
-    m0.segment<2>( 2 * ball_idx ).setConstant( balls[ball_idx].m() );
-    r0( ball_idx ) = balls[ball_idx].r();
-    fixed0[ ball_idx ] = balls[ball_idx].fixed();
+    using std::swap;
+    swap( path, file_name );
   }
-
-  return Ball2DState{ q0, v0, m0, r0, fixed0, drums, planes, planar_portals, forces };
+  return path;
 }
 
 static bool loadXMLScene( const std::string& xml_file_name )
 {
-  std::vector<Ball2D> balls;
-  std::vector<StaticDrum> drums;
-  std::vector<StaticPlane> planes;
-  std::vector<PlanarPortal> planar_portals;
-  std::vector<std::unique_ptr<Ball2DForce>> forces;
+  Ball2DState simulation_state;
   std::string scripting_callback_name;
   std::string dt_string;
 
   // Attempt to load the user-requested file
-  const bool loaded_successfully{ Ball2DSceneParser::parseXMLSceneFile( xml_file_name, scripting_callback_name, balls, drums, planes, planar_portals, g_unconstrained_map, dt_string, g_dt, g_end_time, g_impact_operator, g_impact_map, g_CoR, g_friction_solver, g_mu, g_impact_friction_map, forces ) };
+  const bool loaded_successfully{ Ball2DSceneParser::parseXMLSceneFile( xml_file_name, scripting_callback_name, simulation_state, g_unconstrained_map, dt_string, g_dt, g_end_time, g_impact_operator, g_impact_map, g_CoR, g_friction_solver, g_mu, g_impact_friction_map ) };
   if( !loaded_successfully )
   {
     return false;
   }
+
   g_dt_string_precision = computeTimestepDisplayPrecision( g_dt, dt_string );
-  Ball2DState new_simulation_state{ initializeState( balls, drums, planes, planar_portals, forces ) };
 
   // Move the new state over to the simulation
   using std::swap;
-  swap( new_simulation_state, g_sim.state() );
+  swap( simulation_state, g_sim.state() );
   g_sim.clearConstraintCache();
 
-  {
-    std::string path;
-    std::string file_name;
-    StringUtilities::splitAtLastCharacterOccurence( xml_file_name, path, file_name, '/' );
-    if( file_name.empty() )
-    {
-      using std::swap;
-      swap( path, file_name );
-    }
-    PythonScripting new_scripting{ path, scripting_callback_name };
-    swap( g_scripting, new_scripting );
-  }
+  // Configure the scripting
+  PythonScripting new_scripting{ xmlFilePath( xml_file_name ), scripting_callback_name };
+  swap( g_scripting, new_scripting );
 
   return true;
 }

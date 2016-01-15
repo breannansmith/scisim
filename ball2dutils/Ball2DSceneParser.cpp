@@ -10,6 +10,7 @@
 
 #include "Ball2D.h"
 
+#include "ball2d/Ball2DState.h"
 #include "ball2d/Forces/Ball2DForce.h"
 #include "ball2d/Forces/Ball2DGravityForce.h"
 #include "ball2d/Forces/PenaltyForce.h"
@@ -1321,8 +1322,14 @@ static bool loadPenaltyForce( const rapidxml::xml_node<>& node, std::vector<std:
   return true;
 }
 
-static bool loadSimulationState( const rapidxml::xml_node<>& root_node, const std::string& file_name, std::string& scripting_callback_name, std::vector<Ball2D>& balls, std::vector<StaticDrum>& drums, std::vector<StaticPlane>& planes, std::vector<PlanarPortal>& planar_portals, std::unique_ptr<UnconstrainedMap>& integrator, std::string& dt_string, Rational<std::intmax_t>& dt, scalar& end_time, std::unique_ptr<ImpactOperator>& impact_operator, std::unique_ptr<ImpactMap>& impact_map, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, scalar& mu, std::unique_ptr<ImpactFrictionMap>& if_map, std::vector<std::unique_ptr<Ball2DForce>>& forces )
+static bool loadSimulationState( const rapidxml::xml_node<>& root_node, const std::string& file_name, std::string& scripting_callback_name, Ball2DState& state, std::unique_ptr<UnconstrainedMap>& integrator, std::string& dt_string, Rational<std::intmax_t>& dt, scalar& end_time, std::unique_ptr<ImpactOperator>& impact_operator, std::unique_ptr<ImpactMap>& impact_map, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, scalar& mu, std::unique_ptr<ImpactFrictionMap>& if_map )
 {
+  std::vector<Ball2D> balls;
+  std::vector<StaticDrum> drums;
+  std::vector<StaticPlane> planes;
+  std::vector<PlanarPortal> planar_portals;
+  std::vector<std::unique_ptr<Ball2DForce>> forces;
+
   // Attempt to determine if scirpting is enabled and if so, the coresponding callback
   if( !loadScriptingSetup( root_node, scripting_callback_name ) )
   {
@@ -1453,10 +1460,35 @@ static bool loadSimulationState( const rapidxml::xml_node<>& root_node, const st
     return false;
   }
 
+  VectorXs q{ static_cast<VectorXs::Index>( 2 * balls.size() ) };
+  VectorXs v{ static_cast<VectorXs::Index>( 2 * balls.size() ) };
+  VectorXs m{ static_cast<VectorXs::Index>( 2 * balls.size() ) };
+  VectorXs r{ static_cast<VectorXs::Index>(  balls.size() ) };
+  std::vector<bool> fixed( balls.size() );
+  for( std::vector<Ball2D>::size_type ball_idx = 0; ball_idx < balls.size(); ++ball_idx )
+  {
+    q.segment<2>( 2 * ball_idx ) = balls[ball_idx].x();
+    v.segment<2>( 2 * ball_idx ) = balls[ball_idx].v();
+    m.segment<2>( 2 * ball_idx ).setConstant( balls[ball_idx].m() );
+    r( ball_idx ) = balls[ball_idx].r();
+    fixed[ ball_idx ] = balls[ball_idx].fixed();
+  }
+
+  using std::swap;
+  swap( q, state.q() );
+  swap( v, state.v() );
+  swap( r, state.r() );
+  swap( fixed, state.fixed() );
+  state.setMass( m );
+  swap( drums, state.staticDrums() );
+  swap( planes, state.staticPlanes() );
+  swap( planar_portals, state.planarPortals() );
+  swap( forces, state.forces() );
+
   return true;
 }
 
-bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::string& scripting_callback_name, std::vector<Ball2D>& balls, std::vector<StaticDrum>& drums, std::vector<StaticPlane>& planes, std::vector<PlanarPortal>& planar_portals, std::unique_ptr<UnconstrainedMap>& integrator, std::string& dt_string, Rational<std::intmax_t>& dt, scalar& end_time, std::unique_ptr<ImpactOperator>& impact_operator, std::unique_ptr<ImpactMap>& impact_map, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, scalar& mu, std::unique_ptr<ImpactFrictionMap>& if_map, std::vector<std::unique_ptr<Ball2DForce>>& forces )
+bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::string& scripting_callback_name, Ball2DState& state, std::unique_ptr<UnconstrainedMap>& integrator, std::string& dt_string, Rational<std::intmax_t>& dt, scalar& end_time, std::unique_ptr<ImpactOperator>& impact_operator, std::unique_ptr<ImpactMap>& impact_map, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, scalar& mu, std::unique_ptr<ImpactFrictionMap>& if_map )
 {
   // Attempt to load the xml document
   std::vector<char> xmlchars;
@@ -1475,7 +1507,7 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::st
   const rapidxml::xml_node<>& root_node{ *doc.first_node( "ball2d_scene" ) };
 
   // Attempt to load the state
-  const bool loaded{ loadSimulationState( root_node, file_name, scripting_callback_name, balls, drums, planes, planar_portals, integrator, dt_string, dt, end_time, impact_operator, impact_map, CoR, friction_solver, mu, if_map, forces ) };
+  const bool loaded{ loadSimulationState( root_node, file_name, scripting_callback_name, state, integrator, dt_string, dt, end_time, impact_operator, impact_map, CoR, friction_solver, mu, if_map ) };
   if( !loaded )
   {
     return false;
@@ -1484,7 +1516,7 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::st
   return true;
 }
 
-bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::string& scripting_callback_name, std::vector<Ball2D>& balls, std::vector<StaticDrum>& drums, std::vector<StaticPlane>& planes, std::vector<PlanarPortal>& planar_portals, std::unique_ptr<UnconstrainedMap>& integrator, std::string& dt_string, Rational<std::intmax_t>& dt, scalar& end_time, std::unique_ptr<ImpactOperator>& impact_operator, std::unique_ptr<ImpactMap>& impact_map, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, scalar& mu, std::unique_ptr<ImpactFrictionMap>& if_map, std::vector<std::unique_ptr<Ball2DForce>>& forces, bool& camera_set, Eigen::Vector2d& camera_center, double& camera_scale_factor, unsigned& fps, bool& render_at_fps, bool& lock_camera )
+bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::string& scripting_callback_name, Ball2DState& state, std::unique_ptr<UnconstrainedMap>& integrator, std::string& dt_string, Rational<std::intmax_t>& dt, scalar& end_time, std::unique_ptr<ImpactOperator>& impact_operator, std::unique_ptr<ImpactMap>& impact_map, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, scalar& mu, std::unique_ptr<ImpactFrictionMap>& if_map, bool& camera_set, Eigen::Vector2d& camera_center, double& camera_scale_factor, unsigned& fps, bool& render_at_fps, bool& lock_camera )
 {
   // Attempt to load the xml document
   std::vector<char> xmlchars;
@@ -1515,7 +1547,7 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::st
   }
 
   // Attempt to load the state
-  const bool loaded{ loadSimulationState( root_node, file_name, scripting_callback_name, balls, drums, planes, planar_portals, integrator, dt_string, dt, end_time, impact_operator, impact_map, CoR, friction_solver, mu, if_map, forces ) };
+  const bool loaded{ loadSimulationState( root_node, file_name, scripting_callback_name, state, integrator, dt_string, dt, end_time, impact_operator, impact_map, CoR, friction_solver, mu, if_map ) };
   if( !loaded )
   {
     return false;
