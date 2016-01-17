@@ -15,16 +15,15 @@ command -v md5sum >/dev/null 2>&1 || { echo >&2 "Error, please install md5sum an
 
 # If the output directory exists
 if [ -d "include/rapidxml" ]; then
-  # If the RapidXml install is up to date
+  # If the RapidXml install is up to date, no action is needed
   computed_installed_rapidxml_md5=`find include/rapidxml -type f -name '*.hpp' -exec md5sum {} + | awk '{print $2$1}' | sort -fd | md5sum | cut -c -32`
   if [ "$computed_installed_rapidxml_md5" == "$actual_installed_rapidxml_md5" ]
   then
     echo "RapidXml library is already up to date, no further action is needed."
     exit 0
   fi
-  # Warn the user and exit
-  #
-  echo "Error, directory include/rapidxml exists, please manually delete include/rapidxml and rerun get_rapidxml.sh."
+  # Otherwise, the checksum is incorrect, warn the user and exit
+  echo "Error, directory include/rapidxml has an incorrect checksum, please run remove_rapidxml.sh and rerun get_rapidxml.sh."
   exit 1
 fi
 

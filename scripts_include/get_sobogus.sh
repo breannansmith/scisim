@@ -16,11 +16,9 @@ command -v git >/dev/null 2>&1 || { echo >&2 "Error, please install git and reru
 # Verify that md5sum is installed
 command -v md5sum >/dev/null 2>&1 || { echo >&2 "Error, please install md5sum and rerun get_sobogus.sh."; exit 1; }
 
-# TODO: Run a checksum on the existing source files to see if they are ok
-
 # If the output directory or interface scripts exist
 if [ -d "include/sobogus" ] || [ -e "scisim/ConstrainedMaps/bogus/FrictionProblem.hpp" ] || [ -e "scisim/ConstrainedMaps/bogus/FrictionProblem.cpp" ] || [ -e "scisim/ConstrainedMaps/bogus/FrictionProblem.impl.hpp" ]; then
-  # If the So-bogus install is up to date
+  # If the So-bogus install is up to date, no action is needed
   computed_installed_sobogus_dir_md5=`find include/sobogus -type f -name '*.[hc]pp' -exec md5sum {} + | awk '{print $2$1}' | sort -fd | md5sum | cut -c -32`
   computed_installed_hpp_md5=`md5sum scisim/ConstrainedMaps/bogus/FrictionProblem.hpp | cut -c -32`
   computed_installed_cpp_md5=`md5sum scisim/ConstrainedMaps/bogus/FrictionProblem.cpp | cut -c -32`
@@ -30,8 +28,8 @@ if [ -d "include/sobogus" ] || [ -e "scisim/ConstrainedMaps/bogus/FrictionProble
     echo "So-bogus library is already up to date, no further action is needed."
     exit 0
   fi
-  # Warn the user and exit
-  echo "Error, So-bogus source exists or has an incorrect checksum, please manually delete include/sobogus, scisim/ConstrainedMaps/bogus/FrictionProblem.hpp, scisim/ConstrainedMaps/bogus/FrictionProblem.cpp, and scisim/ConstrainedMaps/bogus/FrictionProblem.impl.hpp and rerun get_sobogus.sh."
+  # Otherwise, the checksum is incorrect, warn the user and exit
+  echo "Error, So-bogus source has an incorrect checksum, please run remove_sobogus.sh and rerun get_sobogus.sh."
   exit 1
 fi
 

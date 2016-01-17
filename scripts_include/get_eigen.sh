@@ -15,15 +15,15 @@ command -v md5sum >/dev/null 2>&1 || { echo >&2 "Error, please install md5sum an
 
 # If the output directory exists
 if [ -d "include/eigen" ]; then
-  # If the Eigen install is up to date
+  # If the Eigen install is up to date, no action is needed
   computed_installed_eigen_md5=`find include/eigen -type f -name '*.h' -exec md5sum {} + | awk '{print $2$1}' | sort -fd | md5sum | cut -c -32`
   if [ "$computed_installed_eigen_md5" == "$actual_installed_eigen_md5" ]
   then
     echo "Eigen matrix library is already up to date, no further action is needed."
     exit 0
   fi
-  # Otherwise, warn the user and exit
-  echo "Error, directory include/eigen exists, please manually delete include/eigen manually and rerun get_eigen.sh."
+  # Otherwise, the checksum is incorrect, warn the user and exit
+  echo "Error, directory include/eigen has an incorrect checksum, please run remove_eigen.sh and rerun get_eigen.sh."
   exit 1
 fi
 
