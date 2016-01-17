@@ -270,7 +270,7 @@ void SobogusFrictionProblem::initialize( const std::vector<std::unique_ptr<Const
   }
 }
 
-void SobogusFrictionProblem::solve2D( const std::vector<std::unique_ptr<Constraint>>& active_set, const unsigned max_iters, const unsigned eval_every, const scalar& tol, VectorXs& alpha, VectorXs& beta, VectorXs& f, VectorXs& vout, bool& succeeded, scalar& error, unsigned& num_iterations )
+void SobogusFrictionProblem::solve2D( const std::vector<std::unique_ptr<Constraint>>& active_set, const VectorXs& mu, const unsigned max_iters, const unsigned eval_every, const scalar& tol, VectorXs& alpha, VectorXs& beta, VectorXs& f, VectorXs& vout, bool& succeeded, scalar& error, unsigned& num_iterations )
 {
   assert( typeid(scalar) == typeid(double) );
   assert( tol >= 0.0 );
@@ -318,8 +318,19 @@ void SobogusFrictionProblem::solve2D( const std::vector<std::unique_ptr<Constrai
 
     const scalar alpha_local{ r.segment<2>( 2 * clsn_idx ).dot( n ) };
     alpha( clsn_idx ) = alpha_local;
-    const scalar beta_local{ r.segment<2>( 2 * clsn_idx ).dot( t ) };
-    beta( clsn_idx ) = beta_local;
+    if( mu(clsn_idx) == 0.0 )
+    {
+      #ifndef NDEBUG
+      const scalar beta_local{ r.segment<2>( 2 * clsn_idx ).dot( t ) };
+      assert( fabs(beta_local) <= 2.0e-16 );
+      #endif
+      beta( clsn_idx ) = 0.0;
+    }
+    else
+    {
+      const scalar beta_local{ r.segment<2>( 2 * clsn_idx ).dot( t ) };
+      beta( clsn_idx ) = beta_local;
+    }
 
     // Add contribution to f from current friction force to translational momentum
     std::pair<int,int> object_ids;
@@ -328,7 +339,7 @@ void SobogusFrictionProblem::solve2D( const std::vector<std::unique_ptr<Constrai
     assert( object_ids.first >= 0 );
     assert( object_ids.second >= -1 );
 
-    const Vector2s f0{ beta_local * t };
+    const Vector2s f0{ beta( clsn_idx ) * t };
     f.segment<2>( 2 * object_ids.first ) += f0;
     if( object_ids.second >= 0 )
     {
@@ -520,7 +531,7 @@ void SobogusFrictionProblem::solve3D( const std::vector<std::unique_ptr<Constrai
   #endif
 }
 
-void SobogusFrictionProblem::solve( const std::vector<std::unique_ptr<Constraint>>& active_set, const unsigned max_iters, const unsigned eval_every, const scalar& tol, VectorXs& alpha, VectorXs& beta, VectorXs& f, VectorXs& vout, bool& succeeded, scalar& error, unsigned& num_iterations )
+void SobogusFrictionProblem::solve( const std::vector<std::unique_ptr<Constraint>>& active_set, const VectorXs& mu, const unsigned max_iters, const unsigned eval_every, const scalar& tol, VectorXs& alpha, VectorXs& beta, VectorXs& f, VectorXs& vout, bool& succeeded, scalar& error, unsigned& num_iterations )
 {
   if( m_solver_type == SobogusSolverType::RigidBodies3D )
   {
@@ -528,7 +539,7 @@ void SobogusFrictionProblem::solve( const std::vector<std::unique_ptr<Constraint
   }
   else if( m_solver_type == SobogusSolverType::Balls2D )
   {
-    solve2D( active_set, max_iters, eval_every, tol, alpha, beta, f, vout, succeeded, error, num_iterations );
+    solve2D( active_set, mu, max_iters, eval_every, tol, alpha, beta, f, vout, succeeded, error, num_iterations );
   }
   else if( m_solver_type == SobogusSolverType::RigidBody2D )
   {
@@ -916,7 +927,7 @@ void Sobogus::solve( const unsigned iteration, const scalar& dt, const FlowableS
 
   {
     unsigned num_iterations;
-    sfp.solve( active_set, max_iters, m_eval_every, tol, alpha, beta, f_local, v_local_out, solve_succeeded, error, num_iterations );
+    sfp.solve( active_set, mu, max_iters, m_eval_every, tol, alpha, beta, f_local, v_local_out, solve_succeeded, error, num_iterations );
   }
 
   // TODO: Convert the following to functions like above
