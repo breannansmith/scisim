@@ -374,12 +374,20 @@ void GLWidget::stepSystem()
 
 void GLWidget::resetSystem()
 {
+  if( m_if_map != nullptr )
+  {
+    m_if_map->resetCachedData();
+  }
+
   m_sim = m_sim0;
 
   m_iteration = 0;
 
+  m_H0 = m_sim.state().computeTotalEnergy();
+  m_p0 = m_sim.state().computeMomentum();
+  m_L0 = m_sim.state().computeAngularMomentum();
   m_delta_H0 = 0.0;
-  m_delta_p0 = Vector2s::Zero();
+  m_delta_p0.setZero();
   m_delta_L0 = 0.0;
 
   // Reset the output movie option
@@ -405,6 +413,11 @@ void GLWidget::resetSystem()
       m_ball_colors.segment<3>( i ) << r, g, b;
     }
   }
+
+  // User-provided start of simulation python callback
+  m_scripting.setState( m_sim.state() );
+  m_scripting.startOfSimCallback();
+  m_scripting.forgetState();
 
   updateGL();
 }

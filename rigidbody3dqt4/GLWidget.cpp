@@ -480,7 +480,6 @@ void GLWidget::stepSystem()
 void GLWidget::resetSystem()
 {
   m_sim.setState( m_sim_state_backup );
-  //m_sim.resetCachedData();
   m_sim.clearConstraintCache();
   if( m_impact_friction_map != nullptr )
   {

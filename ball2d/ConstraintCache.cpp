@@ -42,7 +42,7 @@ void ConstraintCache::cacheConstraint( const Constraint& constraint, const Vecto
   }
   else
   {
-    std::cerr << constraint.name() << " not supported in ConstraintCache::cacheConstraint, this is a bug. Exiting." << std::endl;
+    std::cerr << constraint.name() << " not supported in ConstraintCache::cacheConstraint. Exiting." << std::endl;
     std::exit( EXIT_FAILURE );
   }
 }
@@ -52,6 +52,11 @@ void ConstraintCache::clear()
   m_ball_ball_constraints.clear();
   m_plane_ball_constraints.clear();
   m_drum_ball_constraints.clear();
+}
+
+bool ConstraintCache::empty() const
+{
+  return m_ball_ball_constraints.empty() && m_plane_ball_constraints.empty() && m_drum_ball_constraints.empty();
 }
 
 void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorXs& r ) const
@@ -100,7 +105,7 @@ void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorX
   }
   else
   {
-    std::cerr << constraint.name() << " not supported in ConstraintCache::getCachedConstraint, this is a bug. Exiting." << std::endl;
+    std::cerr << constraint.name() << " not supported in ConstraintCache::getCachedConstraint. Exiting." << std::endl;
     std::exit( EXIT_FAILURE );
   }
 
@@ -108,44 +113,28 @@ void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorX
   r.setZero();
 }
 
-// TODO: Use Utilities serialization routines
 static void serializeCache( const std::map<std::pair<unsigned,unsigned>,VectorXs>& constraint_cache, std::ostream& output_stream )
 {
   assert( output_stream.good() );
-  {
-    std::map<std::pair<unsigned,unsigned>,VectorXs>::size_type ncons{ constraint_cache.size() };
-    output_stream.write( reinterpret_cast<char*>( &ncons ), sizeof(std::map<std::pair<unsigned,unsigned>,VectorXs>::size_type) );
-  }
+  Utilities::serializeBuiltInType( constraint_cache.size(), output_stream );
   for( const std::pair<std::pair<unsigned,unsigned>,VectorXs>& con : constraint_cache )
   {
-    {
-      unsigned first_index{ con.first.first };
-      output_stream.write( reinterpret_cast<char*>( &first_index ), sizeof(unsigned) );
-    }
-    {
-      unsigned second_index{ con.first.second };
-      output_stream.write( reinterpret_cast<char*>( &second_index ), sizeof(unsigned) );
-    }
-    {
-      const VectorXs& force{ con.second };
-      MathUtilities::serialize( force, output_stream );
-    }
+    Utilities::serializeBuiltInType( con.first.first, output_stream );
+    Utilities::serializeBuiltInType( con.first.second, output_stream );
+    MathUtilities::serialize( con.second, output_stream );
   }
 }
 
-// TODO: Use Utilities deserialization routines
 static void deserializeCache( std::map<std::pair<unsigned,unsigned>,VectorXs>& constraint_cache, std::istream& input_stream )
 {
   assert( input_stream.good() );
-  std::map<std::pair<unsigned,unsigned>,VectorXs>::size_type ncons;
-  input_stream.read( (char*) &ncons, sizeof(std::map<std::pair<unsigned,unsigned>,VectorXs>::size_type) );
+  using map_size_t = std::map<std::pair<unsigned,unsigned>,VectorXs>::size_type;
+  const map_size_t ncons{ Utilities::deserialize<map_size_t>( input_stream ) };
   for( unsigned con_num = 0; con_num < ncons; ++con_num )
   {
-    unsigned first_index;
-    input_stream.read( reinterpret_cast<char*>( &first_index ), sizeof(unsigned) );
-    unsigned second_index;
-    input_stream.read( reinterpret_cast<char*>( &second_index ), sizeof(unsigned) );
-    const VectorXs force = MathUtilities::deserialize<VectorXs>( input_stream );
+    const unsigned first_index{ Utilities::deserialize<unsigned>( input_stream ) };
+    const unsigned second_index{ Utilities::deserialize<unsigned>( input_stream ) };
+    const VectorXs force{ MathUtilities::deserialize<VectorXs>( input_stream ) };
     std::pair< std::map< std::pair<unsigned,unsigned>, VectorXs >::iterator, bool > insert_return;
     insert_return = constraint_cache.insert( std::make_pair( std::make_pair( first_index, second_index ), force ) );
     assert( insert_return.second ); // Should not re-encounter constraints

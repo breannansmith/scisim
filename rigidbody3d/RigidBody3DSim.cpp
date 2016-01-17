@@ -302,6 +302,11 @@ void RigidBody3DSim::getCachedConstraintImpulse( const Constraint& constraint, V
   m_constraint_cache.getCachedConstraint( constraint, r );
 }
 
+bool RigidBody3DSim::constraintCacheEmpty() const
+{
+  return m_constraint_cache.empty();
+}
+
 void RigidBody3DSim::computeNumberOfCollisions( std::map<std::string,unsigned>& collision_counts, std::map<std::string,scalar>& collision_depths, std::map<std::string,scalar>& overlap_volumes )
 {
   collision_counts.clear();

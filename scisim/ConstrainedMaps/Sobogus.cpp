@@ -276,8 +276,32 @@ void SobogusFrictionProblem::solve2D( const std::vector<std::unique_ptr<Constrai
   assert( tol >= 0.0 );
 
   assert( alpha.size() == m_num_collisions ); assert( beta.size() == m_num_collisions );
-  // TODO: Warm starting goes here. Scale the basis by alpha, beta
-  VectorXs r{ VectorXs::Zero( 2 * m_num_collisions ) };
+  // Initialize impulses for warm starting
+  VectorXs r{ 2 * m_num_collisions };
+  for( unsigned clsn_idx = 0; clsn_idx < m_num_collisions; ++clsn_idx )
+  {
+    #ifndef NDEBUG
+    // Collision basis should be ortho-normal and orientation preserving
+    {
+      const Matrix22sr basis{ m_H_0_store.block<2,2>( 2 * clsn_idx, 0 ) };
+      assert( fabs( basis.determinant() - 1.0 ) <= 1.0e-9 );
+      assert( ( basis * basis.transpose() - Matrix22sr::Identity() ).lpNorm<Eigen::Infinity>() <= 1.0e-9 );
+    }
+    // For 2D balls, the basis should be the same for each body in a collision
+    {
+      std::pair<int,int> bodies;
+      active_set[clsn_idx]->getSimulatedBodyIndices( bodies );
+      if( bodies.second >= 0 )
+      {
+        assert( ( m_H_0_store.block<2,2>( 2 * clsn_idx, 0 ).array() == m_H_1_store.block<2,2>( 2 * clsn_idx, 0 ).array() ).all() );
+      }
+    }
+    #endif
+    const Vector2s n{ m_H_0_store.row( 2 * clsn_idx ) };
+    const Vector2s t{ m_H_0_store.row( 2 * clsn_idx + 1 ) };
+    r.segment<2>( 2 * clsn_idx ) = alpha(clsn_idx) * n + beta(clsn_idx) * t;
+  }
+
   assert( vout.size() == 2 * m_num_bodies );
   error = m_balls_2d.solve( r, vout, num_iterations, 0, tol, max_iters, eval_every, true );
   succeeded = error < tol;
@@ -343,6 +367,8 @@ void SobogusFrictionProblem::solveRigidBody2D( const std::vector<std::unique_ptr
 
   assert( alpha.size() == m_num_collisions ); assert( beta.size() == m_num_collisions );
   // TODO: Warm starting goes here. Scale the basis by alpha, beta
+  assert( ( alpha.array() == 0.0 ).all() );
+  assert( ( beta.array() == 0.0 ).all() );
   VectorXs r{ VectorXs::Zero( 2 * m_num_collisions ) };
   error = m_rigid_body_2d.solve( r, vout, num_iterations, 0, tol, max_iters, eval_every, true );
   succeeded = error < tol;
@@ -417,6 +443,8 @@ void SobogusFrictionProblem::solve3D( const std::vector<std::unique_ptr<Constrai
 
   assert( alpha.size() == m_num_collisions ); assert( beta.size() == 2 * m_num_collisions );
   // TODO: Warm starting goes here. Scale the basis by alpha, beta
+  assert( ( alpha.array() == 0.0 ).all() );
+  assert( ( beta.array() == 0.0 ).all() );
   VectorXs r{ VectorXs::Zero( 3 * m_num_collisions ) };
   error = m_mfp.solve( r, vout, num_iterations, 0, tol, max_iters, eval_every, true );
   succeeded = error < tol;

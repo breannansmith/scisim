@@ -9,7 +9,7 @@
   <camera cx="0" cy="0" scale_factor="11.2642" fps="50" render_at_fps="1" locked="0"/>
 
   <!-- So-bogus seems to die when adding particles. -->
-  <sobogus_friction_solver mu="0.3" CoR="0.7" max_iters="50000" eval_every="25" tol="1.0e-6" staggering="geometric"/>
+  <sobogus_friction_solver mu="0.3" CoR="0.7" max_iters="50000" eval_every="25" tol="1.0e-6" staggering="geometric" cache_impulses="none">
 
   <integrator type="verlet" dt="0.001"/>
 

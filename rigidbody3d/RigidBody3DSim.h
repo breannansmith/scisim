@@ -89,6 +89,7 @@ public:
   virtual void clearConstraintCache() override;
   virtual void cacheConstraint( const Constraint& constraint, const VectorXs& r ) override;
   virtual void getCachedConstraintImpulse( const Constraint& constraint, VectorXs& r ) const override;
+  virtual bool constraintCacheEmpty() const override;
 
   // Computes the number of collisions in the current state and the total amount of penetration
   void computeNumberOfCollisions( std::map<std::string,unsigned>& collision_counts, std::map<std::string,scalar>& collision_depths, std::map<std::string,scalar>& overlap_volumes );

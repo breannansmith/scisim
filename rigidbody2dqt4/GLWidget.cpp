@@ -414,6 +414,11 @@ void GLWidget::stepSystem()
 
 void GLWidget::resetSystem()
 {
+  if( m_if_map != nullptr )
+  {
+    m_if_map->resetCachedData();
+  }
+
   m_sim = m_sim0;
 
   m_iteration = 0;
@@ -425,16 +430,16 @@ void GLWidget::resetSystem()
   m_delta_p0.setZero();
   m_delta_L0 = 0.0;
 
+  // Reset the output movie option
+  m_movie_dir_name = QString{};
+  m_movie_dir = QDir{};
+  m_output_frame = 0;
+
   // Cache the initial contacts for rendering, if needed
   if( m_render_contacts )
   {
     m_sim.computeContactPoints( m_collision_points, m_collision_normals );
   }
-
-  // Reset the output movie option
-  m_movie_dir_name = QString{};
-  m_movie_dir = QDir{};
-  m_output_frame = 0;
 
   generateBodyColors();
   generateRenderers( m_sim.state().geometry() );

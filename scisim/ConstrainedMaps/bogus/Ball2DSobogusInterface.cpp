@@ -111,12 +111,12 @@ double Balls2DSobogusInterface::solve( Eigen::VectorXd& r, Eigen::VectorXd& v, u
   }
 
   // r to local coords
-  Eigen::VectorXd r_loc = m_primal->E.transpose() * r;
+  Eigen::VectorXd r_loc{ m_primal->E.transpose() * r };
 
   // Setup GS parameters
   bogus::DualFrictionProblem<2u>::GaussSeidelType gs;
-  if( tol != 0.0 ) { gs.setTol( tol ); }
-  if( max_iters != 0 ) { gs.setMaxIters( max_iters ); }
+  gs.setTol( tol );
+  gs.setMaxIters( max_iters );
   gs.setEvalEvery( eval_every );
   gs.setMaxThreads( max_threads );
   gs.setAutoRegularization( 0.0 );

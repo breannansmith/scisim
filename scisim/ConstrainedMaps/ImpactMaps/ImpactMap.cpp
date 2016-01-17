@@ -29,15 +29,17 @@ ImpactMap::ImpactMap( std::istream& input_stream )
 , m_impact_solution( nullptr )
 {}
 
-bool constraintSetShouldConserveMomentum( const std::vector<std::unique_ptr<Constraint>>& cons )
+#ifndef NDEBUG
+static bool constraintSetShouldConserveMomentum( const std::vector<std::unique_ptr<Constraint>>& cons )
 {
   return std::all_of( std::begin( cons ), std::end( cons ), [](const std::unique_ptr<Constraint>& con){ return con->conservesTranslationalMomentum(); } );
 }
 
-bool constraintSetShouldConserveAngularMomentum( const std::vector<std::unique_ptr<Constraint>>& cons )
+static bool constraintSetShouldConserveAngularMomentum( const std::vector<std::unique_ptr<Constraint>>& cons )
 {
   return std::all_of( std::begin( cons ), std::end( cons ), [](const std::unique_ptr<Constraint>& con){ return con->conservesAngularMomentumUnderImpact(); } );
 }
+#endif
 
 void ImpactMap::flow( ScriptingCallback& call_back, FlowableSystem& fsys, ConstrainedSystem& csys, UnconstrainedMap& umap, ImpactOperator& imap, const unsigned iteration, const scalar& dt, const scalar& CoR_default, const VectorXs& q0, const VectorXs& v0, VectorXs& q1, VectorXs& v1 )
 {
@@ -56,7 +58,7 @@ void ImpactMap::flow( ScriptingCallback& call_back, FlowableSystem& fsys, Constr
     return;
   }
 
-  const unsigned ncollisions = active_set.size();
+  const unsigned ncollisions{ static_cast<unsigned>( active_set.size() ) };
 
   VectorXs alpha{ ncollisions };
   VectorXs v2{ v0.size() };
@@ -116,29 +118,6 @@ void ImpactMap::flow( ScriptingCallback& call_back, FlowableSystem& fsys, Constr
   imap.flow( active_set, fsys.M(), fsys.Minv(), q0, v0, v0, N, Q, gdotN, CoR, alpha );
   v2 = v0 + fsys.Minv() * N * alpha;
 
-  //{
-  //  VectorXs bogus_f( v0.size() );
-  //  VectorXs bogus_alpha( alpha.size() );
-  //  VectorXs bogus_beta( 2 * alpha.size() );
-  //  scalar bogus_error;
-  //  bool bogus_success;
-  //  Sobogus so_bogus;
-  //  MatrixXXsc contact_bases;
-  //  csys.computeContactBases( q0, v0, active_set, contact_bases );
-  //  VectorXs bogus_v2( v2.size() );
-  //  so_bogus.solve( iteration * dt, fsys, fsys.M(), fsys.Minv(), CoR, VectorXs::Zero( bogus_alpha.size() ), q0, v0, active_set, contact_bases, 0, 1.0e-12, bogus_f, bogus_alpha, bogus_beta, bogus_v2, bogus_success, bogus_error );
-  //  if( ( bogus_alpha - alpha ).lpNorm<Eigen::Infinity>() > 1.0e-6 )
-  //  {
-  //    std::cout << "      alpha: " << alpha.transpose() << std::endl;
-  //    std::cout << "bogus_alpha: " << bogus_alpha.transpose() << std::endl;
-  //    std::cout << std::endl;
-  //  }
-  //  assert( ( alpha - bogus_alpha ).lpNorm<Eigen::Infinity>() <= 1.0e-6 );
-  //  assert( ( v2 - bogus_v2 ).lpNorm<Eigen::Infinity>() <= 1.0e-6 );
-  //  assert( ( bogus_beta.array() >= 0.0 ).all() ); assert( ( bogus_beta.array() <= 1.0e-6 ).all() );
-  //  assert( ( bogus_f.array() >= 0.0 ).all() ); assert( ( bogus_f.array() <= 1.0e-6 ).all() );
-  //}
-
   // Verify that momentum and angular momentum are conserved
   #ifndef NDEBUG
   if( momentum_should_be_conserved )
@@ -162,6 +141,7 @@ void ImpactMap::flow( ScriptingCallback& call_back, FlowableSystem& fsys, Constr
   #endif
 
   // Cache the constraints for warm starting
+  assert( csys.constraintCacheEmpty() );
   if( m_warm_start )
   {
     unsigned col_num = 0;
@@ -190,7 +170,6 @@ void ImpactMap::flow( ScriptingCallback& call_back, FlowableSystem& fsys, Constr
   umap.flow( q0, v2, fsys, iteration, dt, q1, v1 );
 }
 
-// TODO: Use the utilities here
 void ImpactMap::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );

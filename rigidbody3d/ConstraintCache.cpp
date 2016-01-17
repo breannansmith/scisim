@@ -57,6 +57,11 @@ void ConstraintCache::clear()
   m_static_cylinder_sphere_constraint_cache.clear();
 }
 
+bool ConstraintCache::empty() const
+{
+  return m_sphere_sphere_constraint_cache.empty() && m_box_sphere_constraint_cache.empty() && m_static_plane_sphere_constraint_cache.empty() && m_static_cylinder_sphere_constraint_cache.empty();
+}
+
 void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorXs& r ) const
 {
   if( constraint.name() == "sphere_sphere" )

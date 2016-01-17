@@ -4,7 +4,7 @@
 
   <integrator type="verlet" dt="0.1"/>
 
-  <sobogus_friction_solver mu="0.5" CoR="1.0" max_iters="5000" tol="1.0e-12" eval_every="1" staggering="stabilized"/>
+  <sobogus_friction_solver mu="0.5" CoR="1.0" max_iters="5000" tol="1.0e-12" eval_every="1" staggering="stabilized" cache_impulses="none"/>
 
   <ball x="-4.000000000000000000000000000000000000000000000000000000000000000000" y="+0.0" vx="+1.0" vy="+0.0" m="1.0" r="0.500001" fixed="0"/>
   <ball x="+4.000000000000000000000000000000000000000000000000000000000000000000" y="+0.0" vx="-1.0" vy="+0.0" m="1.0" r="0.500001" fixed="0"/>

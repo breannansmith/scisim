@@ -3,8 +3,6 @@
 // Breannan Smith
 // Last updated: 09/14/2015
 
-// TODO: Can generalize this class so it is shared across 2d/3d sims
-
 #ifndef CONSTRAINT_CACHE_H
 #define CONSTRAINT_CACHE_H
 
@@ -20,6 +18,7 @@ public:
   void cacheConstraint( const Constraint& constraint, const VectorXs& r );
   void getCachedConstraint( const Constraint& constraint, VectorXs& r ) const;
   void clear();
+  bool empty() const;
 
   void serialize( std::ostream& output_stream ) const;
   void deserialize( std::istream& input_stream );

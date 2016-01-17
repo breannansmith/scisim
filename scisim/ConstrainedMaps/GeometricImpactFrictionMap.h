@@ -12,19 +12,26 @@ class Constraint;
 class HDF5File;
 class FrictionSolver;
 
+enum class ImpulsesToCache: std::uint8_t
+{
+  NONE,
+  NORMAL,
+  NORMAL_AND_FRICTION
+};
+
 class GeometricImpactFrictionMap final : public ImpactFrictionMap
 {
 
 public:
 
-  GeometricImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters, const bool external_warm_start_alpha, const bool external_warm_start_beta );
+  GeometricImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters, const ImpulsesToCache impulses_to_cache );
   explicit GeometricImpactFrictionMap( std::istream& input_stream );
 
+  // TODO: Default constructors, etc
   virtual ~GeometricImpactFrictionMap() override = default;
 
   virtual void flow( ScriptingCallback& call_back, FlowableSystem& fsys, ConstrainedSystem& csys, UnconstrainedMap& umap, FrictionSolver& friction_solver, const unsigned iteration, const scalar& dt, const scalar& CoR_default, const scalar& mu_default, const VectorXs& q0, const VectorXs& v0, VectorXs& q1, VectorXs& v1 ) override;
 
-  // Resets data used in warm starting to initial setting
   virtual void resetCachedData() override;
 
   virtual void serialize( std::ostream& output_stream ) const override;
@@ -45,9 +52,8 @@ private:
   scalar m_abs_tol;
   unsigned m_max_iters;
 
-  // If true, initialize solve with alpha/beta from last time step, otherwise initialize alpha/beta to zero
-  bool m_external_warm_start_alpha;
-  bool m_external_warm_start_beta;
+  // Controls which portion of the impulse to cache and warm start with
+  ImpulsesToCache m_impulses_to_cache;
 
   // Temporary state for writing constraint forces
   bool m_write_constraint_forces;

@@ -992,7 +992,7 @@ static bool loadStaggeredProjectionsFrictionSolver( const rapidxml::xml_node<>& 
 
     if( staggering_type == "geometric" )
     {
-      if_map.reset( new GeometricImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ), false, false } );
+      if_map.reset( new GeometricImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ), ImpulsesToCache::NONE } );
     }
     else if( staggering_type == "stabilized" )
     {
@@ -1146,7 +1146,7 @@ static bool loadSobogusFrictionSolver( const rapidxml::xml_node<>& node, std::un
 
   if( staggering_type == "geometric" )
   {
-    if_map.reset( new GeometricImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ), false, false } );
+    if_map.reset( new GeometricImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ), ImpulsesToCache::NONE } );
   }
   else if( staggering_type == "stabilized" )
   {

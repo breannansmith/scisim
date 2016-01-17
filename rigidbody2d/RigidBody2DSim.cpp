@@ -678,6 +678,12 @@ void RigidBody2DSim::getCachedConstraintImpulse( const Constraint& constraint, V
 //  m_constraint_cache.getCachedConstraint( constraint, r );
 }
 
+bool RigidBody2DSim::constraintCacheEmpty() const
+{
+  std::cerr << "RigidBody2DSim::constraintCacheEmpty" << std::endl;
+  std::exit( EXIT_FAILURE );
+}
+
 void RigidBody2DSim::flow( const unsigned iteration, const scalar& dt, UnconstrainedMap& umap )
 {
   // Ensure that fixed bodies do not move

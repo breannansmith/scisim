@@ -31,6 +31,7 @@ public:
   virtual void clearConstraintCache() = 0;
   virtual void cacheConstraint( const Constraint& constraint, const VectorXs& r ) = 0;
   virtual void getCachedConstraintImpulse( const Constraint& constraint, VectorXs& r  ) const = 0;
+  virtual bool constraintCacheEmpty() const = 0;
 
 };
 

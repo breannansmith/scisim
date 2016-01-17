@@ -193,6 +193,11 @@ void Ball2DSim::getCachedConstraintImpulse( const Constraint& constraint, Vector
   m_constraint_cache.getCachedConstraint( constraint, r );
 }
 
+bool Ball2DSim::constraintCacheEmpty() const
+{
+  return m_constraint_cache.empty();
+}
+
 void Ball2DSim::computeNumberOfCollisions( std::map<std::string,unsigned>& collision_counts, std::map<std::string,scalar>& collision_depths )
 {
   collision_counts.clear();
