@@ -322,7 +322,7 @@ void SobogusFrictionProblem::solve2D( const std::vector<std::unique_ptr<Constrai
     {
       #ifndef NDEBUG
       const scalar beta_local{ r.segment<2>( 2 * clsn_idx ).dot( t ) };
-      assert( fabs(beta_local) <= 2.0e-16 );
+      assert( fabs(beta_local) <= 8.0e-15 );
       #endif
       beta( clsn_idx ) = 0.0;
     }
