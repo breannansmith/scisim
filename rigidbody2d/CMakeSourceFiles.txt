@@ -4,6 +4,7 @@ set( Sources
   BoxGeometry.cpp
   CircleCircleConstraint.cpp
   CircleGeometry.cpp
+  ConstraintCache.cpp
   KinematicKickCircleCircleConstraint.cpp
   KinematicObjectCircleConstraint.cpp
   NearEarthGravityForce.cpp
@@ -30,6 +31,7 @@ set( Headers
   BoxGeometry.h
   CircleCircleConstraint.h
   CircleGeometry.h
+  ConstraintCache.h
   KinematicKickCircleCircleConstraint.h
   KinematicObjectCircleConstraint.h
   NearEarthGravityForce.h

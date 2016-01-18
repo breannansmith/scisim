@@ -14,6 +14,9 @@
 
 #include <iostream>
 
+// TODO: Eliminate the casts in here
+// TODO: Eliminate the specific constraint includes
+
 void ConstraintCache::cacheConstraint( const Constraint& constraint, const VectorXs& r )
 {
   if( constraint.name() == "ball_ball" )

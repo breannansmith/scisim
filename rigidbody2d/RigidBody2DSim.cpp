@@ -661,27 +661,22 @@ void RigidBody2DSim::computeContactBases( const VectorXs& q, const VectorXs& v, 
 
 void RigidBody2DSim::clearConstraintCache()
 {
-  //m_constraint_cache.clear();
+  m_constraint_cache.clear();
 }
 
 void RigidBody2DSim::cacheConstraint( const Constraint& constraint, const VectorXs& r )
 {
-  std::cerr << "RigidBody2DSim::cacheConstraint" << std::endl;
-  std::exit( EXIT_FAILURE );
-//  m_constraint_cache.cacheConstraint( constraint, r );
+  m_constraint_cache.cacheConstraint( constraint, r );
 }
 
 void RigidBody2DSim::getCachedConstraintImpulse( const Constraint& constraint, VectorXs& r ) const
 {
-  std::cerr << "RigidBody2DSim::getCachedConstraintImpulse" << std::endl;
-  std::exit( EXIT_FAILURE );
-//  m_constraint_cache.getCachedConstraint( constraint, r );
+  m_constraint_cache.getCachedConstraint( constraint, r );
 }
 
 bool RigidBody2DSim::constraintCacheEmpty() const
 {
-  std::cerr << "RigidBody2DSim::constraintCacheEmpty" << std::endl;
-  std::exit( EXIT_FAILURE );
+  return m_constraint_cache.empty();
 }
 
 void RigidBody2DSim::flow( const unsigned iteration, const scalar& dt, UnconstrainedMap& umap )
@@ -1123,14 +1118,14 @@ void RigidBody2DSim::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
   m_state.serialize( output_stream );
-  //m_constraint_cache.serialize( output_stream );
+  m_constraint_cache.serialize( output_stream );
 }
 
 void RigidBody2DSim::deserialize( std::istream& input_stream )
 {
   assert( input_stream.good() );
   m_state.deserialize( input_stream );
-  //m_constraint_cache.deserialize( input_stream );
+  m_constraint_cache.deserialize( input_stream );
 }
 
 void RigidBody2DSim::computeContactPoints( std::vector<Vector2s>& points, std::vector<Vector2s>& normals )

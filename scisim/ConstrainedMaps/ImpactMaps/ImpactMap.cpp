@@ -53,6 +53,12 @@ void ImpactMap::flow( ScriptingCallback& call_back, FlowableSystem& fsys, Constr
   // If there are no active constraints, there is no need to perform collision response
   if( active_set.empty() )
   {
+    csys.clearConstraintCache();
+    if( m_write_constraint_forces )
+    {
+      assert( m_impact_solution != nullptr );
+      m_impact_solution->setSolution( q0, active_set, MatrixXXsc{ fsys.ambientSpaceDimensions(), 0 }, VectorXs::Zero(0), dt );
+    }
     m_write_constraint_forces = false;
     m_impact_solution = nullptr;
     return;

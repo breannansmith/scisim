@@ -743,23 +743,40 @@ static bool loadImpactOperatorNoCoR( const rapidxml::xml_node<>& node, std::uniq
   return true;
 }
 
-static bool loadImpactOperator( const rapidxml::xml_node<>& node, std::unique_ptr<ImpactOperator>& impact_operator, scalar& CoR )
+static bool loadImpactOperator( const rapidxml::xml_node<>& node, std::unique_ptr<ImpactOperator>& impact_operator, scalar& CoR, bool& cache_impulses )
 {
   // Attempt to load the CoR
-  const rapidxml::xml_attribute<>* const cor_nd{ node.first_attribute( "CoR" ) };
-  if( cor_nd == nullptr )
   {
-    std::cerr << "Could not locate CoR" << std::endl;
-    return false;
+    const rapidxml::xml_attribute<>* const cor_nd{ node.first_attribute( "CoR" ) };
+    if( cor_nd == nullptr )
+    {
+      std::cerr << "Could not locate CoR" << std::endl;
+      return false;
+    }
+
+    CoR = std::numeric_limits<scalar>::signaling_NaN();
+    if( !StringUtilities::extractFromString( std::string{ cor_nd->value() }, CoR ) )
+    {
+      std::cerr << "Could not load CoR value" << std::endl;
+      return false;
+    }
   }
 
-  CoR = std::numeric_limits<scalar>::signaling_NaN();
-  if( !StringUtilities::extractFromString( std::string( cor_nd->value() ), CoR ) )
+  // Attempt to load the impulse cache option
   {
-    std::cerr << "Could not load CoR value" << std::endl;
-    return false;
+    const rapidxml::xml_attribute<>* const cache_nd{ node.first_attribute( "cache_impulses" ) };
+    if( cache_nd == nullptr )
+    {
+      std::cerr << "Could not locate cache_impulses" << std::endl;
+      return false;
+    }
+    if( !StringUtilities::extractFromString( cache_nd->value(), cache_impulses ) )
+    {
+      std::cerr << "Could not load cache_impulses" << std::endl;
+      return false;
+    }
   }
-
+  
   return loadImpactOperatorNoCoR( node, impact_operator );
 }
 
@@ -1455,12 +1472,13 @@ bool RigidBody2DSceneParser::parseXMLSceneFile( const std::string& file_name, st
   // Attempt to load an impact operator
   if( root_node.first_node( "impact_operator" ) != nullptr )
   {
-    if( !loadImpactOperator( *root_node.first_node( "impact_operator" ), impact_operator, CoR ) )
+    bool cache_impulses;
+    if( !loadImpactOperator( *root_node.first_node( "impact_operator" ), impact_operator, CoR, cache_impulses ) )
     {
       std::cerr << "Failed to load impact_operator in xml scene file: " << file_name << std::endl;
       return false;
     }
-    impact_map.reset( new ImpactMap{ false } );
+    impact_map.reset( new ImpactMap{ cache_impulses } );
   }
   else
   {

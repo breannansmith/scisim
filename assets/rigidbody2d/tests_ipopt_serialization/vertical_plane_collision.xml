@@ -6,7 +6,7 @@
 
   <camera center="0.457653 0.0" scale="2.16789" fps="50" render_at_fps="0" locked="0"/>
 
-  <impact_operator type="gr" CoR="1.0" v_tol="1.0e-9">
+  <impact_operator type="gr" CoR="1.0" v_tol="1.0e-9" cache_impulses="0">
     <solver name="ipopt" linear_solvers="ma97 ma57 mumps ma27 ma86" tol="1.0e-12"/>
   </impact_operator>
 

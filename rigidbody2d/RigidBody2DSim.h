@@ -10,6 +10,7 @@
 #include "rigidbody2d/RigidBody2DState.h"
 
 #include "scisim/Constraints/ConstrainedSystem.h"
+#include "ConstraintCache.h"
 
 class UnconstrainedMap;
 class ImpactOperator;
@@ -111,7 +112,7 @@ private:
   void dispatchNarrowPhaseCollision( unsigned idx0, unsigned idx1, const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const;
 
   RigidBody2DState m_state;
-  //ConstraintCache m_constraint_cache;
+  ConstraintCache m_constraint_cache;
 
 };
 
