@@ -167,7 +167,7 @@ GeometricImpactFrictionMap::GeometricImpactFrictionMap( std::istream& input_stre
 //  }
 //}
 
-static void initializeImpulses( const ImpulsesToCache cache_mode, const std::vector<std::unique_ptr<Constraint>>& active_set, ConstrainedSystem& csys, VectorXs& alpha, VectorXs& beta )
+static void initializeImpulses( const ImpulsesToCache cache_mode, const unsigned ambient_dims, const std::vector<std::unique_ptr<Constraint>>& active_set, ConstrainedSystem& csys, VectorXs& alpha, VectorXs& beta )
 {
   switch( cache_mode )
   {
@@ -191,14 +191,31 @@ static void initializeImpulses( const ImpulsesToCache cache_mode, const std::vec
       break;
     }
     case ImpulsesToCache::NORMAL_AND_FRICTION:
-      std::cerr << "NORMAL_AND_FRICTION" << std::endl;
+    {
+      if( ambient_dims == 2 )
+      {
+        unsigned col_num{ 0 };
+        for( const std::unique_ptr<Constraint>& constraint : active_set )
+        {
+          VectorXs cached_impulse{ 2 };
+          csys.getCachedConstraintImpulse( *constraint, cached_impulse );
+          alpha( col_num ) = cached_impulse( 0 );
+          beta( col_num++ ) = cached_impulse( 1 );
+        }
+        assert( col_num == active_set.size() );
+      }
+      else
+      {
+        std::cerr << "Decaching in " << ambient_dims << " space not yet supported." << std::endl;
+        std::exit( EXIT_FAILURE );
+      }
       csys.clearConstraintCache();
-      //      break;
-      std::exit(EXIT_FAILURE);
+      break;
+    }
   }
 }
 
-static void cacheImpulses( const ImpulsesToCache cache_mode, const std::vector<std::unique_ptr<Constraint>>& active_set, ConstrainedSystem& csys, const VectorXs& alpha, const VectorXs& beta )
+static void cacheImpulses( const ImpulsesToCache cache_mode, const unsigned ambient_dims, const std::vector<std::unique_ptr<Constraint>>& active_set, ConstrainedSystem& csys, const VectorXs& alpha, const VectorXs& beta )
 {
   switch( cache_mode )
   {
@@ -211,17 +228,34 @@ static void cacheImpulses( const ImpulsesToCache cache_mode, const std::vector<s
       unsigned col_num = 0;
       for( const std::unique_ptr<Constraint>& constraint : active_set )
       {
-        VectorXs cached_impulse( 1 );
+        VectorXs cached_impulse{ 1 };
         cached_impulse( 0 ) = alpha( col_num++ );
         csys.cacheConstraint( *constraint, cached_impulse );
       }
+      assert( col_num == active_set.size() );
       break;
     }
     case ImpulsesToCache::NORMAL_AND_FRICTION:
       assert( csys.constraintCacheEmpty() );
-      std::cerr << "NORMAL_AND_FRICTION" << std::endl;
-      //      break;
-      std::exit(EXIT_FAILURE);
+      if( ambient_dims == 2 )
+      {
+        assert( alpha.size() == beta.size() );
+        unsigned col_num = 0;
+        for( const std::unique_ptr<Constraint>& constraint : active_set )
+        {
+          VectorXs cached_impulse{ 2 };
+          cached_impulse( 0 ) = alpha( col_num );
+          cached_impulse( 1 ) = beta( col_num++ );
+          csys.cacheConstraint( *constraint, cached_impulse );
+        }
+        assert( col_num == active_set.size() );
+      }
+      else
+      {
+        std::cerr << "Caching in " << ambient_dims << " space not yet supported." << std::endl;
+        std::exit( EXIT_FAILURE );
+      }
+      break;
   }
 }
 
@@ -281,7 +315,7 @@ void GeometricImpactFrictionMap::flow( ScriptingCallback& call_back, FlowableSys
   // Friction impulses magnitudes
   VectorXs beta{ friction_solver.numFrictionImpulsesPerNormal( fsys.ambientSpaceDimensions() ) * ncollisions };
 
-  initializeImpulses( m_impulses_to_cache, active_set, csys, alpha, beta );
+  initializeImpulses( m_impulses_to_cache, fsys.ambientSpaceDimensions(), active_set, csys, alpha, beta );
 
   // Compute the initial momentum and angular momentum
   #ifndef NDEBUG
@@ -353,7 +387,7 @@ void GeometricImpactFrictionMap::flow( ScriptingCallback& call_back, FlowableSys
   //assert( ImpactFrictionMap::noImpulsesToKinematicGeometry( fsys, N, alpha, D, beta, v0 ) );
 
   // Cache the constraints for warm starting
-  cacheImpulses( m_impulses_to_cache, active_set, csys, alpha, beta );
+  cacheImpulses( m_impulses_to_cache, fsys.ambientSpaceDimensions(), active_set, csys, alpha, beta );
 
   // Export constraint forces, if requested
   if( m_write_constraint_forces )
