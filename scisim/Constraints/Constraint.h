@@ -29,6 +29,9 @@ public:
   scalar penetrationDepth( const VectorXs& q ) const;
   scalar overlapVolume( const VectorXs& q ) const;
 
+  int body0() const;
+  int body1() const;
+
   int simulatedBody0() const;
   int simulatedBody1() const;
   void setSimulatedBody0( const unsigned idx );

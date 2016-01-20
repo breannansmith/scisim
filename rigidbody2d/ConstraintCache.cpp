@@ -11,8 +11,6 @@
 
 #include <iostream>
 
-// TODO: Kinemtic-circle should be separate, as it has different invariants
-
 void ConstraintCache::cacheConstraint( const Constraint& constraint, const VectorXs& r )
 {
   const std::string constraint_type{ constraint.name() };
@@ -24,6 +22,17 @@ void ConstraintCache::cacheConstraint( const Constraint& constraint, const Vecto
     const auto insert_return =
     #endif
     m_circle_circle_constraints.insert( std::make_pair( std::make_pair( constraint.simulatedBody0(), constraint.simulatedBody1() ), r ) );
+    assert( insert_return.second ); // Should not re-encounter constraints
+  }
+  else if( constraint_type == "kinematic_object_circle" )
+  {
+    const unsigned idx0{ static_cast<unsigned>( std::min( constraint.body0(), constraint.body1() ) ) };
+    const unsigned idx1{ static_cast<unsigned>( std::max( constraint.body0(), constraint.body1() ) ) };
+    assert( idx0 < idx1 );
+    #ifndef NDEBUG
+    const auto insert_return =
+    #endif
+    m_circle_circle_constraints.insert( std::make_pair( std::make_pair( idx0, idx1 ), r ) );
     assert( insert_return.second ); // Should not re-encounter constraints
   }
   else if( constraint_type == "static_plane_circle" )
@@ -61,6 +70,19 @@ void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorX
   {
     assert( constraint.simulatedBody0() < constraint.simulatedBody1() );
     const auto map_iterator = m_circle_circle_constraints.find( std::make_pair( constraint.simulatedBody0(), constraint.simulatedBody1() ) );
+    if( map_iterator != m_circle_circle_constraints.end() )
+    {
+      assert( r.size() == map_iterator->second.size() );
+      r = map_iterator->second;
+      return;
+    }
+  }
+  else if( constraint_type == "kinematic_object_circle" )
+  {
+    const unsigned idx0{ static_cast<unsigned>( std::min( constraint.body0(), constraint.body1() ) ) };
+    const unsigned idx1{ static_cast<unsigned>( std::max( constraint.body0(), constraint.body1() ) ) };
+    assert( idx0 < idx1 );
+    const auto map_iterator = m_circle_circle_constraints.find( std::make_pair( idx0, idx1 ) );
     if( map_iterator != m_circle_circle_constraints.end() )
     {
       assert( r.size() == map_iterator->second.size() );

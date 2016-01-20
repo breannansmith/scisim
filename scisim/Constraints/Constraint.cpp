@@ -49,6 +49,20 @@ scalar Constraint::overlapVolume( const VectorXs& q ) const
   return overlap_volume;
 }
 
+int Constraint::body0() const
+{
+  std::pair<int,int> bodies;
+  getBodyIndices( bodies );
+  return bodies.first;
+}
+
+int Constraint::body1() const
+{
+  std::pair<int,int> bodies;
+  getBodyIndices( bodies );
+  return bodies.second;
+}
+
 int Constraint::simulatedBody0() const
 {
   std::pair<int,int> bodies;
