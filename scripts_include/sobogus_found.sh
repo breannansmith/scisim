@@ -1,9 +1,9 @@
 #!/bin/bash
 
-installed_sobogus_dir_md5="d0541b424d14aa99b69d710c87e6309d"
-installed_hpp_md5="1b87f8666802292e68766095262b941d"
-installed_cpp_md5="4ab02502b7bc3432e05a257ad252fa60"
-installed_impl_md5="15a6292d5dcb9ac377dbbce539341d58"
+installed_sobogus_dir_md5="1a7ef59339952ab4f23a229abf80c2e6"
+installed_hpp_md5="5f6590e7e6ddb278f6e7740c3e097976"
+installed_cpp_md5="14c5475bbf334d29c56450cfc5363fd7"
+installed_impl_md5="b68880eda45bafba666d7f977c4efc7d"
 
 # Check the installed headers
 computed_installed_sobogus_dir_md5=`find include/sobogus -type f -name '*.[hc]pp' -exec md5sum {} + | awk '{print $2$1}' | sort -fd | md5sum | cut -c -32`

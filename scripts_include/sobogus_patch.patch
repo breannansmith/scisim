@@ -1,5 +1,5 @@
 diff --git a/src/Core/BlockSolvers/ConstrainedSolverBase.hpp b/src/Core/BlockSolvers/ConstrainedSolverBase.hpp
-index 4a628b9..26d1376 100644
+index 4a628b9..00ce792 100644
 --- a/src/Core/BlockSolvers/ConstrainedSolverBase.hpp
 +++ b/src/Core/BlockSolvers/ConstrainedSolverBase.hpp
 @@ -42,9 +42,9 @@ public:
@@ -7,15 +7,15 @@ index 4a628b9..26d1376 100644
  
  	template < typename NSLaw, typename RhsT, typename ResT >
 -	Scalar solve( const NSLaw &law, const RhsT &b, ResT &x ) const
-+	Scalar solve( const NSLaw &law, const RhsT &b, ResT &x, unsigned& num_iterations ) const
++	Scalar solve( const NSLaw &law, const RhsT &b, ResT &x, unsigned& num_iterations, bool tryZeroAsWell ) const
  	{
 -		return static_cast< const Derived& >( *this ).solve( law, b, x ) ;
-+		return static_cast< const Derived& >( *this ).solve( law, b, x, num_iterations ) ;
++		return static_cast< const Derived& >( *this ).solve( law, b, x, num_iterations, tryZeroAsWell ) ;
  	}
  
  	//! Sets the system matrix and initializes internal structures
 diff --git a/src/Core/BlockSolvers/GaussSeidel.hpp b/src/Core/BlockSolvers/GaussSeidel.hpp
-index c70b67d..c1cec5f 100644
+index c70b67d..01da058 100644
 --- a/src/Core/BlockSolvers/GaussSeidel.hpp
 +++ b/src/Core/BlockSolvers/GaussSeidel.hpp
 @@ -80,7 +80,7 @@ public:
@@ -23,7 +23,7 @@ index c70b67d..c1cec5f 100644
  	  */
  	template < typename NSLaw, typename RhsT, typename ResT >
 -	Scalar solve( const NSLaw &law, const RhsT &b, ResT &x, bool tryZeroAsWell = true ) const ;
-+	Scalar solve( const NSLaw &law, const RhsT &b, ResT &x, unsigned& num_iterations, bool tryZeroAsWell = true ) const ;
++	Scalar solve( const NSLaw &law, const RhsT &b, ResT &x, unsigned& num_iterations, bool tryZeroAsWell ) const ;
  
  
  	//! Access to the current Coloring. Will be reset whenever the matrix is changed.
@@ -50,7 +50,7 @@ index de50024..d668c42 100644
  
  }
 diff --git a/src/Interfaces/FrictionProblem.cpp b/src/Interfaces/FrictionProblem.cpp
-index b15a412..738ed58 100644
+index b15a412..79cd74b 100644
 --- a/src/Interfaces/FrictionProblem.cpp
 +++ b/src/Interfaces/FrictionProblem.cpp
 @@ -20,8 +20,7 @@
@@ -69,7 +69,7 @@ index b15a412..738ed58 100644
  template< unsigned Dimension >
 -double DualFrictionProblem< Dimension >::solveWith( GaussSeidelType &gs, double *r,
 -										 const bool staticProblem ) const
-+double DualFrictionProblem< Dimension >::solveWith( GaussSeidelType &gs, double *r, unsigned& num_iterations ) const
++double DualFrictionProblem< Dimension >::solveWith( GaussSeidelType &gs, double *r, unsigned& num_iterations, bool tryZeroAsWell ) const
  {
  	gs.setMatrix( W );
  
@@ -83,7 +83,7 @@ index b15a412..738ed58 100644
 -	pg.setMatrix( W );
 -
 -	return friction_problem::solve( *this, pg, r, true ) ;
-+	return friction_problem::solve( *this, gs, r, num_iterations ) ;
++	return friction_problem::solve( *this, gs, r, num_iterations, tryZeroAsWell ) ;
  }
  
  template< unsigned Dimension >
@@ -153,7 +153,7 @@ index b15a412..738ed58 100644
  
  } //namespace bogus
 diff --git a/src/Interfaces/FrictionProblem.hpp b/src/Interfaces/FrictionProblem.hpp
-index a872c66..c4db2c9 100644
+index a872c66..3389cdc 100644
 --- a/src/Interfaces/FrictionProblem.hpp
 +++ b/src/Interfaces/FrictionProblem.hpp
 @@ -1,32 +1,10 @@
@@ -210,7 +210,7 @@ index a872c66..c4db2c9 100644
  	  */
 -	double solveWith( GaussSeidelType &gs, double * r, const bool staticProblem = false ) const ;
 -	double solveWith( ProjectedGradientType &pg, double * r ) const ;
-+	double solveWith( GaussSeidelType &gs, double * r, unsigned& num_iterations ) const ;
++	double solveWith( GaussSeidelType &gs, double * r, unsigned& num_iterations, bool tryZeroAsWell ) const ;
  
  	//! Evaluate a residual using the GS's error function
  	/*!
@@ -247,7 +247,7 @@ index a872c66..c4db2c9 100644
  
  	//! \warning To use the permutation releated functions, all the blocks have to have the same size
 diff --git a/src/Interfaces/FrictionProblem.impl.hpp b/src/Interfaces/FrictionProblem.impl.hpp
-index 3d2aa3e..92d483e 100644
+index 3d2aa3e..ca385f5 100644
 --- a/src/Interfaces/FrictionProblem.impl.hpp
 +++ b/src/Interfaces/FrictionProblem.impl.hpp
 @@ -19,10 +19,9 @@
@@ -268,7 +268,7 @@ index 3d2aa3e..92d483e 100644
  static double solve( const DualFrictionProblem< Dimension >& dual,
  		const ConstrainedSolverBase< Method, typename DualFrictionProblem< Dimension >::WType > &gs,
 -		double *r, const bool staticProblem )
-+		double *r, unsigned& num_iterations )
++		double *r, unsigned& num_iterations, bool tryZeroAsWell )
  {
  	typename Eigen::VectorXd::MapType r_map ( r, dual.W.rows() ) ;
  
@@ -281,7 +281,7 @@ index 3d2aa3e..92d483e 100644
 -			: gs.solve( typename DualFrictionProblem< Dimension >::CoulombLawType
 -						( dual.W.rowsOfBlocks(), dual.mu.data() ), dual.b, r_map ) ;
 +	double res = gs.solve( typename DualFrictionProblem< Dimension >::CoulombLawType
-+						( dual.W.rowsOfBlocks(), dual.mu.data() ), dual.b, r_map, num_iterations ) ;
++						( dual.W.rowsOfBlocks(), dual.mu.data() ), dual.b, r_map, num_iterations, tryZeroAsWell ) ;
  
  	if( dual.permuted() )
  		applyPermutation< Dimension >( dual.invPermutation(), r_map, dual.W.majorIndex().innerOffsetsData() ) ;

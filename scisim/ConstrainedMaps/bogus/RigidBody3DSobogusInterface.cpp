@@ -131,7 +131,8 @@ double RigidBodies3DSobogusInterface::solve( Eigen::VectorXd& r, Eigen::VectorXd
   }
   m_dual->W.cacheTranspose();
 
-  const double res{ m_dual->solveWith( gs, r_loc.data(), num_iterations ) };
+  const bool try_zero{ false };
+  const double res{ m_dual->solveWith( gs, r_loc.data(), num_iterations, try_zero ) };
 
   // Compute the outgoing velocity
   v = m_primal->MInv * ( m_primal->H.transpose() * r_loc - Eigen::VectorXd::Map( m_primal->f, m_primal->H.cols() ) );
