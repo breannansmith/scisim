@@ -6,7 +6,7 @@
 
   <collision_detection broadphase="spatial_grid" cell_scale="1.0" bandwidth_reduction="none"/>
 
-  <sobogus_friction_solver mu="0.3" CoR="0.0" max_iters="50000" eval_every="25" tol="1.0e-12" staggering="geometric"/>
+  <sobogus_friction_solver mu="0.3" CoR="0.0" max_iters="50000" eval_every="25" tol="1.0e-12" staggering="geometric" cache_impulses="none"/>
 
   <near_earth_gravity f="0.0 -10.0"/>
 

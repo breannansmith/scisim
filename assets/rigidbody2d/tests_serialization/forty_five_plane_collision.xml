@@ -6,7 +6,7 @@
 
   <camera center="2 0" scale="2.77536" fps="50" render_at_fps="0" locked="0"/>
 
-  <sobogus_friction_solver mu="0.0" CoR="1.0" max_iters="50000" eval_every="25" tol="1.0e-12" staggering="geometric"/>
+  <sobogus_friction_solver mu="0.0" CoR="1.0" max_iters="50000" eval_every="25" tol="1.0e-12" staggering="geometric" cache_impulses="none"/>
 
   <integrator type="symplectic_euler" dt="0.01"/>
 

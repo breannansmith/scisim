@@ -4,7 +4,7 @@
 
   <integrator type="symplectic_euler" dt="0.01"/>
 
-  <sobogus_friction_solver mu="0.5" CoR="0.0" max_iters="5000" tol="1.0e-12" eval_every="1" staggering="stabilized"/>
+  <sobogus_friction_solver mu="0.5" CoR="0.0" max_iters="5000" tol="1.0e-12" eval_every="1" staggering="stabilized" cache_impulses="none"/>
 
   <near_earth_gravity f="0.0 -10.0"/>
 

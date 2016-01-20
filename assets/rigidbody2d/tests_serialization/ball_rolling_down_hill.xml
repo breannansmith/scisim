@@ -6,7 +6,7 @@
 
   <camera center="2 4.4" scale="5.29539" fps="50" render_at_fps="1" locked="0"/>
 
-  <sobogus_friction_solver mu="2.0" CoR="0.0" max_iters="50000" eval_every="25" tol="1.0e-12" staggering="geometric"/>
+  <sobogus_friction_solver mu="2.0" CoR="0.0" max_iters="50000" eval_every="25" tol="1.0e-12" staggering="geometric" cache_impulses="none"/>
 
   <near_earth_gravity f="0.0 -10.0"/>
 
