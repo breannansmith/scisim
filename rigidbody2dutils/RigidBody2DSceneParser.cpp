@@ -1149,6 +1149,35 @@ static bool loadSobogusFrictionSolver( const rapidxml::xml_node<>& node, std::un
     }
   }
 
+  // Attempt to load the cache_impulses option
+  ImpulsesToCache cache_impulses;
+  {
+    const rapidxml::xml_attribute<>* const attrib_nd{ node.first_attribute( "cache_impulses" ) };
+    if( attrib_nd == nullptr )
+    {
+      std::cerr << "Could not locate cache_impulses attribute for sobogus_friction_solver" << std::endl;
+      return false;
+    }
+    const std::string impulses_to_cache{ attrib_nd->value() };
+    if( "none" == impulses_to_cache )
+    {
+      cache_impulses = ImpulsesToCache::NONE;
+    }
+    else if( "normal" == impulses_to_cache )
+    {
+      cache_impulses = ImpulsesToCache::NORMAL;
+    }
+    else if( "normal_and_friction" == impulses_to_cache )
+    {
+      cache_impulses = ImpulsesToCache::NORMAL_AND_FRICTION;
+    }
+    else
+    {
+      std::cerr << "Invalid option specified for cache_impulses. Valid options are: none, normal, normal_and_friction" << std::endl;
+      std::exit( EXIT_FAILURE );
+    }
+  }
+
   // Attempt to load the staggering type
   std::string staggering_type;
   {
@@ -1163,7 +1192,7 @@ static bool loadSobogusFrictionSolver( const rapidxml::xml_node<>& node, std::un
 
   if( staggering_type == "geometric" )
   {
-    if_map.reset( new GeometricImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ), ImpulsesToCache::NONE } );
+    if_map.reset( new GeometricImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ), cache_impulses } );
   }
   else if( staggering_type == "stabilized" )
   {

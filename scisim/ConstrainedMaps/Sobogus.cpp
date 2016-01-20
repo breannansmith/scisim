@@ -347,6 +347,7 @@ void SobogusFrictionProblem::solve2D( const std::vector<std::unique_ptr<Constrai
     }
   }
 
+  // TODO: Why is this code here?
   // Reorder the degrees of freedom
   VectorXs vtmp{ vout.size() };
   for( unsigned bdy_idx = 0; bdy_idx < m_num_bodies; ++bdy_idx )
@@ -354,6 +355,7 @@ void SobogusFrictionProblem::solve2D( const std::vector<std::unique_ptr<Constrai
     vtmp.segment<2>( 2 * bdy_idx ) = vout.segment<2>( 2 * bdy_idx );
   }
   vtmp.swap( vout );
+  assert( ( vtmp.array() == vout.array() ).all() );
 
   // Verify that we compute the error correctly
   #ifndef NDEBUG
@@ -377,10 +379,33 @@ void SobogusFrictionProblem::solveRigidBody2D( const std::vector<std::unique_ptr
   assert( tol >= 0.0 );
 
   assert( alpha.size() == m_num_collisions ); assert( beta.size() == m_num_collisions );
-  // TODO: Warm starting goes here. Scale the basis by alpha, beta
-  assert( ( alpha.array() == 0.0 ).all() );
-  assert( ( beta.array() == 0.0 ).all() );
-  VectorXs r{ VectorXs::Zero( 2 * m_num_collisions ) };
+  // Initialize impulses for warm starting
+  VectorXs r{ 2 * m_num_collisions };
+  for( unsigned clsn_idx = 0; clsn_idx < m_num_collisions; ++clsn_idx )
+  {
+    #ifndef NDEBUG
+    // Collision basis should be ortho-normal and orientation preserving
+    {
+      const Matrix22sr basis{ m_H_0_store.block<2,2>( 2 * clsn_idx, 0 ) };
+      assert( fabs( basis.determinant() - 1.0 ) <= 1.0e-9 );
+      assert( ( basis * basis.transpose() - Matrix22sr::Identity() ).lpNorm<Eigen::Infinity>() <= 1.0e-9 );
+    }
+    // The basis should be the same for each body in a collision
+    {
+      std::pair<int,int> bodies;
+      active_set[clsn_idx]->getSimulatedBodyIndices( bodies );
+      if( bodies.second >= 0 )
+      {
+        assert( ( m_H_0_store.block<2,2>( 2 * clsn_idx, 0 ).array() == m_H_1_store.block<2,2>( 2 * clsn_idx, 0 ).array() ).all() );
+      }
+    }
+    #endif
+    const Vector2s n{ m_H_0_store.block<1,2>( 2 * clsn_idx + 0, 0 ) };
+    const Vector2s t{ m_H_0_store.block<1,2>( 2 * clsn_idx + 1, 0 ) };
+    assert( MathUtilities::isRightHandedOrthoNormal( n, t, 1.0e-6 ) );
+    r.segment<2>( 2 * clsn_idx ) = alpha(clsn_idx) * n + beta(clsn_idx) * t;
+  }
+
   error = m_rigid_body_2d.solve( r, vout, num_iterations, 0, tol, max_iters, eval_every, true );
   succeeded = error < tol;
 
@@ -405,7 +430,7 @@ void SobogusFrictionProblem::solveRigidBody2D( const std::vector<std::unique_ptr
     assert( object_ids.first >= 0 );
     assert( object_ids.second >= -1 );
 
-    const Vector2s f0 = beta_local * t;
+    const Vector2s f0{ beta_local * t };
     f.segment<2>( 3 * object_ids.first ) += f0;
     if( object_ids.second >= 0 )
     {
@@ -423,13 +448,15 @@ void SobogusFrictionProblem::solveRigidBody2D( const std::vector<std::unique_ptr
     }
   }
 
+  // TODO: Why is this code here?
   // Reorder the degrees of freedom
-  VectorXs vtmp( vout.size() );
+  VectorXs vtmp{ vout.size() };
   for( unsigned bdy_idx = 0; bdy_idx < m_num_bodies; ++bdy_idx )
   {
     vtmp.segment<3>( 3 * bdy_idx ) = vout.segment<3>( 3 * bdy_idx );
   }
   vtmp.swap( vout );
+  assert( ( vtmp.array() == vout.array() ).all() );
 
   // Verify that we are computing the error correctly
   #ifndef NDEBUG

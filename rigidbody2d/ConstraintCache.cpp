@@ -11,12 +11,15 @@
 
 #include <iostream>
 
+// TODO: Kinemtic-circle should be separate, as it has different invariants
+
 void ConstraintCache::cacheConstraint( const Constraint& constraint, const VectorXs& r )
 {
   const std::string constraint_type{ constraint.name() };
 
   if( constraint_type == "circle_circle" )
   {
+    assert( constraint.simulatedBody0() < constraint.simulatedBody1() );
     #ifndef NDEBUG
     const auto insert_return =
     #endif
@@ -25,6 +28,7 @@ void ConstraintCache::cacheConstraint( const Constraint& constraint, const Vecto
   }
   else if( constraint_type == "static_plane_circle" )
   {
+    assert( constraint.simulatedBody1() == -1 );
     #ifndef NDEBUG
     const auto insert_return =
     #endif
@@ -55,6 +59,7 @@ void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorX
 
   if( constraint_type == "circle_circle" )
   {
+    assert( constraint.simulatedBody0() < constraint.simulatedBody1() );
     const auto map_iterator = m_circle_circle_constraints.find( std::make_pair( constraint.simulatedBody0(), constraint.simulatedBody1() ) );
     if( map_iterator != m_circle_circle_constraints.end() )
     {
@@ -65,6 +70,7 @@ void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorX
   }
   else if( constraint_type == "static_plane_circle" )
   {
+    assert( constraint.simulatedBody1() == -1 );
     const auto map_iterator = m_plane_circle_constraints.find( std::make_pair( constraint.getStaticObjectIndex(), constraint.simulatedBody0() ) );
     if( map_iterator != m_plane_circle_constraints.end() )
     {

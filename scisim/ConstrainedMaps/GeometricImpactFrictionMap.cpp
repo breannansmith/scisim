@@ -341,6 +341,34 @@ void GeometricImpactFrictionMap::flow( ScriptingCallback& call_back, FlowableSys
     }
   }
 
+  // Cache the impulses, verify the expected uncached impulses
+  #ifndef NDEBUG
+  {
+    cacheImpulses( ImpulsesToCache::NONE, fsys.ambientSpaceDimensions(), active_set, csys, alpha, beta );
+    VectorXs alpha_test{ alpha.size() };
+    VectorXs beta_test{ beta.size() };
+    initializeImpulses( ImpulsesToCache::NONE, fsys.ambientSpaceDimensions(), active_set, csys, alpha_test, beta_test );
+    assert( ( alpha_test.array() == 0.0 ).all() );
+    assert( ( beta_test.array() == 0.0 ).all() );
+  }
+  {
+    cacheImpulses( ImpulsesToCache::NORMAL, fsys.ambientSpaceDimensions(), active_set, csys, alpha, beta );
+    VectorXs alpha_test{ alpha.size() };
+    VectorXs beta_test{ beta.size() };
+    initializeImpulses( ImpulsesToCache::NORMAL, fsys.ambientSpaceDimensions(), active_set, csys, alpha_test, beta_test );
+    assert( ( alpha_test.array() == alpha.array() ).all() );
+    assert( ( beta_test.array() == 0.0 ).all() );
+  }
+  {
+    cacheImpulses( ImpulsesToCache::NORMAL_AND_FRICTION, fsys.ambientSpaceDimensions(), active_set, csys, alpha, beta );
+    VectorXs alpha_test{ alpha.size() };
+    VectorXs beta_test{ beta.size() };
+    initializeImpulses( ImpulsesToCache::NORMAL_AND_FRICTION, fsys.ambientSpaceDimensions(), active_set, csys, alpha_test, beta_test );
+    assert( ( alpha_test.array() == alpha.array() ).all() );
+    assert( ( beta_test.array() == beta.array() ).all() );
+  }
+  #endif
+
   // For the special case mu == 0, friction should be zero
   #ifndef NDEBUG
   {
