@@ -373,7 +373,7 @@ void SobogusFrictionProblem::solve2D( const std::vector<std::unique_ptr<Constrai
   #endif
 }
 
-void SobogusFrictionProblem::solveRigidBody2D( const std::vector<std::unique_ptr<Constraint>>& active_set, const unsigned max_iters, const unsigned eval_every, const scalar& tol, VectorXs& alpha, VectorXs& beta, VectorXs& f, VectorXs& vout, bool& succeeded, scalar& error, unsigned& num_iterations )
+void SobogusFrictionProblem::solveRigidBody2D( const std::vector<std::unique_ptr<Constraint>>& active_set, const VectorXs& mu, const unsigned max_iters, const unsigned eval_every, const scalar& tol, VectorXs& alpha, VectorXs& beta, VectorXs& f, VectorXs& vout, bool& succeeded, scalar& error, unsigned& num_iterations )
 {
   assert( typeid(scalar) == typeid(double) );
   assert( tol >= 0.0 );
@@ -420,8 +420,19 @@ void SobogusFrictionProblem::solveRigidBody2D( const std::vector<std::unique_ptr
 
     const scalar alpha_local{ r.segment<2>( 2 * clsn_idx ).dot( n ) };
     alpha( clsn_idx ) = alpha_local;
-    const scalar beta_local{ r.segment<2>( 2 * clsn_idx ).dot( t ) };
-    beta( clsn_idx ) = beta_local;
+    if( mu(clsn_idx) == 0.0 )
+    {
+      #ifndef NDEBUG
+      const scalar beta_local{ r.segment<2>( 2 * clsn_idx ).dot( t ) };
+      assert( fabs(beta_local) <= 8.0e-15 );
+      #endif
+      beta( clsn_idx ) = 0.0;
+    }
+    else
+    {
+      const scalar beta_local{ r.segment<2>( 2 * clsn_idx ).dot( t ) };
+      beta( clsn_idx ) = beta_local;
+    }
 
     // Add contribution to f from current friction force to translational momentum
     std::pair<int,int> object_ids;
@@ -430,7 +441,7 @@ void SobogusFrictionProblem::solveRigidBody2D( const std::vector<std::unique_ptr
     assert( object_ids.first >= 0 );
     assert( object_ids.second >= -1 );
 
-    const Vector2s f0{ beta_local * t };
+    const Vector2s f0{ beta( clsn_idx ) * t };
     f.segment<2>( 3 * object_ids.first ) += f0;
     if( object_ids.second >= 0 )
     {
@@ -438,12 +449,12 @@ void SobogusFrictionProblem::solveRigidBody2D( const std::vector<std::unique_ptr
     }
     // Add contribution to f from current friction force to angular momentum
     const scalar ttilde0{ m_H_0_store( 2 * clsn_idx + 1, 2 ) };
-    const scalar f0_torque{ beta_local * ttilde0 };
+    const scalar f0_torque{ beta( clsn_idx ) * ttilde0 };
     f( 3 * object_ids.first + 2 ) += f0_torque;
     if( object_ids.second >= 0 )
     {
       const scalar ttilde1{ m_H_1_store( 2 * clsn_idx + 1, 2 ) };
-      const scalar f1_torque{ beta_local * ttilde1 };
+      const scalar f1_torque{ beta( clsn_idx ) * ttilde1 };
       f( 3 * object_ids.second + 2 ) -= f1_torque;
     }
   }
@@ -570,7 +581,7 @@ void SobogusFrictionProblem::solve( const std::vector<std::unique_ptr<Constraint
   }
   else if( m_solver_type == SobogusSolverType::RigidBody2D )
   {
-    solveRigidBody2D( active_set, max_iters, eval_every, tol, alpha, beta, f, vout, succeeded, error, num_iterations );
+    solveRigidBody2D( active_set, mu, max_iters, eval_every, tol, alpha, beta, f, vout, succeeded, error, num_iterations );
   }
 }
 

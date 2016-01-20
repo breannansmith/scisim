@@ -49,7 +49,7 @@ private:
   void solve2D( const std::vector<std::unique_ptr<Constraint>>& active_set, const VectorXs& mu, const unsigned max_iters, const unsigned eval_every, const scalar& tol, VectorXs& alpha, VectorXs& beta, VectorXs& f, VectorXs& vout, bool& succeeded, scalar& error, unsigned& num_iterations );
 
   void initializeRigidBody2D( const std::vector<std::unique_ptr<Constraint>>& active_set, const MatrixXXsc& contact_bases, const VectorXs& masses, const VectorXs& q0, const VectorXs& v0, const VectorXs& CoR, const VectorXs& mu, const VectorXs& nrel, const VectorXs& drel );
-  void solveRigidBody2D( const std::vector<std::unique_ptr<Constraint>>& active_set, const unsigned max_iters, const unsigned eval_every, const scalar& tol, VectorXs& alpha, VectorXs& beta, VectorXs& f, VectorXs& vout, bool& succeeded, scalar& error, unsigned& num_iterations );
+  void solveRigidBody2D( const std::vector<std::unique_ptr<Constraint>>& active_set, const VectorXs& mu, const unsigned max_iters, const unsigned eval_every, const scalar& tol, VectorXs& alpha, VectorXs& beta, VectorXs& f, VectorXs& vout, bool& succeeded, scalar& error, unsigned& num_iterations );
 
   void initialize3D( const std::vector<std::unique_ptr<Constraint>>& active_set, const MatrixXXsc& contact_bases, const VectorXs& masses, const VectorXs& q0, const VectorXs& v0, const VectorXs& CoR, const VectorXs& mu, const VectorXs& nrel, const VectorXs& drel );
   void solve3D( const std::vector<std::unique_ptr<Constraint>>& active_set, const unsigned max_iters, const unsigned eval_every, const scalar& tol, VectorXs& alpha, VectorXs& beta, VectorXs& f, VectorXs& vout, bool& succeeded, scalar& error, unsigned& num_iterations );
