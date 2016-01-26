@@ -7,7 +7,9 @@
 
 #include <iostream>
 
+#ifdef USE_PYTHON
 #include "PythonObject.h"
+#endif
 
 void PythonTools::pythonCommand( const std::string& command )
 {

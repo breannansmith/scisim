@@ -12,10 +12,10 @@
 #include "scisim/Constraints/Constraint.h"
 #include "Ball2DState.h"
 #include "scisim/PythonTools.h"
+#include "ball2d/StaticGeometry/StaticPlane.h"
 #endif
 
 #include "scisim/StringUtilities.h"
-#include "ball2d/StaticGeometry/StaticPlane.h"
 #include <iostream>
 
 #ifdef USE_PYTHON

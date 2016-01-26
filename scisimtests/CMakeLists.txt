@@ -1,5 +1,8 @@
 # Rational number tests
 add_executable( rational_number_tests rational_number_tests.cpp )
+if( ENABLE_IWYU )
+  set_property( TARGET rational_number_tests PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path} )
+endif()
 
 target_link_libraries( rational_number_tests scisim )
 
@@ -27,6 +30,9 @@ add_test( rationa_not_equal_01 rational_number_tests not_equal_01 )
 
 # String utility tests
 add_executable( string_utility_tests string_utility_tests.cpp )
+if( ENABLE_IWYU )
+  set_property( TARGET string_utility_tests PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path} )
+endif()
 
 target_link_libraries( string_utility_tests scisim )
 

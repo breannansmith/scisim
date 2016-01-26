@@ -8,7 +8,6 @@
 #include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
 #include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
 #include "scisim/Math/MathUtilities.h"
 #include "scisim/Utilities.h"
 #include "scisim/HDF5File.h"

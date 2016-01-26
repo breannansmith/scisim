@@ -8,10 +8,10 @@
 
 #ifdef USE_PYTHON
 #include <Python.h>
+#include "scisim/PythonObject.h"
 #endif
 
 #include "scisim/ScriptingCallback.h"
-#include "scisim/PythonObject.h"
 
 class Ball2DState;
 
