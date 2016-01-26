@@ -8,7 +8,7 @@
 #ifndef CONSTRAINT_H
 #define CONSTRAINT_H
 
-#include <string>
+#include <iosfwd>
 #include <memory>
 
 #include "scisim/Math/MathDefines.h"

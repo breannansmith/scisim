@@ -5,22 +5,24 @@
 
 #include "LCPOperatorIpopt.h"
 
-#include <typeinfo>
-#include <fstream>
 #include <iostream>
 
 #include "scisim/StringUtilities.h"
 #include "scisim/Utilities.h"
 #include "scisim/ConstrainedMaps/IpoptUtilities.h"
-#include "scisim/Math/MathUtilities.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/FischerBurmeisterImpact.h"
 
 #ifdef IPOPT_FOUND
+#ifndef NDEBUG
+#include <typeinfo>
+#endif
 #include "IpIpoptCalculatedQuantities.hpp"
 #include "IpIpoptData.hpp"
 #include "IpTNLPAdapter.hpp"
 #include "IpOrigIpoptNLP.hpp"
+#include "scisim/ConstrainedMaps/ImpactMaps/FischerBurmeisterImpact.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h"
+#include "scisim/Math/MathUtilities.h"
+#include "scisim/ConstrainedMaps/QPTerminationOperator.h"
 #endif
 
 LCPOperatorIpopt::LCPOperatorIpopt( const std::vector<std::string>& linear_solvers, const scalar& tol )

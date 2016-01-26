@@ -8,16 +8,19 @@
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
 #include "scisim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
 #include "scisim/Constraints/Constraint.h"
-#include "scisim/Math/MathUtilities.h"
 #include "scisim/ConstrainedMaps/ConstrainedMapUtilities.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h"
 #include "scisim/UnconstrainedMaps/FlowableSystem.h"
 #include "scisim/Utilities.h"
-#include "scisim/StringUtilities.h"
+
 #include <iostream>
 
 // For error computation
 #include "scisim/ConstrainedMaps/Sobogus.h"
+
+#ifndef NDEBUG
+#include "scisim/Math/MathUtilities.h"
+#endif
 
 StaggeredProjections::StaggeredProjections( const bool warm_start_alpha, const bool warm_start_beta, const ImpactOperator& impact_operator, const FrictionOperator& friction_operator )
 : m_warm_start_alpha( warm_start_alpha )

@@ -19,6 +19,9 @@ list( APPEND Sources "${CMAKE_CURRENT_BINARY_DIR}/CompileDefinitions.cpp" )
 configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/CompileDefinitions.cpp.in" "${CMAKE_CURRENT_BINARY_DIR}/CompileDefinitions.cpp" @ONLY )
 
 add_library( scisim ${Headers} ${Sources} ${FORTRAN_SOURCES} )
+if( ENABLE_IWYU )
+  set_property( TARGET scisim PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path} )
+endif()
 
 # Add a reliable indicator of the current compiler
 if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )

@@ -9,8 +9,11 @@
 #define STRING_UTILITIES_H
 
 #include <string>
-#include <Eigen/Core>
 #include <vector>
+#include <sstream>
+#include <limits>
+
+namespace Eigen { template <typename Derived> class DenseBase; }
 
 namespace StringUtilities
 {

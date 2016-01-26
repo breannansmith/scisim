@@ -11,8 +11,10 @@
 
 #include <iostream>
 
+#ifdef QL_FOUND
 #ifndef NDEBUG
 #include <typeinfo>
+#endif
 #endif
 
 BoundConstrainedMDPOperatorQL::BoundConstrainedMDPOperatorQL( const scalar& tol )

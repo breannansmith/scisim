@@ -10,7 +10,7 @@
 #include "IpIpoptApplication.hpp"
 #endif
 
-#include <string>
+#include <iosfwd>
 #include <vector>
 
 namespace IpoptUtilities

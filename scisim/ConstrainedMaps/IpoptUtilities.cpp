@@ -5,6 +5,8 @@
 
 #include "IpoptUtilities.h"
 
+#include <string>
+
 bool IpoptUtilities::linearSolverSupported( const std::string& linear_solver_name )
 {
   if( linear_solver_name != "ma27" && linear_solver_name != "ma57" && linear_solver_name != "mumps" && linear_solver_name != "ma86" && linear_solver_name != "ma97" )

@@ -12,7 +12,9 @@
 #include <iostream>
 
 #ifndef NDEBUG
+#ifdef QL_FOUND
 #include <typeinfo>
+#endif
 #endif
 
 LCPOperatorQL::LCPOperatorQL( const scalar& eps )

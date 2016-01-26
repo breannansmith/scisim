@@ -7,6 +7,7 @@
 
 #include <cassert>
 #include <iomanip>
+#include <algorithm>
 
 std::string StringUtilities::deserializeString( std::istream& stm )
 {

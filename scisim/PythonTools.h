@@ -6,11 +6,7 @@
 #ifndef PYTHON_TOOLS_H
 #define PYTHON_TOOLS_H
 
-#ifdef USE_PYTHON
-#include <Python.h>
-#endif
-
-#include <string>
+#include <iosfwd>
 
 class PythonObject;
 

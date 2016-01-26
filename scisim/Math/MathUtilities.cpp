@@ -5,7 +5,6 @@
 
 #include "MathUtilities.h"
 
-#include <iostream>
 #include <fstream>
 
 bool MathUtilities::isRightHandedOrthoNormal( const Vector2s& a, const Vector2s& b, const scalar& tol )

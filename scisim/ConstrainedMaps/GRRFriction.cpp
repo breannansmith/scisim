@@ -9,7 +9,6 @@
 #include "scisim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
 #include "scisim/ConstrainedMaps/ConstrainedMapUtilities.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h"
-#include "scisim/UnconstrainedMaps/FlowableSystem.h"
 #include "scisim/Constraints/Constraint.h"
 
 GRRFriction::GRRFriction( const ImpactOperator& impact_operator, const FrictionOperator& friction_operator )

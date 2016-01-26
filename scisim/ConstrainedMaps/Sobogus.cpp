@@ -6,11 +6,12 @@
 #include "Sobogus.h"
 
 #include "scisim/Constraints/Constraint.h"
-#include "scisim/Math/MathUtilities.h"
 #include "scisim/UnconstrainedMaps/FlowableSystem.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h"
-#include "scisim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
 #include "scisim/Utilities.h"
+
+#ifndef NDEBUG
+#include "scisim/Math/MathUtilities.h"
+#endif
 
 #include <cassert>
 #include <map>

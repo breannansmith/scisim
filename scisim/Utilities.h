@@ -7,12 +7,9 @@
 #define UTILITIES_H
 
 #include <vector>
-#include <ostream>
 #include <memory>
 #include <cassert>
 #include <istream>
-
-#include "Math/MathDefines.h"
 
 // Compiles to static_cast in release mode, and dynamic_cast in debug mode
 #ifndef NDEBUG

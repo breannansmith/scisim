@@ -6,7 +6,7 @@
 #ifndef QL_UTILITIES_H
 #define QL_UTILITIES_H
 
-#include <string>
+#include <iosfwd>
 
 extern "C"
 {

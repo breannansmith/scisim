@@ -5,7 +5,7 @@
 
 #include "LCPOperatorQLVP.h"
 
-#include "ImpactOperatorUtilities.h"
+//#include "ImpactOperatorUtilities.h"
 
 #include <iostream>
 

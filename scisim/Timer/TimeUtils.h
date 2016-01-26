@@ -6,7 +6,7 @@
 #ifndef TIME_UTILS_H
 #define TIME_UTILS_H
 
-#include <string>
+#include <iosfwd>
 
 namespace TimeUtils
 {

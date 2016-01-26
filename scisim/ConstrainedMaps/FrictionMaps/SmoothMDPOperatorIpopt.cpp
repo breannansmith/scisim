@@ -5,25 +5,23 @@
 
 #include "SmoothMDPOperatorIpopt.h"
 
-#include "FrictionOperatorUtilities.h"
-
 #include "scisim/ConstrainedMaps/IpoptUtilities.h"
-#include "scisim/Math/MathUtilities.h"
 #include "scisim/Utilities.h"
 #include "scisim/StringUtilities.h"
-#include "scisim/ConstrainedMaps/FrictionMaps/FischerBurmeisterSmooth.h"
 
 #include <iostream>
 
+#ifdef IPOPT_FOUND
 #ifndef NDEBUG
 #include <typeinfo>
 #endif
-
-#ifdef IPOPT_FOUND
 #include "IpIpoptCalculatedQuantities.hpp"
 #include "IpIpoptData.hpp"
 #include "IpTNLPAdapter.hpp"
 #include "IpOrigIpoptNLP.hpp"
+#include "scisim/Math/MathUtilities.h"
+#include "scisim/ConstrainedMaps/FrictionMaps/FischerBurmeisterSmooth.h"
+#include "scisim/ConstrainedMaps/QPTerminationOperator.h"
 #endif
 
 SmoothMDPOperatorIpopt::SmoothMDPOperatorIpopt( const std::vector<std::string>& linear_solvers, const scalar& tol )

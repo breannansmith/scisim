@@ -12,7 +12,9 @@
 #include <iostream>
 
 #ifndef NDEBUG
+#ifdef QL_FOUND
 #include <typeinfo>
+#endif
 #endif
 
 LinearMDPOperatorQL::LinearMDPOperatorQL( const int disk_samples, const scalar& eps )

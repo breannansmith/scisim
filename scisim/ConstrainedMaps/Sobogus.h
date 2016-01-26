@@ -16,8 +16,6 @@
 #include "scisim/ConstrainedMaps/bogus/RigidBody3DSobogusInterface.h"
 #include "FrictionSolver.h"
 
-class ImpactOperator;
-class FrictionOperator;
 class Constraint;
 class FlowableSystem;
 

@@ -7,8 +7,6 @@
 
 #include <cassert>
 
-#include "Utilities.h"
-
 #ifdef USE_HDF5
 using HDFGID = HDFID<H5Gclose>;
 using HDFTID = HDFID<H5Tclose>;

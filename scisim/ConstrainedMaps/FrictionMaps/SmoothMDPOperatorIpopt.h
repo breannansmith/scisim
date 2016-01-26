@@ -15,7 +15,7 @@
 #include "IpIpoptApplication.hpp"
 #endif
 
-#include "scisim/ConstrainedMaps/QPTerminationOperator.h"
+class QPTerminationOperator;
 
 class SmoothMDPOperatorIpopt final : public FrictionOperator
 {

@@ -96,6 +96,8 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
 option( STRICT_BUILD "Enable aggressive warnings and treat warnings as errors" OFF )
 
+option( ENABLE_IWYU "Enables builds with 'include-what-you-use' (http://include-what-you-use.org/)" )
+
 option( USE_QT4 "Build Qt4 front ends" OFF )
 
 option( USE_IPOPT "Use the Ipopt solver (Fortran required)" OFF )
@@ -110,6 +112,13 @@ option( USE_PYTHON "Embedded Python language scripting" OFF )
 ###############################################################################
 ### Add libraries, plugins
 
+if( ENABLE_IWYU )
+  find_program( iwyu_path NAMES include-what-you-use iwyu )
+  if( NOT iwyu_path )
+    message( FATAL_ERROR "Failed to locate include-what-you-use." )
+  endif()
+endif()
+
 # Allow targets to generate tests
 enable_testing()
 
@@ -122,7 +131,6 @@ if( NOT CMAKE_Fortran_COMPILER )
     message( FATAL_ERROR "Error, QL requires Fortran. Pleae provide a Fortran compiler." )
   endif()
 endif()
-
 
 # Core SCISim library
 add_subdirectory( scisim )

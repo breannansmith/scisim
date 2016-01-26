@@ -23,11 +23,7 @@
 #include "scisim/ConstrainedMaps/StaggeredProjections.h"
 #include "scisim/ConstrainedMaps/Sobogus.h"
 #include "scisim/HDF5File.cpp"
-#include "scisim/CompileDefinitions.h"
-#include "scisim/Timer/TimeUtils.h"
 
-#include <ostream>
-#include <istream>
 #include <iostream>
 
 void ConstrainedMapUtilities::serialize( const std::unique_ptr<ImpactOperator>& impact_operator, std::ostream& output_stream )

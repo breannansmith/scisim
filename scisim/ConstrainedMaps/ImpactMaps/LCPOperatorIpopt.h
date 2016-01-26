@@ -12,7 +12,7 @@
 #include "IpIpoptApplication.hpp"
 #endif
 
-#include "scisim/ConstrainedMaps/QPTerminationOperator.h"
+class QPTerminationOperator;
 
 class LCPOperatorIpopt final : public ImpactOperator
 {
