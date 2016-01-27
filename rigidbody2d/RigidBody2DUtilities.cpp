@@ -6,7 +6,6 @@
 #include "RigidBody2DUtilities.h"
 
 #include <cassert>
-#include <ostream>
 #include <iostream>
 
 #include "scisim/StringUtilities.h"

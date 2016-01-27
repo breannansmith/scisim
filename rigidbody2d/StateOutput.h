@@ -9,7 +9,7 @@
 // TODO: Template on float/double type, add cmake option to dump contents as float
 
 #include <vector>
-#include <string>
+#include <iosfwd>
 #include <memory>
 
 #include "scisim/Math/MathDefines.h"

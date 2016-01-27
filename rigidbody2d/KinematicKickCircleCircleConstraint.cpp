@@ -5,7 +5,9 @@
 
 #include "KinematicKickCircleCircleConstraint.h"
 
+#ifndef NDEBUG
 #include "scisim/Math/MathUtilities.h"
+#endif
 
 // NOTE: displacements not supported for kinematic kick circle circle constraints, yet...
 KinematicKickCircleCircleConstraint::KinematicKickCircleCircleConstraint( const unsigned idx0, const unsigned idx1, const Vector2s& x0, const Vector2s& x1, const scalar& r0, const scalar& r1, const Vector2s& kinematic_kick )
