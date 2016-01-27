@@ -36,7 +36,6 @@
 #include "ball2d/PythonScripting.h"
 
 #include "ball2dutils/Ball2DSceneParser.h"
-#include "ball2dutils/Ball2D.h"
 
 static Ball2DSim g_sim;
 static unsigned g_iteration{ 0 };

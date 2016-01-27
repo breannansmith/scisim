@@ -1,6 +1,9 @@
 include( CMakeSourceFiles.txt )
 
 add_executable( ball2d_qt4 ${Headers} ${Sources} ${HWQ_MOC_CPP} )
+if( ENABLE_IWYU )
+  set_property( TARGET ball2d_qt4 PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path} )
+endif()
 
 set_target_properties( ball2d_qt4 PROPERTIES AUTOMOC TRUE )
 

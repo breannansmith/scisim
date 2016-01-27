@@ -17,7 +17,6 @@
 class ImpactMap;
 class FrictionSolver;
 class ImpactFrictionMap;
-class ScriptingCallbackBalls2D;
 
 class GLWidget : public QGLWidget
 {

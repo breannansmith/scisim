@@ -1,6 +1,9 @@
 include( CMakeSourceFiles.txt )
 
 add_executable( ball2d_cli ${Headers} ${Sources} )
+if( ENABLE_IWYU )
+  set_property( TARGET ball2d_cli PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path} )
+endif()
 
 target_link_libraries( ball2d_cli ball2dutils ball2d )
 
