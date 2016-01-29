@@ -9,7 +9,6 @@
 
 #include "DisplayController2D.h"
 #include "GLCircleRenderer2D.h"
-#include "RigidBodyRenderer2D.h"
 
 #include <random>
 
@@ -19,6 +18,7 @@ class ImpactOperator;
 class ImpactMap;
 class FrictionSolver;
 class ImpactFrictionMap;
+class RigidBodyRenderer2D;
 
 class GLWidget : public QGLWidget
 {

@@ -7,9 +7,8 @@
 #define RIGID_BODY_2D_SCENE_PARSER_H
 
 #include "scisim/Math/MathDefines.h"
-#include <string>
+#include <iosfwd>
 #include <memory>
-#include <cstdint>
 
 class RigidBody2DState;
 class UnconstrainedMap;

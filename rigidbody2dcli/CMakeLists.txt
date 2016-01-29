@@ -1,6 +1,9 @@
 include( CMakeSourceFiles.txt )
 
 add_executable( rigidbody2d_cli ${Headers} ${Sources} )
+if( ENABLE_IWYU )
+  set_property( TARGET rigidbody2d_cli PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path} )
+endif()
 
 target_link_libraries( rigidbody2d_cli rigidbody2dutils rigidbody2d )
 

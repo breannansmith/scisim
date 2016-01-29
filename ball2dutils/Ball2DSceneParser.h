@@ -9,7 +9,6 @@
 #include "scisim/Math/MathDefines.h"
 #include <iosfwd>
 #include <memory>
-#include <cstdint>
 
 class Ball2DState;
 class UnconstrainedMap;
