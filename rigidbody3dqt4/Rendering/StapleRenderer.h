@@ -5,6 +5,8 @@
 
 #include "OpenGL3DSphereRenderer.h"
 
+#include "scisim/Math/MathDefines.h"
+
 class StapleRenderer final : public BodyGeometryRenderer
 {
 

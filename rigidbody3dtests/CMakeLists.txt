@@ -2,6 +2,9 @@
 add_executable( rigidbody3d_inertia_tests rigidbody3d_inertia_tests.cpp )
 
 target_link_libraries( rigidbody3d_inertia_tests rigidbody3d )
+if( ENABLE_IWYU )
+  set_property( TARGET rigidbody3d_inertia_tests PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path} )
+endif()
 
 # Sphere inertia tests
 add_test( rigidbody3d_inertia_sphere_pool_ball rigidbody3d_inertia_tests sphere pool_ball )

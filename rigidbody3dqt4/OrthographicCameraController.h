@@ -10,8 +10,6 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <cstdint>
-
 class OrthographicCameraController final
 {
 

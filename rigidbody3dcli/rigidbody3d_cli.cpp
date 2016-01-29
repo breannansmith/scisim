@@ -24,7 +24,6 @@
 #include "scisim/ConstrainedMaps/FrictionSolver.h"
 #include "scisim/ConstrainedMaps/ConstrainedMapUtilities.h"
 #include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
-#include "scisim/ScriptingCallback.h"
 #include "scisim/CompileDefinitions.h"
 #include "scisim/HDF5File.h"
 #include "scisim/Utilities.h"

@@ -20,7 +20,6 @@
 
 class OpenGL3DSphereRenderer;
 class BodyGeometryRenderer;
-class RigidBodyScriptingCallback;
 class RenderingState;
 
 class GLWidget : public QGLWidget

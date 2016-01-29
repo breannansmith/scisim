@@ -1,7 +1,7 @@
 #ifndef BODY_GEOMETRY_RENDERER_H
 #define BODY_GEOMETRY_RENDERER_H
 
-#include "scisim/Math/MathDefines.h"
+#include <Eigen/Core>
 
 #ifdef __APPLE__
 #include <OpenGL/gl.h>

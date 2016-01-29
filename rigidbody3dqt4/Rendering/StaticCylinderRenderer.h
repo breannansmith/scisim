@@ -1,9 +1,11 @@
 #ifndef STATIC_CYLINDER_RENDERER_H
 #define STATIC_CYLINDER_RENDERER_H
 
-#include "rigidbody3d/StaticGeometry/StaticCylinder.h"
-
 #include <QtOpenGL>
+
+#include "scisim/Math/MathDefines.h"
+
+class StaticCylinder;
 
 class StaticCylinderRenderer final
 {
