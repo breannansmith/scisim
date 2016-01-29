@@ -6,7 +6,10 @@
 #include "StaticPlaneBoxConstraint.h"
 
 #include "FrictionUtilities.h"
+
+#ifndef NDEBUG
 #include "scisim/Math/MathUtilities.h"
+#endif
 
 static Vector3s getBodySpaceCorner( const Vector3s& half_width, const short i )
 {

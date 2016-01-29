@@ -8,7 +8,10 @@
 #include "FrictionUtilities.h"
 
 #include "rigidbody3d/StaticGeometry/StaticPlane.h"
+
+#ifndef NDEBUG
 #include "scisim/Math/MathUtilities.h"
+#endif
 
 #include <iostream>
 

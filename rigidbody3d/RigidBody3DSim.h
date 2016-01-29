@@ -22,7 +22,6 @@
 class UnconstrainedMap;
 class ImpactOperator;
 class ImpactFrictionMap;
-class ScriptingCallback;
 class RigidBodyBox;
 class RigidBodySphere;
 class RigidBodyStaple;

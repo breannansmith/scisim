@@ -8,8 +8,11 @@
 #include <iostream>
 
 #include "FrictionUtilities.h"
-#include "scisim/Math/MathUtilities.h"
 #include "rigidbody3d/StaticGeometry/StaticCylinder.h"
+
+#ifndef NDEBUG
+#include "scisim/Math/MathUtilities.h"
+#endif
 
 bool StaticCylinderSphereConstraint::isActive( const Vector3s& center, const Vector3s& axis, const scalar& R, const Vector3s& x_sphere, const scalar& r )
 {

@@ -9,7 +9,6 @@
 #include "scisim/Math/MathDefines.h"
 
 #include <memory>
-#include <cstdint>
 
 enum class RigidBodyGeometryType : std::uint8_t
 {

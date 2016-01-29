@@ -7,7 +7,6 @@
 #include "CollisionUtilities.h"
 #include "rigidbody3d/Geometry/RigidBodyStaple.h"
 
-#include <set>
 #include <iostream>
 
 //static bool edgesAreParallel( const Vector3s& v0, const Vector3s& v1, const Vector3s& v2, const Vector3s& v3, const scalar& eps )

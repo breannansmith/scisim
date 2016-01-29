@@ -5,7 +5,6 @@
 
 #include "BoxBoxUtilities.h"
 
-#include <limits>
 #include <cassert>
 #include <cmath>
 

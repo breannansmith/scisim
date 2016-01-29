@@ -9,7 +9,7 @@
 // TODO: Template on float/double type, add cmake option to dump contents as different numerical type than the type used internally
 
 #include <vector>
-#include <string>
+#include <iosfwd>
 #include <memory>
 
 class RigidBodyGeometry;

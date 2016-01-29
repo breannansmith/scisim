@@ -9,8 +9,6 @@
 
 #include <Eigen/Eigenvalues>
 
-#include "scisim/Math/MathUtilities.h"
-
 static void diagonalizeInertiaTensor( const Matrix3s& I, Matrix3s& R0, Vector3s& I0 )
 {
   // Inertia tensor should by symmetric

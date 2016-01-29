@@ -7,10 +7,13 @@
 
 #include "scisim/HDF5File.h"
 
-#include "rigidbody3d/Geometry/MomentTools.h"
 #include "scisim/Math/MathUtilities.h"
 #include "scisim/StringUtilities.h"
 #include "scisim/Utilities.h"
+
+#ifndef NDEBUG
+#include "rigidbody3d/Geometry/MomentTools.h"
+#endif
 
 RigidBodyTriangleMesh::RigidBodyTriangleMesh( const RigidBodyTriangleMesh& other )
 : m_input_file_name( other.m_input_file_name )

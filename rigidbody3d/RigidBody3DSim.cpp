@@ -8,10 +8,7 @@
 #include <iostream>
 
 #include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
-#include "scisim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
 #include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
-#include "scisim/ScriptingCallback.h"
 #include "scisim/Utilities.h"
 #include "scisim/HDF5File.h"
 #include "scisim/Math/Rational.h"
@@ -25,7 +22,6 @@
 #include "Constraints/MeshMeshUtilities.h"
 #include "Constraints/SphereSphereConstraint.h"
 #include "Constraints/TeleportedSphereSphereConstraint.h"
-#include "Constraints/SphereBodyConstraint.h"
 #include "Constraints/BodyBodyConstraint.h"
 #include "Constraints/StaticPlaneBodyConstraint.h"
 #include "Constraints/StaticPlaneBoxConstraint.h"

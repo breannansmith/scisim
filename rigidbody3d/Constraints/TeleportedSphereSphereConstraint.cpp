@@ -6,7 +6,10 @@
 #include "TeleportedSphereSphereConstraint.h"
 
 #include "FrictionUtilities.h"
+
+#ifndef NDEBUG
 #include "scisim/Math/MathUtilities.h"
+#endif
 
 TeleportedSphereSphereConstraint::TeleportedSphereSphereConstraint( const unsigned idx0, const unsigned idx1, const Vector3s& x0, const Vector3s& x1, const scalar& r0, const scalar& r1 )
 : m_idx0( idx0 )

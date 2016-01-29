@@ -7,7 +7,7 @@
 #define FORCE_H
 
 #include "scisim/Math/MathDefines.h"
-#include <string>
+#include <iosfwd>
 #include <memory>
 
 class Force
