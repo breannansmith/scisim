@@ -11,5 +11,8 @@ if( STRICT_BUILD )
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-documentation-unknown-command -Wno-old-style-cast -Wno-conversion -Wno-weak-vtables" )
 endif()
 
+# Compiles with static analysis support
+#set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --analyze" )
+
 # Enable extra optimizations
 set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native -flto" )

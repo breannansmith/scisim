@@ -5,13 +5,16 @@
 
 #include "BoxBoxTools.h"
 
+#include <iostream>
+
 // TODO: Don't use an enum, instead have a couple of bools and indices
 enum class CollidingFeature : std::uint8_t
 {
   BOX_0_AXIS_0,
   BOX_0_AXIS_1,
   BOX_1_AXIS_0,
-  BOX_1_AXIS_1
+  BOX_1_AXIS_1,
+  FAILURE
 };
 
 static bool axisAlignedSeperatingTest( const scalar& projected_center_dist, const scalar& projected_aabb_widths, const CollidingFeature crnt_feature, scalar& smallest_pen_depth, bool& invert_normal, CollidingFeature& feature )
@@ -53,7 +56,7 @@ void BoxBoxTools::isActive( const Vector2s& x0, const scalar& theta0, const Vect
   const Matrix22sc R0{ Eigen::Rotation2D<scalar>{ theta0 } };
   const Matrix22sc R1{ Eigen::Rotation2D<scalar>{ theta1 } };
 
-  CollidingFeature colliding_feature;
+  CollidingFeature colliding_feature{ CollidingFeature::FAILURE };
   // False if a front face, true if a back face
   bool invert_normal{ false };
   //bool box0_is_reference;
@@ -109,6 +112,11 @@ void BoxBoxTools::isActive( const Vector2s& x0, const scalar& theta0, const Vect
     }
   }
 
+  if( colliding_feature == CollidingFeature::FAILURE )
+  {
+    std::cerr << "Error, impossible case encountered in BoxBoxTools::isActive. Exiting." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
   assert( enum_type(colliding_feature) <= 3 );
   const bool first_is_reference{ enum_type(colliding_feature) <= 1 };
 

@@ -115,11 +115,13 @@ static void serializeCache( const std::map<std::pair<unsigned,unsigned>,VectorXs
 {
   assert( output_stream.good() );
   Utilities::serializeBuiltInType( constraint_cache.size(), output_stream );
-  for( const std::pair<std::pair<unsigned,unsigned>,VectorXs>& con : constraint_cache )
+  // For some reason, clang static analyzer does not like the range based for loop here
+  using it_type = std::map<std::pair<unsigned,unsigned>,VectorXs>::const_iterator;
+  for( it_type iterator = constraint_cache.begin(); iterator != constraint_cache.end(); ++iterator )
   {
-    Utilities::serializeBuiltInType( con.first.first, output_stream );
-    Utilities::serializeBuiltInType( con.first.second, output_stream );
-    MathUtilities::serialize( con.second, output_stream );
+    Utilities::serializeBuiltInType( iterator->first.first, output_stream );
+    Utilities::serializeBuiltInType( iterator->first.second, output_stream );
+    MathUtilities::serialize( iterator->second, output_stream );
   }
 }
 

@@ -72,6 +72,8 @@ if( USE_HDF5 )
   add_test( rb2d_friction_box_static_01 assets/shell_scripts/static_particle_test.sh assets/tests_serialization/boxes/box_slide_below_threshold.xml 2.0 10  )
   add_test( rb2d_friction_box_static_02 assets/shell_scripts/static_particle_test.sh assets/tests_serialization/boxes/box_slide_at_threshold.xml 2.0 10  )
   add_test( rb2d_friction_box_sliding_00 assets/shell_scripts/sliding_particle_test.sh assets/tests_serialization/boxes/box_slide_above_threshold.xml 2.0 10 )
+  # Warm-start tests
+  add_test( rb2d_serialization_ws_00 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/circles_falling_on_wedge.xml 4.0 40 20 10 )
 else()
   message( STATUS "Skipping RigidBody2D tests that require HDF5 (USE_HDF5 is disabled)." )
 endif()
