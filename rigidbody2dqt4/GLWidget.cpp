@@ -141,7 +141,7 @@ GLWidget::GLWidget( QWidget* parent )
 , m_friction_solver( nullptr )
 , m_if_map( nullptr )
 , m_imap( nullptr )
-//, m_scripting_callback( new NullScripting )
+, m_scripting()
 , m_iteration( 0 )
 , m_dt( 0, 1 )
 , m_end_time( SCALAR_INFINITY )
@@ -221,6 +221,19 @@ void GLWidget::generateBodyColors()
   }
 }
 
+static std::string xmlFilePath( const std::string& xml_file_name )
+{
+  std::string path;
+  std::string file_name;
+  StringUtilities::splitAtLastCharacterOccurence( xml_file_name, path, file_name, '/' );
+  if( file_name.empty() )
+  {
+    using std::swap;
+    swap( path, file_name );
+  }
+  return path;
+}
+
 bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render_on_load, unsigned& fps, bool& render_at_fps, bool& lock_camera )
 {
   std::unique_ptr<UnconstrainedMap> new_unconstrained_map{ nullptr };
@@ -229,8 +242,8 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   std::unique_ptr<FrictionSolver> new_friction_solver{ nullptr };
   std::unique_ptr<ImpactFrictionMap> new_impact_friction_map{ nullptr };
 
-  std::string dt_string{ "" };
-  std::string scripting_callback{ "" };
+  std::string dt_string;
+  std::string scripting_callback;
   RigidBody2DState new_state;
   Rational<std::intmax_t> dt;
   scalar end_time;
@@ -262,6 +275,13 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   m_friction_solver.swap( new_friction_solver );
   m_if_map.swap( new_impact_friction_map );
   m_imap.swap( new_imap );
+
+  // Initialize the scripting callback
+  {
+    PythonScripting new_scripting{ xmlFilePath( xml_scene_file_name.toStdString() ), scripting_callback };
+    using std::swap;
+    swap( m_scripting, new_scripting );
+  }
 
   m_sim = RigidBody2DSim{ new_state };
 
@@ -316,6 +336,11 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
     m_lock_camera = lock_backup;
   }
 
+  // User-provided start of simulation python callback
+  m_scripting.setState( m_sim.state() );
+  m_scripting.startOfSimCallback();
+  m_scripting.forgetState();
+
   if( render_on_load )
   {
     GLint width;
@@ -337,6 +362,10 @@ void GLWidget::stepSystem()
 {
   if( m_iteration * scalar( m_dt ) >= m_end_time )
   {
+    // User-provided end of simulation python callback
+    m_scripting.setState( m_sim.state() );
+    m_scripting.endOfSimCallback();
+    m_scripting.forgetState();
     std::cout << "Simulation complete. Exiting." << std::endl;
     std::exit( EXIT_SUCCESS );
   }
@@ -349,15 +378,15 @@ void GLWidget::stepSystem()
   }
   else if( m_unconstrained_map != nullptr && m_impact_operator == nullptr && m_imap == nullptr && m_friction_solver == nullptr && m_if_map == nullptr )
   {
-    m_sim.flow( next_iter, scalar( m_dt ), *m_unconstrained_map );
+    m_sim.flow( m_scripting, next_iter, m_dt, *m_unconstrained_map );
   }
   else if( m_unconstrained_map != nullptr && m_impact_operator != nullptr && m_imap != nullptr && m_friction_solver == nullptr && m_if_map == nullptr )
   {
-    m_sim.flow( next_iter, scalar( m_dt ), *m_unconstrained_map, *m_impact_operator, m_CoR, *m_imap );
+    m_sim.flow( m_scripting, next_iter, m_dt, *m_unconstrained_map, *m_impact_operator, m_CoR, *m_imap );
   }
   else if( m_unconstrained_map != nullptr && m_impact_operator == nullptr && m_imap == nullptr && m_friction_solver != nullptr && m_if_map != nullptr )
   {
-    m_sim.flow( next_iter, scalar( m_dt ), *m_unconstrained_map, m_CoR, m_mu, *m_friction_solver, *m_if_map );
+    m_sim.flow( m_scripting, next_iter, m_dt, *m_unconstrained_map, m_CoR, m_mu, *m_friction_solver, *m_if_map );
   }
   else
   {
@@ -443,6 +472,11 @@ void GLWidget::resetSystem()
 
   generateBodyColors();
   generateRenderers( m_sim.state().geometry() );
+
+  // User-provided start of simulation python callback
+  m_scripting.setState( m_sim.state() );
+  m_scripting.startOfSimCallback();
+  m_scripting.forgetState();
 
   updateGL();
 }

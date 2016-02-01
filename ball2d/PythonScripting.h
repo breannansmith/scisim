@@ -28,10 +28,9 @@ public:
 
   friend void swap( PythonScripting& first, PythonScripting& second );
 
-  #ifndef USE_PYTHON
-  [[noreturn]]
-  #endif
+  #ifdef USE_PYTHON
   static void initializeCallbacks();
+  #endif
 
   void setState( Ball2DState& state );
   void forgetState();
@@ -60,6 +59,8 @@ private:
   std::string m_module_name;
   #ifdef USE_PYTHON
   PythonObject m_loaded_module;
+  PythonObject m_loaded_start_of_sim_callback;
+  PythonObject m_loaded_end_of_sim_callback;
   PythonObject m_loaded_start_of_step_callback;
   PythonObject m_loaded_end_of_step_callback;
   PythonObject m_loaded_friction_coefficient_callback;

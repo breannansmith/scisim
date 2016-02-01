@@ -32,8 +32,8 @@ static const std::vector<std::unique_ptr<Constraint>>* s_active_set;
 #endif
 
 PythonScripting::PythonScripting()
-: m_path( "" )
-, m_module_name( "" )
+: m_path()
+, m_module_name()
 #ifdef USE_PYTHON
 , m_loaded_module( nullptr )
 , m_loaded_start_of_sim_callback( nullptr )
@@ -81,7 +81,7 @@ void PythonScripting::intializePythonCallbacks()
 {
   #ifdef USE_PYTHON
   // If no module name was provided, nothing to do
-  if( m_module_name == "" )
+  if( m_module_name.empty() )
   {
     return;
   }
@@ -142,7 +142,7 @@ void swap( PythonScripting& first, PythonScripting& second )
 void PythonScripting::restitutionCoefficient( const std::vector<std::unique_ptr<Constraint>>& active_set, VectorXs& cor )
 {
   #ifdef USE_PYTHON
-  assert( m_module_name != "" );
+  assert( !m_module_name.empty() );
   assert( m_loaded_module != nullptr );
   if( m_loaded_restitution_coefficient_callback == nullptr )
   {
@@ -171,7 +171,7 @@ void PythonScripting::restitutionCoefficient( const std::vector<std::unique_ptr<
 void PythonScripting::frictionCoefficient( const std::vector<std::unique_ptr<Constraint>>& active_set, VectorXs& mu )
 {
   #ifdef USE_PYTHON
-  assert( m_module_name != "" );
+  assert( !m_module_name.empty() );
   assert( m_loaded_module != nullptr );
   if( m_loaded_friction_coefficient_callback == nullptr )
   {
@@ -200,7 +200,7 @@ void PythonScripting::frictionCoefficient( const std::vector<std::unique_ptr<Con
 void PythonScripting::startOfSim()
 {
   #ifdef USE_PYTHON
-  assert( m_module_name != "" );
+  assert( !m_module_name.empty() );
   assert( m_loaded_module != nullptr );
   if( m_loaded_start_of_sim_callback == nullptr )
   {
@@ -224,7 +224,7 @@ void PythonScripting::startOfSim()
 void PythonScripting::endOfSim()
 {
   #ifdef USE_PYTHON
-  assert( m_module_name != "" );
+  assert( !m_module_name.empty() );
   assert( m_loaded_module != nullptr );
   if( m_loaded_end_of_sim_callback == nullptr )
   {
@@ -248,7 +248,7 @@ void PythonScripting::endOfSim()
 void PythonScripting::startOfStep( const unsigned next_iteration, const Rational<std::intmax_t>& dt )
 {
   #ifdef USE_PYTHON
-  assert( m_module_name != "" );
+  assert( !m_module_name.empty() );
   assert( m_loaded_module != nullptr );
   if( m_loaded_start_of_step_callback == nullptr )
   {
@@ -277,7 +277,7 @@ void PythonScripting::startOfStep( const unsigned next_iteration, const Rational
 void PythonScripting::endOfStep( const unsigned next_iteration, const Rational<std::intmax_t>& dt )
 {
   #ifdef USE_PYTHON
-  assert( m_module_name != "" );
+  assert( !m_module_name.empty() );
   assert( m_loaded_module != nullptr );
   if( m_loaded_end_of_step_callback == nullptr )
   {
@@ -643,19 +643,14 @@ static PyMethodDef RigidBody3DFunctions[] = {
   { "setInitialIterate", setInitialIterate, METH_VARARGS, "Sets the initial iteration count." },
   { nullptr, nullptr, 0, nullptr }
 };
-#endif
 
 void PythonScripting::initializeCallbacks()
 {
-  #ifdef USE_PYTHON
   if( _import_array() < 0 )
   {
     std::cerr << "Bad import array!" << std::endl;
     std::exit( EXIT_FAILURE );
   }
   Py_InitModule( "rigidbody3d", RigidBody3DFunctions );
-  #else
-  std::cerr << "PythonScripting::initializeCallbacks must be compiled with Python support, exiting." << std::endl;
-  std::exit( EXIT_FAILURE );
-  #endif
 }
+#endif

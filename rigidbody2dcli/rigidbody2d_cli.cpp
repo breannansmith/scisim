@@ -26,7 +26,7 @@
 
 #include "rigidbody2d/RigidBody2DSim.h"
 #include "rigidbody2d/RigidBody2DUtilities.h"
-
+#include "rigidbody2d/PythonScripting.h"
 #include "rigidbody2dutils/RigidBody2DSceneParser.h"
 #include "rigidbody2dutils/CameraSettings2D.h"
 
@@ -41,7 +41,7 @@ static std::unique_ptr<FrictionSolver> g_friction_solver{ nullptr };
 static scalar g_mu = SCALAR_NAN;
 static std::unique_ptr<ImpactMap> g_impact_map{ nullptr };
 static std::unique_ptr<ImpactFrictionMap> g_impact_friction_map{ nullptr };
-//static std::unique_ptr<ScriptingCallbackBalls2D> g_scripting_callback{ nullptr };
+static PythonScripting g_scripting;
 
 static std::string g_output_dir_name;
 static bool g_output_forces{ false };
@@ -94,6 +94,19 @@ static unsigned computeTimestepDisplayPrecision( const Rational<std::intmax_t>& 
   }
 }
 
+static std::string xmlFilePath( const std::string& xml_file_name )
+{
+  std::string path;
+  std::string file_name;
+  StringUtilities::splitAtLastCharacterOccurence( xml_file_name, path, file_name, '/' );
+  if( file_name.empty() )
+  {
+    using std::swap;
+    swap( path, file_name );
+  }
+  return path;
+}
+
 static bool loadXMLScene( const std::string& xml_file_name )
 {
   std::string scripting_callback_name;
@@ -110,8 +123,15 @@ static bool loadXMLScene( const std::string& xml_file_name )
 
   g_sim = RigidBody2DSim{ state };
   g_dt_string_precision = computeTimestepDisplayPrecision( g_dt, dt_string );
-  //g_scripting_callback = KinematicScripting::initializeScriptingCallback( scripting_callback_name );
-  //assert( g_scripting_callback != nullptr );
+
+  // Configure the scripting
+  PythonScripting new_scripting{ xmlFilePath( xml_file_name ), scripting_callback_name };
+  swap( g_scripting, new_scripting );
+
+  // User-provided start of simulation python callback
+  g_scripting.setState( g_sim.state() );
+  g_scripting.startOfSimCallback();
+  g_scripting.forgetState();
 
   return true;
 }
@@ -200,7 +220,7 @@ static int serializeSystem()
   Utilities::serializeBuiltInType( g_mu, serial_stream );
   ConstrainedMapUtilities::serialize( g_impact_map, serial_stream );
   ConstrainedMapUtilities::serialize( g_impact_friction_map, serial_stream );
-  //KinematicScripting::serialize( *g_scripting_callback, serial_stream );
+  g_scripting.serialize( serial_stream );
   StringUtilities::serializeString( g_output_dir_name, serial_stream );
   Utilities::serializeBuiltInType( g_output_forces, serial_stream );
   Utilities::serializeBuiltInType( g_steps_per_save, serial_stream );
@@ -260,7 +280,10 @@ static int deserializeSystem( const std::string& file_name )
   assert( std::isnan(g_mu) || g_mu >= 0.0 );
   g_impact_map = ConstrainedMapUtilities::deserializeImpactMap( serial_stream );
   g_impact_friction_map = ConstrainedMapUtilities::deserializeImpactFrictionMap( serial_stream );
-  //g_scripting_callback = KinematicScripting::deserializeScriptingCallback( serial_stream );
+  {
+    PythonScripting new_scripting{ serial_stream };
+    swap( g_scripting, new_scripting );
+  }
   g_output_dir_name = StringUtilities::deserializeString( serial_stream );
   g_output_forces = Utilities::deserialize<bool>( serial_stream );
   g_steps_per_save = Utilities::deserialize<unsigned>( serial_stream );
@@ -345,17 +368,13 @@ static int stepSystem()
     #endif
   }
 
-  //assert( g_scripting_callback != nullptr );
-  //g_scripting_callback->setSimulationState( g_sim.state() );
-  //g_scripting_callback->startOfStepCallback( next_iter, g_dt );
-
   if( g_unconstrained_map == nullptr && g_impact_operator == nullptr && g_impact_map == nullptr && g_friction_solver == nullptr && g_impact_friction_map == nullptr )
   {
     // Nothing to do
   }
   else if( g_unconstrained_map != nullptr && g_impact_operator == nullptr && g_impact_map == nullptr && g_friction_solver == nullptr && g_impact_friction_map == nullptr )
   {
-    g_sim.flow( next_iter, scalar( g_dt ), *g_unconstrained_map );
+    g_sim.flow( g_scripting, next_iter, g_dt, *g_unconstrained_map );
   }
   else if( g_unconstrained_map != nullptr && g_impact_operator != nullptr && g_impact_map != nullptr && g_friction_solver == nullptr && g_impact_friction_map == nullptr )
   {
@@ -365,8 +384,7 @@ static int stepSystem()
     {
       g_impact_map->exportForcesNextStep( impact_solution );
     }
-    //assert( g_scripting_callback != nullptr );
-    g_sim.flow( next_iter, scalar( g_dt ), *g_unconstrained_map, *g_impact_operator, g_CoR, *g_impact_map );
+    g_sim.flow( g_scripting, next_iter, g_dt, *g_unconstrained_map, *g_impact_operator, g_CoR, *g_impact_map );
     if( force_file.is_open() )
     {
       try
@@ -386,7 +404,7 @@ static int stepSystem()
     {
       g_impact_friction_map->exportForcesNextStep( force_file );
     }
-    g_sim.flow( next_iter, scalar( g_dt ), *g_unconstrained_map, g_CoR, g_mu, *g_friction_solver, *g_impact_friction_map );
+    g_sim.flow( g_scripting, next_iter, g_dt, *g_unconstrained_map, g_CoR, g_mu, *g_friction_solver, *g_impact_friction_map );
   }
   else
   {
@@ -419,6 +437,10 @@ static int executeSimLoop()
           return EXIT_FAILURE;
         }
       }
+      // User-provided end of simulation python callback
+      g_scripting.setState( g_sim.state() );
+      g_scripting.endOfSimCallback();
+      g_scripting.forgetState();
       std::cout << "Simulation complete at time " << g_iteration * scalar( g_dt ) << ". Exiting." << std::endl;
       return EXIT_SUCCESS;
     }

@@ -8,10 +8,10 @@
 
 #ifdef USE_PYTHON
 #include <Python.h>
+#include "scisim/PythonObject.h"
 #endif
 
 #include "scisim/ScriptingCallback.h"
-#include "scisim/PythonObject.h"
 
 class RigidBody3DState;
 
@@ -28,10 +28,9 @@ public:
 
   friend void swap( PythonScripting& first, PythonScripting& second );
 
-  #ifndef USE_PYTHON
-  [[noreturn]]
-  #endif
+  #ifdef USE_PYTHON
   static void initializeCallbacks();
+  #endif
 
   void setState( RigidBody3DState& state );
   void setInitialIterate( unsigned& initial_iterate );

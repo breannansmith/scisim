@@ -138,6 +138,11 @@ static bool loadXMLScene( const std::string& xml_file_name )
   PythonScripting new_scripting{ xmlFilePath( xml_file_name ), scripting_callback_name };
   swap( g_scripting, new_scripting );
 
+  // User-provided start of simulation python callback
+  g_scripting.setState( g_sim.state() );
+  g_scripting.startOfSimCallback();
+  g_scripting.forgetState();
+
   return true;
 }
 
@@ -440,6 +445,10 @@ static int executeSimLoop()
           return EXIT_FAILURE;
         }
       }
+      // User-provided end of simulation python callback
+      g_scripting.setState( g_sim.state() );
+      g_scripting.endOfSimCallback();
+      g_scripting.forgetState();
       std::cout << "Simulation complete at time " << g_iteration * scalar( g_dt ) << ". Exiting." << std::endl;
       return EXIT_SUCCESS;
     }

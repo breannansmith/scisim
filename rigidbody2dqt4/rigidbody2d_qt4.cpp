@@ -1,9 +1,14 @@
 #include <QApplication>
 #include <QDesktopWidget>
+#include <iostream>
 
 #include "Window.h"
 
-#include <iostream>
+#ifdef USE_PYTHON
+#include <Python.h>
+#include "rigidbody2d/PythonScripting.cpp"
+#include "scisim/PythonTools.h"
+#endif
 
 static void centerWindow( Window& window )
 {
@@ -22,8 +27,34 @@ static void centerWindow( Window& window )
   window.move( x, y );
 }
 
+#ifdef USE_PYTHON
+static void exitCleanup()
+{
+  Py_Finalize();
+}
+#endif
+
 int main( int argc, char** argv )
 {
+  #ifdef USE_PYTHON
+  // Initialize the Python interpreter
+  Py_SetProgramName( argv[0] );
+  Py_Initialize();
+
+  // Initialize a callback that will close down the interpreter
+  atexit( exitCleanup );
+
+  // Allow subsequent Python commands to use the sys module
+  PythonTools::pythonCommand( "import sys" );
+
+  // Prevent Python from intercepting the interrupt signal
+  PythonTools::pythonCommand( "import signal" );
+  PythonTools::pythonCommand( "signal.signal( signal.SIGINT, signal.SIG_DFL )" );
+
+  // Initialize the callbacks
+  PythonScripting::initializeCallbacks();
+  #endif
+
   QApplication app{ argc, argv };
   const QStringList arguments{ app.arguments() };
   if( arguments.count() > 2 )

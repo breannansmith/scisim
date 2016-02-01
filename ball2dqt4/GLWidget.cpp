@@ -275,6 +275,11 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
 
   m_lock_camera = lock_backup;
 
+  // User-provided start of simulation python callback
+  m_scripting.setState( m_sim.state() );
+  m_scripting.startOfSimCallback();
+  m_scripting.forgetState();
+
   if( render_on_load )
   {
     updateGL();
@@ -287,6 +292,10 @@ void GLWidget::stepSystem()
 {
   if( m_iteration * scalar( m_dt ) >= m_end_time )
   {
+    // User-provided end of simulation python callback
+    m_scripting.setState( m_sim.state() );
+    m_scripting.endOfSimCallback();
+    m_scripting.forgetState();
     std::cout << "Simulation complete. Exiting." << std::endl;
     std::exit( EXIT_SUCCESS );
   }

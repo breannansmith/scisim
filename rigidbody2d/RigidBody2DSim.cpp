@@ -7,6 +7,7 @@
 
 #include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
 #include "scisim/Math/MathUtilities.h"
+#include "scisim/Math/Rational.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
 #include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
 #include "scisim/Utilities.h"
@@ -678,8 +679,12 @@ bool RigidBody2DSim::constraintCacheEmpty() const
   return m_constraint_cache.empty();
 }
 
-void RigidBody2DSim::flow( const unsigned iteration, const scalar& dt, UnconstrainedMap& umap )
+void RigidBody2DSim::flow( PythonScripting& call_back, const unsigned iteration, const Rational<std::intmax_t>& dt, UnconstrainedMap& umap )
 {
+  call_back.setState( m_state );
+  call_back.startOfStepCallback( iteration, dt );
+  call_back.forgetState();
+
   // Ensure that fixed bodies do not move
   #ifndef NDEBUG
   VectorXs fixed_q{ VectorXs::Zero( m_state.q().size() ) };
@@ -703,9 +708,9 @@ void RigidBody2DSim::flow( const unsigned iteration, const scalar& dt, Unconstra
   VectorXs q1{ m_state.q().size() };
   VectorXs v1{ m_state.v().size() };
 
-  updatePeriodicBoundaryConditionsStartOfStep( iteration, dt );
+  updatePeriodicBoundaryConditionsStartOfStep( iteration, scalar(dt) );
 
-  umap.flow( m_state.q(), m_state.v(), *this, iteration, dt, q1, v1 );
+  umap.flow( m_state.q(), m_state.v(), *this, iteration, scalar(dt), q1, v1 );
 
   q1.swap( m_state.q() );
   v1.swap( m_state.v() );
@@ -729,10 +734,18 @@ void RigidBody2DSim::flow( const unsigned iteration, const scalar& dt, Unconstra
     }
   }
   #endif
+
+  call_back.setState( m_state );
+  call_back.endOfStepCallback( iteration, dt );
+  call_back.forgetState();
 }
 
-void RigidBody2DSim::flow( const unsigned iteration, const scalar& dt, UnconstrainedMap& umap, ImpactOperator& iop, const scalar& CoR, ImpactMap& imap )
+void RigidBody2DSim::flow( PythonScripting& call_back, const unsigned iteration, const Rational<std::intmax_t>& dt, UnconstrainedMap& umap, ImpactOperator& iop, const scalar& CoR, ImpactMap& imap )
 {
+  call_back.setState( m_state );
+  call_back.startOfStepCallback( iteration, dt );
+  call_back.forgetState();
+
   // Ensure that fixed bodies do not move
   #ifndef NDEBUG
   VectorXs fixed_q{ VectorXs::Zero( m_state.q().size() ) };
@@ -756,10 +769,9 @@ void RigidBody2DSim::flow( const unsigned iteration, const scalar& dt, Unconstra
   VectorXs q1{ m_state.q().size() };
   VectorXs v1{ m_state.v().size() };
 
-  updatePeriodicBoundaryConditionsStartOfStep( iteration, dt );
+  updatePeriodicBoundaryConditionsStartOfStep( iteration, scalar(dt) );
 
-  PythonScripting scripting;
-  imap.flow( scripting, *this, *this, umap, iop, iteration, dt, CoR, m_state.q(), m_state.v(), q1, v1 );
+  imap.flow( call_back, *this, *this, umap, iop, iteration, scalar(dt), CoR, m_state.q(), m_state.v(), q1, v1 );
 
   q1.swap( m_state.q() );
   v1.swap( m_state.v() );
@@ -783,10 +795,18 @@ void RigidBody2DSim::flow( const unsigned iteration, const scalar& dt, Unconstra
     }
   }
   #endif
+
+  call_back.setState( m_state );
+  call_back.endOfStepCallback( iteration, dt );
+  call_back.forgetState();
 }
 
-void RigidBody2DSim::flow( const unsigned iteration, const scalar& dt, UnconstrainedMap& umap, const scalar& CoR, const scalar& mu, FrictionSolver& solver, ImpactFrictionMap& ifmap )
+void RigidBody2DSim::flow( PythonScripting& call_back, const unsigned iteration, const Rational<std::intmax_t>& dt, UnconstrainedMap& umap, const scalar& CoR, const scalar& mu, FrictionSolver& solver, ImpactFrictionMap& ifmap )
 {
+  call_back.setState( m_state );
+  call_back.startOfStepCallback( iteration, dt );
+  call_back.forgetState();
+
   // Ensure that fixed bodies do not move
   #ifndef NDEBUG
   VectorXs fixed_q{ VectorXs::Zero( m_state.q().size() ) };
@@ -810,10 +830,9 @@ void RigidBody2DSim::flow( const unsigned iteration, const scalar& dt, Unconstra
   VectorXs q1{ m_state.q().size() };
   VectorXs v1{ m_state.v().size() };
 
-  updatePeriodicBoundaryConditionsStartOfStep( iteration, dt );
+  updatePeriodicBoundaryConditionsStartOfStep( iteration, scalar(dt) );
 
-  PythonScripting scripting;
-  ifmap.flow( scripting, *this, *this, umap, solver, iteration, dt, CoR, mu, m_state.q(), m_state.v(), q1, v1 );
+  ifmap.flow( call_back, *this, *this, umap, solver, iteration, scalar(dt), CoR, mu, m_state.q(), m_state.v(), q1, v1 );
 
   q1.swap( m_state.q() );
   v1.swap( m_state.v() );
@@ -837,6 +856,10 @@ void RigidBody2DSim::flow( const unsigned iteration, const scalar& dt, Unconstra
     }
   }
   #endif
+
+  call_back.setState( m_state );
+  call_back.endOfStepCallback( iteration, dt );
+  call_back.forgetState();
 }
 
 void RigidBody2DSim::updatePeriodicBoundaryConditionsStartOfStep( const unsigned next_iteration, const scalar& dt )

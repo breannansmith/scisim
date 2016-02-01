@@ -19,6 +19,8 @@ class ImpactFrictionMap;
 class HDF5File;
 class FrictionSolver;
 class BoxGeometry;
+class PythonScripting;
+template<typename T> class Rational;
 
 class RigidBody2DSim final : private FlowableSystem, private ConstrainedSystem
 {
@@ -74,13 +76,13 @@ public:
   virtual bool constraintCacheEmpty() const override;
 
   // Flow using only an unconstrained map
-  void flow( const unsigned iteration, const scalar& dt, UnconstrainedMap& umap );
+  void flow( PythonScripting& call_back, const unsigned iteration, const Rational<std::intmax_t>& dt, UnconstrainedMap& umap );
 
   // Flow using an unconstrained map and an impact map
-  void flow( const unsigned iteration, const scalar& dt, UnconstrainedMap& umap, ImpactOperator& iop, const scalar& CoR, ImpactMap& imap );
+  void flow( PythonScripting& call_back, const unsigned iteration, const Rational<std::intmax_t>& dt, UnconstrainedMap& umap, ImpactOperator& iop, const scalar& CoR, ImpactMap& imap );
 
   // Flow using an unconstrained map, an impact-friction map
-  void flow( const unsigned iteration, const scalar& dt, UnconstrainedMap& umap, const scalar& CoR, const scalar& mu, FrictionSolver& solver, ImpactFrictionMap& ifmap );
+  void flow( PythonScripting& call_back, const unsigned iteration, const Rational<std::intmax_t>& dt, UnconstrainedMap& umap, const scalar& CoR, const scalar& mu, FrictionSolver& solver, ImpactFrictionMap& ifmap );
 
   #ifndef USE_HDF5
   [[noreturn]]

@@ -3,13 +3,15 @@
 // Breannan Smith
 // Last updated: 09/03/2015
 
+// TODO: Don't check if the name is empty, instead have a subclass that simply does nothing
+
 #include "ScriptingCallback.h"
 
 ScriptingCallback::~ScriptingCallback() = default;
 
 void ScriptingCallback::restitutionCoefficientCallback( const std::vector<std::unique_ptr<Constraint>>& active_set, VectorXs& cor )
 {
-  if( name() == "" )
+  if( name().empty() )
   {
     return;
   }
@@ -20,7 +22,7 @@ void ScriptingCallback::restitutionCoefficientCallback( const std::vector<std::u
 
 void ScriptingCallback::frictionCoefficientCallback( const std::vector<std::unique_ptr<Constraint>>& active_set, VectorXs& mu )
 {
-  if( name() == "" )
+  if( name().empty() )
   {
     return;
   }
@@ -30,7 +32,7 @@ void ScriptingCallback::frictionCoefficientCallback( const std::vector<std::uniq
 
 void ScriptingCallback::startOfSimCallback()
 {
-  if( name() == "" )
+  if( name().empty() )
   {
     return;
   }
@@ -39,7 +41,7 @@ void ScriptingCallback::startOfSimCallback()
 
 void ScriptingCallback::endOfSimCallback()
 {
-  if( name() == "" )
+  if( name().empty() )
   {
     return;
   }
@@ -48,7 +50,7 @@ void ScriptingCallback::endOfSimCallback()
 
 void ScriptingCallback::startOfStepCallback( const unsigned next_iteration, const Rational<std::intmax_t>& dt )
 {
-  if( name() == "" )
+  if( name().empty() )
   {
     return;
   }
@@ -57,7 +59,7 @@ void ScriptingCallback::startOfStepCallback( const unsigned next_iteration, cons
 
 void ScriptingCallback::endOfStepCallback( const unsigned next_iteration, const Rational<std::intmax_t>& dt )
 {
-  if( name() == "" )
+  if( name().empty() )
   {
     return;
   }

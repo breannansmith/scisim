@@ -205,6 +205,29 @@ static bool loadEndTime( const rapidxml::xml_node<>& node, scalar& end_time )
   return true;
 }
 
+static bool loadScriptingSetup( const rapidxml::xml_node<>& node, std::string& scripting_callback )
+{
+  assert( scripting_callback.empty() );
+
+  const rapidxml::xml_node<>* scripting_node{ node.first_node( "scripting" ) };
+  if( !scripting_node )
+  {
+    return true;
+  }
+
+  const rapidxml::xml_attribute<>* name_node{ scripting_node->first_attribute( "callback" ) };
+  if( name_node )
+  {
+    scripting_callback = name_node->value();
+  }
+  else
+  {
+    return false;
+  }
+
+  return true;
+}
+
 static bool loadStaticPlanes( const rapidxml::xml_node<>& node, std::vector<RigidBody2DStaticPlane>& planes )
 {
   for( rapidxml::xml_node<>* nd = node.first_node( "static_plane" ); nd; nd = nd->next_sibling( "static_plane" ) )
@@ -1479,6 +1502,12 @@ bool RigidBody2DSceneParser::parseXMLSceneFile( const std::string& file_name, st
     return false;
   }
   const rapidxml::xml_node<>& root_node{ *doc.first_node( "rigidbody2d_scene" ) };
+
+  // Attempt to load an optional scripting callback
+  if( !loadScriptingSetup( root_node, scripting_callback ) )
+  {
+    return false;
+  }
 
   // Attempt to load the optional end time, if present
   if( !loadEndTime( root_node, end_time ) )

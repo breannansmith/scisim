@@ -14,15 +14,15 @@ static void centerWindow( Window& window )
 {
   const QDesktopWidget* const desktop{ QApplication::desktop() };
 
-  const int screenWidth{ desktop->screenGeometry().width() };
-  const int screenHeight{ desktop->screenGeometry().height() };
+  const int screen_width{ desktop->screenGeometry().width() };
+  const int screen_height{ desktop->screenGeometry().height() };
 
-  const QSize windowSize{ window.size() };
-  const int width{ windowSize.width() };
-  const int height{ windowSize.height() };
+  const QSize window_size{ window.size() };
+  const int width{ window_size.width() };
+  const int height{ window_size.height() };
 
-  const int x{ (screenWidth - width) / 2 };
-  const int y{ (screenHeight - height) / 2 };
+  const int x{ ( screen_width - width ) / 2 };
+  const int y{ ( screen_height - height ) / 2 };
 
   window.move( x, y );
 }
@@ -68,6 +68,5 @@ int main( int argc, char** argv )
   centerWindow( window );
   window.show();
   window.raise();
-  window.setFocus();
   return app.exec();
 }

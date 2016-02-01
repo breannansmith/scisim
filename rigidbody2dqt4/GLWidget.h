@@ -6,6 +6,7 @@
 
 #include "rigidbody2d/RigidBody2DSim.h"
 #include "scisim/Math/Rational.h"
+#include "rigidbody2d/PythonScripting.h"
 
 #include "DisplayController2D.h"
 #include "GLCircleRenderer2D.h"
@@ -117,7 +118,7 @@ private:
   std::unique_ptr<FrictionSolver> m_friction_solver;
   std::unique_ptr<ImpactFrictionMap> m_if_map;
   std::unique_ptr<ImpactMap> m_imap;
-  //std::unique_ptr<ScriptingCallbackBalls2D> m_scripting_callback;
+  PythonScripting m_scripting;
 
   // Current iteration of the solver
   unsigned m_iteration;

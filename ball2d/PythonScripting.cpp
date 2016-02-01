@@ -28,10 +28,12 @@ static const std::vector<std::unique_ptr<Constraint>>* s_active_set;
 #endif
 
 PythonScripting::PythonScripting()
-: m_path( "" )
-, m_module_name( "" )
+: m_path()
+, m_module_name()
 #ifdef USE_PYTHON
 , m_loaded_module( nullptr )
+, m_loaded_start_of_sim_callback( nullptr )
+, m_loaded_end_of_sim_callback( nullptr )
 , m_loaded_start_of_step_callback( nullptr )
 , m_loaded_end_of_step_callback( nullptr )
 , m_loaded_friction_coefficient_callback( nullptr )
@@ -44,6 +46,8 @@ PythonScripting::PythonScripting( const std::string& path, const std::string& mo
 , m_module_name( module_name )
 #ifdef USE_PYTHON
 , m_loaded_module( nullptr )
+, m_loaded_start_of_sim_callback( nullptr )
+, m_loaded_end_of_sim_callback( nullptr )
 , m_loaded_start_of_step_callback( nullptr )
 , m_loaded_end_of_step_callback( nullptr )
 , m_loaded_friction_coefficient_callback( nullptr )
@@ -58,6 +62,8 @@ PythonScripting::PythonScripting( std::istream& input_stream )
 , m_module_name( StringUtilities::deserializeString( input_stream ) )
 #ifdef USE_PYTHON
 , m_loaded_module( nullptr )
+, m_loaded_start_of_sim_callback( nullptr )
+, m_loaded_end_of_sim_callback( nullptr )
 , m_loaded_start_of_step_callback( nullptr )
 , m_loaded_end_of_step_callback( nullptr )
 , m_loaded_friction_coefficient_callback( nullptr )
@@ -71,7 +77,7 @@ void PythonScripting::intializePythonCallbacks()
 {
   #ifdef USE_PYTHON
   // If no module name was provided, nothing to do
-  if( m_module_name == "" )
+  if( m_module_name.empty() )
   {
     return;
   }
@@ -79,6 +85,14 @@ void PythonScripting::intializePythonCallbacks()
   // Load the module
   assert( m_loaded_module == nullptr );
   PythonTools::loadModule( m_path, m_module_name, m_loaded_module );
+
+  // Hook up the start of sim callback
+  assert( m_loaded_start_of_sim_callback == nullptr );
+  PythonTools::loadFunction( "startOfSim", m_loaded_module, m_loaded_start_of_sim_callback );
+
+  // Hook up the end of sim callback
+  assert( m_loaded_end_of_sim_callback == nullptr );
+  PythonTools::loadFunction( "endOfSim", m_loaded_module, m_loaded_end_of_sim_callback );
 
   // Hook up the start of step callback
   assert( m_loaded_start_of_step_callback == nullptr );
@@ -95,8 +109,9 @@ void PythonScripting::intializePythonCallbacks()
   // Hook up the restitution coefficient callback
   assert( m_loaded_restitution_coefficient_callback == nullptr );
   PythonTools::loadFunction( "restitutionCoefficient", m_loaded_module, m_loaded_restitution_coefficient_callback );
+  assert( PyErr_Occurred() == nullptr );
   #else
-  if( m_module_name != "" )
+  if( !m_module_name.empty() )
   {
     std::cerr << "Error, Python callback " << m_module_name << " requested, but program is not compiled with Python support. Exiting." << std::endl;
     std::exit( EXIT_FAILURE );
@@ -111,6 +126,8 @@ void swap( PythonScripting& first, PythonScripting& second )
   swap( first.m_module_name, second.m_module_name );
   #ifdef USE_PYTHON
   swap( first.m_loaded_module, second.m_loaded_module );
+  swap( first.m_loaded_start_of_sim_callback, second.m_loaded_start_of_sim_callback );
+  swap( first.m_loaded_end_of_sim_callback, second.m_loaded_end_of_sim_callback );
   swap( first.m_loaded_start_of_step_callback, second.m_loaded_start_of_step_callback );
   swap( first.m_loaded_end_of_step_callback, second.m_loaded_end_of_step_callback );
   swap( first.m_loaded_friction_coefficient_callback, second.m_loaded_friction_coefficient_callback );
@@ -121,7 +138,7 @@ void swap( PythonScripting& first, PythonScripting& second )
 void PythonScripting::restitutionCoefficient( const std::vector<std::unique_ptr<Constraint>>& active_set, VectorXs& cor )
 {
   #ifdef USE_PYTHON
-  assert( m_module_name != "" );
+  assert( !m_module_name.empty() );
   assert( m_loaded_module != nullptr );
   if( m_loaded_restitution_coefficient_callback == nullptr )
   {
@@ -140,6 +157,7 @@ void PythonScripting::restitutionCoefficient( const std::vector<std::unique_ptr<
   }
   s_cor = nullptr;
   s_active_set = nullptr;
+  assert( PyErr_Occurred() == nullptr );
   #else
   std::cerr << "PythonScripting::restitutionCoefficient must be compiled with Python support, exiting." << std::endl;
   std::exit( EXIT_FAILURE );
@@ -149,7 +167,7 @@ void PythonScripting::restitutionCoefficient( const std::vector<std::unique_ptr<
 void PythonScripting::frictionCoefficient( const std::vector<std::unique_ptr<Constraint>>& active_set, VectorXs& mu )
 {
   #ifdef USE_PYTHON
-  assert( m_module_name != "" );
+  assert( !m_module_name.empty() );
   assert( m_loaded_module != nullptr );
   if( m_loaded_friction_coefficient_callback == nullptr )
   {
@@ -168,6 +186,7 @@ void PythonScripting::frictionCoefficient( const std::vector<std::unique_ptr<Con
   }
   s_mu = nullptr;
   s_active_set = nullptr;
+  assert( PyErr_Occurred() == nullptr );
   #else
   std::cerr << "PythonScripting::frictionCoefficient must be compiled with Python support, exiting." << std::endl;
   std::exit( EXIT_FAILURE );
@@ -176,20 +195,56 @@ void PythonScripting::frictionCoefficient( const std::vector<std::unique_ptr<Con
 
 void PythonScripting::startOfSim()
 {
-  std::cerr << "PythonScripting::startOfSim not implemented for Ball2D." << std::endl;
+  #ifdef USE_PYTHON
+  assert( !m_module_name.empty() );
+  assert( m_loaded_module != nullptr );
+  if( m_loaded_start_of_sim_callback == nullptr )
+  {
+    return;
+  }
+  // Make the function call
+  const PythonObject value{ PyObject_CallObject( m_loaded_start_of_sim_callback, nullptr ) };
+  if( value == nullptr )
+  {
+    PyErr_Print();
+    std::cerr << "Python callback startOfSim failed, exiting." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+  assert( PyErr_Occurred() == nullptr );
+  #else
+  std::cerr << "PythonScripting::startOfSim must be compiled with Python support, exiting." << std::endl;
   std::exit( EXIT_FAILURE );
+  #endif
 }
 
 void PythonScripting::endOfSim()
 {
-  std::cerr << "PythonScripting::endOfSim not implemented for Ball2D." << std::endl;
+  #ifdef USE_PYTHON
+  assert( !m_module_name.empty() );
+  assert( m_loaded_module != nullptr );
+  if( m_loaded_end_of_sim_callback == nullptr )
+  {
+    return;
+  }
+  // Make the function call
+  const PythonObject value{ PyObject_CallObject( m_loaded_end_of_sim_callback, nullptr ) };
+  if( value == nullptr )
+  {
+    PyErr_Print();
+    std::cerr << "Python callback endOfSim failed, exiting." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+  assert( PyErr_Occurred() == nullptr );
+  #else
+  std::cerr << "PythonScripting::endOfSim must be compiled with Python support, exiting." << std::endl;
   std::exit( EXIT_FAILURE );
+  #endif
 }
 
 void PythonScripting::startOfStep( const unsigned next_iteration, const Rational<std::intmax_t>& dt )
 {
   #ifdef USE_PYTHON
-  assert( m_module_name != "" );
+  assert( !m_module_name.empty() );
   assert( m_loaded_module != nullptr );
   if( m_loaded_start_of_step_callback == nullptr )
   {
@@ -208,6 +263,7 @@ void PythonScripting::startOfStep( const unsigned next_iteration, const Rational
   }
   s_timestep = std::numeric_limits<scalar>::signaling_NaN();
   s_next_iteration = 0;
+  assert( PyErr_Occurred() == nullptr );
   #else
   std::cerr << "PythonScripting::startOfStep must be compiled with Python support, exiting." << std::endl;
   std::exit( EXIT_FAILURE );
@@ -217,7 +273,7 @@ void PythonScripting::startOfStep( const unsigned next_iteration, const Rational
 void PythonScripting::endOfStep( const unsigned next_iteration, const Rational<std::intmax_t>& dt )
 {
   #ifdef USE_PYTHON
-  assert( m_module_name != "" );
+  assert( !m_module_name.empty() );
   assert( m_loaded_module != nullptr );
   if( m_loaded_end_of_step_callback == nullptr )
   {
@@ -236,6 +292,7 @@ void PythonScripting::endOfStep( const unsigned next_iteration, const Rational<s
   }
   s_timestep = std::numeric_limits<scalar>::signaling_NaN();
   s_next_iteration = 0;
+  assert( PyErr_Occurred() == nullptr );
   #else
   std::cerr << "PythonScripting::endOfStep must be compiled with Python support, exiting." << std::endl;
   std::exit( EXIT_FAILURE );
@@ -507,19 +564,14 @@ static PyMethodDef Balls2DFunctions[] = {
   { "collisionIndices", collisionIndices, METH_VARARGS, "Returns the indices of bodies involved in a given collision." },
   { nullptr, nullptr, 0, nullptr }
 };
-#endif
 
 void PythonScripting::initializeCallbacks()
 {
-  #ifdef USE_PYTHON
   if( _import_array() < 0 )
   {
     std::cerr << "Bad import array!" << std::endl;
     std::exit( EXIT_FAILURE );
   }
   Py_InitModule( "balls2d", Balls2DFunctions );
-  #else
-  std::cerr << "PythonScripting::initializeCallbacks must be compiled with Python support, exiting." << std::endl;
-  std::exit( EXIT_FAILURE );
-  #endif
 }
+#endif

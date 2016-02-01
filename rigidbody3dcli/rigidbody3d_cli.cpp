@@ -103,6 +103,19 @@ static unsigned computeTimestepDisplayPrecision( const Rational<std::intmax_t>& 
   }
 }
 
+static std::string xmlFilePath( const std::string& xml_file_name )
+{
+  std::string path;
+  std::string file_name;
+  StringUtilities::splitAtLastCharacterOccurence( xml_file_name, path, file_name, '/' );
+  if( file_name.empty() )
+  {
+    using std::swap;
+    swap( path, file_name );
+  }
+  return path;
+}
+
 // TODO: Move all of the loaded state to local variables, only set globals when state is verified
 static bool loadXMLScene( const std::string& xml_file_name )
 {
@@ -127,18 +140,9 @@ static bool loadXMLScene( const std::string& xml_file_name )
   g_sim.setState( new_sim_state );
   g_sim.clearConstraintCache(); // <- TODO: probs not needed, but won't hurt... just assert that it is empty, instead
 
-  {
-    std::string path;
-    std::string file_name;
-    StringUtilities::splitAtLastCharacterOccurence( xml_file_name, path, file_name, '/' );
-    if( file_name.empty() )
-    {
-      using std::swap;
-      swap( path, file_name );
-    }
-    PythonScripting new_scripting{ path, new_scripting_callback_name };
-    swap( g_scripting, new_scripting );
-  }
+  PythonScripting new_scripting{ xmlFilePath( xml_file_name ), new_scripting_callback_name };
+  swap( g_scripting, new_scripting );
+
 
   // User-provided start of simulation python callback
   g_scripting.setState( g_sim.getState() );
@@ -445,11 +449,11 @@ static int executeSimLoop()
           return EXIT_FAILURE;
         }
       }
-      std::cout << "Simulation complete at time " << g_iteration * scalar( g_dt ) << ". Exiting." << std::endl;
       // User-provided end of simulation python callback
       g_scripting.setState( g_sim.getState() );
       g_scripting.endOfSimCallback();
       g_scripting.forgetState();
+      std::cout << "Simulation complete at time " << g_iteration * scalar( g_dt ) << ". Exiting." << std::endl;
       return EXIT_SUCCESS;
     }
 

@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <QDesktopWidget>
+#include <iostream>
 
 #include "Window.h"
 
@@ -8,8 +9,6 @@
 #include "ball2d/PythonScripting.cpp"
 #include "scisim/PythonTools.h"
 #endif
-
-#include <iostream>
 
 static void centerWindow( Window& window )
 {
