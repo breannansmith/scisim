@@ -52,6 +52,7 @@ public:
 
   const std::vector<std::unique_ptr<RigidBody2DForce>>& forces() const;
 
+  std::vector<RigidBody2DStaticPlane>& planes();
   const std::vector<RigidBody2DStaticPlane>& planes() const;
 
   std::vector<PlanarPortal>& planarPortals();

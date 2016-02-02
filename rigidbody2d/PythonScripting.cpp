@@ -10,6 +10,7 @@
 #include <numpy/arrayobject.h>
 #include "scisim/PythonTools.h"
 #include "scisim/Math/Rational.h"
+#include "RigidBody2DState.h"
 #endif
 
 #include <iostream>
@@ -324,21 +325,52 @@ void PythonScripting::serialize( std::ostream& output_stream )
 }
 
 #ifdef USE_PYTHON
+static PyObject* timestep( PyObject* self, PyObject* args )
+{
+  assert( args == nullptr );
+  using std::is_same;
+  static_assert( is_same<scalar,double>::value || is_same<scalar,float>::value, "Error, scalar type must be double or float for Python interface." );
+  return Py_BuildValue( is_same<scalar,double>::value ? "d" : "f", s_timestep );
+}
+
+static PyObject* nextIteration( PyObject* self, PyObject* args )
+{
+  assert( args == nullptr );
+  return Py_BuildValue( "I", s_next_iteration );
+}
+
+static PyObject* numStaticPlanes( PyObject* self, PyObject* args )
+{
+  assert( args == nullptr );
+  assert( s_state != nullptr );
+  return Py_BuildValue( "I", s_state->planes().size() );
+}
+
+static PyObject* deleteStaticPlane( PyObject* self, PyObject* args )
+{
+  unsigned plane_idx;
+  assert( args != nullptr );
+  if( !PyArg_ParseTuple( args, "I", &plane_idx ) )
+  {
+    PyErr_Print();
+    std::cerr << "Failed to read parameters for deleteStaticPlane, parameters are: unsigned plane_idx. Exiting." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+  assert( s_state != nullptr );
+  if( plane_idx > s_state->planes().size() )
+  {
+    std::cerr << "Invalid plane_idx parameter of " << plane_idx << " in deleteStaticPlane, plane_idx must be less than " << s_state->planes().size() << ". Exiting." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+  s_state->planes().erase( s_state->planes().begin() + plane_idx );
+  return Py_BuildValue( "" );
+}
+
 static PyMethodDef RigidBody2DFunctions[] = {
-//  { "timestep", timestep, METH_NOARGS, "Returns the timestep." },
-//  { "nextIteration", nextIteration, METH_NOARGS, "Returns the end of step iteration." },
-//  { "configuration", configuration, METH_NOARGS, "Returns the system's configuration." },
-//  { "velocity", velocity, METH_NOARGS, "Returns the system's velocity." },
-//  { "insertBall", insertBall, METH_VARARGS, "Adds a new ball to the system." },
-//  { "numStaticPlanes", numStaticPlanes, METH_NOARGS, "Returns the number of static planes." },
-//  { "setStaticPlanePosition", setStaticPlanePosition, METH_VARARGS, "Sets the position of a static plane." },
-//  { "setStaticPlaneVelocity", setStaticPlaneVelocity, METH_VARARGS, "Sets the velocity of a static plane." },
-//  { "deleteStaticPlane", deleteStaticPlane, METH_VARARGS, "Deletes a static plane." },
-//  { "mu", mu, METH_NOARGS, "Returns the coefficients of friction." },
-//  { "cor", cor, METH_NOARGS, "Returns the coefficients of restitution." },
-//  { "numCollisions", numCollisions, METH_NOARGS, "Returns the number of collisions." },
-//  { "collisionType", collisionType, METH_VARARGS, "Returns the type of a collision." },
-//  { "collisionIndices", collisionIndices, METH_VARARGS, "Returns the indices of bodies involved in a given collision." },
+  { "timestep", timestep, METH_NOARGS, "Returns the timestep." },
+  { "nextIteration", nextIteration, METH_NOARGS, "Returns the end of step iteration." },
+  { "numStaticPlanes", numStaticPlanes, METH_NOARGS, "Returns the number of static planes." },
+  { "deleteStaticPlane", deleteStaticPlane, METH_VARARGS, "Deletes a static plane." },
   { nullptr, nullptr, 0, nullptr }
 };
 

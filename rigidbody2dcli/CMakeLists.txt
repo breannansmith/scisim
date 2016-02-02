@@ -78,6 +78,11 @@ else()
   message( STATUS "Skipping RigidBody2D tests that require HDF5 (USE_HDF5 is disabled)." )
 endif()
 
+# Serialization tests for simulations that use Python callbacks
+if( USE_HDF5 AND USE_PYTHON )
+  add_test( rb2d_python_serialization_00 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/circles_falling_on_wedge_wall_delete.xml 4.0 40 17 10 )
+endif()
+
 # Serialization tests for simulations that use Ipopt
 if( USE_HDF5 AND USE_IPOPT )
   add_test( rigidbody2d_ipopt_serialization_00 assets/shell_scripts/execute_serialization_test.sh assets/tests_ipopt_serialization/balls_in_box.xml 10.0 1000 0547 100 )

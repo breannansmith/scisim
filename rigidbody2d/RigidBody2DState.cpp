@@ -227,6 +227,11 @@ const std::vector<std::unique_ptr<RigidBody2DForce>>& RigidBody2DState::forces()
   return m_forces;
 }
 
+std::vector<RigidBody2DStaticPlane>& RigidBody2DState::planes()
+{
+  return m_planes;
+}
+
 const std::vector<RigidBody2DStaticPlane>& RigidBody2DState::planes() const
 {
   return m_planes;

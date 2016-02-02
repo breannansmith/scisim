@@ -23,6 +23,7 @@
 #include "scisim/ConstrainedMaps/FrictionSolver.h"
 #include "scisim/HDF5File.h"
 #include "scisim/Utilities.h"
+#include "scisim/PythonTools.h"
 
 #include "rigidbody2d/RigidBody2DSim.h"
 #include "rigidbody2d/RigidBody2DUtilities.h"
@@ -558,6 +559,13 @@ static bool parseCommandLineOptions( int* argc, char*** argv, bool& help_mode_en
   return true;
 }
 
+#ifdef USE_PYTHON
+static void exitCleanup()
+{
+  Py_Finalize();
+}
+#endif
+
 int main( int argc, char** argv )
 {
   // Command line options
@@ -585,6 +593,25 @@ int main( int argc, char** argv )
     std::cerr << "Impulse output requires an output directory." << std::endl;
     return EXIT_FAILURE;
   }
+
+  #ifdef USE_PYTHON
+  // Initialize the Python interpreter
+  Py_SetProgramName( argv[0] );
+  Py_Initialize();
+
+  // Initialize a callback that will close down the interpreter
+  atexit( exitCleanup );
+
+  // Allow subsequent Python commands to use the sys module
+  PythonTools::pythonCommand( "import sys" );
+
+  // Prevent Python from intercepting the interrupt signal
+  PythonTools::pythonCommand( "import signal" );
+  PythonTools::pythonCommand( "signal.signal( signal.SIGINT, signal.SIG_DFL )" );
+
+  // Initialize the callbacks
+  PythonScripting::initializeCallbacks();
+  #endif
 
   if( !serialized_file_name.empty() )
   {
