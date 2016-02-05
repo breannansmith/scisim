@@ -13,6 +13,8 @@
 #include "RigidBody2DState.h"
 #endif
 
+#include "scisim/StringUtilities.h"
+
 #include <iostream>
 
 #ifdef USE_PYTHON
