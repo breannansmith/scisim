@@ -348,6 +348,101 @@ static PyObject* numStaticPlanes( PyObject* self, PyObject* args )
   return Py_BuildValue( "I", s_state->planes().size() );
 }
 
+static PyObject* setStaticPlanePosition( PyObject* self, PyObject* args )
+{
+  using std::is_same;
+  static_assert( is_same<scalar,double>::value || is_same<scalar,float>::value, "Error, scalar type must be double or float for Python interface." );
+  unsigned plane_idx;
+  scalar x_position;
+  scalar y_position;
+  assert( args != nullptr );
+  if( !PyArg_ParseTuple( args, is_same<scalar,double>::value ? "Idd" : "Iff", &plane_idx, &x_position, &y_position ) )
+  {
+    PyErr_Print();
+    std::cerr << "Failed to read parameters for setStaticPlanePosition, parameters are: plane_idx, x, y. Exiting." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+  assert( s_state != nullptr );
+  if( plane_idx > s_state->planes().size() )
+  {
+    std::cerr << "Invalid plane_idx parameter of " << plane_idx << " in setStaticPlanePosition, plane_idx must be less than " << s_state->planes().size() << ". Exiting." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+  s_state->planes()[ plane_idx ].setX( Vector2s{ x_position, y_position } );
+  return Py_BuildValue( "" );
+}
+
+static PyObject* setStaticPlaneVelocity( PyObject* self, PyObject* args )
+{
+  using std::is_same;
+  static_assert( is_same<scalar,double>::value || is_same<scalar,float>::value, "Error, scalar type must be double or float for Python interface." );
+  unsigned plane_idx;
+  scalar x_velocity;
+  scalar y_velocity;
+  assert( args != nullptr );
+  if( !PyArg_ParseTuple( args, is_same<scalar,double>::value ? "Idd" : "Iff", &plane_idx, &x_velocity, &y_velocity ) )
+  {
+    PyErr_Print();
+    std::cerr << "Failed to read parameters for setStaticPlaneVelocity, parameters are: unsigned plane_idx, double vx, double vy. Exiting." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+  assert( s_state != nullptr );
+  if( plane_idx > s_state->planes().size() )
+  {
+    std::cerr << "Invalid plane_idx parameter of " << plane_idx << " in setStaticPlaneVelocity, plane_idx must be less than " << s_state->planes().size() << ". Exiting." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+  s_state->planes()[ plane_idx ].setV( Vector2s{ x_velocity, y_velocity } );
+  return Py_BuildValue( "" );
+}
+
+static PyObject* setStaticPlaneNormal( PyObject* self, PyObject* args )
+{
+  using std::is_same;
+  static_assert( is_same<scalar,double>::value || is_same<scalar,float>::value, "Error, scalar type must be double or float for Python interface." );
+  unsigned plane_idx;
+  scalar nx;
+  scalar ny;
+  assert( args != nullptr );
+  if( !PyArg_ParseTuple( args, is_same<scalar,double>::value ? "Idd" : "Iff", &plane_idx, &nx, &ny ) )
+  {
+    PyErr_Print();
+    std::cerr << "Failed to read parameters for setStaticPlaneNormal, parameters are: unsigned plane_idx, double nx, double ny. Exiting." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+  assert( s_state != nullptr );
+  if( plane_idx > s_state->planes().size() )
+  {
+    std::cerr << "Invalid plane_idx parameter of " << plane_idx << " in setStaticPlaneNormal, plane_idx must be less than " << s_state->planes().size() << ". Exiting." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+  s_state->planes()[ plane_idx ].setN( Vector2s{ nx, ny } );
+  return Py_BuildValue( "" );
+}
+
+static PyObject* setStaticPlaneAngularVelocity( PyObject* self, PyObject* args )
+{
+  using std::is_same;
+  static_assert( is_same<scalar,double>::value || is_same<scalar,float>::value, "Error, scalar type must be double or float for Python interface." );
+  unsigned plane_idx;
+  scalar omega;
+  assert( args != nullptr );
+  if( !PyArg_ParseTuple( args, is_same<scalar,double>::value ? "Id" : "If", &plane_idx, &omega ) )
+  {
+    PyErr_Print();
+    std::cerr << "Failed to read parameters for setStaticPlaneAngularVelocity, parameters are: unsigned plane_idx, double omega. Exiting." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+  assert( s_state != nullptr );
+  if( plane_idx > s_state->planes().size() )
+  {
+    std::cerr << "Invalid plane_idx parameter of " << plane_idx << " in setStaticPlaneAngularVelocity, plane_idx must be less than " << s_state->planes().size() << ". Exiting." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+  s_state->planes()[ plane_idx ].setOmega( omega );
+  return Py_BuildValue( "" );
+}
+
 static PyObject* deleteStaticPlane( PyObject* self, PyObject* args )
 {
   unsigned plane_idx;
@@ -372,6 +467,10 @@ static PyMethodDef RigidBody2DFunctions[] = {
   { "timestep", timestep, METH_NOARGS, "Returns the timestep." },
   { "nextIteration", nextIteration, METH_NOARGS, "Returns the end of step iteration." },
   { "numStaticPlanes", numStaticPlanes, METH_NOARGS, "Returns the number of static planes." },
+  { "setStaticPlanePosition", setStaticPlanePosition, METH_VARARGS, "Sets the position of a static plane." },
+  { "setStaticPlaneVelocity", setStaticPlaneVelocity, METH_VARARGS, "Sets the velocity of a static plane." },
+  { "setStaticPlaneNormal", setStaticPlaneNormal, METH_VARARGS, "Sets the normal of a static plane." },
+  { "setStaticPlaneAngularVelocity", setStaticPlaneAngularVelocity, METH_VARARGS, "Sets the angular velocity of a static plane." },
   { "deleteStaticPlane", deleteStaticPlane, METH_VARARGS, "Deletes a static plane." },
   { nullptr, nullptr, 0, nullptr }
 };

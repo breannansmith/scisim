@@ -81,6 +81,8 @@ endif()
 # Serialization tests for simulations that use Python callbacks
 if( USE_HDF5 AND USE_PYTHON )
   add_test( rb2d_python_serialization_00 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/circles_falling_on_wedge_wall_delete.xml 4.0 40 17 10 )
+  add_test( rb2d_python_serialization_01 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/kinematic_tests/rotating_plane.xml 2.0 20 09 10 )
+  add_test( rb2d_python_serialization_02 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/kinematic_tests/translating_plane.xml 15.0 150 056 10 )
 endif()
 
 # Serialization tests for simulations that use Ipopt

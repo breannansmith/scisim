@@ -1,0 +1,18 @@
+<rigidbody2d_scene>
+
+  <camera center="0 0" scale="4.0" fps="100" render_at_fps="1" locked="0"/>
+
+  <scripting callback="rotating_plane"/>
+
+  <sobogus_friction_solver mu="0.0" CoR="0.0" max_iters="5000" eval_every="25" tol="1.0e-12" staggering="geometric" cache_impulses="normal_and_friction"/>
+
+  <integrator type="verlet" dt="0.01"/>
+
+  <static_plane x="-2 0" n="1 0"/>
+  <static_plane x="2 -4" n="0 1"/>
+
+  <geometry type="circle" r="0.500000001"/>
+
+  <rigid_body x="1.5 0.0" theta="0.0" v="0.0 0.0" omega="0.0" rho="1.0" geo_idx="0"/>
+
+</rigidbody2d_scene>

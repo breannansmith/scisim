@@ -605,7 +605,7 @@ void RigidBody2DSim::computeBodyPlaneActiveSetAllPairs( const VectorXs& q0, cons
               const scalar dist{ plane.n().dot( transformed_vertex - plane.x() ) };
               if( dist <= 0.0 )
               {
-                active_set.emplace_back( new StaticPlaneBodyConstraint( bdy_idx, body_space_arm, plane, plane_idx ) );
+                active_set.emplace_back( new StaticPlaneBodyConstraint{ bdy_idx, body_space_arm, plane, plane_idx } );
               }
             }
           }

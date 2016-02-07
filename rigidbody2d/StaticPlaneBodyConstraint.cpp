@@ -90,6 +90,9 @@ std::string StaticPlaneBodyConstraint::name() const
 
 Vector2s StaticPlaneBodyConstraint::computePlaneCollisionPointVelocity( const VectorXs& q ) const
 {
+  // TODO: Add support for collisions with kinematically scripted moving planes
+  assert( ( m_plane.v().array() == 0.0 ).all() );
+  assert( m_plane.omega() == 0.0 );
   return Vector2s::Zero();
 }
 

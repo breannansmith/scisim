@@ -111,7 +111,12 @@ std::string StaticPlaneCircleConstraint::name() const
 
 Vector2s StaticPlaneCircleConstraint::computePlaneCollisionPointVelocity( const VectorXs& q ) const
 {
-  return Vector2s::Zero();
+  VectorXs contact_point;
+  getWorldSpaceContactPoint( q, contact_point );
+  assert( contact_point.size() == 2 );
+  const Vector2s collision_arm{ contact_point - m_plane.x() };
+  const Vector2s t0{ -collision_arm.y(), collision_arm.x() };
+  return m_plane.v() + m_plane.omega() * t0;
 }
 
 void StaticPlaneCircleConstraint::computeContactBasis( const VectorXs& q, const VectorXs& v, MatrixXXsc& basis ) const

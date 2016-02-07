@@ -20,6 +20,13 @@ public:
   const Vector2s& x() const;
   const Vector2s& n() const;
   const Vector2s& t() const;
+  const Vector2s& v() const;
+  const scalar& omega() const;
+
+  void setX( const Vector2s& x );
+  void setN( const Vector2s& n );
+  void setV( const Vector2s& v );
+  void setOmega( const scalar& omega );
 
   bool distanceLessThanZero( const Vector2s& x ) const;
   scalar distanceToPoint( const Vector2s& x ) const;
@@ -28,9 +35,16 @@ public:
 
 private:
 
+  // A point on the plane
   Vector2s m_x;
+  // The plane's normal
   Vector2s m_n;
+  // The plane's tangent
   Vector2s m_t;
+  // The velocity of the point m_x
+  Vector2s m_v;
+  // The angular velocity about the point m_x
+  scalar m_omega;
 
 };
 
