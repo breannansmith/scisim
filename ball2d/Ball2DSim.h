@@ -64,7 +64,7 @@ public:
   virtual void computeAngularMomentum( const VectorXs& v, VectorXs& L ) const override;
 
   // Inherited from ConstrainedSystem
-  virtual void computeActiveSet( const VectorXs& q0, const VectorXs& qp, std::vector<std::unique_ptr<Constraint>>& active_set ) override;
+  virtual void computeActiveSet( const VectorXs& q0, const VectorXs& qp, const VectorXs& v, std::vector<std::unique_ptr<Constraint>>& active_set ) override;
   virtual void computeImpactBases( const VectorXs& q, const std::vector<std::unique_ptr<Constraint>>& active_set, MatrixXXsc& impact_bases ) const override;
   virtual void computeContactBases( const VectorXs& q, const VectorXs& v, const std::vector<std::unique_ptr<Constraint>>& active_set, MatrixXXsc& contact_bases ) const override;
   virtual void clearConstraintCache() override;

@@ -7,11 +7,14 @@
 
 #include "scisim/Math/MathUtilities.h"
 
-KinematicObjectCircleConstraint::KinematicObjectCircleConstraint( const unsigned sim_bdy_idx, const scalar& sim_bdy_r, const Vector2s& n, const unsigned knmtc_bdy_idx )
+KinematicObjectCircleConstraint::KinematicObjectCircleConstraint( const unsigned sim_bdy_idx, const scalar& sim_bdy_r, const Vector2s& n, const unsigned knmtc_bdy_idx, const Vector2s& x, const Vector2s& v, const scalar& omega )
 : m_sim_idx( sim_bdy_idx )
 , m_r( sim_bdy_r )
 , m_n( n )
 , m_kinematic_index( knmtc_bdy_idx )
+, m_kinematic_x( x )
+, m_v( v )
+, m_omega( omega )
 {
   assert( m_r > 0.0 );
   assert( fabs( m_n.norm() - 1.0 ) <= 1.0e-6 );
@@ -20,7 +23,7 @@ KinematicObjectCircleConstraint::KinematicObjectCircleConstraint( const unsigned
 scalar KinematicObjectCircleConstraint::evalNdotV( const VectorXs& q, const VectorXs& v ) const
 {
   assert( v.size() % 3 == 0 ); assert( 3 * m_sim_idx + 1 < v.size() );
-  return m_n.dot( v.segment<2>( 3 * m_sim_idx ) - computeKinematicRelativeVelocity( q, v ) );
+  return m_n.dot( v.segment<2>( 3 * m_sim_idx ) - computeKinematicCollisionPointVelocity( q ) );
 }
 
 void KinematicObjectCircleConstraint::evalgradg( const VectorXs& q, const int col, SparseMatrixsc& G, const FlowableSystem& fsys ) const
@@ -53,8 +56,8 @@ void KinematicObjectCircleConstraint::getBodyIndices( std::pair<int,int>& bodies
 
 void KinematicObjectCircleConstraint::evalKinematicNormalRelVel( const VectorXs& q, const int strt_idx, VectorXs& gdotN ) const
 {
-  // No relative velocity contribution from kinematic scripting, for now
-  gdotN( strt_idx ) = 0.0;
+  assert( strt_idx >= 0 ); assert( strt_idx < gdotN.size() );
+  gdotN( strt_idx ) = - m_n.dot( computeKinematicCollisionPointVelocity( q ) );
 }
 
 void KinematicObjectCircleConstraint::evalH( const VectorXs& q, const MatrixXXsc& basis, MatrixXXsc& H0, MatrixXXsc& H1 ) const
@@ -116,6 +119,16 @@ std::string KinematicObjectCircleConstraint::name() const
   return "kinematic_object_circle";
 }
 
+Vector2s KinematicObjectCircleConstraint::computeKinematicCollisionPointVelocity( const VectorXs& q ) const
+{
+  VectorXs contact_point;
+  getWorldSpaceContactPoint( q, contact_point );
+  assert( contact_point.size() == 2 );
+  const Vector2s collision_arm{ contact_point - m_kinematic_x };
+  const Vector2s t0{ -collision_arm.y(), collision_arm.x() };
+  return m_v + m_omega * t0;
+}
+
 VectorXs KinematicObjectCircleConstraint::computeRelativeVelocity( const VectorXs& q, const VectorXs& v ) const
 {
   assert( v.size() % 3 == 0 );
@@ -129,7 +142,7 @@ VectorXs KinematicObjectCircleConstraint::computeRelativeVelocity( const VectorX
   const Vector2s t{ -r.y(), r.x() };
 
   // v + omega x r - kinematic_vel
-  return v.segment<2>( 3 * m_sim_idx ) + v( 3 * m_sim_idx + 2 ) * t - computeKinematicRelativeVelocity( q, v );
+  return v.segment<2>( 3 * m_sim_idx ) + v( 3 * m_sim_idx + 2 ) * t - computeKinematicCollisionPointVelocity( q );
 }
 
 void KinematicObjectCircleConstraint::setBodyIndex0( const unsigned idx )
@@ -139,8 +152,7 @@ void KinematicObjectCircleConstraint::setBodyIndex0( const unsigned idx )
 
 VectorXs KinematicObjectCircleConstraint::computeKinematicRelativeVelocity( const VectorXs& q, const VectorXs& v ) const
 {
-  // The kinematic object must be stationary, for now
-  return VectorXs::Zero( 2 );
+  return computeKinematicCollisionPointVelocity( q );
 }
 
 void KinematicObjectCircleConstraint::getWorldSpaceContactPoint( const VectorXs& q, VectorXs& contact_point ) const

@@ -241,7 +241,7 @@ void RigidBody3DSim::computeAngularMomentum( const VectorXs& v, VectorXs& L ) co
   }
 }
 
-void RigidBody3DSim::computeActiveSet( const VectorXs& q0, const VectorXs& qp, std::vector<std::unique_ptr<Constraint>>& active_set )
+void RigidBody3DSim::computeActiveSet( const VectorXs& q0, const VectorXs& qp, const VectorXs& v, std::vector<std::unique_ptr<Constraint>>& active_set )
 {
   assert( q0.size() == qp.size() );
   assert( active_set.empty() );
@@ -309,7 +309,7 @@ void RigidBody3DSim::computeNumberOfCollisions( std::map<std::string,unsigned>& 
   collision_depths.clear();
   overlap_volumes.clear();
   std::vector<std::unique_ptr<Constraint>> active_set;
-  computeActiveSet( m_sim_state.q(), m_sim_state.q(), active_set );
+  computeActiveSet( m_sim_state.q(), m_sim_state.q(), m_sim_state.v(), active_set );
   for( const std::unique_ptr<Constraint>& constraint : active_set )
   {
     const std::string constraint_name{ constraint->name() };

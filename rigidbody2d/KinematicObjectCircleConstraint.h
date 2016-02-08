@@ -13,7 +13,7 @@ class KinematicObjectCircleConstraint final : public Constraint
 
 public:
 
-  KinematicObjectCircleConstraint( const unsigned sim_bdy_idx, const scalar& sim_bdy_r, const Vector2s& n, const unsigned knmtc_bdy_idx );
+  KinematicObjectCircleConstraint( const unsigned sim_bdy_idx, const scalar& sim_bdy_r, const Vector2s& n, const unsigned knmtc_bdy_idx, const Vector2s& x, const Vector2s& v, const scalar& omega );
   virtual ~KinematicObjectCircleConstraint() override = default;
 
   // Inherited from Constraint
@@ -42,6 +42,8 @@ private:
 
   virtual VectorXs computeKinematicRelativeVelocity( const VectorXs& q, const VectorXs& v ) const override;
 
+  Vector2s computeKinematicCollisionPointVelocity( const VectorXs& q ) const;
+
   // Index of the simulated circle
   unsigned m_sim_idx;
 
@@ -53,6 +55,15 @@ private:
 
   // Index of the kinematic body
   const unsigned m_kinematic_index;
+
+  // Center of mass of the kinematic body
+  const Vector2s m_kinematic_x;
+
+  // Velocity of the kinematic body
+  const Vector2s m_v;
+
+  // Angular velocity of the kinematic body
+  const scalar m_omega;
 
 };
 

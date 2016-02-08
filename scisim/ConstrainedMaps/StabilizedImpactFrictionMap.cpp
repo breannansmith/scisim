@@ -56,7 +56,7 @@ void StabilizedImpactFrictionMap::flow( ScriptingCallback& call_back, FlowableSy
 
   // Using the configuration at the predictor step, compute the set of active constraints
   std::vector<std::unique_ptr<Constraint>> active_set;
-  csys.computeActiveSet( q0, q1, active_set );
+  csys.computeActiveSet( q0, q1, v1, active_set );
 
   // If there are no active constraints, there is no need to perform collision response
   if( active_set.empty() )

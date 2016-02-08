@@ -132,7 +132,7 @@ void Ball2DSim::computeAngularMomentum( const VectorXs& v, VectorXs& L ) const
   }
 }
 
-void Ball2DSim::computeActiveSet( const VectorXs& q0, const VectorXs& qp, std::vector<std::unique_ptr<Constraint>>& active_set )
+void Ball2DSim::computeActiveSet( const VectorXs& q0, const VectorXs& qp, const VectorXs& v, std::vector<std::unique_ptr<Constraint>>& active_set )
 {
   assert( q0.size() % 2 == 0 );
   assert( q0.size() / 2 == m_state.r().size() );
@@ -202,7 +202,7 @@ void Ball2DSim::computeNumberOfCollisions( std::map<std::string,unsigned>& colli
   collision_counts.clear();
   collision_depths.clear();
   std::vector<std::unique_ptr<Constraint>> active_set;
-  computeActiveSet( m_state.q(), m_state.q(), active_set );
+  computeActiveSet( m_state.q(), m_state.q(), m_state.v(), active_set );
   for( const std::unique_ptr<Constraint>& constraint : active_set )
   {
     const std::string constraint_name{ constraint->name() };

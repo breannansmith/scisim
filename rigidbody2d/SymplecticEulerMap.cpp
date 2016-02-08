@@ -15,26 +15,11 @@ SymplecticEulerMap::SymplecticEulerMap( std::istream& input_stream )
 void SymplecticEulerMap::flow( const VectorXs& q0, const VectorXs& v0, FlowableSystem& fsys, const unsigned iteration, const scalar& dt, VectorXs& q1, VectorXs& v1 )
 {
   assert( iteration > 0 );
-  const scalar next_time{ iteration * dt };
-
-  // Ensure that kinematic bodies are not expecting to get integrated
-  #ifndef NDEBUG
-  {
-    const unsigned nbodies{ fsys.numBodies() };
-    for( unsigned bdy_idx = 0; bdy_idx < nbodies; ++bdy_idx )
-    {
-      if( fsys.isKinematicallyScripted( bdy_idx ) )
-      {
-        assert( ( v0.segment<3>( 3 * bdy_idx ).array() == 0.0 ).all() );
-      }
-    }
-  }
-  #endif
+  const scalar start_time{ ( iteration - 1 ) * dt };
 
   // Use q1 as temporary storage for the force
-  fsys.computeForce( q0, v0, next_time, q1 );
+  fsys.computeForce( q0, v0, start_time, q1 );
 
-  // TODO: Probably faster to store an explicit list of fixed bodies
   // Zero the force for fixed bodies
   const unsigned nbodies{ fsys.numBodies() };
   for( unsigned bdy_idx = 0; bdy_idx < nbodies; ++bdy_idx )
