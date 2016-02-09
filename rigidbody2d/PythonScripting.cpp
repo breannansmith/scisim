@@ -463,6 +463,73 @@ static PyObject* deleteStaticPlane( PyObject* self, PyObject* args )
   return Py_BuildValue( "" );
 }
 
+static PyObject* numGeometryInstances( PyObject* self, PyObject* args )
+{
+  assert( args == nullptr );
+  assert( s_state != nullptr );
+  return Py_BuildValue( "I", s_state->geometry().size() );
+}
+
+static PyObject* addCircleGeometry( PyObject* self, PyObject* args )
+{
+  scalar radius;
+  assert( args != nullptr );
+  using std::is_same;
+  static_assert( is_same<scalar,double>::value || is_same<scalar,float>::value, "Error, scalar type must be double or float for Python interface." );
+  if( !PyArg_ParseTuple( args, is_same<scalar,double>::value ? "d" : "f", &radius ) )
+  {
+    PyErr_Print();
+    std::cerr << "Failed to read parameters for addCircleGeometry, parameters are: double radius. Exiting." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+  if( radius <= 0.0 )
+  {
+    std::cerr << "Error in addCircleGeometry, radius must be positive. Exiting." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+  assert( s_state != nullptr );
+  s_state->addCircleGeometry( radius );
+  return Py_BuildValue( "" );
+}
+
+static PyObject* addBody( PyObject* self, PyObject* args )
+{
+  Vector2s q;
+  scalar theta;
+  Vector2s v;
+  scalar omega;
+  scalar rho;
+  int geo_idx;
+  int fixed;
+  assert( args != nullptr );
+  using std::is_same;
+  static_assert( is_same<scalar,double>::value || is_same<scalar,float>::value, "Error, scalar type must be double or float for Python interface." );
+  if( !PyArg_ParseTuple( args, is_same<scalar,double>::value ? "dddddddii" : "fffffffii", &q.x(), &q.y(), &theta, &v.x(), &v.y(), &omega, &rho, &geo_idx, &fixed ) )
+  {
+    PyErr_Print();
+    std::cerr << "Failed to read parameters for addBody, parameters are: double x, double y, double theta, double vx, double vy, double omega, double rho, int geo_idx, bool fixed. Exiting." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+  assert( s_state != nullptr );
+  if( rho <= 0.0 )
+  {
+    std::cerr << "Error in addBody, rho must be positive. Exiting." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+  if( geo_idx < 0 || geo_idx >= int( s_state->geometry().size() ) )
+  {
+    std::cerr << "Error in addBody, geo_idx must be a non-negative integer less than the number of geometry instances. Exiting." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+  if( fixed != 0 && fixed != 1 )
+  {
+    std::cerr << "Error in addBody, fixed value must be 0 or 1. Exiting." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+  s_state->addBody( q, theta, v, omega, rho, geo_idx, fixed == 1 );
+  return Py_BuildValue( "" );
+}
+
 static PyMethodDef RigidBody2DFunctions[] = {
   { "timestep", timestep, METH_NOARGS, "Returns the timestep." },
   { "nextIteration", nextIteration, METH_NOARGS, "Returns the end of step iteration." },
@@ -472,6 +539,9 @@ static PyMethodDef RigidBody2DFunctions[] = {
   { "setStaticPlaneNormal", setStaticPlaneNormal, METH_VARARGS, "Sets the normal of a static plane." },
   { "setStaticPlaneAngularVelocity", setStaticPlaneAngularVelocity, METH_VARARGS, "Sets the angular velocity of a static plane." },
   { "deleteStaticPlane", deleteStaticPlane, METH_VARARGS, "Deletes a static plane." },
+  { "numGeometryInstances", numGeometryInstances, METH_NOARGS, "Returns the number of geometry instances in the simulation." },
+  { "addCircleGeometry", addCircleGeometry, METH_VARARGS, "Adds a new circle geometry instance to the system." },
+  { "addBody", addBody, METH_VARARGS, "Adds a new rigid body to the system." },
   { nullptr, nullptr, 0, nullptr }
 };
 

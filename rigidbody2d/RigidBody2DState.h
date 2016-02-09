@@ -23,7 +23,6 @@ public:
   RigidBody2DState( RigidBody2DState&& rhs ) = default;
 
   RigidBody2DState& operator=( RigidBody2DState rhs );
-  RigidBody2DState& operator=( RigidBody2DState&& rhs ) = default;
 
   friend void swap( RigidBody2DState& lhs, RigidBody2DState& rhs );
 
@@ -41,6 +40,12 @@ public:
   const scalar& I( const unsigned bdy_idx ) const;
 
   bool fixed( const int idx ) const;
+
+  // Adds a new body at the end of the state vector
+  void addBody( const Vector2s& x, const scalar& theta, const Vector2s& v, const scalar& omega, const scalar& rho, const unsigned geo_idx, const bool fixed );
+
+  // Adds a new circle geometry instance to the back of the geometry vector
+  void addCircleGeometry( const scalar& r );
 
   // TODO: Remove these
   std::vector<std::unique_ptr<RigidBody2DGeometry>>& geometry();
@@ -66,6 +71,10 @@ public:
   void deserialize( std::istream& input_stream );
 
 private:
+
+  #ifndef NDEBUG
+  void checkStateConsistency();
+  #endif
 
   // Format: x0, y0, theta0, x1, y1, theta1, ...
   VectorXs m_q;

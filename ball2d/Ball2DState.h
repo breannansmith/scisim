@@ -23,10 +23,8 @@ public:
 
   Ball2DState() = default;
   Ball2DState( const Ball2DState& other );
-  // TODO: 'copy and swap' and move assignment seems weird together ...
   Ball2DState& operator=( Ball2DState other );
   Ball2DState( Ball2DState&& ) = default;
-  Ball2DState& operator=( Ball2DState&& ) = default;
   ~Ball2DState() = default;
 
   void setMass( const VectorXs& m );

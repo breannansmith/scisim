@@ -17,8 +17,7 @@
 
 static SparseMatrixsc generateM( const VectorXs& m )
 {
-  SparseMatrixsc M;
-  M.resize( m.size(), m.size() );
+  SparseMatrixsc M{ SparseMatrixsc::Index( m.size() ), SparseMatrixsc::Index( m.size() ) };
   M.reserve( m.size() );
   for( int col = 0; col < m.size(); ++col )
   {
@@ -32,8 +31,7 @@ static SparseMatrixsc generateM( const VectorXs& m )
 
 static SparseMatrixsc generateMinv( const VectorXs& m )
 {
-  SparseMatrixsc Minv;
-  Minv.resize( m.size(), m.size() );
+  SparseMatrixsc Minv{ SparseMatrixsc::Index( m.size() ), SparseMatrixsc::Index( m.size() ) };
   Minv.reserve( m.size() );
   for( int col = 0; col < m.size(); ++col )
   {
@@ -44,6 +42,42 @@ static SparseMatrixsc generateMinv( const VectorXs& m )
   Minv.finalize();
   return Minv;
 }
+
+#ifndef NDEBUG
+void RigidBody2DState::checkStateConsistency()
+{
+  assert( m_q.size() % 3 == 0 );
+  assert( m_q.size() == m_v.size() );
+
+  assert( m_M.rows() == m_q.size() );
+  assert( m_M.cols() == m_q.size() );
+  assert( ( Eigen::Map<const ArrayXs>{ m_M.valuePtr(), m_M.nonZeros() } > 0.0 ).all() );
+  for( unsigned bdy_idx = 0; bdy_idx < m_q.size() / 3; ++bdy_idx )
+  {
+    assert( m_M.valuePtr()[ 3 * bdy_idx ] == m_M.valuePtr()[ 3 * bdy_idx + 1 ] );
+  }
+
+  assert( m_Minv.rows() == m_q.size() );
+  assert( m_Minv.cols() == m_q.size() );
+  assert( ( Eigen::Map<const ArrayXs>{ m_Minv.valuePtr(), m_Minv.nonZeros() } > 0.0 ).all() );
+  for( unsigned bdy_idx = 0; bdy_idx < m_q.size() / 3; ++bdy_idx )
+  {
+    assert( m_Minv.valuePtr()[ 3 * bdy_idx ] == m_Minv.valuePtr()[ 3 * bdy_idx + 1 ] );
+  }
+
+  // Check that the product of M and M^{-1} is the identity
+  {
+    const SparseMatrixsc prod{ m_M * m_Minv };
+    assert( prod.nonZeros() == m_M.rows() );
+    assert( ( ( Eigen::Map<const ArrayXs>{ prod.valuePtr(), prod.nonZeros() } - 1.0 ).abs() <= 1.0e-6 ).all() );
+  }
+
+  assert( static_cast<int>( m_geometry_indices.size() ) == m_q.size() / 3 );
+  assert( ( m_geometry_indices.array() < m_geometry.size() ).all() );
+
+  assert( static_cast<int>( m_fixed.size() ) == m_q.size() / 3 );
+}
+#endif
 
 RigidBody2DState::RigidBody2DState( const VectorXs& q, const VectorXs& v, const VectorXs& m, const std::vector<bool>& fixed, const VectorXu& geometry_indices, const std::vector<std::unique_ptr<RigidBody2DGeometry>>& geometry, const std::vector<std::unique_ptr<RigidBody2DForce>>& forces, const std::vector<RigidBody2DStaticPlane>& planes, const std::vector<PlanarPortal>& planar_portals )
 : m_q( q )
@@ -57,31 +91,9 @@ RigidBody2DState::RigidBody2DState( const VectorXs& q, const VectorXs& v, const 
 , m_planes( planes )
 , m_planar_portals( planar_portals )
 {
-  assert( m_q.size() % 3 == 0 );
-  assert( ( Eigen::Map<const ArrayXs>{ m_M.valuePtr(), m_M.nonZeros() } > 0.0 ).all() );
   #ifndef NDEBUG
-  for( unsigned bdy_idx = 0; bdy_idx < m_q.size() / 3; ++bdy_idx )
-  {
-    assert( m_M.valuePtr()[ 3 * bdy_idx ] == m_M.valuePtr()[ 3 * bdy_idx + 1 ] );
-  }
+  checkStateConsistency();
   #endif
-  assert( ( Eigen::Map<const ArrayXs>{ m_Minv.valuePtr(), m_Minv.nonZeros() } > 0.0 ).all() );
-  #ifndef NDEBUG
-  for( unsigned bdy_idx = 0; bdy_idx < m_q.size() / 3; ++bdy_idx )
-  {
-    assert( m_Minv.valuePtr()[ 3 * bdy_idx ] == m_Minv.valuePtr()[ 3 * bdy_idx + 1 ] );
-  }
-  #endif
-  // Check that the product of M and M^{-1} is the identity
-  #ifndef NDEBUG
-  {
-    const SparseMatrixsc prod = m_M * m_Minv;
-    assert( prod.nonZeros() == m_M.rows() );
-    assert( ( ( Eigen::Map<const ArrayXs>{ prod.valuePtr(), prod.nonZeros() } - 1.0 ).abs() <= 1.0e-6 ).all() );
-  }
-  #endif
-  assert( ( m_geometry_indices.array() < m_geometry.size() ).all() );
-  assert( static_cast<int>( m_fixed.size() ) == m_q.size() / 3 );
 }
 
 RigidBody2DState::RigidBody2DState( const RigidBody2DState& rhs )
@@ -96,30 +108,9 @@ RigidBody2DState::RigidBody2DState( const RigidBody2DState& rhs )
 , m_planes( rhs.m_planes )
 , m_planar_portals( rhs.m_planar_portals )
 {
-  assert( m_q.size() % 3 == 0 );
-  assert( ( Eigen::Map<const ArrayXs>{ m_M.valuePtr(), m_M.nonZeros() } > 0.0 ).all() );
   #ifndef NDEBUG
-  for( unsigned bdy_idx = 0; bdy_idx < m_q.size() / 3; ++bdy_idx )
-  {
-    assert( m_M.valuePtr()[ 3 * bdy_idx ] == m_M.valuePtr()[ 3 * bdy_idx + 1 ] );
-  }
+  checkStateConsistency();
   #endif
-  assert( ( Eigen::Map<const ArrayXs>( m_Minv.valuePtr(), m_Minv.nonZeros() ) > 0.0 ).all() );
-  #ifndef NDEBUG
-  for( unsigned bdy_idx = 0; bdy_idx < m_q.size() / 3; ++bdy_idx )
-  {
-    assert( m_Minv.valuePtr()[ 3 * bdy_idx ] == m_Minv.valuePtr()[ 3 * bdy_idx + 1 ] );
-  }
-  #endif
-  // Check that the product of M and M^{-1} is the identity
-  #ifndef NDEBUG
-  {
-    const SparseMatrixsc prod{ m_M * m_Minv };
-    assert( prod.nonZeros() == m_M.rows() );
-    assert( ( ( Eigen::Map<const ArrayXs>{ prod.valuePtr(), prod.nonZeros() } - 1.0 ).abs() <= 1.0e-6 ).all() );
-  }
-  #endif
-  assert( ( m_geometry_indices.array() < m_geometry.size() ).all() );
 }
 
 RigidBody2DState& RigidBody2DState::operator=( RigidBody2DState rhs )
@@ -194,6 +185,87 @@ bool RigidBody2DState::fixed( const int idx ) const
   assert( idx >= 0 );
   assert( idx < static_cast<int>( m_fixed.size() ) );
   return m_fixed[idx];
+}
+
+void RigidBody2DState::addBody( const Vector2s& x, const scalar& theta, const Vector2s& v, const scalar& omega, const scalar& rho, const unsigned geo_idx, const bool fixed )
+{
+  assert( rho > 0.0 );
+  assert( geo_idx < m_geometry.size() );
+
+  assert( m_q.size() % 3 == 0 );
+  const unsigned original_num_bodies{ unsigned( m_q.size() / 3 ) };
+  const unsigned new_num_bodies{ original_num_bodies + 1 };
+
+  // Format: x0, y0, theta0, x1, y1, theta1, ...
+  m_q.conservativeResize( 3 * new_num_bodies );
+  m_q.segment<3>( 3 * original_num_bodies ) << x.x(), x.y(), theta;
+
+  // Format: vx0, vy0, omega0, vx1, vy1, omega1, ...
+  m_v.conservativeResize( 3 * new_num_bodies );
+  m_v.segment<3>( 3 * original_num_bodies ) << v.x(), v.y(), omega;
+
+  // Update the geometry references
+  m_geometry_indices.conservativeResize( new_num_bodies );
+  m_geometry_indices( original_num_bodies ) = geo_idx;
+
+  // Update fixed body tags
+  m_fixed.push_back( fixed );
+
+  scalar m;
+  scalar I;
+  m_geometry[geo_idx]->computeMassAndInertia( rho, m, I );
+
+  // Update the mass matrix
+  {
+    SparseMatrixsc M{ SparseMatrixsc::Index( 3 * new_num_bodies ), SparseMatrixsc::Index( 3 * new_num_bodies ) };
+    M.reserve( 3 * new_num_bodies );
+    // Copy the old masses
+    for( unsigned col = 0; col < 3 * original_num_bodies; ++col )
+    {
+      M.startVec( col );
+      const unsigned row = col;
+      M.insertBack( row, col ) = m_M.valuePtr()[ col ];
+    }
+    // Insert the new masses
+    M.startVec( 3 * original_num_bodies );
+    M.insertBack( 3 * original_num_bodies, 3 * original_num_bodies ) = m;
+    M.startVec( 3 * original_num_bodies + 1 );
+    M.insertBack( 3 * original_num_bodies + 1, 3 * original_num_bodies + 1 ) = m;
+    M.startVec( 3 * original_num_bodies + 2 );
+    M.insertBack( 3 * original_num_bodies + 2, 3 * original_num_bodies + 2 ) = I;
+    M.finalize();
+    m_M.swap( M );
+  }
+  // Update the inverse mass matrix
+  {
+    SparseMatrixsc Minv{ SparseMatrixsc::Index( 3 * new_num_bodies ), SparseMatrixsc::Index( 3 * new_num_bodies ) };
+    Minv.reserve( 3 * new_num_bodies );
+    // Copy the old inverse masses
+    for( unsigned col = 0; col < 3 * original_num_bodies; ++col )
+    {
+      Minv.startVec( col );
+      const unsigned row = col;
+      Minv.insertBack( row, col ) = m_Minv.valuePtr()[ col ];
+    }
+    // Insert the new inverse masses
+    Minv.startVec( 3 * original_num_bodies );
+    Minv.insertBack( 3 * original_num_bodies, 3 * original_num_bodies ) = 1.0 / m;
+    Minv.startVec( 3 * original_num_bodies + 1 );
+    Minv.insertBack( 3 * original_num_bodies + 1, 3 * original_num_bodies + 1 ) = 1.0 / m;
+    Minv.startVec( 3 * original_num_bodies + 2 );
+    Minv.insertBack( 3 * original_num_bodies + 2, 3 * original_num_bodies + 2 ) = 1.0 / I;
+    Minv.finalize();
+    m_Minv.swap( Minv );
+  }
+
+  #ifndef NDEBUG
+  checkStateConsistency();
+  #endif
+}
+
+void RigidBody2DState::addCircleGeometry( const scalar& r )
+{
+  m_geometry.emplace_back( new CircleGeometry{ r } );
 }
 
 std::vector<std::unique_ptr<RigidBody2DGeometry>>& RigidBody2DState::geometry()
