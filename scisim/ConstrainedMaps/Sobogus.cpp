@@ -630,7 +630,7 @@ Sobogus::~Sobogus()
 {}
 
 // Builds a vector that, given local index i in [0,nlocalbodies), gives the global index ltg[i] [0,nglobalbodies)
-void buildLocalToGlobalMap( const unsigned nglobalbodies, const std::vector<std::unique_ptr<Constraint>>& active_set, VectorXu& ltg )
+static void buildLocalToGlobalMap( const unsigned nglobalbodies, const std::vector<std::unique_ptr<Constraint>>& active_set, VectorXu& ltg )
 {
   // Build a vector that, for each entries, states whether a body is present in this set of collisions
   std::vector<bool> body_present( nglobalbodies, false );
@@ -866,10 +866,11 @@ void Sobogus::solve( const unsigned iteration, const scalar& dt, const FlowableS
   assert( unsigned( alpha.size() ) == active_set.size() ); assert( beta.size() % alpha.size() == 0 );
 
   // Kinematic realtive velocities
-  VectorXs nrel( alpha.size() );
-  VectorXs drel( beta.size() );
+  VectorXs nrel{ alpha.size() };
+  VectorXs drel{ beta.size() };
   Constraint::evalKinematicRelVelGivenBases( q0, v0, active_set, contact_bases, nrel, drel );
 
+  // TODO: Instead of remapping directly in the constraints, just have a 2 x ncon array that stores in the indices
   // Remap the body indices in each constraint
   {
     // Invert ltg: given a global index returns the local index
@@ -1014,7 +1015,10 @@ void Sobogus::solve( const unsigned iteration, const scalar& dt, const FlowableS
   {
     for( unsigned local_body_index = 0; local_body_index < nlocalbodies; ++local_body_index )
     {
+      assert( local_body_index < ltg.size() );
       const unsigned global_body_index{ ltg( local_body_index ) };
+      assert( 2 * global_body_index + 1 < f.size() );
+      assert( 2 * local_body_index + 1 < f_local.size() );
       f.segment<2>( 2 * global_body_index ) = f_local.segment<2>( 2 * local_body_index );
     }
   }

@@ -264,8 +264,9 @@ void GeometricImpactFrictionMap::flow( ScriptingCallback& call_back, FlowableSys
 {
   // TODO: Sanity check input sizes
 
+  // TODO: Do something more elegant when the number of bodies changes due to insertions and deletions, like registering the maps with the scripting callbacks so they can update the cache.
   // Initialize the friction impulse cache
-  if( m_f.size() == 0 )
+  if( m_f.size() != v0.size() )
   {
     m_f = VectorXs::Zero( v0.size() );
   }
