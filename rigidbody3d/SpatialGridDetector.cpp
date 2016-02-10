@@ -70,7 +70,7 @@ static void rasterizeAABBs( const std::vector<AABB>& aabbs, const Array3s& min_c
             voxel_iterator = insertion_result.first;
           }
           // Add the index of the AABB to the voxel
-          voxel_iterator->second.push_back( aabb_idx );
+          voxel_iterator->second.push_back( unsigned( aabb_idx ) );
         }
       }
     }

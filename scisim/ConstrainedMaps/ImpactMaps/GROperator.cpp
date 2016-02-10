@@ -42,7 +42,7 @@ void GROperator::flow( const std::vector<std::unique_ptr<Constraint>>& cons, con
     std::exit( EXIT_FAILURE );
   }
 
-  const unsigned ncons = alpha.size();
+  const unsigned ncons{ unsigned( alpha.size() ) };
 
   // Clear alpha as we will accumulate the generalized impulse below
   alpha.setZero();

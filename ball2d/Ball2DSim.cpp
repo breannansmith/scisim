@@ -46,12 +46,12 @@ bool Ball2DSim::empty() const
 
 int Ball2DSim::nqdofs() const
 {
-  return m_state.q().size();
+  return int( m_state.q().size() );
 }
 
 int Ball2DSim::nvdofs() const
 {
-  return m_state.v().size();
+  return int( m_state.v().size() );
 }
 
 unsigned Ball2DSim::numVelDoFsPerBody() const

@@ -63,17 +63,17 @@ void OpenGL3DSphereRenderer::drawVertexArray( const Eigen::Matrix<GLfloat,3,1>& 
 
 void OpenGL3DSphereRenderer::saveTriangleInMem( const Eigen::Matrix<GLfloat,3,1>& v1, const Eigen::Matrix<GLfloat,3,1>& v2, const Eigen::Matrix<GLfloat,3,1>& v3, unsigned& current_vertex )
 {
-  assert( fabs( v1.norm() - 1.0 ) <= 1.0e-6 );
+  assert( fabs( v1.norm() - 1.0f ) <= 1.0e-6 );
   m_sphere_verts.col( current_vertex ) = v1;
   m_sphere_normals.col( current_vertex ) = v1;
   ++current_vertex;
 
-  assert( fabs( v2.norm() - 1.0 ) <= 1.0e-6 );
+  assert( fabs( v2.norm() - 1.0f ) <= 1.0e-6 );
   m_sphere_verts.col( current_vertex ) = v2;
   m_sphere_normals.col( current_vertex ) = v2;
   ++current_vertex;
 
-  assert( fabs( v3.norm() - 1.0 ) <= 1.0e-6 );
+  assert( fabs( v3.norm() - 1.0f ) <= 1.0e-6 );
   m_sphere_verts.col( current_vertex ) = v3;
   m_sphere_normals.col( current_vertex ) = v3;
   ++current_vertex;
@@ -106,7 +106,7 @@ void OpenGL3DSphereRenderer::subdivide( const Eigen::Matrix<GLfloat,3,1>& v1, co
   subdivide( v12, v23, v31, current_vertex, depth - 1 );
 }
 
-unsigned computeNumTriangles( const unsigned num_subdivs )
+static unsigned computeNumTriangles( const unsigned num_subdivs )
 {
   unsigned num_tri{ 2 };
   for( unsigned i = 0; i < num_subdivs; ++i )

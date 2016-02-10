@@ -49,7 +49,7 @@ ContentWidget::ContentWidget( const QString& scene_name, QWidget* parent )
   // Label for movie output FPS
   QLabel* fps_label{ new QLabel{ this } };
   fps_label->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
-  fps_label->setText( QString( tr( "FPS:" ) ) );
+  fps_label->setText( tr( "FPS:" ) );
   controls_layout->addWidget( fps_label, 1, 3 );
 
   // Input for movie output FPS

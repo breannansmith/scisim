@@ -259,7 +259,7 @@ void RigidBody3DState::setState( const std::vector<Vector3s>& X, const std::vect
   assert( X.size() == fixed.size() );
   assert( X.size() == geom_indices.size() );
 
-  m_nbodies = X.size();
+  m_nbodies = unsigned( X.size() );
 
   // Initialize q
   const unsigned nqdofs{ 12 * unsigned( X.size() ) };
@@ -324,7 +324,7 @@ unsigned RigidBody3DState::nbodies() const
 
 unsigned RigidBody3DState::ngeo() const
 {
-  return m_geometry.size();
+  return unsigned( m_geometry.size() );
 }
 
 VectorXs& RigidBody3DState::q()

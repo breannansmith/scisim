@@ -154,12 +154,12 @@ bool RigidBody3DSim::empty() const
 
 int RigidBody3DSim::nqdofs() const
 {
-  return m_sim_state.q().size();
+  return int( m_sim_state.q().size() );
 }
 
 int RigidBody3DSim::nvdofs() const
 {
-  return m_sim_state.v().size();
+  return int( m_sim_state.v().size() );
 }
 
 unsigned RigidBody3DSim::numVelDoFsPerBody() const
@@ -1202,9 +1202,9 @@ void RigidBody3DSim::getTeleportedCollisionCenters( const VectorXs& q, const Tel
 
   // Indices of the colliding bodies
   const unsigned idx0{ teleported_collision.bodyIndex0() };
-  assert( idx0 < unsigned( m_sim_state.nbodies() ) );
+  assert( idx0 < m_sim_state.nbodies() );
   const unsigned idx1{ teleported_collision.bodyIndex1() };
-  assert( idx1 < unsigned( m_sim_state.nbodies() ) );
+  assert( idx1 < m_sim_state.nbodies() );
 
   // Indices of the portals
   const unsigned prtl_idx0{ teleported_collision.portalIndex0() };
@@ -1249,9 +1249,9 @@ void RigidBody3DSim::generateTeleportedCollision( const VectorXs& q, const Telep
 
   // Indices of the colliding bodies
   const unsigned idx0{ teleported_collision.bodyIndex0() };
-  assert( idx0 < unsigned( m_sim_state.nbodies() ) );
+  assert( idx0 < m_sim_state.nbodies() );
   const unsigned idx1{ teleported_collision.bodyIndex1() };
-  assert( idx1 < unsigned( m_sim_state.nbodies() ) );
+  assert( idx1 < m_sim_state.nbodies() );
 
   // Get the geometry of each body
   const RigidBodyGeometry& geo0{ m_sim_state.getGeometryOfBody( idx0 ) };

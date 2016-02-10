@@ -125,9 +125,9 @@ static int solveQP( const scalar& tol, MatrixXXsc& C, VectorXs& c, MatrixXXsc& A
 void LinearMDPOperatorQL::flow( const scalar& t, const SparseMatrixsc& Minv, const VectorXs& v0, const SparseMatrixsc& D, const SparseMatrixsc& Q, const VectorXs& gdotD, const VectorXs& mu, const VectorXs& alpha, VectorXs& beta, VectorXs& lambda )
 {
   // Total number of constraints
-  const int num_constraints = alpha.size();
+  const int num_constraints{ int( alpha.size() ) };
   // Total number of friction impulses
-  const int num_impulses = m_disk_samples * alpha.size();
+  const int num_impulses{ m_disk_samples * int( alpha.size() ) };
 
   // Quadratic term in the objective: 1/2 x^T C x
   assert( Q.rows() == Q.cols() ); assert( Q.rows() == num_impulses );

@@ -7,17 +7,27 @@
 #include <GL/glu.h>
 #endif
 
+static std::vector<Eigen::Matrix<GLfloat,3,1>> generatePointVector( const std::vector<Vector3s>& points )
+{
+  std::vector<Eigen::Matrix<GLfloat,3,1>> new_points( points.size() );
+  for( std::vector<Vector3s>::size_type i = 0; i < points.size(); ++i )
+  {
+    new_points[i] = points[i].cast<GLfloat>();
+  }
+  return new_points;
+}
+
 StapleRenderer::StapleRenderer( const int num_subdivs, const std::vector<Vector3s>& points, const scalar& r )
 : m_num_samples( computeNumSamples( num_subdivs ) )
-, m_points( points )
-, m_r( r )
+, m_points( generatePointVector(points) )
+, m_r( GLfloat( r ) )
 , m_sphere_renderer( num_subdivs )
 , m_cylinder_verts()
 , m_cylinder_normals()
 {
   assert( num_subdivs >= 0 );
   assert( m_points.size() == 4 );
-  assert( m_r > 0.0 );
+  assert( m_r > 0.0f );
 
   initializeCylinderMemory();
 }
@@ -55,7 +65,7 @@ void StapleRenderer::renderBody( const Eigen::Matrix<GLfloat,3,1>& color )
   glPushMatrix();
   assert( m_points[0].x() == m_points[1].x() );
   assert( m_points[0].y() > m_points[1].y() );
-  glTranslatef( m_points[0].x(), m_points[1].y() + 0.5 * ( m_points[0].y() - m_points[1].y() ), 0.0 );
+  glTranslatef( m_points[0].x(), m_points[1].y() + 0.5f * ( m_points[0].y() - m_points[1].y() ), 0.0 );
   glRotatef( 90.0, 0.0, 0.0, 1.0 );
   assert( m_points[0].y() > m_points[1].y() );
   glScalef( m_points[0].y() - m_points[1].y(), 1.0, 1.0 );
@@ -66,7 +76,7 @@ void StapleRenderer::renderBody( const Eigen::Matrix<GLfloat,3,1>& color )
   glPushMatrix();
   assert( m_points[2].x() == m_points[3].x() );
   assert( m_points[0].y() > m_points[1].y() );
-  glTranslatef( m_points[2].x(), m_points[1].y() + 0.5 * ( m_points[0].y() - m_points[1].y() ), 0.0 );
+  glTranslatef( m_points[2].x(), m_points[1].y() + 0.5f * ( m_points[0].y() - m_points[1].y() ), 0.0 );
   glRotatef( 90.0, 0.0, 0.0, 1.0 );
   assert( m_points[0].y() > m_points[1].y() );
   glScalef( m_points[0].y() - m_points[1].y(), 1.0, 1.0 );
@@ -154,12 +164,14 @@ void StapleRenderer::initializeCylinderMemory()
 
   const GLfloat dtheta{ static_cast<GLfloat>( 2.0 ) * MathDefines::PI<GLfloat>() / GLfloat( m_num_samples ) };
 
+  using std::cos;
+  using std::sin;
   for( int quad_num = 0; quad_num < m_num_samples; ++ quad_num )
   {
-    const GLfloat c0{ static_cast<GLfloat>( m_r * cos( quad_num * dtheta ) ) };
-    const GLfloat s0{ static_cast<GLfloat>( m_r * sin( quad_num * dtheta ) ) };
-    const GLfloat c1{ static_cast<GLfloat>( m_r * cos( ( ( quad_num + 1 ) % m_num_samples ) * dtheta ) ) };
-    const GLfloat s1{ static_cast<GLfloat>( m_r * sin( ( ( quad_num + 1 ) % m_num_samples ) * dtheta ) ) };
+    const GLfloat c0{ m_r * cos( GLfloat(quad_num) * dtheta ) };
+    const GLfloat s0{ m_r * sin( GLfloat(quad_num) * dtheta ) };
+    const GLfloat c1{ m_r * cos( GLfloat( ( quad_num + 1 ) % m_num_samples ) * dtheta ) };
+    const GLfloat s1{ m_r * sin( GLfloat( ( quad_num + 1 ) % m_num_samples ) * dtheta ) };
 
     m_cylinder_verts.segment<3>( 12 * quad_num + 0 ) = Eigen::Matrix<GLfloat,3,1>{ -0.5, c0, s0 };
     m_cylinder_verts.segment<3>( 12 * quad_num + 3 ) = Eigen::Matrix<GLfloat,3,1>{ -0.5, c1, s1 };

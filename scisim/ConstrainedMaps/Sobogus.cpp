@@ -41,10 +41,10 @@ void SobogusFrictionProblem::initialize2D( const std::vector<std::unique_ptr<Con
 {
   // Compute the number of bodies in the system
   assert( masses.size() % 4 == 0 );
-  m_num_bodies = masses.size() / 4;
+  m_num_bodies = unsigned( masses.size() ) / 4;
 
   // Compute the number of collisions
-  m_num_collisions = active_set.size();
+  m_num_collisions = unsigned( active_set.size() );
 
   // Incoming momenta
   m_f_in.resize( 2 * m_num_bodies );
@@ -111,10 +111,10 @@ void SobogusFrictionProblem::initializeRigidBody2D( const std::vector<std::uniqu
 {
   // Compute the number of bodies in the system
   assert( masses.size() % 9 == 0 );
-  m_num_bodies = masses.size() / 9;
+  m_num_bodies = unsigned( masses.size() ) / 9;
 
   // Compute the number of collisions
-  m_num_collisions = active_set.size();
+  m_num_collisions = unsigned( active_set.size() );
 
   // Incoming momenta
   m_f_in.resize( 3 * m_num_bodies );
@@ -185,10 +185,10 @@ void SobogusFrictionProblem::initialize3D( const std::vector<std::unique_ptr<Con
 {
   // Compute the number of bodies in the system
   assert( masses.size() % 36 == 0 );
-  m_num_bodies = masses.size() / 36;
+  m_num_bodies = unsigned( masses.size() ) / 36;
 
   // Compute the number of collisions
-  m_num_collisions = active_set.size();
+  m_num_collisions = unsigned( active_set.size() );
 
   // Constraint free momenta
   m_f_in.resize( 6 * m_num_bodies );

@@ -161,7 +161,7 @@ void StaggeredProjections::solve( const unsigned iteration, const scalar& dt, co
 
   // Friction basis
   SparseMatrixsc D;
-  FrictionOperator::formGeneralizedSmoothFrictionBasis( v0.size(), alpha.size(), q0, active_set, contact_bases, D );
+  FrictionOperator::formGeneralizedSmoothFrictionBasis( unsigned( v0.size() ), unsigned( alpha.size() ), q0, active_set, contact_bases, D );
 
   // Impact basis
   SparseMatrixsc N{ static_cast<SparseMatrixsc::Index>( v0.size() ), static_cast<SparseMatrixsc::Index>( alpha.size() ) };

@@ -124,7 +124,7 @@ QSize GLWidget::sizeHint() const
   return QSize{ 512, 512 };
 }
 
-int computeTimestepDisplayPrecision( const Rational<std::intmax_t>& dt, const std::string& dt_string )
+static int computeTimestepDisplayPrecision( const Rational<std::intmax_t>& dt, const std::string& dt_string )
 {
   if( dt_string.find( '.' ) != std::string::npos )
   {
@@ -224,7 +224,7 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
     }
 
     std::mt19937_64 mt{ 0 };
-    std::uniform_int_distribution<unsigned> color_slector( 0, colors.size() - 1 );
+    std::uniform_int_distribution<unsigned> color_slector( 0, unsigned( colors.size() - 1 ) );
     for( int i = 0; i < m_body_colors.size(); i += 3 )
     {
       // Select a random color
@@ -328,7 +328,7 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   return true;
 }
 
-OrthographicCameraController::ProjectionPlane stringToProjectionPlane( const std::string& projection_plane )
+static OrthographicCameraController::ProjectionPlane stringToProjectionPlane( const std::string& projection_plane )
 {
   if( projection_plane == "xy" )
   {
@@ -1000,7 +1000,7 @@ void GLWidget::setMovieFPS( const unsigned fps )
   }
 }
 
-std::string projectionPlaneToString( const OrthographicCameraController::ProjectionPlane projection_plane )
+static std::string projectionPlaneToString( const OrthographicCameraController::ProjectionPlane projection_plane )
 {
   if( projection_plane == OrthographicCameraController::ProjectionPlane::XY )
   {
@@ -1226,7 +1226,7 @@ void GLWidget::paintSystem() const
   assert( checkGLErrors() );
 }
 
-QString generateTimeString( const unsigned iteration, const Rational<std::intmax_t>& dt, const int display_precision, const scalar& end_time )
+static QString generateTimeString( const unsigned iteration, const Rational<std::intmax_t>& dt, const int display_precision, const scalar& end_time )
 {
   QString time_string{ QObject::tr( " t: " ) };
   time_string += QString::number( iteration * scalar( dt ), 'f', display_precision );
@@ -1238,12 +1238,12 @@ QString generateTimeString( const unsigned iteration, const Rational<std::intmax
   return time_string;
 }
 
-QString generateHString( const scalar& delta_H0 )
+static QString generateHString( const scalar& delta_H0 )
 {
   return QString{ QObject::tr( "dH: " ) } + QString::number( delta_H0 );
 }
 
-QString generatePString( const Vector3s& delta_p0 )
+static QString generatePString( const Vector3s& delta_p0 )
 {
   QString pstring{ QObject::tr( "dp: " ) };
   pstring += QString::number( delta_p0.x() ) + " ";
@@ -1252,7 +1252,7 @@ QString generatePString( const Vector3s& delta_p0 )
   return pstring;
 }
 
-QString generateLString( const Vector3s& delta_L0 )
+static QString generateLString( const Vector3s& delta_L0 )
 {
   QString Lstring{ QObject::tr( "dL: " ) };
   Lstring += QString::number( delta_L0.x() ) + " ";

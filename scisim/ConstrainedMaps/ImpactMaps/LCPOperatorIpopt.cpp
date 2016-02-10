@@ -264,7 +264,7 @@ bool QPNLP::get_nlp_info( Ipopt::Index& n, Ipopt::Index& m, Ipopt::Index& nnz_ja
   assert( m_Q.rows() == m_Q.cols() );
   assert( m_A.size() == m_Q.rows() );
 
-  n = m_A.size();
+  n = Ipopt::Index( m_A.size() );
   m = 0;
   nnz_jac_g = 0;
   nnz_h_lag = MathUtilities::nzLowerTriangular( m_Q );

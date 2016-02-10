@@ -26,8 +26,8 @@ private:
   void initializeCylinderMemory();
 
   const int m_num_samples;
-  const std::vector<Vector3s> m_points;
-  const scalar m_r;
+  const std::vector<Eigen::Matrix<GLfloat,3,1>> m_points;
+  const GLfloat m_r;
 
   OpenGL3DSphereRenderer m_sphere_renderer;
 

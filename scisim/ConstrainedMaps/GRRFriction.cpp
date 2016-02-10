@@ -40,12 +40,12 @@ void GRRFriction::solve( const unsigned iteration, const scalar& dt, const Flowa
   // TODO: Temporary workaround until contact_bases supports linearized friction bases
   if( !m_friction_operator->isLinearized() )
   {
-    FrictionOperator::formGeneralizedSmoothFrictionBasis( v0.size(), alpha.size(), q0, active_set, contact_bases, D );
+    FrictionOperator::formGeneralizedSmoothFrictionBasis( unsigned( v0.size() ), unsigned( alpha.size() ), q0, active_set, contact_bases, D );
   }
   else
   {
     drel.resize( beta.size() );
-    D.resize( v0.size(), beta.size() );
+    D.resize( SparseMatrixsc::Index( v0.size() ), SparseMatrixsc::Index( beta.size() ) );
     m_friction_operator->formGeneralizedFrictionBasis( q0, v0, active_set, D, drel );
   }
 

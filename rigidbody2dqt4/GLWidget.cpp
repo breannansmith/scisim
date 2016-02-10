@@ -192,7 +192,7 @@ static int computeTimestepDisplayPrecision( const Rational<std::intmax_t>& dt, c
   // Specified as an int
   else
   {
-    return dt_string.length();
+    return int( dt_string.length() );
   }
 }
 
@@ -1002,7 +1002,7 @@ void GLWidget::paintSystem() const
     glPushAttrib( GL_POINT_SIZE );
     glPushAttrib( GL_COLOR );
     glColor3d( 1.0, 0.0, 0.0 );
-    glPointSize( 20.0 / m_camera_controller.scaleFactor() );
+    glPointSize( GLfloat( 20.0 / m_camera_controller.scaleFactor() ) );
     glBegin( GL_POINTS );
     for( const Vector2s& point : m_collision_points )
     {
@@ -1015,7 +1015,7 @@ void GLWidget::paintSystem() const
     glPushAttrib( GL_LINE_WIDTH );
     glPushAttrib( GL_COLOR );
     glColor3d( 1.0, 0.0, 0.0 );
-    glLineWidth( 4.0 / m_camera_controller.scaleFactor() );
+    glLineWidth( GLfloat( 4.0 / m_camera_controller.scaleFactor() ) );
     glBegin( GL_LINES );
     for( std::vector<Vector2s>::size_type idx = 0; idx < m_collision_points.size(); ++idx )
     {

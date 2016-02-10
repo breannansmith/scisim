@@ -470,14 +470,14 @@ static bool parseCommandLineOptions( int* argc, char*** argv, bool& help_mode_en
 {
   const struct option long_options[] =
   {
-    { "help", no_argument, 0, 'h' },
-    { "impulses", no_argument, 0, 'i' },
-    { "serialize_snapshots", required_argument, 0, 's' },
-    { "resume", required_argument, 0, 'r' },
-    { "end", required_argument, 0, 'e' },
-    { "output_dir", required_argument, 0, 'o' },
-    { "frequency", required_argument, 0, 'f' },
-    { 0, 0, 0, 0 }
+    { "help", no_argument, nullptr, 'h' },
+    { "impulses", no_argument, nullptr, 'i' },
+    { "serialize_snapshots", required_argument, nullptr, 's' },
+    { "resume", required_argument, nullptr, 'r' },
+    { "end", required_argument, nullptr, 'e' },
+    { "output_dir", required_argument, nullptr, 'o' },
+    { "frequency", required_argument, nullptr, 'f' },
+    { nullptr, 0, nullptr, 0 }
   };
 
   while( true )
@@ -652,7 +652,7 @@ int main( int argc, char** argv )
       std::cerr << "Timestep and output frequency do not yield an integer number of timesteps for data output. Exiting." << std::endl;
       return EXIT_FAILURE;
     }
-    g_steps_per_save = potential_steps_per_frame.numerator();
+    g_steps_per_save = unsigned( potential_steps_per_frame.numerator() );
   }
   // Otherwise default to dumping every frame
   else
@@ -660,7 +660,7 @@ int main( int argc, char** argv )
     g_steps_per_save = 1;
   }
   assert( g_end_time > 0.0 );
-  g_save_number_width = MathUtilities::computeNumDigits( 1 + ceil( g_end_time / scalar( g_dt ) ) / g_steps_per_save );
+  g_save_number_width = MathUtilities::computeNumDigits( 1 + unsigned( ceil( g_end_time / scalar( g_dt ) ) ) / g_steps_per_save );
 
   printCompileInfo( std::cout );
   assert( g_sim.state().q().size() % 3 == 0 );

@@ -11,7 +11,7 @@ if( STRICT_BUILD )
   #  15527: loop was not vectorized
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -wd869,13368,15527" )
 
-  # Remove warnings that causes issues with Eigen
+  # Remove warnings that cause issues with Eigen
   #   1418: external function definition with no prior declaration
   #    304: access control not specified ("public" by default)
   #    981: operands are evaluated in unspecified order
@@ -52,8 +52,11 @@ if( STRICT_BUILD )
 
 endif()
 
+# TODO: Add a custom -isystem command due to lack of Intel compiler features in CMake
+
 # N.B. Explicit -std=c++11 to work around lack of support for compiler features for Intel in CMake
 set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
+
 # N.B. Significant performance degradation with So-bogus with -xHost and without -fp-model strict
 # N.B. -xHost -fp-model strict seems slower on all platforms with Sobogus
 set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -ip" )

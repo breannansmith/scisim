@@ -54,7 +54,7 @@ RigidBodyTriangleMesh::RigidBodyTriangleMesh( const std::string& input_file_name
   // Load the mesh
   mesh_file.readMatrix( "mesh", "vertices", m_verts );
   mesh_file.readMatrix( "mesh", "faces", m_faces );
-  assert( ( m_faces.array() < m_verts.cols() ).all() );
+  assert( ( m_faces.array() < unsigned( m_verts.cols() ) ).all() );
   // Verify that each vertex is part of a face
   #ifndef NDEBUG
   {
@@ -128,7 +128,7 @@ RigidBodyTriangleMesh::RigidBodyTriangleMesh( std::istream& input_stream )
 , m_signed_distance( MathUtilities::deserialize<VectorXs>( input_stream ) )
 , m_grid_end( MathUtilities::deserialize<Vector3s>( input_stream ) )
 {
-  assert( ( m_faces.array() < m_verts.cols() ).all() );
+  assert( ( m_faces.array() < unsigned( m_verts.cols() ) ).all() );
   // Verify that each vertex is part of a face
   #ifndef NDEBUG
   {

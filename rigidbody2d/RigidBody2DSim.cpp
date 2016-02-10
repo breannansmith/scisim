@@ -82,12 +82,12 @@ scalar RigidBody2DSim::computeTotalAngularMomentum() const
 
 int RigidBody2DSim::nqdofs() const
 {
-  return m_state.q().size();
+  return int( m_state.q().size() );
 }
 
 int RigidBody2DSim::nvdofs() const
 {
-  return m_state.v().size();
+  return int( m_state.v().size() );
 }
 
 unsigned RigidBody2DSim::numVelDoFsPerBody() const

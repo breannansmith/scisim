@@ -7,7 +7,7 @@
 
 #ifndef NDEBUG
 // Unsigned angle
-scalar angleBetweenVectors( const Vector3s& v0, const Vector3s& v1 )
+static scalar angleBetweenVectors( const Vector3s& v0, const Vector3s& v1 )
 {
   const scalar s = v0.cross( v1 ).norm();
   const scalar c = v0.dot( v1 );
@@ -45,7 +45,7 @@ void FrictionUtilities::generateOrthogonalVectors( const Vector3s& n, std::vecto
   const scalar dtheta{ 2.0 * MathDefines::PI<scalar>() / scalar( vectors.size() ) };
   for( std::vector<Vector3s>::size_type i = 1; i < vectors.size(); ++i )
   {
-    vectors[i] = Eigen::AngleAxis<scalar>{ i * dtheta, n } * vectors[0];
+    vectors[i] = Eigen::AngleAxis<scalar>{ scalar(i) * dtheta, n } * vectors[0];
     assert( fabs( vectors[i].norm() - 1.0 ) <= 1.0e-10 );
     assert( fabs( n.dot( vectors[i] ) ) <= 1.0e-10 );
   }

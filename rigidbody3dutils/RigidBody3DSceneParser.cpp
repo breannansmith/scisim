@@ -646,7 +646,7 @@ static bool loadPlanarPortals( const rapidxml::xml_node<>& node, RigidBody3DStat
     }
     if( ( half_width0 != 0.0 ).any() || ( half_width1 != 0.0 ).any() )
     {
-      rendering_state.addPortalRenderer( i, half_width0, half_width1 );
+      rendering_state.addPortalRenderer( unsigned( i ), half_width0, half_width1 );
     }
   }
 
@@ -660,10 +660,10 @@ static bool loadPlanarPortals( const rapidxml::xml_node<>& node, RigidBody3DStat
     }
     std::sort( indices.begin(), indices.end() );
     // Remove planes that we added to planar portals
-    for( unsigned i = indices.size(); i-- > 0; )
+    for( std::vector<unsigned>::size_type i = indices.size(); i-- > 0; )
     {
       sim.deleteStaticPlane( indices[i] );
-      for( unsigned j = rendering_state.numPlaneRenderers(); j-- > 0; )
+      for( std::vector<PlaneRendererState>::size_type j = rendering_state.numPlaneRenderers(); j-- > 0; )
       {
         if( rendering_state.planeRenderer( j ).index() == indices[i] )
         {
@@ -681,7 +681,7 @@ static bool loadPlanarPortals( const rapidxml::xml_node<>& node, RigidBody3DStat
     assert( std::is_sorted( std::begin( renderer_indices ), std::end( renderer_indices ) ) );
     std::vector<unsigned> new_renderer_indices{ renderer_indices };
     // For each plane that we removed
-    for( unsigned i = indices.size(); i-- > 0; )
+    for( std::vector<unsigned>::size_type i = indices.size(); i-- > 0; )
     {
       // Find the first index larger than the removed plane
       std::vector<unsigned>::size_type j;
@@ -814,7 +814,7 @@ static bool loadStaticPlaneRenderers( const rapidxml::xml_node<>& node, const st
       }
     }
     // Create the renderer
-    rendering_state.addPlaneRenderer( idx, r );
+    rendering_state.addPlaneRenderer( unsigned( idx ), r );
   }
 
   rendering_state.sortPlaneRenderers();
@@ -864,7 +864,7 @@ static bool loadStaticCylinderRenderers( const rapidxml::xml_node<>& node, const
       }
     }
     // Create the renderer
-    rendering_state.addCylinderRenderer( idx, L );
+    rendering_state.addCylinderRenderer( unsigned( idx ), L );
   }
   return true;
 }

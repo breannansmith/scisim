@@ -306,7 +306,7 @@ bool SmoothMDPNLP::get_nlp_info( Ipopt::Index& n, Ipopt::Index& m, Ipopt::Index&
 
   // Number of friction impulses
   assert( m_beta.size() == m_A.size() );
-  n = m_A.size();
+  n = Ipopt::Index( m_A.size() );
 
   // Number of constraints -- one per contact/pair-of-impulses
   assert( n % 2 == 0 );

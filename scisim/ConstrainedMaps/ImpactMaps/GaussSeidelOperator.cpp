@@ -31,7 +31,7 @@ void GaussSeidelOperator::flow( const std::vector<std::unique_ptr<Constraint>>& 
   assert( ( alpha.array() == 0.0 ).all() );
   assert( ( v0.array() == v0F.array() ).all() );
 
-  const unsigned ncons = cons.size();
+  const unsigned ncons{ unsigned( cons.size() ) };
 
   VectorXs v1 = v0;
 

@@ -35,7 +35,7 @@ BoundConstrainedMDPOperatorQL::BoundConstrainedMDPOperatorQL( const BoundConstra
   assert( m_tol > 0.0 );
 }
 
-int solveQP( const scalar& tol, MatrixXXsc& C, VectorXs& c, VectorXs& xl, VectorXs& xu, VectorXs& beta, VectorXs& lambda )
+static int solveQP( const scalar& tol, MatrixXXsc& C, VectorXs& c, VectorXs& xl, VectorXs& xu, VectorXs& beta, VectorXs& lambda )
 {
   #ifdef QL_FOUND
   // QL only supports doubles

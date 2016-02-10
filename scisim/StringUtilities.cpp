@@ -15,7 +15,7 @@ std::string StringUtilities::deserializeString( std::istream& stm )
   std::string::size_type len;
   stm.read( reinterpret_cast<char*>( &len ), sizeof(std::string::size_type) );
   std::vector<char> cstr( len );
-  stm.read( reinterpret_cast<char*>( &cstr.front() ), len * sizeof(char) );
+  stm.read( &cstr.front(), len * sizeof(char) );
   return std::string( cstr.begin(), cstr.end() );
 }
 
@@ -24,7 +24,7 @@ void StringUtilities::serializeString( const std::string& input_string, std::ost
   assert( stm.good() );
   std::string::size_type len = input_string.length();
   stm.write( reinterpret_cast<char*>( &len ), sizeof(std::string::size_type) );
-  stm.write( const_cast<char*>( reinterpret_cast<const char*>( input_string.c_str() ) ), len * sizeof(char) );
+  stm.write( const_cast<char*>( input_string.c_str() ), len * sizeof(char) );
 }
 
 void StringUtilities::splitAtLastCharacterOccurence( const std::string& input_string, std::string& left_substring, std::string& right_substring, const char chr )

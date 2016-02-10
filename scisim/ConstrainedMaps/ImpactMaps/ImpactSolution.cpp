@@ -74,7 +74,7 @@ void ImpactSolution::setSolution( const VectorXs& q, const std::vector<std::uniq
 
 void ImpactSolution::writeSolution( HDF5File& output_file )
 {
-  const unsigned ncons = m_indices.cols();
+  const unsigned ncons{ unsigned( m_indices.cols() ) };
 
   output_file.writeScalar( "", "collision_count", ncons );
 

@@ -566,7 +566,7 @@ static bool loadPlanarPortals( const rapidxml::xml_node<>& node, std::vector<Sta
       indices.emplace_back( plane_pairs[i].second );
     }
     std::sort( indices.begin(), indices.end() );
-    for( unsigned i = indices.size(); i-- > 0; )
+    for( std::vector<unsigned>::size_type i = indices.size(); i-- > 0; )
     {
       planes.erase( planes.begin() + indices[i] );
     }

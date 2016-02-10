@@ -64,7 +64,7 @@ static void getCollisionIndices( const Constraint& con, std::pair<int,int>& indi
 
 void ImpactFrictionMap::exportConstraintForcesToBinaryFile( const VectorXs& q, const std::vector<std::unique_ptr<Constraint>>& constraints, const MatrixXXsc& contact_bases, const VectorXs& alpha, const VectorXs& beta, const scalar& dt, HDF5File& output_file )
 {
-  const unsigned ncons = constraints.size();
+  const unsigned ncons{ unsigned( constraints.size() ) };
   assert( ncons == alpha.size() );
   assert( std::vector<std::unique_ptr<Constraint>>::size_type( ncons ) == constraints.size() );
   assert( alpha.size() == ncons );

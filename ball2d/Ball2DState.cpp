@@ -54,7 +54,7 @@ Ball2DState& Ball2DState::operator=( Ball2DState other )
 static SparseMatrixsc createM( const VectorXs& m )
 {
   SparseMatrixsc M{ static_cast<SparseMatrixsc::Index>( m.size() ), static_cast<SparseMatrixsc::Index>( m.size() ) };
-  M.reserve( m.size() );
+  M.reserve( SparseMatrixsc::Index( m.size() ) );
   for( int col = 0; col < m.size(); ++col )
   {
     M.startVec( col );
@@ -68,7 +68,7 @@ static SparseMatrixsc createM( const VectorXs& m )
 static SparseMatrixsc createMinv( const VectorXs& m )
 {
   SparseMatrixsc Minv{ static_cast<SparseMatrixsc::Index>( m.size() ), static_cast<SparseMatrixsc::Index>( m.size() ) };
-  Minv.reserve( m.size() );
+  Minv.reserve( SparseMatrixsc::Index( m.size() ) );
   for( int col = 0; col < m.size(); ++col )
   {
     Minv.startVec( col );
@@ -92,7 +92,7 @@ void Ball2DState::setMass( const VectorXs& m )
 
 unsigned Ball2DState::nballs() const
 {
-  return m_fixed.size();
+  return unsigned( m_fixed.size() );
 }
 
 VectorXs& Ball2DState::q()

@@ -18,7 +18,7 @@
 static SparseMatrixsc generateM( const VectorXs& m )
 {
   SparseMatrixsc M{ SparseMatrixsc::Index( m.size() ), SparseMatrixsc::Index( m.size() ) };
-  M.reserve( m.size() );
+  M.reserve( SparseMatrixsc::Index( m.size() ) );
   for( int col = 0; col < m.size(); ++col )
   {
     M.startVec( col );
@@ -32,7 +32,7 @@ static SparseMatrixsc generateM( const VectorXs& m )
 static SparseMatrixsc generateMinv( const VectorXs& m )
 {
   SparseMatrixsc Minv{ SparseMatrixsc::Index( m.size() ), SparseMatrixsc::Index( m.size() ) };
-  Minv.reserve( m.size() );
+  Minv.reserve( SparseMatrixsc::Index( m.size() ) );
   for( int col = 0; col < m.size(); ++col )
   {
     Minv.startVec( col );
@@ -73,7 +73,7 @@ void RigidBody2DState::checkStateConsistency()
   }
 
   assert( static_cast<int>( m_geometry_indices.size() ) == m_q.size() / 3 );
-  assert( ( m_geometry_indices.array() < m_geometry.size() ).all() );
+  assert( ( m_geometry_indices.array() < unsigned( m_geometry.size() ) ).all() );
 
   assert( static_cast<int>( m_fixed.size() ) == m_q.size() / 3 );
 }

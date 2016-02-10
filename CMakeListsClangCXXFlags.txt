@@ -1,13 +1,12 @@
 # Note: Clang makes one remove unwanted flags
-
-# Add warning flags, if desired
 if( STRICT_BUILD )
   # Enable as many warnings as possible
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic" )
-
+  
   # Remove warnings that cause issues with SCISim
-  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter -Wno-missing-prototypes -Wno-exit-time-destructors -Wno-global-constructors -Wno-cast-align -Wno-float-equal -Wno-padded" )
-  # Warnings that cause issues with the FrictionProblem cpp file from So-bogus
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter -Wno-padded -Wno-float-equal -Wno-global-constructors -Wno-exit-time-destructors" )
+
+  # Warnings that cause issues with the FrictionProblem cpp file
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-documentation-unknown-command -Wno-old-style-cast -Wno-conversion -Wno-weak-vtables" )
 endif()
 

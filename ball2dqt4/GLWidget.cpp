@@ -343,7 +343,7 @@ void GLWidget::stepSystem()
     // If the size grew
     if( m_ball_colors.size() > original_size )
     {
-      const unsigned num_new_balls = ( m_ball_colors.size() - original_size ) / 3;
+      const unsigned num_new_balls = ( unsigned( m_ball_colors.size() ) - original_size ) / 3;
       // Add new colors
       for( unsigned new_ball_num = 0; new_ball_num < num_new_balls; ++new_ball_num )
       {
@@ -640,7 +640,7 @@ void GLWidget::exportCameraSettings()
 
 static void paintInfiniteLine( const Vector2s& x, const Vector2s& n )
 {
-  const scalar theta{ - scalar( 180.0 ) * atan2( n.x(), n.y() ) / MathDefines::PI<scalar>() };
+  const scalar theta{ -180.0 * atan2( n.x(), n.y() ) / MathDefines::PI<scalar>() };
 
   glPushMatrix();
 
