@@ -157,6 +157,9 @@ void PythonScripting::restitutionCoefficient( const std::vector<std::unique_ptr<
   s_cor = nullptr;
   s_active_set = nullptr;
   assert( PyErr_Occurred() == nullptr );
+  
+  Utilities::ignoreUnusedVariable(s_active_set);
+  Utilities::ignoreUnusedVariable(s_cor);
   #else
   std::cerr << "PythonScripting::restitutionCoefficient must be compiled with Python support, exiting." << std::endl;
   std::exit( EXIT_FAILURE );
@@ -186,6 +189,8 @@ void PythonScripting::frictionCoefficient( const std::vector<std::unique_ptr<Con
   s_mu = nullptr;
   s_active_set = nullptr;
   assert( PyErr_Occurred() == nullptr );
+
+  Utilities::ignoreUnusedVariable(s_mu);
   #else
   std::cerr << "PythonScripting::frictionCoefficient must be compiled with Python support, exiting." << std::endl;
   std::exit( EXIT_FAILURE );
