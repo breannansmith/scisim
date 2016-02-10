@@ -47,6 +47,11 @@ trap cleanup EXIT
 # Download RapidXml
 echo "--->  Downloading RapidXml source"
 wget -q "$rapidxml_url" -P "$temp_dir_name"
+if [ $? -ne 0 ]
+then
+  echo "Error, failed to download RapidXml from $rapidxml_url."
+  exit 1
+fi
 
 # Run a checksum on the download
 echo "--->  Verifying RapidXml checksum"

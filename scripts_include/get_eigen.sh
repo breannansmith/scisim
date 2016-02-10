@@ -47,6 +47,11 @@ trap cleanup EXIT
 # Download Eigen
 echo "--->  Downloading Eigen source"
 wget -q "$eigen_url" -P "$temp_dir_name"
+if [ $? -ne 0 ]
+then
+  echo "Error, failed to download Eigen from $eigen_url."
+  exit 1
+fi
 
 # Run a checksum on the download
 echo "--->  Verifying Eigen checksum"

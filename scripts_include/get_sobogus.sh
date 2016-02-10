@@ -53,6 +53,11 @@ trap cleanup EXIT
 # Download So-bogus
 echo "--->  Downloading So-bogus source"
 git clone $sobogus_url $temp_dir_name/so_bogus --quiet
+if [ $? -ne 0 ]
+then
+  echo "Error, failed to clone So-bogus from $sobogus_url."
+  exit 1
+fi
 cd $temp_dir_name/so_bogus
 # Simpler, but requires git 1.8 (servers on 1.7)
 #git -C $temp_dir_name/so_bogus reset --hard a0710cf
