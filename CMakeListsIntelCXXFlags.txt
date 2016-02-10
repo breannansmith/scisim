@@ -12,6 +12,11 @@ if( STRICT_BUILD )
   #  11074: Inlining inhibited by limit max-size
   #  11076: To get full report use -qopt-report=4 -qopt-report-phase ipo
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -wd981,1418,1572,869,383,11074,11076" )
+
+  # Remove warnings when building on Linux
+  #  13368: loop was not vectorized with "vector always assert"
+  #  15527: loop was not vectorized: function call to free cannot be vectorized
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -wd13368,15527" )
 endif()
 
 # Add a custom -isystem command due to lack of Intel compiler features in CMake
