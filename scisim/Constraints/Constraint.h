@@ -20,6 +20,16 @@ class Constraint
 
 public:
 
+  Constraint() = default;
+
+  // Prevent slicing by copies through the base class (see the big Stroustrup book)
+  Constraint( const Constraint& ) = delete;
+  Constraint( Constraint&& ) = delete;
+  Constraint& operator=( const Constraint& ) = delete;
+  Constraint& operator=( Constraint&& ) = delete;
+
+  virtual ~Constraint() = 0;
+
   // Returns the full contact basis
   void computeBasis( const VectorXs& q, const VectorXs& v, MatrixXXsc& basis ) const;
 
@@ -38,8 +48,6 @@ public:
   void setSimulatedBody1( const unsigned idx );
 
   static void evalKinematicRelVelGivenBases( const VectorXs& q, const VectorXs& v, const std::vector<std::unique_ptr<Constraint>>& constraints, const MatrixXXsc& bases, VectorXs& nrel, VectorXs& drel );
-
-  virtual ~Constraint() = 0;
 
   // Evaluates the relative velocity projected onto the constraint gradient
   virtual scalar evalNdotV( const VectorXs& q, const VectorXs& v ) const = 0;
