@@ -19,12 +19,6 @@ GaussSeidelOperator::GaussSeidelOperator( std::istream& input_stream )
   assert( m_v_tol >= 0.0 );
 }
 
-GaussSeidelOperator::GaussSeidelOperator( const GaussSeidelOperator& other )
-: m_v_tol( other.m_v_tol )
-{
-  assert( m_v_tol >= 0.0 );
-}
-
 void GaussSeidelOperator::flow( const std::vector<std::unique_ptr<Constraint>>& cons, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& q0, const VectorXs& v0, const VectorXs& v0F, const SparseMatrixsc& N, const SparseMatrixsc& Q, const VectorXs& nrel, const VectorXs& CoR, VectorXs& alpha )
 {
   // TODO: Check input sizes, etc
@@ -69,7 +63,7 @@ std::string GaussSeidelOperator::name() const
 
 std::unique_ptr<ImpactOperator> GaussSeidelOperator::clone() const
 {
-  return std::unique_ptr<ImpactOperator>{ new GaussSeidelOperator{ *this } };
+  return std::unique_ptr<ImpactOperator>{ new GaussSeidelOperator{ m_v_tol } };
 }
 
 void GaussSeidelOperator::serialize( std::ostream& output_stream ) const

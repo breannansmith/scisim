@@ -33,14 +33,6 @@ LinearMDPOperatorQL::LinearMDPOperatorQL( std::istream& input_stream )
   assert( m_tol >= 0.0 );
 }
 
-LinearMDPOperatorQL::LinearMDPOperatorQL( const LinearMDPOperatorQL& other )
-: m_disk_samples( other.m_disk_samples )
-, m_tol( other.m_tol )
-{
-  assert( m_disk_samples >= 1 );
-  assert( m_tol >= 0.0 );
-}
-
 static int solveQP( const scalar& tol, MatrixXXsc& C, VectorXs& c, MatrixXXsc& A, VectorXs& b, VectorXs& beta, VectorXs& lambda )
 {
   #ifdef QL_FOUND
@@ -211,7 +203,7 @@ std::string LinearMDPOperatorQL::name() const
 
 std::unique_ptr<FrictionOperator> LinearMDPOperatorQL::clone() const
 {
-  return std::unique_ptr<FrictionOperator>{ new LinearMDPOperatorQL{ *this } };
+  return std::unique_ptr<FrictionOperator>{ new LinearMDPOperatorQL{ m_disk_samples, m_tol } };
 }
 
 void LinearMDPOperatorQL::serialize( std::ostream& output_stream ) const

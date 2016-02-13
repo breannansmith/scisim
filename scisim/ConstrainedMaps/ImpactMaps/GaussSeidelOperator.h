@@ -15,7 +15,7 @@ public:
 
   explicit GaussSeidelOperator( const scalar& v_tol );
   explicit GaussSeidelOperator( std::istream& input_stream );
-  GaussSeidelOperator( const GaussSeidelOperator& other );
+
   virtual ~GaussSeidelOperator() override  = default;
 
   virtual void flow( const std::vector<std::unique_ptr<Constraint>>& cons, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& q0, const VectorXs& v0, const VectorXs& v0F, const SparseMatrixsc& N, const SparseMatrixsc& Q, const VectorXs& nrel, const VectorXs& CoR, VectorXs& alpha ) override;

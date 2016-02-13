@@ -15,12 +15,6 @@ LCPOperatorQLVP::LCPOperatorQLVP( const scalar& tol )
   assert( m_tol >= 0.0 );
 }
 
-LCPOperatorQLVP::LCPOperatorQLVP( const LCPOperatorQLVP& other )
-: m_tol( other.m_tol )
-{
-  assert( m_tol >= 0.0 );
-}
-
 //static std::string QLReturnStatusToString( const int status )
 //{
 //  if( 0 == status )
@@ -189,7 +183,7 @@ std::string LCPOperatorQLVP::name() const
 
 std::unique_ptr<ImpactOperator> LCPOperatorQLVP::clone() const
 {
-  return std::unique_ptr<ImpactOperator>{ new LCPOperatorQLVP{ *this } };
+  return std::unique_ptr<ImpactOperator>{ new LCPOperatorQLVP{ m_tol } };
 }
 
 void LCPOperatorQLVP::serialize( std::ostream& output_stream ) const

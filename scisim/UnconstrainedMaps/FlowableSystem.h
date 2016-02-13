@@ -13,13 +13,6 @@ class FlowableSystem
 
 public:
 
-  FlowableSystem() = default;
-  FlowableSystem( const FlowableSystem& ) = default;
-  FlowableSystem( FlowableSystem&& ) = default;
-  FlowableSystem& operator=( const FlowableSystem& other ) = default;
-  FlowableSystem& operator=( FlowableSystem&& other ) = default;
-  virtual ~FlowableSystem() = 0;
-
   // TODO: Change to unsigned
   // Returns the number of degrees of freedom in this system
   virtual int nqdofs() const = 0;
@@ -52,6 +45,15 @@ public:
   virtual void computeMomentum( const VectorXs& v, VectorXs& p ) const = 0;
   // For the given velocity and the system's current configuration and mass, computes the angular momentum
   virtual void computeAngularMomentum( const VectorXs& v, VectorXs& L ) const = 0;
+
+protected:
+
+  FlowableSystem() = default;
+  FlowableSystem( const FlowableSystem& ) = default;
+  FlowableSystem& operator=( const FlowableSystem& other ) = default;
+  FlowableSystem( FlowableSystem&& ) = default;
+  FlowableSystem& operator=( FlowableSystem&& other ) = default;
+  virtual ~FlowableSystem() = 0;
 
 };
 

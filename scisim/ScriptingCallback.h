@@ -18,6 +18,11 @@ class ScriptingCallback
 
 public:
 
+  ScriptingCallback( const ScriptingCallback& ) = delete;
+  ScriptingCallback( ScriptingCallback&& ) = delete;
+  ScriptingCallback& operator=( const ScriptingCallback& ) = delete;
+  ScriptingCallback& operator=( ScriptingCallback&& ) = delete;
+
   virtual ~ScriptingCallback() = 0;
 
   void restitutionCoefficientCallback( const std::vector<std::unique_ptr<Constraint>>& active_set, VectorXs& cor );
@@ -31,6 +36,10 @@ public:
   void startOfStepCallback( const unsigned next_iteration, const Rational<std::intmax_t>& dt );
 
   void endOfStepCallback( const unsigned next_iteration, const Rational<std::intmax_t>& dt );
+
+protected:
+
+  ScriptingCallback() = default;
 
 private:
 

@@ -17,6 +17,11 @@ class FrictionOperator
 
 public:
 
+  FrictionOperator( const FrictionOperator& ) = delete;
+  FrictionOperator( FrictionOperator&& ) = delete;
+  FrictionOperator& operator=( const FrictionOperator& ) = delete;
+  FrictionOperator& operator=( FrictionOperator&& ) = delete;
+
   virtual ~FrictionOperator() = 0;
 
   virtual void flow( const scalar& t, const SparseMatrixsc& Minv, const VectorXs& v0, const SparseMatrixsc& D, const SparseMatrixsc& Q, const VectorXs& gdotD, const VectorXs& mu, const VectorXs& alpha, VectorXs& beta, VectorXs& lambda ) = 0;
@@ -36,6 +41,10 @@ public:
 
   // TODO: Move to friction operator utilities
   static void formGeneralizedSmoothFrictionBasis( const unsigned ndofs, const unsigned ncons, const VectorXs& q, const std::vector<std::unique_ptr<Constraint>>& K, const MatrixXXsc& bases, SparseMatrixsc& D );
+
+protected:
+
+  FrictionOperator() = default;
 
 };
 

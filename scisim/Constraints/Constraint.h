@@ -20,9 +20,6 @@ class Constraint
 
 public:
 
-  Constraint() = default;
-
-  // Prevent slicing by copies through the base class (see the big Stroustrup book)
   Constraint( const Constraint& ) = delete;
   Constraint( Constraint&& ) = delete;
   Constraint& operator=( const Constraint& ) = delete;
@@ -94,6 +91,10 @@ public:
   virtual unsigned getStaticObjectIndex() const;
 
   virtual VectorXs computeRelativeVelocity( const VectorXs& q, const VectorXs& v ) const;
+
+protected:
+
+  Constraint() = default;
 
 private:
 

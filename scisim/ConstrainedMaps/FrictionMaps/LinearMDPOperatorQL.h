@@ -16,7 +16,7 @@ public:
 
   LinearMDPOperatorQL( const int disk_samples, const scalar& eps );
   explicit LinearMDPOperatorQL( std::istream& input_stream );
-  LinearMDPOperatorQL( const LinearMDPOperatorQL& other );
+
   virtual ~LinearMDPOperatorQL() override = default;
 
   virtual void flow( const scalar& t, const SparseMatrixsc& Minv, const VectorXs& v0, const SparseMatrixsc& D, const SparseMatrixsc& Q, const VectorXs& gdotD, const VectorXs& mu, const VectorXs& alpha, VectorXs& beta, VectorXs& lambda ) override;

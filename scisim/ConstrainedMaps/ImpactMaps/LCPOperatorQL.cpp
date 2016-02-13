@@ -29,12 +29,6 @@ LCPOperatorQL::LCPOperatorQL( std::istream& input_stream )
   assert( m_tol >= 0.0 );
 }
 
-LCPOperatorQL::LCPOperatorQL( const LCPOperatorQL& other )
-: m_tol( other.m_tol )
-{
-  assert( m_tol >= 0.0 );
-}
-
 static int solveQP( const scalar& tol, MatrixXXsc& C, VectorXs& dvec, VectorXs& alpha )
 {
   #ifdef QL_FOUND
@@ -145,7 +139,7 @@ std::string LCPOperatorQL::name() const
 
 std::unique_ptr<ImpactOperator> LCPOperatorQL::clone() const
 {
-  return std::unique_ptr<ImpactOperator>{ new LCPOperatorQL{ *this } };
+  return std::unique_ptr<ImpactOperator>{ new LCPOperatorQL{ m_tol } };
 }
 
 void LCPOperatorQL::serialize( std::ostream& output_stream ) const

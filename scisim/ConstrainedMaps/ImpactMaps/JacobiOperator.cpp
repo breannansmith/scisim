@@ -12,10 +12,6 @@ JacobiOperator::JacobiOperator( const scalar& v_tol )
 : m_v_tol( v_tol )
 {}
 
-JacobiOperator::JacobiOperator( const JacobiOperator& other )
-: m_v_tol( other.m_v_tol )
-{}
-
 void JacobiOperator::flow( const std::vector<std::unique_ptr<Constraint>>& cons, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& q0, const VectorXs& v0, const VectorXs& v0F, const SparseMatrixsc& N, const SparseMatrixsc& Q, const VectorXs& nrel, const VectorXs& CoR, VectorXs& alpha )
 {
   std::cerr << "Error, JacobiOperator::flow has not been updated to work with new interface." << std::endl;
@@ -62,7 +58,7 @@ std::string JacobiOperator::name() const
 
 std::unique_ptr<ImpactOperator> JacobiOperator::clone() const
 {
-  return std::unique_ptr<ImpactOperator>{ new JacobiOperator{ *this } };
+  return std::unique_ptr<ImpactOperator>{ new JacobiOperator{ m_v_tol } };
 }
 
 void JacobiOperator::serialize( std::ostream& output_stream ) const

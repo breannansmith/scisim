@@ -18,6 +18,11 @@ class FrictionSolver
 
 public:
 
+  FrictionSolver( const FrictionSolver& ) = delete;
+  FrictionSolver( FrictionSolver&& ) = delete;
+  FrictionSolver& operator=( const FrictionSolver& ) = delete;
+  FrictionSolver& operator=( FrictionSolver&& ) = delete;
+
   virtual ~FrictionSolver() = 0;
 
   virtual void solve( const unsigned iteration, const scalar& dt, const FlowableSystem& fsys, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& CoR, const VectorXs& mu, const VectorXs& q0, const VectorXs& v0, std::vector<std::unique_ptr<Constraint>>& active_set, const MatrixXXsc& contact_bases, const unsigned max_iters, const scalar& tol, VectorXs& f, VectorXs& alpha, VectorXs& beta, VectorXs& v2, bool& solve_succeeded, scalar& error ) = 0;
@@ -27,6 +32,10 @@ public:
   virtual void serialize( std::ostream& output_stream ) const = 0;
 
   virtual std::string name() const = 0;
+
+protected:
+
+  FrictionSolver() = default;
 
 };
 

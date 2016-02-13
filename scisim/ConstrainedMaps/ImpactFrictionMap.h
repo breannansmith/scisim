@@ -23,6 +23,11 @@ class ImpactFrictionMap
 
 public:
 
+  ImpactFrictionMap( const ImpactFrictionMap& ) = delete;
+  ImpactFrictionMap( ImpactFrictionMap&& ) = delete;
+  ImpactFrictionMap& operator=( const ImpactFrictionMap& ) = delete;
+  ImpactFrictionMap& operator=( ImpactFrictionMap&& ) = delete;
+
   virtual ~ImpactFrictionMap() = 0;
 
   virtual void flow( ScriptingCallback& call_back, FlowableSystem& fsys, ConstrainedSystem& csys, UnconstrainedMap& umap, FrictionSolver& friction_solver, const unsigned iteration, const scalar& dt, const scalar& CoR, const scalar& mu_default, const VectorXs& q0, const VectorXs& v0, VectorXs& q1, VectorXs& v1 ) = 0;
@@ -37,6 +42,8 @@ public:
   virtual void exportForcesNextStep( HDF5File& output_file ) = 0;
 
 protected:
+
+  ImpactFrictionMap() = default;
 
   // TODO: Move these shared routines out of here
   // Support routines shared by various ImpactFrictionMap implementations

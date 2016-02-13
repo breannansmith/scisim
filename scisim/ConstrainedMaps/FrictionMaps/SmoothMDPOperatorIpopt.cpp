@@ -59,14 +59,6 @@ SmoothMDPOperatorIpopt::SmoothMDPOperatorIpopt( std::istream& input_stream )
   assert( m_tol > 0.0 );
 }
 
-SmoothMDPOperatorIpopt::SmoothMDPOperatorIpopt( const SmoothMDPOperatorIpopt& other )
-: m_linear_solver_order( other.m_linear_solver_order )
-, m_tol( other.m_tol )
-{
-  assert( !m_linear_solver_order.empty() );
-  assert( m_tol > 0.0 );
-}
-
 int SmoothMDPOperatorIpopt::numFrictionImpulsesPerNormal() const
 {
   return 2;
@@ -79,7 +71,7 @@ std::string SmoothMDPOperatorIpopt::name() const
 
 std::unique_ptr<FrictionOperator> SmoothMDPOperatorIpopt::clone() const
 {
-  return std::unique_ptr<FrictionOperator>{ new SmoothMDPOperatorIpopt{ *this } };
+  return std::unique_ptr<FrictionOperator>{ new SmoothMDPOperatorIpopt{ m_linear_solver_order, m_tol } };
 }
 
 void SmoothMDPOperatorIpopt::serialize( std::ostream& output_stream ) const

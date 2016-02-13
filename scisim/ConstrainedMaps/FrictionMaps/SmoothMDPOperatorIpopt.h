@@ -24,7 +24,7 @@ public:
 
   SmoothMDPOperatorIpopt( const std::vector<std::string>& linear_solvers, const scalar& tol );
   explicit SmoothMDPOperatorIpopt( std::istream& input_stream );
-  SmoothMDPOperatorIpopt( const SmoothMDPOperatorIpopt& other );
+
   virtual ~SmoothMDPOperatorIpopt() override = default;
 
   virtual void flow( const scalar& t, const SparseMatrixsc& Minv, const VectorXs& v0, const SparseMatrixsc& D, const SparseMatrixsc& Q, const VectorXs& gdotD, const VectorXs& mu, const VectorXs& alpha, VectorXs& beta, VectorXs& lambda ) override;

@@ -29,12 +29,6 @@ BoundConstrainedMDPOperatorQL::BoundConstrainedMDPOperatorQL( std::istream& inpu
   assert( m_tol > 0.0 );
 }
 
-BoundConstrainedMDPOperatorQL::BoundConstrainedMDPOperatorQL( const BoundConstrainedMDPOperatorQL& other )
-: m_tol( other.m_tol )
-{
-  assert( m_tol > 0.0 );
-}
-
 static int solveQP( const scalar& tol, MatrixXXsc& C, VectorXs& c, VectorXs& xl, VectorXs& xu, VectorXs& beta, VectorXs& lambda )
 {
   #ifdef QL_FOUND
@@ -159,7 +153,7 @@ std::string BoundConstrainedMDPOperatorQL::name() const
 
 std::unique_ptr<FrictionOperator> BoundConstrainedMDPOperatorQL::clone() const
 {
-  return std::unique_ptr<FrictionOperator>{ new BoundConstrainedMDPOperatorQL{ *this } };
+  return std::unique_ptr<FrictionOperator>{ new BoundConstrainedMDPOperatorQL{ m_tol } };
 }
 
 void BoundConstrainedMDPOperatorQL::serialize( std::ostream& output_stream ) const

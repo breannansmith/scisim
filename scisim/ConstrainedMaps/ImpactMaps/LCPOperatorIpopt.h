@@ -21,7 +21,7 @@ public:
 
   LCPOperatorIpopt( const std::vector<std::string>& linear_solvers, const scalar& tol );
   explicit LCPOperatorIpopt( std::istream& input_stream );
-  LCPOperatorIpopt( const LCPOperatorIpopt& other );
+
   virtual ~LCPOperatorIpopt() override = default;
 
   virtual void flow( const std::vector<std::unique_ptr<Constraint>>& cons, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& q0, const VectorXs& v0, const VectorXs& v0F, const SparseMatrixsc& N, const SparseMatrixsc& Q, const VectorXs& nrel, const VectorXs& CoR, VectorXs& alpha ) override;

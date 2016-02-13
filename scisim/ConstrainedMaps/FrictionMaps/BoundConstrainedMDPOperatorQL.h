@@ -20,7 +20,7 @@ public:
 
   explicit BoundConstrainedMDPOperatorQL( const scalar& tol );
   explicit BoundConstrainedMDPOperatorQL( std::istream& input_stream );
-  BoundConstrainedMDPOperatorQL( const BoundConstrainedMDPOperatorQL& other );
+
   virtual ~BoundConstrainedMDPOperatorQL() override = default;
 
   virtual void flow( const scalar& t, const SparseMatrixsc& Minv, const VectorXs& v0, const SparseMatrixsc& D, const SparseMatrixsc& Q, const VectorXs& gdotD, const VectorXs& mu, const VectorXs& alpha, VectorXs& beta, VectorXs& lambda ) override;

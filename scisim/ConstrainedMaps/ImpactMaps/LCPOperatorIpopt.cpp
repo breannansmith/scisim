@@ -60,14 +60,6 @@ LCPOperatorIpopt::LCPOperatorIpopt( std::istream& input_stream )
   assert( m_tol >= 0.0 );
 }
 
-LCPOperatorIpopt::LCPOperatorIpopt( const LCPOperatorIpopt& other )
-: m_linear_solver_order( other.m_linear_solver_order )
-, m_tol( other.m_tol )
-{
-  assert( !m_linear_solver_order.empty() );
-  assert( m_tol >= 0.0 );
-}
-
 #ifdef IPOPT_FOUND
 static void createIpoptApplication( const scalar& tol, Ipopt::SmartPtr<Ipopt::IpoptApplication>& ipopt_app )
 {
@@ -231,7 +223,7 @@ std::string LCPOperatorIpopt::name() const
 
 std::unique_ptr<ImpactOperator> LCPOperatorIpopt::clone() const
 {
-  return std::unique_ptr<ImpactOperator>{ new LCPOperatorIpopt{ *this } };
+  return std::unique_ptr<ImpactOperator>{ new LCPOperatorIpopt{ m_linear_solver_order, m_tol } };
 }
 
 void LCPOperatorIpopt::serialize( std::ostream& output_stream ) const
