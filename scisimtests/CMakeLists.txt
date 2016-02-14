@@ -21,11 +21,11 @@ add_test( rational_multiply_00 rational_number_tests int_multiply_00 )
 add_test( rational_multiply_01 rational_number_tests int_multiply_01 )
 add_test( rational_divide_00 rational_number_tests int_divide_00 )
 add_test( rational_divide_01 rational_number_tests int_divide_01 )
-add_test( rationa_equal_00 rational_number_tests equal_00 )
-add_test( rationa_equal_01 rational_number_tests equal_01 )
-add_test( rationa_equal_02 rational_number_tests equal_02 )
-add_test( rationa_not_equal_00 rational_number_tests not_equal_00 )
-add_test( rationa_not_equal_01 rational_number_tests not_equal_01 )
+add_test( rational_equal_00 rational_number_tests equal_00 )
+add_test( rational_equal_01 rational_number_tests equal_01 )
+add_test( rational_equal_02 rational_number_tests equal_02 )
+add_test( rational_not_equal_00 rational_number_tests not_equal_00 )
+add_test( rational_not_equal_01 rational_number_tests not_equal_01 )
 
 
 # String utility tests
