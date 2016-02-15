@@ -1,0 +1,43 @@
+language: generic
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      sudo: required
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-5
+            - g++-5
+      env: 
+        - CC_COMPILER=gcc-5
+        - CXX_COMPILER=g++-5
+    # llvm-toolchain-trusty does not look whitelisted, yet:
+    #    https://github.com/travis-ci/apt-source-whitelist
+    # - os: linux
+    #   dist: trusty
+    #   sudo: required
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - llvm-toolchain-trusty
+    #       packages:
+    #         - clang-3.8
+    #   env: 
+    #     - CC_COMPILER=clang-3.8
+    #     - CXX_COMPILER=clang++-3.8
+
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -y libhdf5-dev hdf5-tools libpython-dev python-h5py python-numpy ninja-build
+  - ./get_dependencies.sh
+
+script:
+  - mkdir build
+  - cd build
+  - CC=$CC_COMPILER CXX=$CXX_COMPILER cmake -DSTRICT_BUILD=ON -DUSE_HDF5=ON -DUSE_PYTHON=ON .. -GNinja
+  - ninja -j 4
+  - ctest -j 4 --output-on-failure
