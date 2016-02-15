@@ -31,6 +31,7 @@ We recommend a few dependencies for full featured builds:
 
 * [HSL2013](http://www.hsl.rl.ac.uk/ipopt/): A collection of sparse linear solvers suggested for use with Ipopt.
 
+* [Python](https://www.python.org): An interpreted language used for extending SCISim's functionality with plugins. Available standard on most platforms. Note that full SCISim test suite requires the installation of the [numpy](http://www.numpy.org) and [h5py](http://www.h5py.org) Python packages.
 
 Optional Dependencies
 ---------------------
