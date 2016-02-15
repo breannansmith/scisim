@@ -108,6 +108,11 @@ option( USE_HDF5 "Serialization support with HDF5" OFF )
 
 option( USE_PYTHON "Embedded Python language scripting" OFF )
 
+###############################################################################
+### Check for installed Python modules
+
+execute_process( COMMAND python -c "import h5py" RESULT_VARIABLE H5PY_MISSING ERROR_QUIET )
+execute_process( COMMAND python -c "import numpy" RESULT_VARIABLE NUMPY_MISSING ERROR_QUIET )
 
 ###############################################################################
 ### Add libraries, plugins

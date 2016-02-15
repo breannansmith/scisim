@@ -57,11 +57,8 @@ else()
   message( STATUS "Skipping Ball2D tests that require Ipopt and HDF5 (USE_IPOPT or USE_HDF5 is disabled)." )
 endif()
 
-# Check if the h5py Python module is installed
-execute_process( COMMAND python -c "import h5py" RESULT_VARIABLE H5PY_ABSENT OUTPUT_QUIET ERROR_QUIET )
-
-# Friction tests against analytical solutions for static and sliding
-if( USE_HDF5 AND NOT H5PY_ABSENT )
+# Tests that require HDF5 support in the executable and the h5py python module
+if( USE_HDF5 AND NOT H5PY_MISSING )
   # Static friction tests, plane pointing positive x
   add_test( ball2d_static_friction_posx_00 assets/shell_scripts/static_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_posx/ball_slide_at_threshold.xml 3.0 1 )
   add_test( ball2d_static_friction_posx_01 assets/shell_scripts/static_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_posx/ball_slide_below_threshold_05_degree.xml 3.0 1 )

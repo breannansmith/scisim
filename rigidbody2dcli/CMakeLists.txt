@@ -70,11 +70,6 @@ if( USE_HDF5 )
   # Box-box-plane tests
   add_test( rb2d_serialization_box_box_plane_00 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/boxes/box_box_plane_00.xml 3.5 35 06 10 )
   add_test( rb2d_serialization_box_box_plane_01 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/boxes/box_box_plane_01.xml 2.0 20 06 10 )
-  # Friction tests for box-plane
-  add_test( rb2d_friction_box_static_00 assets/shell_scripts/static_particle_test.sh assets/tests_serialization/boxes/box_slide_flat_plane.xml 2.0 10  )
-  add_test( rb2d_friction_box_static_01 assets/shell_scripts/static_particle_test.sh assets/tests_serialization/boxes/box_slide_below_threshold.xml 2.0 10  )
-  add_test( rb2d_friction_box_static_02 assets/shell_scripts/static_particle_test.sh assets/tests_serialization/boxes/box_slide_at_threshold.xml 2.0 10  )
-  add_test( rb2d_friction_box_sliding_00 assets/shell_scripts/sliding_particle_test.sh assets/tests_serialization/boxes/box_slide_above_threshold.xml 2.0 10 )
   # Warm-start tests
   add_test( rb2d_serialization_ws_00 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/circles_falling_on_wedge.xml 4.0 40 20 10 )
 else()
@@ -88,6 +83,19 @@ if( USE_HDF5 AND USE_PYTHON )
   add_test( rb2d_python_serialization_02 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/kinematic_tests/translating_plane.xml 15.0 150 056 10 )
   # Weird issues with HDF5 versions in this test
   #add_test( rb2d_python_serialization_03 assets/shell_scripts/execute_serialization_test.sh assets/tests_python_serialization/insertion_test.xml 20.0 20 07 1 )
+else()
+  message( STATUS "Skipping RigidBody2D tests that require HDF5 and Python (USE_HDF5 is disabled or USE_PYTHON is disabled)." )
+endif()
+
+# Tests that require HDF5 support in the executable and the h5py Python module and the numpy Python module
+if( USE_HDF5 AND NOT H5PY_MISSING AND NOT NUMPY_MISSING )
+  # Friction tests for box-plane
+  add_test( rb2d_friction_box_static_00 assets/shell_scripts/static_particle_test.sh assets/tests_serialization/boxes/box_slide_flat_plane.xml 2.0 10  )
+  add_test( rb2d_friction_box_static_01 assets/shell_scripts/static_particle_test.sh assets/tests_serialization/boxes/box_slide_below_threshold.xml 2.0 10  )
+  add_test( rb2d_friction_box_static_02 assets/shell_scripts/static_particle_test.sh assets/tests_serialization/boxes/box_slide_at_threshold.xml 2.0 10  )
+  add_test( rb2d_friction_box_sliding_00 assets/shell_scripts/sliding_particle_test.sh assets/tests_serialization/boxes/box_slide_above_threshold.xml 2.0 10 )
+else()
+  message( STATUS "Skipping RigidBody2D tests that require HDF5 (USE_HDF5 is disabled) and the numpy and h5py Python modules." )
 endif()
 
 # Serialization tests for simulations that use Ipopt
