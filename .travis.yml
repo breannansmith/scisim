@@ -12,7 +12,7 @@ matrix:
           packages:
             - gcc-5
             - g++-5
-      env: 
+      env:
         - CC_COMPILER=gcc-5
         - CXX_COMPILER=g++-5
     # llvm-toolchain-trusty does not look whitelisted, yet:
@@ -29,15 +29,26 @@ matrix:
     #   env: 
     #     - CC_COMPILER=clang-3.8
     #     - CXX_COMPILER=clang++-3.8
+    - os: osx
+      env:
+        - CC_COMPILER=cc
+        - CXX_COMPILER=c++
 
 before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -y libhdf5-dev hdf5-tools libpython-dev python-h5py python-numpy ninja-build
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update -qq ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -y libhdf5-dev hdf5-tools libpython-dev python-h5py python-numpy ninja-build ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update > /dev/null ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew outdated cmake || brew upgrade cmake ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install md5sha1sum ninja python homebrew/python/numpy homebrew/science/hdf5 ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then pip install h5py ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then PY_INC=`python-config --includes | grep -o '\-I[^ ]*' | head -n 1 | cut -c 3-` ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then PY_LIB=`python-config --ldflags | grep -o '\-L[^ ]*' | head -n 1 | cut -c 3- | xargs -I % find % -name libpython*.dylib` ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then EXTRA_FLAGS="-DPYTHON_LIBRARY=${PY_LIB} -DPYTHON_INCLUDE_DIR=${PY_INC}" ; fi
   - ./get_dependencies.sh
 
 script:
   - mkdir build
   - cd build
-  - CC=$CC_COMPILER CXX=$CXX_COMPILER cmake -DSTRICT_BUILD=ON -DUSE_HDF5=ON -DUSE_PYTHON=ON .. -GNinja
+  - CC=$CC_COMPILER CXX=$CXX_COMPILER cmake -DSTRICT_BUILD=ON -DUSE_HDF5=ON -DUSE_PYTHON=ON ${EXTRA_FLAGS} .. -GNinja
   - ninja -j 4
   - ctest -j 4 --output-on-failure
