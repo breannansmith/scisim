@@ -2,6 +2,7 @@ language: generic
 
 matrix:
   include:
+    # Linux and GCC
     - os: linux
       dist: trusty
       sudo: required
@@ -29,16 +30,24 @@ matrix:
     #   env: 
     #     - CC_COMPILER=clang-3.8
     #     - CXX_COMPILER=clang++-3.8
+    # OS X and Clang
     - os: osx
       env:
         - CC_COMPILER=cc
         - CXX_COMPILER=c++
+    # OS X and GCC
+    - os: osx
+      env:
+        - CC_COMPILER=gcc-5
+        - CXX_COMPILER=g++-5
+        - TEST_NAME="OSX_GCC"
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update -qq ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -y libhdf5-dev hdf5-tools libpython-dev python-h5py python-numpy ninja-build ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update > /dev/null ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew outdated cmake || brew upgrade cmake ; fi
+  - if [[ "$TEST_NAME" == "OSX_GCC" ]]; then brew outdated gcc || brew upgrade gcc ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install md5sha1sum ninja python homebrew/python/numpy homebrew/science/hdf5 ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then pip install h5py ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then PY_INC=`python-config --includes | grep -o '\-I[^ ]*' | head -n 1 | cut -c 3-` ; fi
