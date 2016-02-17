@@ -1,11 +1,11 @@
 #!/bin/bash
 
-actual_eigen_tar_md5="cc1bacbad97558b97da6b77c9644f184"
-eigen_url="http://bitbucket.org/eigen/eigen/get/3.2.7.tar.bz2"
-eigen_file_name="3.2.7.tar.bz2"
-extracted_eigen_name="eigen-eigen-b30b87236a1b"
+actual_eigen_tar_md5="9e3bfaaab3db18253cfd87ea697b3ab1"
+eigen_url="http://bitbucket.org/eigen/eigen/get/3.2.8.tar.bz2"
+eigen_file_name="3.2.8.tar.bz2"
+extracted_eigen_name="eigen-eigen-07105f7124f9"
 # md5 on installed Eigen source files
-actual_installed_eigen_md5="6612d555d442c4286a59cf52c7b0fa2e"
+actual_installed_eigen_md5="730a5ac451cea99fc13b916c01eb27b2"
 
 # Verify that wget is installed
 command -v wget >/dev/null 2>&1 || { echo >&2 "Error, please install wget and rerun get_eigen.sh."; exit 1; }
