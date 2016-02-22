@@ -23,8 +23,10 @@ namespace CompileDefinitions
   // C++ compiler used for this build
   extern const std::string CXXCompiler;
 
+  #ifdef FORTRAN_FOUND
   // Fortran compiler used for this build
   extern const std::string FortranCompiler;
+  #endif
 
 }
 

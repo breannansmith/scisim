@@ -5,6 +5,10 @@ if( ENABLE_IWYU )
   set_property( TARGET rigidbody3d_cli PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path} )
 endif()
 
+if( CMAKE_Fortran_COMPILER )
+  set_source_files_properties( rigidbody3d_cli.cpp PROPERTIES COMPILE_DEFINITIONS FORTRAN_FOUND )
+endif()
+
 target_link_libraries( rigidbody3d_cli rigidbody3dutils rigidbody3d )
 
 execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_SOURCE_DIR}/assets/rigidbody3d ${CMAKE_CURRENT_BINARY_DIR}/assets )

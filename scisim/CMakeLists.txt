@@ -18,6 +18,10 @@ list( APPEND Sources "${CMAKE_CURRENT_BINARY_DIR}/CompileDefinitions.cpp" )
 # Create a file with build information
 configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/CompileDefinitions.cpp.in" "${CMAKE_CURRENT_BINARY_DIR}/CompileDefinitions.cpp" @ONLY )
 
+if( CMAKE_Fortran_COMPILER )
+  set_source_files_properties( CompileDefinitions.h CompileDefinitions.cpp PROPERTIES COMPILE_DEFINITIONS FORTRAN_FOUND )
+endif()
+
 add_library( scisim ${Headers} ${Sources} ${FORTRAN_SOURCES} )
 if( ENABLE_IWYU )
   set_property( TARGET scisim PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path} )

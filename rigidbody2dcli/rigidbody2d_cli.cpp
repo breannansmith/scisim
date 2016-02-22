@@ -75,8 +75,10 @@ static void printCompileInfo( std::ostream& output_stream )
   output_stream << "Git Revision:     " << CompileDefinitions::GitSHA1 << std::endl;
   output_stream << "Build Mode:       " << CompileDefinitions::BuildMode << std::endl;
   output_stream << "C Compiler:       " << CompileDefinitions::CCompiler << std::endl;
-  output_stream << "CXX Compiler:     " << CompileDefinitions::CXXCompiler << std::endl;
+  output_stream << "C++ Compiler:     " << CompileDefinitions::CXXCompiler << std::endl;
+  #ifdef FORTRAN_FOUND
   output_stream << "Fortran Compiler: " << CompileDefinitions::FortranCompiler << std::endl;
+  #endif
 }
 
 static unsigned computeTimestepDisplayPrecision( const Rational<std::intmax_t>& dt, const std::string& dt_string )
