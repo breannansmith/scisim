@@ -2,7 +2,7 @@
 
   <camera center="0 0" scale="11.2642" fps="50" render_at_fps="0" locked="0"/>
 
-  <scripting callback="deletion_test"/>
+  <scripting callback="insertion_deletion_test"/>
 
   <integrator type="verlet" dt="0.02"/>
 
