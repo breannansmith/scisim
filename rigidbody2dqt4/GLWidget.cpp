@@ -92,12 +92,11 @@ void GLWidget::generateRenderers( const std::vector<std::unique_ptr<RigidBody2DG
 
 void GLWidget::updateRenderers( const std::vector<std::unique_ptr<RigidBody2DGeometry>>& geometry )
 {
-  assert( m_body_renderers.size() < geometry.size() );
+  assert( m_body_renderers.size() != geometry.size() );
 
-  const unsigned num_old_geo{ static_cast<unsigned>( m_body_renderers.size() ) };
-
+  m_body_renderers.clear();
   m_body_renderers.reserve( geometry.size() );
-  for( unsigned new_idx = num_old_geo; new_idx < geometry.size(); ++new_idx )
+  for( unsigned new_idx = 0; new_idx < geometry.size(); ++new_idx )
   {
     switch( geometry[new_idx]->type() )
     {

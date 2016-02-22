@@ -535,6 +535,96 @@ static PyObject* addBody( PyObject* self, PyObject* args )
   return Py_BuildValue( "" );
 }
 
+static PyObject* deleteBodies( PyObject* self, PyObject* args )
+{
+  PyArrayObject* body_list;
+  if( !PyArg_ParseTuple( args, "O", &body_list ) )
+  {
+    PyErr_Print();
+    std::cerr << "Failed to read parameters for delete_bodies, parameters are: 32 bit unsigned NumPy array. Exiting." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+  assert( body_list != nullptr );
+  if( PyArray_NDIM( body_list ) != 1 )
+  {
+    std::cerr << "Error, bodies to delete list must be a one dimensional array." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+  if( PyArray_DESCR( body_list )->kind != 'u' || PyArray_DESCR( body_list )->elsize != 4 )
+  {
+    std::cerr << "Error, bodies to delete list must contain 32 bit unsigned integers." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+
+  const Eigen::Map<const VectorXu> bodies_to_delete( static_cast<unsigned*>( PyArray_DATA( body_list ) ), unsigned( PyArray_DIM( body_list, 0 ) ) );
+
+  assert( s_state->q().size() % 3 == 0 );
+  const unsigned num_total_bodies{ static_cast<unsigned>( s_state->q().size() ) / 3 };
+  for( unsigned bdy_idx = 0; bdy_idx < bodies_to_delete.size(); ++bdy_idx )
+  {
+    if( bodies_to_delete[bdy_idx] >= num_total_bodies )
+    {
+      std::cerr << "Error, bodies to delete indices must be less than the total number of bodies." << std::endl;
+      std::exit( EXIT_FAILURE );
+    }
+  }
+
+  s_state->removeBodies( bodies_to_delete );
+
+  return Py_BuildValue( "" );
+}
+
+static PyObject* deleteGeometry( PyObject* self, PyObject* args )
+{
+  PyArrayObject* geo_list;
+  if( !PyArg_ParseTuple( args, "O", &geo_list ) )
+  {
+    PyErr_Print();
+    std::cerr << "Failed to read parameters for delete_geometry, parameters are: 32 bit unsigned NumPy array. Exiting." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+  assert( geo_list != nullptr );
+  if( PyArray_NDIM( geo_list ) != 1 )
+  {
+    std::cerr << "Error, geometry to delete list must be a one dimensional array." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+  if( PyArray_DESCR( geo_list )->kind != 'u' || PyArray_DESCR( geo_list )->elsize != 4 )
+  {
+    std::cerr << "Error, geometry to delete list must contain 32 bit unsigned integers." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+
+  const Eigen::Map<const VectorXu> geometry_to_delete( static_cast<unsigned*>( PyArray_DATA( geo_list ) ), unsigned( PyArray_DIM( geo_list, 0 ) ) );
+
+  const unsigned num_geo{ static_cast<unsigned>( s_state->geometry().size() ) };
+  for( unsigned geo_idx = 0; geo_idx < geometry_to_delete.size(); ++geo_idx )
+  {
+    if( geometry_to_delete[geo_idx] >= num_geo )
+    {
+      std::cerr << "Error, geometry to delete indices must be less than the total number of geometry instances." << std::endl;
+      std::exit( EXIT_FAILURE );
+    }
+  }
+
+  s_state->removeGeometry( geometry_to_delete );
+
+  return Py_BuildValue( "" );
+}
+
+static PyObject* numBodies( PyObject* self, PyObject* args )
+{
+  assert( args == nullptr );
+  assert( s_state->q().size() % 3 == 0 );
+  return Py_BuildValue( "I", s_state->q().size() / 3 );
+}
+
+static PyObject* numGeometry( PyObject* self, PyObject* args )
+{
+  assert( args == nullptr );
+  return Py_BuildValue( "I", s_state->geometry().size() );
+}
+
 static PyMethodDef RigidBody2DFunctions[] = {
   { "timestep", timestep, METH_NOARGS, "Returns the timestep." },
   { "nextIteration", nextIteration, METH_NOARGS, "Returns the end of step iteration." },
@@ -547,6 +637,10 @@ static PyMethodDef RigidBody2DFunctions[] = {
   { "numGeometryInstances", numGeometryInstances, METH_NOARGS, "Returns the number of geometry instances in the simulation." },
   { "addCircleGeometry", addCircleGeometry, METH_VARARGS, "Adds a new circle geometry instance to the system." },
   { "addBody", addBody, METH_VARARGS, "Adds a new rigid body to the system." },
+  { "delete_bodies", deleteBodies, METH_VARARGS, "Deletes the given bodies from the system." },
+  { "delete_geometry", deleteGeometry, METH_VARARGS, "Deletes the given geometry instances from the system." },
+  { "num_bodies", numBodies, METH_NOARGS, "Returns the number of bodies in the system." },
+  { "num_geometry", numGeometry, METH_NOARGS, "Returns the number of geometry instances in the system." },
   { nullptr, nullptr, 0, nullptr }
 };
 

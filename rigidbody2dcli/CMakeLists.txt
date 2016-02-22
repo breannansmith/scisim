@@ -83,6 +83,7 @@ if( USE_HDF5 AND USE_PYTHON )
   add_test( rb2d_python_serialization_02 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/kinematic_tests/translating_plane.xml 15.0 150 056 10 )
   # Weird issues with HDF5 versions in this test
   #add_test( rb2d_python_serialization_03 assets/shell_scripts/execute_serialization_test.sh assets/tests_python_serialization/insertion_test.xml 20.0 20 07 1 )
+  add_test( rb2d_python_serialization_04 assets/shell_scripts/execute_serialization_test.sh assets/tests_python_serialization/insertion_deletion_test.xml 24.0 24 11 1 )
 else()
   message( STATUS "Skipping RigidBody2D tests that require HDF5 and Python (USE_HDF5 is disabled or USE_PYTHON is disabled)." )
 endif()

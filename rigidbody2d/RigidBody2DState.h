@@ -44,8 +44,14 @@ public:
   // Adds a new body at the end of the state vector
   void addBody( const Vector2s& x, const scalar& theta, const Vector2s& v, const scalar& omega, const scalar& rho, const unsigned geo_idx, const bool fixed );
 
+  // Removes bodies at the given indices from the simulation
+  void removeBodies( const Eigen::Ref<const VectorXu>& indices );
+
   // Adds a new circle geometry instance to the back of the geometry vector
   void addCircleGeometry( const scalar& r );
+
+  // Removes geometry instances from the simulation
+  void removeGeometry( const Eigen::Ref<const VectorXu>& indices );
 
   // TODO: Remove these
   std::vector<std::unique_ptr<RigidBody2DGeometry>>& geometry();

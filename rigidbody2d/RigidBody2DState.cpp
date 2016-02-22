@@ -26,6 +26,7 @@ static SparseMatrixsc generateM( const VectorXs& m )
     M.insertBack( row, col ) = m( col );
   }
   M.finalize();
+  M.makeCompressed();
   return M;
 }
 
@@ -40,6 +41,7 @@ static SparseMatrixsc generateMinv( const VectorXs& m )
     Minv.insertBack( row, col ) = 1.0 / m( col );
   }
   Minv.finalize();
+  Minv.makeCompressed();
   return Minv;
 }
 
@@ -256,6 +258,142 @@ void RigidBody2DState::addBody( const Vector2s& x, const scalar& theta, const Ve
     Minv.insertBack( 3 * original_num_bodies + 2, 3 * original_num_bodies + 2 ) = 1.0 / I;
     Minv.finalize();
     m_Minv.swap( Minv );
+  }
+
+  #ifndef NDEBUG
+  checkStateConsistency();
+  #endif
+}
+
+void RigidBody2DState::removeBodies( const Eigen::Ref<const VectorXu>& indices )
+{
+  if( indices.size() == 0 )
+  {
+    return;
+  }
+
+  // Use q to mark dofs for deletion
+  for( unsigned delete_idx = 0; delete_idx < indices.size(); ++delete_idx )
+  {
+    m_q( 3 * indices[delete_idx] ) = SCALAR_NAN;
+  }
+
+  const unsigned nbodies_initial{ static_cast<unsigned>( m_q.size() ) / 3 };
+
+  Eigen::Map<VectorXs> M_flat{ m_M.valuePtr(), m_M.nonZeros() };
+  Eigen::Map<VectorXs> Minv_flat{ m_Minv.valuePtr(), m_Minv.nonZeros() };
+
+  unsigned copy_to = 0;
+  unsigned copy_from = 0;
+  for( ; copy_from < nbodies_initial; copy_from++, copy_to++ )
+  {
+    while( copy_from < nbodies_initial && std::isnan( m_q( 3 * copy_from ) ) )
+    {
+      copy_from++;
+    }
+    if( copy_from == nbodies_initial )
+    {
+      break;
+    }
+    m_q.segment<3>( 3 * copy_to ) = m_q.segment<3>( 3 * copy_from );
+    m_v.segment<3>( 3 * copy_to ) = m_v.segment<3>( 3 * copy_from );
+    M_flat.segment<3>( 3 * copy_to ) = M_flat.segment<3>( 3 * copy_from );
+    Minv_flat.segment<3>( 3 * copy_to ) = Minv_flat.segment<3>( 3 * copy_from );
+    m_fixed[ copy_to ] = m_fixed[ copy_from ];
+    m_geometry_indices( copy_to ) = m_geometry_indices( copy_from );
+  }
+
+  const unsigned new_num_dofs{ 3 * copy_to };
+
+  m_q.conservativeResize( new_num_dofs );
+  m_v.conservativeResize( new_num_dofs );
+  //m_M.conservativeResize( new_num_dofs, new_num_dofs );
+  //m_M.makeCompressed();
+  //m_Minv.conservativeResize( new_num_dofs, new_num_dofs );
+  //m_Minv.makeCompressed();
+  m_fixed.resize( copy_to );
+  m_fixed.shrink_to_fit();
+  m_geometry_indices.conservativeResize( copy_to );
+
+  // Note: Conservative resize on sparse matrix seems to cause issues...
+  // Update the mass matrix
+  {
+    SparseMatrixsc M{ SparseMatrixsc::Index( new_num_dofs ), SparseMatrixsc::Index( new_num_dofs ) };
+    M.reserve( new_num_dofs );
+    // Copy the updated masses over
+    for( unsigned col = 0; col < new_num_dofs; ++col )
+    {
+      M.startVec( col );
+      M.insertBack( col, col ) = M_flat( col );
+    }
+    M.finalize();
+    M.makeCompressed();
+    m_M.swap( M );
+  }
+
+  // Update the inverse mass matrix
+  {
+    SparseMatrixsc Minv{ SparseMatrixsc::Index( new_num_dofs ), SparseMatrixsc::Index( new_num_dofs ) };
+    Minv.reserve( new_num_dofs );
+    // Copy the old inverse masses
+    for( unsigned col = 0; col < new_num_dofs; ++col )
+    {
+      Minv.startVec( col );
+      Minv.insertBack( col, col ) = Minv_flat( col );
+    }
+    Minv.finalize();
+    Minv.makeCompressed();
+    m_Minv.swap( Minv );
+  }
+
+  #ifndef NDEBUG
+  checkStateConsistency();
+  #endif
+}
+
+void RigidBody2DState::removeGeometry( const Eigen::Ref<const VectorXu>& indices )
+{
+  if( indices.size() == 0 )
+  {
+    return;
+  }
+
+  // Mark geometry slated for deletion
+  for( unsigned delete_idx = 0; delete_idx < indices.size(); ++delete_idx )
+  {
+    m_geometry[indices[delete_idx]] = nullptr;
+  }
+
+  const unsigned ngeo_initial{ static_cast<unsigned>( m_geometry.size() ) };
+
+  // Map from old geo indices to new geo indices. count, ngeo
+  VectorXu index_map( ngeo_initial );
+
+  unsigned copy_to = 0;
+  unsigned copy_from = 0;
+  for( ; copy_from < ngeo_initial; copy_from++, copy_to++ )
+  {
+    while( copy_from < ngeo_initial && m_geometry[copy_from] == nullptr )
+    {
+      #ifndef NDEBUG
+      index_map(copy_from) = std::numeric_limits<unsigned>::max();
+      #endif
+      copy_from++;
+    }
+    if( copy_from == ngeo_initial )
+    {
+      break;
+    }
+    m_geometry[copy_to] = std::move(m_geometry[copy_from]);
+    index_map[copy_from] = copy_to;
+  }
+
+  m_geometry.resize( copy_to );
+  m_geometry.shrink_to_fit();
+
+  for( unsigned bdy_idx = 0; bdy_idx < m_geometry_indices.size(); ++bdy_idx )
+  {
+    m_geometry_indices(bdy_idx) = index_map(m_geometry_indices(bdy_idx));
   }
 
   #ifndef NDEBUG
