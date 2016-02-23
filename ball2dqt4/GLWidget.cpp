@@ -6,6 +6,7 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 
 #include "scisim/StringUtilities.h"
 #include "scisim/ConstrainedMaps/FrictionSolver.h"
@@ -583,7 +584,7 @@ void GLWidget::centerCamera( const bool update_gl )
 
 void GLWidget::saveScreenshot( const QString& file_name )
 {
-  std::cout << "Saving screenshot of time " << m_iteration * scalar( m_dt ) << " to " << file_name.toStdString() << std::endl;
+  std::cout << "Saving screenshot of time " << std::fixed << std::setprecision( m_display_precision ) << m_iteration * scalar( m_dt ) << " to " << file_name.toStdString() << std::endl;
   const QImage frame_buffer{ grabFrameBuffer() };
   frame_buffer.save( file_name );
 }
