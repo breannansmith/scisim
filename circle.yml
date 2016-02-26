@@ -11,10 +11,9 @@ dependencies:
     - rm -rf `pyenv root`
     - ./get_dependencies.sh
     - mkdir build
-    - cd build && CC=gcc-5 CXX=g++-5 $HOME/cmake-3.4.3-Linux-x86_64/bin/cmake -DUSE_HDF5=ON -DUSE_PYTHON=ON -DSTRICT_BUILD=ON -DCMAKE_BUILD_TYPE=Release .. -GNinja
-    - cd build && ninja -j 2
+    - cd build && CC=gcc-5 CXX=g++-5 $HOME/cmake-3.4.3-Linux-x86_64/bin/cmake -DUSE_HDF5=ON -DUSE_PYTHON=OFF -DSTRICT_BUILD=ON -DCMAKE_BUILD_TYPE=Release -DSANITIZE=address .. -GNinja
+    - cd build && ninja -j 2 -v
 
 test:
   override:
     - cd build && ctest -j 2 --output-on-failure
-
