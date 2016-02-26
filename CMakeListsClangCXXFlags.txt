@@ -14,4 +14,15 @@ endif()
 #set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --analyze" )
 
 # Enable extra optimizations
-set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native -flto" )
+set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native" )
+# lto causes spurious warnings with the address sanitizer on Apple LLVM version 7.0.2
+if( SANITIZER STREQUAL "none" )
+  set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -flto" )
+endif()
+
+# Enable sanitizers, if requested
+if( SANITIZER STREQUAL "address" )
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_RELEASE} -fsanitize=address" )
+elseif( NOT SANITIZER STREQUAL "none" )
+  message( FATAL_ERROR "Error, only 'address' is supported for Clang sanitizers, in the build system." )
+endif()

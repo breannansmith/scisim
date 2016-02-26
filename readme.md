@@ -111,6 +111,8 @@ Options of note include:
 
 * USE_PYTHON: Enables support for embedded Python language scripting. Required for kinematic scripting.
 
+* SANITIZER: Enables support for compiler sanitizer modes. Options are: none, address
+
 
 Platform Specific Issues
 ------------------------

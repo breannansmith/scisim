@@ -66,6 +66,9 @@ if( CMAKE_CXX_FLAGS )
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} " )
 endif( CMAKE_CXX_FLAGS )
 
+# Allow the user to optionally enable compiler sanitizers
+set( SANITIZER "none" CACHE STRING "Enable compiler sanitizer modes, options are: none, address" )
+
 # Enable compiler specific flags
 if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
   include( CMakeListsGNUCXXFlags.txt )
