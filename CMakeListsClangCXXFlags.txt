@@ -22,7 +22,7 @@ endif()
 
 # Enable sanitizers, if requested
 if( SANITIZER STREQUAL "address" )
-  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_RELEASE} -fsanitize=address" )
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address" )
 elseif( NOT SANITIZER STREQUAL "none" )
   message( FATAL_ERROR "Error, only 'address' is supported for Clang sanitizers, in the build system." )
 endif()
