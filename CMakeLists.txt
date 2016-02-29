@@ -32,24 +32,17 @@ endif()
 
 # If the user provided a CMAKE_BUILD_TYPE, create a cache variable
 if( NOT CMAKE_BUILD_TYPE STREQUAL "" )
-  set( CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose the type of
-       build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug
-       Release RelWithDebInfo MinSizeRel." FORCE )
+  set( CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel Coverage." FORCE )
 # Otherwise default to Release
 else( NOT CMAKE_BUILD_TYPE STREQUAL "" )
-  set( CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of
-       build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug
-       Release RelWithDebInfo MinSizeRel." FORCE )
+  set( CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel Coverage." FORCE )
 endif( NOT CMAKE_BUILD_TYPE STREQUAL "" )
 
 # Enforce the use of a valid build type
-if( NOT CMAKE_BUILD_TYPE STREQUAL "None" AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug" )
-  if( NOT CMAKE_BUILD_TYPE STREQUAL "Release" AND NOT CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" )
-    if( NOT CMAKE_BUILD_TYPE STREQUAL "MinSizeRel" )
-      message( SEND_ERROR "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel." )
-    endif( NOT CMAKE_BUILD_TYPE STREQUAL "MinSizeRel" )
-  endif( NOT CMAKE_BUILD_TYPE STREQUAL "Release" AND NOT CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" )
-endif( NOT CMAKE_BUILD_TYPE STREQUAL "None" AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug" )
+set( VALID_BUILD_TYPES None Debug Release RelWithDebInfo MinSizeRel Coverage )
+if( NOT ";${VALID_BUILD_TYPES};" MATCHES ";${CMAKE_BUILD_TYPE};" )
+  message( FATAL_ERROR "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel Coverage." )
+endif()
 
 
 ################################################################################

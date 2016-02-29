@@ -36,3 +36,8 @@ set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -ip" )
 if( NOT SANITIZER STREQUAL "none" )
   message( FATAL_ERROR "Error, the Intel compiler suite does not support sanitizers." )
 endif()
+
+# TODO: Add code coverage support with Intel
+if( CMAKE_BUILD_TYPE STREQUAL "Coverage" )
+  message( FATAL_ERROR "Error, code coverage support is not enabled with Intel compilers, yet." )
+endif()
