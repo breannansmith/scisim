@@ -11,7 +11,6 @@
 #include "scisim/Utilities.h"
 #include "scisim/ConstrainedMaps/IpoptUtilities.h"
 
-#ifdef IPOPT_FOUND
 #ifndef NDEBUG
 #include <typeinfo>
 #endif
@@ -23,7 +22,6 @@
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h"
 #include "scisim/Math/MathUtilities.h"
 #include "scisim/ConstrainedMaps/QPTerminationOperator.h"
-#endif
 
 LCPOperatorIpopt::LCPOperatorIpopt( const std::vector<std::string>& linear_solvers, const scalar& tol )
 : m_linear_solver_order( linear_solvers )
@@ -60,7 +58,6 @@ LCPOperatorIpopt::LCPOperatorIpopt( std::istream& input_stream )
   assert( m_tol >= 0.0 );
 }
 
-#ifdef IPOPT_FOUND
 static void createIpoptApplication( const scalar& tol, Ipopt::SmartPtr<Ipopt::IpoptApplication>& ipopt_app )
 {
   ipopt_app = IpoptApplicationFactory();
@@ -92,11 +89,9 @@ static void createIpoptApplication( const scalar& tol, Ipopt::SmartPtr<Ipopt::Ip
   ipopt_app->Options()->SetStringValue( "check_derivatives_for_naninf", "yes" );
 #endif
 }
-#endif
 
 void LCPOperatorIpopt::flow( const std::vector<std::unique_ptr<Constraint>>& cons, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& q0, const VectorXs& v0, const VectorXs& v0F, const SparseMatrixsc& N, const SparseMatrixsc& Q, const VectorXs& nrel, const VectorXs& CoR, VectorXs& alpha )
 {
-#ifdef IPOPT_FOUND
   Ipopt::SmartPtr<Ipopt::IpoptApplication> ipopt_app;
   createIpoptApplication( m_tol, ipopt_app );
 
@@ -145,18 +140,10 @@ void LCPOperatorIpopt::flow( const std::vector<std::unique_ptr<Constraint>>& con
       break;
     }
   }
-
-  // TODO: Sanity check the solution here
-#else
-  std::cerr << " Error, please rebuild with Ipopt support before executing LCPOperatorIpopt::flow." << std::endl;
-  std::cerr << "            Ipopt can be obtained via: https://projects.coin-or.org/Ipopt" << std::endl;
-  std::exit( EXIT_FAILURE );
-#endif
 }
 
 void LCPOperatorIpopt::solveQP( const QPTerminationOperator& termination_operator, const SparseMatrixsc& Minv, const SparseMatrixsc& N, const VectorXs& b, VectorXs& alpha, scalar& achieved_tol ) const
 {
-#ifdef IPOPT_FOUND
   Ipopt::SmartPtr<Ipopt::IpoptApplication> ipopt_app;
   createIpoptApplication( m_tol, ipopt_app );
 
@@ -207,13 +194,6 @@ void LCPOperatorIpopt::solveQP( const QPTerminationOperator& termination_operato
   }
 
   achieved_tol = qp_nlp.achievedTolerance();
-
-  // TODO: Sanity check the solution here
-#else
-  std::cerr << " Error, please rebuild with Ipopt support before executing LCPOperatorIpopt::solveQP." << std::endl;
-  std::cerr << "            Ipopt can be obtained via: https://projects.coin-or.org/Ipopt" << std::endl;
-  std::exit( EXIT_FAILURE );
-#endif
 }
 
 std::string LCPOperatorIpopt::name() const
@@ -235,8 +215,6 @@ void LCPOperatorIpopt::serialize( std::ostream& output_stream ) const
 
 
 
-
-#ifdef IPOPT_FOUND
 
 QPNLP::QPNLP( const SparseMatrixsc& Q, const bool use_custom_termination, const QPTerminationOperator& termination_operator )
 : m_Q( Q )
@@ -449,5 +427,3 @@ Ipopt::SolverReturn QPNLP::getReturnStatus() const
 {
   return m_solve_return_status;
 }
-
-#endif

@@ -9,7 +9,6 @@ set( Sources
   ConstrainedMaps/ImpactMaps/JacobiOperator.cpp
   ConstrainedMaps/ImpactMaps/LCPOperatorQL.cpp
   ConstrainedMaps/ImpactMaps/LCPOperatorQLVP.cpp
-  ConstrainedMaps/ImpactMaps/LCPOperatorIpopt.cpp
   ConstrainedMaps/ImpactMaps/GROperator.cpp
   ConstrainedMaps/ImpactMaps/GRROperator.cpp
   ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.cpp
@@ -19,7 +18,6 @@ set( Sources
   ConstrainedMaps/FrictionMaps/FrictionOperator.cpp
   ConstrainedMaps/FrictionMaps/LinearMDPOperatorQL.cpp
   ConstrainedMaps/FrictionMaps/FrictionOperatorUtilities.cpp
-  ConstrainedMaps/FrictionMaps/SmoothMDPOperatorIpopt.cpp
   ConstrainedMaps/FrictionMaps/FischerBurmeisterBoundConstrained.cpp
   ConstrainedMaps/FrictionMaps/FischerBurmeisterSmooth.cpp
   ConstrainedMaps/ConstrainedMapUtilities.cpp
@@ -30,7 +28,6 @@ set( Sources
   ConstrainedMaps/GRRFriction.cpp
   Constraints/ConstrainedSystem.cpp
   Constraints/Constraint.cpp
-  ConstrainedMaps/IpoptUtilities.cpp
   ConstrainedMaps/Sobogus.cpp
   ConstrainedMaps/FrictionSolver.cpp
   ConstrainedMaps/QPTerminationOperator.cpp
@@ -48,6 +45,9 @@ set( Sources
 if( USE_PYTHON )
   list( APPEND Sources PythonObject.cpp )
 endif()
+if( USE_IPOPT )
+  list( APPEND Sources ConstrainedMaps/IpoptUtilities.cpp ConstrainedMaps/ImpactMaps/LCPOperatorIpopt.cpp ConstrainedMaps/FrictionMaps/SmoothMDPOperatorIpopt.cpp )
+endif()
 
 set( Headers
   ConstrainedMaps/bogus/FrictionProblem.hpp
@@ -62,7 +62,6 @@ set( Headers
   ConstrainedMaps/ImpactMaps/JacobiOperator.h
   ConstrainedMaps/ImpactMaps/LCPOperatorQL.h
   ConstrainedMaps/ImpactMaps/LCPOperatorQLVP.h
-  ConstrainedMaps/ImpactMaps/LCPOperatorIpopt.h
   ConstrainedMaps/ImpactMaps/GROperator.h
   ConstrainedMaps/ImpactMaps/GRROperator.h
   ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h
@@ -72,7 +71,6 @@ set( Headers
   ConstrainedMaps/FrictionMaps/FrictionOperator.h
   ConstrainedMaps/FrictionMaps/LinearMDPOperatorQL.h
   ConstrainedMaps/FrictionMaps/FrictionOperatorUtilities.h
-  ConstrainedMaps/FrictionMaps/SmoothMDPOperatorIpopt.h
   ConstrainedMaps/FrictionMaps/FischerBurmeisterBoundConstrained.h
   ConstrainedMaps/FrictionMaps/FischerBurmeisterSmooth.h
   ConstrainedMaps/ConstrainedMapUtilities.h
@@ -83,7 +81,6 @@ set( Headers
   ConstrainedMaps/GRRFriction.h
   Constraints/ConstrainedSystem.h
   Constraints/Constraint.h
-  ConstrainedMaps/IpoptUtilities.h
   ConstrainedMaps/Sobogus.h
   ConstrainedMaps/FrictionSolver.h
   ConstrainedMaps/QPTerminationOperator.h
@@ -102,4 +99,7 @@ set( Headers
 )
 if( USE_PYTHON )
   list( APPEND Headers PythonObject.h )
+endif()
+if( USE_IPOPT )
+  list( APPEND Headers ConstrainedMaps/IpoptUtilities.h ConstrainedMaps/ImpactMaps/LCPOperatorIpopt.h ConstrainedMaps/FrictionMaps/SmoothMDPOperatorIpopt.h )
 endif()

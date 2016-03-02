@@ -8,9 +8,7 @@
 
 #include "ImpactOperator.h"
 
-#ifdef IPOPT_FOUND
 #include "IpIpoptApplication.hpp"
-#endif
 
 class QPTerminationOperator;
 
@@ -32,9 +30,6 @@ public:
 
   virtual void serialize( std::ostream& output_stream ) const override;
 
-  #ifndef IPOPT_FOUND
-  [[noreturn]]
-  #endif
   void solveQP( const QPTerminationOperator& termination_operator, const SparseMatrixsc& Minv, const SparseMatrixsc& N, const VectorXs& b, VectorXs& alpha, scalar& achieved_tol ) const;
 
 private:
@@ -44,7 +39,6 @@ private:
 
 };
 
-#ifdef IPOPT_FOUND
 class QPNLP final : public Ipopt::TNLP
 {
 
@@ -126,6 +120,5 @@ private:
   QPNLP& operator=( const QPNLP& );
 
 };
-#endif
 
 #endif

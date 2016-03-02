@@ -6,9 +6,7 @@
 #ifndef IPOPT_UTILITIES_H
 #define IPOPT_UTILITIES_H
 
-#ifdef IPOPT_FOUND
 #include "IpIpoptApplication.hpp"
-#endif
 
 #include <iosfwd>
 #include <vector>
@@ -21,9 +19,7 @@ namespace IpoptUtilities
 
   bool containsDuplicates( const std::vector<std::string>& linear_solvers );
 
-  #ifdef IPOPT_FOUND
   std::string ipoptReturnStatusToString( const Ipopt::SolverReturn& status );
-  #endif
 
 }
 

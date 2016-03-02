@@ -11,7 +11,6 @@
 
 #include <iostream>
 
-#ifdef IPOPT_FOUND
 #ifndef NDEBUG
 #include <typeinfo>
 #endif
@@ -22,7 +21,6 @@
 #include "scisim/Math/MathUtilities.h"
 #include "scisim/ConstrainedMaps/FrictionMaps/FischerBurmeisterSmooth.h"
 #include "scisim/ConstrainedMaps/QPTerminationOperator.h"
-#endif
 
 SmoothMDPOperatorIpopt::SmoothMDPOperatorIpopt( const std::vector<std::string>& linear_solvers, const scalar& tol )
 : m_linear_solver_order( linear_solvers )
@@ -85,7 +83,6 @@ bool SmoothMDPOperatorIpopt::isLinearized() const
   return false;
 }
 
-#ifdef IPOPT_FOUND
 static void createIpoptApplication( const scalar& tol, Ipopt::SmartPtr<Ipopt::IpoptApplication>& ipopt_app )
 {
   ipopt_app = IpoptApplicationFactory();
@@ -112,11 +109,9 @@ static void createIpoptApplication( const scalar& tol, Ipopt::SmartPtr<Ipopt::Ip
   ipopt_app->Options()->SetStringValue( "check_derivatives_for_naninf", "yes" );
 #endif
 }
-#endif
 
 void SmoothMDPOperatorIpopt::flow( const scalar& t, const SparseMatrixsc& Minv, const VectorXs& v0, const SparseMatrixsc& D, const SparseMatrixsc& Q, const VectorXs& gdotD, const VectorXs& mu, const VectorXs& alpha, VectorXs& beta, VectorXs& lambda )
 {
-#ifdef IPOPT_FOUND
   Ipopt::SmartPtr<Ipopt::IpoptApplication> ipopt_app;
   createIpoptApplication( m_tol, ipopt_app );
 
@@ -175,37 +170,10 @@ void SmoothMDPOperatorIpopt::flow( const scalar& t, const SparseMatrixsc& Minv, 
       lambda( lambda_idx ) = vrel.segment<2>( 2 * lambda_idx ).norm();
     }
   }
-
-  // Check the optimality conditions
-  // TODO: Replace with single call to min-map functional
-  //#ifndef NDEBUG
-  //{
-  //  VectorXs friction_disk_constraints( alpha.size() );
-  //  for( int con_num = 0; con_num < alpha.size(); ++con_num )
-  //  {
-  //    friction_disk_constraints( con_num ) = mu( con_num ) * alpha( con_num ) - beta.segment<2>( 2 * con_num ).norm();
-  //  }
-  //  assert( ( lambda.array() >= 0.0 ).all() );
-  //  assert( ( friction_disk_constraints.array() >= - 100000.0 * m_tol ).all() );
-  //  for( int con_num = 0; con_num < alpha.size(); ++con_num )
-  //  {
-  //    assert( fabs( lambda( con_num ) ) <= 100000.0 * m_tol || fabs( friction_disk_constraints( con_num ) ) <= 100000.0 * m_tol );
-  //  }
-  //  // || friction_disk_constraints ||_\inf can be big
-  //  //std::cout << "Friction Constraints: " << friction_disk_constraints.transpose() << std::endl;
-  //}
-  //#endif
-
-#else
-  std::cerr << " Error, please rebuild with Ipopt support before executing SmoothMDPOperatorIpopt::flow." << std::endl;
-  std::cerr << "            Ipopt can be obtained via: https://projects.coin-or.org/Ipopt" << std::endl;
-  std::exit( EXIT_FAILURE );
-#endif
 }
 
 void SmoothMDPOperatorIpopt::solveQP( const QPTerminationOperator& termination_operator, const SparseMatrixsc& Minv, const SparseMatrixsc& D, const VectorXs& b, const VectorXs& c, VectorXs& beta, VectorXs& lambda, scalar& achieved_tol ) const
 {
-#ifdef IPOPT_FOUND
   Ipopt::SmartPtr<Ipopt::IpoptApplication> ipopt_app;
   createIpoptApplication( m_tol, ipopt_app );
 
@@ -264,17 +232,8 @@ void SmoothMDPOperatorIpopt::solveQP( const QPTerminationOperator& termination_o
   }
 
   achieved_tol = qp_nlp.achievedTolerance();
-
-  // TODO: Sanity check the solution here
-#else
-  std::cerr << " Error, please rebuild with Ipopt support before executing SmoothMDPOperatorIpopt::solveQP." << std::endl;
-  std::cerr << "            Ipopt can be obtained via: https://projects.coin-or.org/Ipopt" << std::endl;
-  std::exit( EXIT_FAILURE );
-#endif
 }
 
-
-#ifdef IPOPT_FOUND
 
 SmoothMDPNLP::SmoothMDPNLP( const SparseMatrixsc& Q, VectorXs& beta, const bool use_custom_termination, const QPTerminationOperator& termination_operator )
 : m_Q( Q )
@@ -520,5 +479,3 @@ Ipopt::SolverReturn SmoothMDPNLP::getReturnStatus() const
 {
   return m_solve_return_status;
 }
-
-#endif

@@ -30,13 +30,16 @@
 #include "scisim/ConstrainedMaps/ImpactMaps/JacobiOperator.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorQL.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorQLVP.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorIpopt.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/GROperator.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/GRROperator.h"
 #include "scisim/ConstrainedMaps/FrictionSolver.h"
 #include "scisim/ConstrainedMaps/StaggeredProjections.h"
 #include "scisim/ConstrainedMaps/Sobogus.h"
 #include "scisim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
+
+#ifdef IPOPT_FOUND
+#include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorIpopt.h"
+#endif
 
 #include "CameraSettings2D.h"
 
@@ -594,6 +597,7 @@ static bool loadLCPSolver( const rapidxml::xml_node<>& node, std::unique_ptr<Imp
     }
     impact_operator.reset( new LCPOperatorQLVP{ tol } );
   }
+  #ifdef IPOPT_FOUND
   else if( solver_name == "ipopt" )
   {
     // Attempt to read the desired linear solvers
@@ -644,6 +648,7 @@ static bool loadLCPSolver( const rapidxml::xml_node<>& node, std::unique_ptr<Imp
     }
     impact_operator.reset( new LCPOperatorIpopt{ linear_solvers, con_tol } );
   }
+  #endif
   else
   {
     return false;

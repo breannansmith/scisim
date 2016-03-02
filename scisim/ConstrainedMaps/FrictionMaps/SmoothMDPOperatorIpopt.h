@@ -11,9 +11,7 @@
 
 #include "FrictionOperator.h"
 
-#ifdef IPOPT_FOUND
 #include "IpIpoptApplication.hpp"
-#endif
 
 class QPTerminationOperator;
 
@@ -39,9 +37,6 @@ public:
 
   virtual bool isLinearized() const override;
 
-  #ifndef IPOPT_FOUND
-  [[noreturn]]
-  #endif
   void solveQP( const QPTerminationOperator& termination_operator, const SparseMatrixsc& Minv, const SparseMatrixsc& D, const VectorXs& b, const VectorXs& c, VectorXs& beta, VectorXs& lambda, scalar& achieved_tol ) const;
 
 private:
@@ -51,7 +46,6 @@ private:
 
 };
 
-#ifdef IPOPT_FOUND
 class SmoothMDPNLP final : public Ipopt::TNLP
 {
 public:
@@ -129,7 +123,5 @@ private:
   SmoothMDPNLP& operator=( const SmoothMDPNLP& );
 
 };
-
-#endif
 
 #endif

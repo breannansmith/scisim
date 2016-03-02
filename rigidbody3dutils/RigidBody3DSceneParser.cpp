@@ -18,14 +18,18 @@
 #include "scisim/ConstrainedMaps/ImpactMaps/GRROperator.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorQL.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorQLVP.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorIpopt.h"
-#include "scisim/ConstrainedMaps/FrictionMaps/SmoothMDPOperatorIpopt.h"
 #include "scisim/ConstrainedMaps/GeometricImpactFrictionMap.h"
 #include "scisim/ConstrainedMaps/StabilizedImpactFrictionMap.h"
 #include "scisim/ConstrainedMaps/StaggeredProjections.h"
 #include "scisim/ConstrainedMaps/Sobogus.h"
 #include "scisim/ConstrainedMaps/GRRFriction.h"
 #include "scisim/ConstrainedMaps/FrictionSolver.h"
+#include "scisim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
+
+#ifdef IPOPT_FOUND
+#include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorIpopt.h"
+#include "scisim/ConstrainedMaps/FrictionMaps/SmoothMDPOperatorIpopt.h"
+#endif
 
 #include "rigidbody3d/Geometry/RigidBodyGeometry.h"
 #include "rigidbody3d/Geometry/RigidBodyBox.h"
@@ -1231,6 +1235,7 @@ static bool loadLCPSolver( const rapidxml::xml_node<>& node, std::unique_ptr<Imp
     }
     impact_operator.reset( new LCPOperatorQLVP{ tol } );
   }
+  #ifdef IPOPT_FOUND
   else if( solver_name == "ipopt" )
   {
     // Attempt to read the desired linear solvers
@@ -1281,6 +1286,7 @@ static bool loadLCPSolver( const rapidxml::xml_node<>& node, std::unique_ptr<Imp
     }
     impact_operator.reset( new LCPOperatorIpopt{ linear_solvers, con_tol } );
   }
+  #endif
   else
   {
     return false;
@@ -1437,6 +1443,7 @@ static bool loadSmoothFrictionOperatorNoMu( const rapidxml::xml_node<>& node, st
     solver_name = attrib_nd->value();
   }
 
+  #ifdef IPOPT_FOUND
   if( solver_name == "ipopt" )
   {
     // Attempt to read the desired linear solvers
@@ -1495,6 +1502,10 @@ static bool loadSmoothFrictionOperatorNoMu( const rapidxml::xml_node<>& node, st
   }
 
   return true;
+  #else
+  std::cerr << "Error, invalid smooth friction solver: " << solver_name << std::endl;
+  return false;
+  #endif
 }
 
 // Example:

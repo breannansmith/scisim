@@ -31,7 +31,6 @@ bool IpoptUtilities::containsDuplicates( const std::vector<std::string>& linear_
   return false;
 }
 
-#ifdef IPOPT_FOUND
 std::string IpoptUtilities::ipoptReturnStatusToString( const Ipopt::SolverReturn& status )
 {
   switch( status )
@@ -107,4 +106,3 @@ std::string IpoptUtilities::ipoptReturnStatusToString( const Ipopt::SolverReturn
   }
   return "ERROR: UNHANDLED CASE IN IpoptUtilities::ipoptReturnStatusToString";
 }
-#endif

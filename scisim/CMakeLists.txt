@@ -57,11 +57,9 @@ target_include_directories( scisim SYSTEM PRIVATE ${SOBOGUS_INCLUDE_DIR} )
 # Ipopt is an external library and is used internal to scisim
 if( USE_IPOPT )
   find_package( Ipopt REQUIRED )
-  target_include_directories( scisim SYSTEM PRIVATE ${IPOPT_INC_DIRS} )
-  set_source_files_properties(
-    ConstrainedMaps/IpoptUtilities.h ConstrainedMaps/IpoptUtilities.cpp ConstrainedMaps/ImpactMaps/LCPOperatorIpopt.h ConstrainedMaps/ImpactMaps/LCPOperatorIpopt.cpp ConstrainedMaps/FrictionMaps/SmoothMDPOperatorIpopt.h ConstrainedMaps/FrictionMaps/SmoothMDPOperatorIpopt.cpp PROPERTIES COMPILE_DEFINITIONS IPOPT_FOUND
-  )
+  target_include_directories( scisim SYSTEM PUBLIC ${IPOPT_INC_DIRS} )
   target_link_libraries( scisim INTERFACE ${IPOPT_LIB} )
+  set_source_files_properties( ConstrainedMaps/ConstrainedMapUtilities.cpp PROPERTIES COMPILE_DEFINITIONS IPOPT_FOUND )
 endif()
 
 # HDF5 is an external library and is used internal to scisim
