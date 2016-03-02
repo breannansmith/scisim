@@ -7,16 +7,12 @@ set( Sources
   ConstrainedMaps/ImpactMaps/ImpactMap.cpp
   ConstrainedMaps/ImpactMaps/ImpactOperator.cpp
   ConstrainedMaps/ImpactMaps/JacobiOperator.cpp
-  ConstrainedMaps/ImpactMaps/LCPOperatorQL.cpp
-  ConstrainedMaps/ImpactMaps/LCPOperatorQLVP.cpp
   ConstrainedMaps/ImpactMaps/GROperator.cpp
   ConstrainedMaps/ImpactMaps/GRROperator.cpp
   ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.cpp
   ConstrainedMaps/ImpactMaps/ImpactSolution.cpp
   ConstrainedMaps/ImpactMaps/FischerBurmeisterImpact.cpp
-  ConstrainedMaps/FrictionMaps/BoundConstrainedMDPOperatorQL.cpp
   ConstrainedMaps/FrictionMaps/FrictionOperator.cpp
-  ConstrainedMaps/FrictionMaps/LinearMDPOperatorQL.cpp
   ConstrainedMaps/FrictionMaps/FrictionOperatorUtilities.cpp
   ConstrainedMaps/FrictionMaps/FischerBurmeisterBoundConstrained.cpp
   ConstrainedMaps/FrictionMaps/FischerBurmeisterSmooth.cpp
@@ -31,7 +27,6 @@ set( Sources
   ConstrainedMaps/Sobogus.cpp
   ConstrainedMaps/FrictionSolver.cpp
   ConstrainedMaps/QPTerminationOperator.cpp
-  Math/QL/QLUtilities.cpp
   Math/MathUtilities.cpp
   Timer/TimeUtils.cpp
   ScriptingCallback.cpp
@@ -48,6 +43,9 @@ endif()
 if( USE_IPOPT )
   list( APPEND Sources ConstrainedMaps/IpoptUtilities.cpp ConstrainedMaps/ImpactMaps/LCPOperatorIpopt.cpp ConstrainedMaps/FrictionMaps/SmoothMDPOperatorIpopt.cpp )
 endif()
+if( USE_QL )
+  list( APPEND Sources ConstrainedMaps/ImpactMaps/LCPOperatorQL.cpp ConstrainedMaps/ImpactMaps/LCPOperatorQLVP.cpp ConstrainedMaps/FrictionMaps/BoundConstrainedMDPOperatorQL.cpp ConstrainedMaps/FrictionMaps/LinearMDPOperatorQL.cpp Math/QL/QLUtilities.cpp )
+endif()
 
 set( Headers
   ConstrainedMaps/bogus/FrictionProblem.hpp
@@ -60,16 +58,12 @@ set( Headers
   ConstrainedMaps/ImpactMaps/ImpactMap.h
   ConstrainedMaps/ImpactMaps/ImpactOperator.h
   ConstrainedMaps/ImpactMaps/JacobiOperator.h
-  ConstrainedMaps/ImpactMaps/LCPOperatorQL.h
-  ConstrainedMaps/ImpactMaps/LCPOperatorQLVP.h
   ConstrainedMaps/ImpactMaps/GROperator.h
   ConstrainedMaps/ImpactMaps/GRROperator.h
   ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h
   ConstrainedMaps/ImpactMaps/ImpactSolution.h
   ConstrainedMaps/ImpactMaps/FischerBurmeisterImpact.h
-  ConstrainedMaps/FrictionMaps/BoundConstrainedMDPOperatorQL.h
   ConstrainedMaps/FrictionMaps/FrictionOperator.h
-  ConstrainedMaps/FrictionMaps/LinearMDPOperatorQL.h
   ConstrainedMaps/FrictionMaps/FrictionOperatorUtilities.h
   ConstrainedMaps/FrictionMaps/FischerBurmeisterBoundConstrained.h
   ConstrainedMaps/FrictionMaps/FischerBurmeisterSmooth.h
@@ -84,7 +78,6 @@ set( Headers
   ConstrainedMaps/Sobogus.h
   ConstrainedMaps/FrictionSolver.h
   ConstrainedMaps/QPTerminationOperator.h
-  Math/QL/QLUtilities.h
   Math/MathDefines.h
   Math/MathUtilities.h
   Math/Rational.h
@@ -102,4 +95,11 @@ if( USE_PYTHON )
 endif()
 if( USE_IPOPT )
   list( APPEND Headers ConstrainedMaps/IpoptUtilities.h ConstrainedMaps/ImpactMaps/LCPOperatorIpopt.h ConstrainedMaps/FrictionMaps/SmoothMDPOperatorIpopt.h )
+endif()
+if( USE_QL )
+  list( APPEND Headers ConstrainedMaps/ImpactMaps/LCPOperatorQL.h ConstrainedMaps/ImpactMaps/LCPOperatorQLVP.h ConstrainedMaps/FrictionMaps/BoundConstrainedMDPOperatorQL.h ConstrainedMaps/FrictionMaps/LinearMDPOperatorQL.h Math/QL/QLUtilities.h )
+endif()
+
+if( USE_QL )
+  set( FORTRAN_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Math/QL/ql.for )
 endif()

@@ -26,14 +26,12 @@
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
 #include "scisim/ConstrainedMaps/GeometricImpactFrictionMap.h"
 #include "scisim/ConstrainedMaps/StabilizedImpactFrictionMap.h"
-#include "scisim/ConstrainedMaps/FrictionMaps/BoundConstrainedMDPOperatorQL.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/GaussSeidelOperator.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/JacobiOperator.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorQL.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorQLVP.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/GROperator.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/GRROperator.h"
+#include "scisim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
 #include "scisim/ConstrainedMaps/FrictionSolver.h"
 #include "scisim/ConstrainedMaps/StaggeredProjections.h"
 #include "scisim/ConstrainedMaps/Sobogus.h"
@@ -42,6 +40,12 @@
 
 #ifdef IPOPT_FOUND
 #include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorIpopt.h"
+#endif
+
+#ifdef QL_FOUND
+#include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorQL.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorQLVP.h"
+#include "scisim/ConstrainedMaps/FrictionMaps/BoundConstrainedMDPOperatorQL.h"
 #endif
 
 static bool loadTextFileIntoVector( const std::string& filename, std::vector<char>& xmlchars )
@@ -644,24 +648,8 @@ static bool loadLCPSolver( const rapidxml::xml_node<>& node, std::unique_ptr<Imp
 
   const std::string solver_name = std::string{ nd->value() };
 
-  if( solver_name == "ql" )
-  {
-    // Attempt to parse the solver tolerance
-    const rapidxml::xml_attribute<>* const tol_nd{ node.first_attribute( "tol" ) };
-    if( tol_nd == nullptr )
-    {
-      std::cerr << "Could not locate tol for ql solver" << std::endl;
-      return false;
-    }
-    scalar tol;
-    if( !StringUtilities::extractFromString( std::string{ tol_nd->value() }, tol ) )
-    {
-      std::cerr << "Could not load tol for ql solver" << std::endl;
-      return false;
-    }
-    impact_operator.reset( new LCPOperatorQL{ tol } );
-  }
-  else if( solver_name == "ql_vp" )
+  #ifdef QL_FOUND
+  if( solver_name == "ql_vp" )
   {
     // Attempt to parse the solver tolerance
     const rapidxml::xml_attribute<>* const tol_nd{ node.first_attribute( "tol" ) };
@@ -678,8 +666,27 @@ static bool loadLCPSolver( const rapidxml::xml_node<>& node, std::unique_ptr<Imp
     }
     impact_operator.reset( new LCPOperatorQLVP{ tol } );
   }
+  else if( solver_name == "ql" )
+  {
+    // Attempt to parse the solver tolerance
+    const rapidxml::xml_attribute<>* const tol_nd{ node.first_attribute( "tol" ) };
+    if( tol_nd == nullptr )
+    {
+      std::cerr << "Could not locate tol for ql solver" << std::endl;
+      return false;
+    }
+    scalar tol;
+    if( !StringUtilities::extractFromString( std::string{ tol_nd->value() }, tol ) )
+    {
+      std::cerr << "Could not load tol for ql solver" << std::endl;
+      return false;
+    }
+    impact_operator.reset( new LCPOperatorQL{ tol } );
+  }
+  else
+  #endif
   #ifdef IPOPT_FOUND
-  else if( solver_name == "ipopt" )
+  if( solver_name == "ipopt" )
   {
     // Attempt to read the desired linear solvers
     std::vector<std::string> linear_solvers;
@@ -726,13 +733,19 @@ static bool loadLCPSolver( const rapidxml::xml_node<>& node, std::unique_ptr<Imp
     }
     impact_operator.reset( new LCPOperatorIpopt{ linear_solvers, con_tol } );
   }
-  #endif
   else
+  #endif
+  #if defined(QL_FOUND) || defined(IPOPT_FOUND)
   {
+    std::cerr << "Invalid lcp solver name: " << solver_name << std::endl;
     return false;
   }
-  
+
   return true;
+  #else
+  std::cerr << "Invalid lcp solver name: " << solver_name << std::endl;
+  return false;
+  #endif
 }
 
 // TODO: Clean this function up, pull into SCISim
@@ -886,6 +899,7 @@ static bool loadImpactOperator( const rapidxml::xml_node<>& node, std::unique_pt
   return loadImpactOperatorNoCoR( node, impact_operator );
 }
 
+#ifdef QL_FOUND
 static bool loadQLMDPOperator( const rapidxml::xml_node<>& node, std::unique_ptr<FrictionOperator>& friction_operator )
 {
   // Attempt to parse the solver tolerance
@@ -906,6 +920,7 @@ static bool loadQLMDPOperator( const rapidxml::xml_node<>& node, std::unique_ptr
   friction_operator.reset( new BoundConstrainedMDPOperatorQL{ tol } );
   return true;
 }
+#endif
 
 static bool loadMDPOperator( const rapidxml::xml_node<>& node, std::unique_ptr<FrictionOperator>& friction_operator )
 {
@@ -921,10 +936,12 @@ static bool loadMDPOperator( const rapidxml::xml_node<>& node, std::unique_ptr<F
     name = typend->value();
   }
 
+  #ifdef QL_FOUND
   if( name == "ql" )
   {
     return loadQLMDPOperator( node, friction_operator );
   }
+  #endif
   return false;
 }
 

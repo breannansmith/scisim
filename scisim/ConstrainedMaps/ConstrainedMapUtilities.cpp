@@ -7,12 +7,9 @@
 
 #include "scisim/StringUtilities.h"
 #include "scisim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
-#include "scisim/ConstrainedMaps/FrictionMaps/LinearMDPOperatorQL.h"
-#include "scisim/ConstrainedMaps/FrictionMaps/BoundConstrainedMDPOperatorQL.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/GROperator.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/GRROperator.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorQL.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/GaussSeidelOperator.h"
 #include "scisim/ConstrainedMaps/GeometricImpactFrictionMap.h"
 #include "scisim/ConstrainedMaps/StabilizedImpactFrictionMap.h"
@@ -25,6 +22,12 @@
 #ifdef IPOPT_FOUND
 #include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorIpopt.h"
 #include "scisim/ConstrainedMaps/FrictionMaps/SmoothMDPOperatorIpopt.h"
+#endif
+
+#ifdef QL_FOUND
+#include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorQL.h"
+#include "scisim/ConstrainedMaps/FrictionMaps/LinearMDPOperatorQL.h"
+#include "scisim/ConstrainedMaps/FrictionMaps/BoundConstrainedMDPOperatorQL.h"
 #endif
 
 #include <iostream>
@@ -120,11 +123,7 @@ std::unique_ptr<ImpactOperator> ConstrainedMapUtilities::deserializeImpactOperat
   // Read in the name of the operator
   const std::string impact_operator_name{ StringUtilities::deserializeString( input_stream ) };
   // Read in the operator
-  if( "lcp_ql" == impact_operator_name )
-  {
-    impact_operator.reset( new LCPOperatorQL{ input_stream } );
-  }
-  else if( "gr" == impact_operator_name )
+  if( "gr" == impact_operator_name )
   {
     impact_operator.reset( new GROperator{ input_stream } );
   }
@@ -136,6 +135,12 @@ std::unique_ptr<ImpactOperator> ConstrainedMapUtilities::deserializeImpactOperat
   {
     impact_operator.reset( new GaussSeidelOperator{ input_stream } );
   }
+  #ifdef QL_FOUND
+  else if( "lcp_ql" == impact_operator_name )
+  {
+    impact_operator.reset( new LCPOperatorQL{ input_stream } );
+  }
+  #endif
   #ifdef IPOPT_FOUND
   else if( "lcp_ipopt" == impact_operator_name )
   {
@@ -162,6 +167,7 @@ std::unique_ptr<FrictionOperator> ConstrainedMapUtilities::deserializeFrictionOp
   std::unique_ptr<FrictionOperator> friction_operator{ nullptr };
 
   const std::string friction_operator_name{ StringUtilities::deserializeString( input_stream ) };
+  #ifdef QL_FOUND
   if( "linear_mdp_ql" == friction_operator_name )
   {
     friction_operator.reset( new LinearMDPOperatorQL{ input_stream } );
@@ -170,13 +176,16 @@ std::unique_ptr<FrictionOperator> ConstrainedMapUtilities::deserializeFrictionOp
   {
     friction_operator.reset( new BoundConstrainedMDPOperatorQL{ input_stream } );
   }
+  else
+  #endif
   #ifdef IPOPT_FOUND
-  else if( "smooth_mdp_ipopt" == friction_operator_name )
+  if( "smooth_mdp_ipopt" == friction_operator_name )
   {
     friction_operator.reset( new SmoothMDPOperatorIpopt{ input_stream } );
   }
+  else
   #endif
-  else if( "NULL" == friction_operator_name )
+  if( "NULL" == friction_operator_name )
   {
     friction_operator.reset( nullptr );
   }

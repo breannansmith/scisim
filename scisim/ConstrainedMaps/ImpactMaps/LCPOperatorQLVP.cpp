@@ -48,7 +48,6 @@ LCPOperatorQLVP::LCPOperatorQLVP( const scalar& tol )
 
 //static int solveQP( const scalar& tol, MatrixXXsc& C, VectorXs& c, MatrixXXsc& A, VectorXs& b, VectorXs& x, VectorXs& lambda )
 //{
-//  #ifdef QL_FOUND
 //  assert( typeid(scalar) == typeid(double) );  // QL only supports doubles
 //  assert( C.rows() == C.cols() ); assert( C.rows() == c.size() ); assert( C.rows() == x.size() );
 //  assert( C.rows() == A.cols() ); assert( A.rows() == b.size() ); assert( b.size() == lambda.size() );
@@ -119,11 +118,6 @@ LCPOperatorQLVP::LCPOperatorQLVP( const scalar& tol )
 //  lambda = u.segment( 0, lambda.size() );
 //
 //  return ifail;
-//  #else
-//  std::cerr << " Error, please rebuild with QL support before executing LCPOperatorQLVP::solveQP." << std::endl;
-//  std::cerr << "            QL can be obtained via: http://www.ai7.uni-bayreuth.de/ql.htm" << std::endl;
-//  std::exit(EXIT_FAILURE);
-//  #endif
 //}
 
 void LCPOperatorQLVP::flow( const std::vector<std::unique_ptr<Constraint>>& cons, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& q0, const VectorXs& v0, const VectorXs& v0F, const SparseMatrixsc& N, const SparseMatrixsc& Q, const VectorXs& nrel, const VectorXs& CoR, VectorXs& alpha )

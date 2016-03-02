@@ -12,9 +12,7 @@
 #include <iostream>
 
 #ifndef NDEBUG
-#ifdef QL_FOUND
 #include <typeinfo>
-#endif
 #endif
 
 LinearMDPOperatorQL::LinearMDPOperatorQL( const int disk_samples, const scalar& eps )
@@ -35,20 +33,19 @@ LinearMDPOperatorQL::LinearMDPOperatorQL( std::istream& input_stream )
 
 static int solveQP( const scalar& tol, MatrixXXsc& C, VectorXs& c, MatrixXXsc& A, VectorXs& b, VectorXs& beta, VectorXs& lambda )
 {
-  #ifdef QL_FOUND
   assert( typeid(scalar) == typeid(double) );  // QL only supports doubles
   assert( C.rows() == C.cols() ); assert( C.rows() == c.size() ); assert( C.rows() == A.cols() );
   assert( A.rows() == b.size() ); assert( C.rows() == beta.size() ); assert( lambda.size() == b.size() );
 
   // Inequality constraints
-  int m = b.size();
+  int m{ int( b.size() ) };
   // No equality constraints
   int me = 0;
   // Row size of matrix containing linear constraints
-  int mmax = A.rows();
+  int mmax{ int( A.rows() ) };
 
   // Number of degrees of freedom.
-  int n = C.rows();
+  int n{ int( C.rows() ) };
   int nmax = n;
   int mnn = m + n + n;
 
@@ -107,11 +104,6 @@ static int solveQP( const scalar& tol, MatrixXXsc& C, VectorXs& c, MatrixXXsc& A
   lambda = u.segment( 0, m );
 
   return ifail;
-  #else
-  std::cerr << " Error, please rebuild with QL support before executing FrictionOperatorQL::solveQP." << std::endl;
-  std::cerr << "            QL can be obtained via: http://www.ai7.uni-bayreuth.de/ql.htm" << std::endl;
-  std::exit( EXIT_FAILURE );
-  #endif
 }
 
 void LinearMDPOperatorQL::flow( const scalar& t, const SparseMatrixsc& Minv, const VectorXs& v0, const SparseMatrixsc& D, const SparseMatrixsc& Q, const VectorXs& gdotD, const VectorXs& mu, const VectorXs& alpha, VectorXs& beta, VectorXs& lambda )

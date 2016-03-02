@@ -28,8 +28,6 @@
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/GaussSeidelOperator.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/JacobiOperator.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorQL.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorQLVP.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/GROperator.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/GRROperator.h"
 #include "scisim/ConstrainedMaps/FrictionSolver.h"
@@ -39,6 +37,11 @@
 
 #ifdef IPOPT_FOUND
 #include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorIpopt.h"
+#endif
+
+#ifdef QL_FOUND
+#include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorQL.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorQLVP.h"
 #endif
 
 #include "CameraSettings2D.h"
@@ -563,24 +566,8 @@ static bool loadLCPSolver( const rapidxml::xml_node<>& node, std::unique_ptr<Imp
 
   const std::string solver_name = std::string{ nd->value() };
 
-  if( solver_name == "ql" )
-  {
-    // Attempt to parse the solver tolerance
-    const rapidxml::xml_attribute<>* const tol_nd{ node.first_attribute( "tol" ) };
-    if( tol_nd == nullptr )
-    {
-      std::cerr << "Could not locate tol for ql solver" << std::endl;
-      return false;
-    }
-    scalar tol;
-    if( !StringUtilities::extractFromString( std::string{ tol_nd->value() }, tol ) )
-    {
-      std::cerr << "Could not load tol for ql solver" << std::endl;
-      return false;
-    }
-    impact_operator.reset( new LCPOperatorQL{ tol } );
-  }
-  else if( solver_name == "ql_vp" )
+  #ifdef QL_FOUND
+  if( solver_name == "ql_vp" )
   {
     // Attempt to parse the solver tolerance
     const rapidxml::xml_attribute<>* const tol_nd{ node.first_attribute( "tol" ) };
@@ -597,8 +584,27 @@ static bool loadLCPSolver( const rapidxml::xml_node<>& node, std::unique_ptr<Imp
     }
     impact_operator.reset( new LCPOperatorQLVP{ tol } );
   }
+  else if( solver_name == "ql" )
+  {
+    // Attempt to parse the solver tolerance
+    const rapidxml::xml_attribute<>* const tol_nd{ node.first_attribute( "tol" ) };
+    if( tol_nd == nullptr )
+    {
+      std::cerr << "Could not locate tol for ql solver" << std::endl;
+      return false;
+    }
+    scalar tol;
+    if( !StringUtilities::extractFromString( std::string{ tol_nd->value() }, tol ) )
+    {
+      std::cerr << "Could not load tol for ql solver" << std::endl;
+      return false;
+    }
+    impact_operator.reset( new LCPOperatorQL{ tol } );
+  }
+  else
+  #endif
   #ifdef IPOPT_FOUND
-  else if( solver_name == "ipopt" )
+  if( solver_name == "ipopt" )
   {
     // Attempt to read the desired linear solvers
     std::vector<std::string> linear_solvers;
@@ -648,13 +654,19 @@ static bool loadLCPSolver( const rapidxml::xml_node<>& node, std::unique_ptr<Imp
     }
     impact_operator.reset( new LCPOperatorIpopt{ linear_solvers, con_tol } );
   }
-  #endif
   else
+  #endif
+  #if defined(QL_FOUND) || defined(IPOPT_FOUND)
   {
+    std::cerr << "Invalid lcp solver name: " << solver_name << std::endl;
     return false;
   }
-  
+
   return true;
+  #else
+  std::cerr << "Invalid lcp solver name: " << solver_name << std::endl;
+  return false;
+  #endif
 }
 
 // TODO: Clean this function up, pull into SCISim

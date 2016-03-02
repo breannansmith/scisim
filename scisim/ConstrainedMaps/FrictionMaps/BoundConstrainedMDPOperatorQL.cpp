@@ -11,10 +11,8 @@
 
 #include <iostream>
 
-#ifdef QL_FOUND
 #ifndef NDEBUG
 #include <typeinfo>
-#endif
 #endif
 
 BoundConstrainedMDPOperatorQL::BoundConstrainedMDPOperatorQL( const scalar& tol )
@@ -31,7 +29,6 @@ BoundConstrainedMDPOperatorQL::BoundConstrainedMDPOperatorQL( std::istream& inpu
 
 static int solveQP( const scalar& tol, MatrixXXsc& C, VectorXs& c, VectorXs& xl, VectorXs& xu, VectorXs& beta, VectorXs& lambda )
 {
-  #ifdef QL_FOUND
   // QL only supports doubles
   assert( typeid(scalar) == typeid(double) );
 
@@ -44,7 +41,7 @@ static int solveQP( const scalar& tol, MatrixXXsc& C, VectorXs& c, VectorXs& xl,
   assert( C.rows() == C.cols() );
   assert( ( C - C.transpose() ).lpNorm<Eigen::Infinity>() < 1.0e-14 );
   // Number of degrees of freedom.
-  int n = C.rows();
+  int n{ int( C.rows() ) };
   int nmax = n;
   int mnn = m + n + n;
 
@@ -89,11 +86,6 @@ static int solveQP( const scalar& tol, MatrixXXsc& C, VectorXs& c, VectorXs& xl,
   lambda = u.segment( 0, u.size() / 2 ).array().max( u.segment( u.size() / 2, u.size() / 2 ).array() );
 
   return ifail;
-  #else
-  std::cerr << " Error, please rebuild with QL support before executing BoundConstrainedMDPOperatorQL::solveQP." << std::endl;
-  std::cerr << "            QL can be obtained via: http://www.ai7.uni-bayreuth.de/ql.htm" << std::endl;
-  std::exit( EXIT_FAILURE );
-  #endif
 }
 
 void BoundConstrainedMDPOperatorQL::flow( const scalar& t, const SparseMatrixsc& Minv, const VectorXs& v0, const SparseMatrixsc& D, const SparseMatrixsc& Q, const VectorXs& gdotD, const VectorXs& mu, const VectorXs& alpha, VectorXs& beta, VectorXs& lambda )

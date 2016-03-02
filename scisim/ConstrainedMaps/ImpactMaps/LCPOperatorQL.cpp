@@ -12,9 +12,7 @@
 #include <iostream>
 
 #ifndef NDEBUG
-#ifdef QL_FOUND
 #include <typeinfo>
-#endif
 #endif
 
 LCPOperatorQL::LCPOperatorQL( const scalar& eps )
@@ -31,7 +29,6 @@ LCPOperatorQL::LCPOperatorQL( std::istream& input_stream )
 
 static int solveQP( const scalar& tol, MatrixXXsc& C, VectorXs& dvec, VectorXs& alpha )
 {
-  #ifdef QL_FOUND
   // QL only supports doubles
   assert( typeid(scalar).name() == typeid(double).name() );
   assert( dvec.size() == alpha.size() );
@@ -45,7 +42,7 @@ static int solveQP( const scalar& tol, MatrixXXsc& C, VectorXs& dvec, VectorXs& 
   assert( ( C - C.transpose() ).lpNorm<Eigen::Infinity>() < 1.0e-14 );
   // Number of degrees of freedom.
   assert( C.rows() == C.cols() );
-  int n = C.rows();
+  int n{ int( C.rows() ) };
   int nmax = n;
   int mnn = m + n + n;
   assert( dvec.size() == nmax );
@@ -102,11 +99,6 @@ static int solveQP( const scalar& tol, MatrixXXsc& C, VectorXs& dvec, VectorXs& 
   }
 
   return ifail;
-  #else
-  std::cerr << " Error, please rebuild with QL support before executing LCPOperatorQL::solveQP." << std::endl;
-  std::cerr << "            QL can be obtained via: http://www.ai7.uni-bayreuth.de/ql.htm" << std::endl;
-  std::exit( EXIT_FAILURE );
-  #endif
 }
 
 void LCPOperatorQL::flow( const std::vector<std::unique_ptr<Constraint>>& cons, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& q0, const VectorXs& v0, const VectorXs& v0F, const SparseMatrixsc& N, const SparseMatrixsc& Q, const VectorXs& nrel, const VectorXs& CoR, VectorXs& alpha )

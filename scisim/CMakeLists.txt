@@ -1,15 +1,5 @@
 include( CMakeSourceFiles.txt )
 
-# Enable QL support, if present
-# TODO: Replace this with find_file
-if( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/Math/QL/ql.for )
-  message( STATUS "Found QL: " ${CMAKE_CURRENT_SOURCE_DIR}/Math/QL/ql.for )
-  set( FORTRAN_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Math/QL/ql.for )
-  set_source_files_properties(
-    ConstrainedMaps/ImpactMaps/LCPOperatorQL.cpp ConstrainedMaps/ImpactMaps/LCPOperatorQLVP.cpp ConstrainedMaps/FrictionMaps/LinearMDPOperatorQL.cpp ConstrainedMaps/FrictionMaps/BoundConstrainedMDPOperatorQL.cpp PROPERTIES COMPILE_DEFINITIONS QL_FOUND
-  )
-endif()
-
 # Track the Git commit within the source
 include( GetGitRevisionDescription )
 get_git_head_revision( GIT_REFSPEC GIT_SHA1 )
@@ -54,12 +44,17 @@ endif()
 find_package( Sobogus REQUIRED )
 target_include_directories( scisim SYSTEM PRIVATE ${SOBOGUS_INCLUDE_DIR} )
 
+# QL is a single source file internal to scisim
+if( USE_QL )
+  target_compile_definitions( scisim PUBLIC QL_FOUND )
+endif()
+
 # Ipopt is an external library and is used internal to scisim
 if( USE_IPOPT )
   find_package( Ipopt REQUIRED )
   target_include_directories( scisim SYSTEM PUBLIC ${IPOPT_INC_DIRS} )
   target_link_libraries( scisim INTERFACE ${IPOPT_LIB} )
-  set_source_files_properties( ConstrainedMaps/ConstrainedMapUtilities.cpp PROPERTIES COMPILE_DEFINITIONS IPOPT_FOUND )
+  target_compile_definitions( scisim PUBLIC IPOPT_FOUND )
 endif()
 
 # HDF5 is an external library and is used internal to scisim
@@ -69,7 +64,6 @@ if( USE_HDF5 )
     message( FATAL_ERROR "HDF5 not found." )
   endif()
   target_include_directories( scisim SYSTEM PUBLIC ${HDF5_INCLUDE_DIRS} )
-  # TODO: Figure out a simple way to limit the HDF5 defines to certain files. This is needed because some preprocessor defines are in a templated function in a header.
   target_compile_definitions( scisim PUBLIC USE_HDF5 )
   target_link_libraries( scisim INTERFACE ${HDF5_LIBRARIES} )
 endif()
@@ -80,7 +74,6 @@ if( USE_PYTHON )
   target_include_directories( scisim SYSTEM PUBLIC ${PYTHON_INCLUDE_DIRS} )
   find_package( NumPy REQUIRED )
   target_include_directories( scisim SYSTEM PUBLIC ${NUMPY_INCLUDE_DIRS} )
-  # TODO: See the todo in USE_HDF5 above
   target_compile_definitions( scisim PUBLIC USE_PYTHON )
   target_link_libraries( scisim INTERFACE ${PYTHON_LIBRARIES} )
 endif()

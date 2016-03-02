@@ -123,12 +123,18 @@ endif()
 # Allow targets to generate tests
 enable_testing()
 
+# Check if the user provided the QL solver
+if( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/scisim/Math/QL/ql.for )
+  message( STATUS "Found QL: " ${CMAKE_CURRENT_SOURCE_DIR}/scisim/Math/QL/ql.for )
+  set( USE_QL TRUE )
+endif()
+
 # Emit an error if the user requested a feature that needs Fortran but did not provide a Fortran compiler
 if( NOT CMAKE_Fortran_COMPILER )
   if( USE_IPOPT )
     message( FATAL_ERROR "Error, Ipopt requires Fortran. Pleae provide a Fortran compiler." )
   endif()
-  if( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/scisim/Math/QL/ql.for )
+  if( USE_QL )
     message( FATAL_ERROR "Error, QL requires Fortran. Pleae provide a Fortran compiler." )
   endif()
 endif()
