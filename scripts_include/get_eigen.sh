@@ -7,8 +7,8 @@ extracted_eigen_name="eigen-eigen-07105f7124f9"
 # md5 on installed Eigen source files
 actual_installed_eigen_md5="730a5ac451cea99fc13b916c01eb27b2"
 
-# Verify that wget is installed
-command -v wget >/dev/null 2>&1 || { echo >&2 "Error, please install wget and rerun get_eigen.sh."; exit 1; }
+# Verify that curl is installed
+command -v curl >/dev/null 2>&1 || { echo >&2 "Error, please install curl and rerun get_eigen.sh."; exit 1; }
 
 # Verify that md5sum is installed
 command -v md5sum >/dev/null 2>&1 || { echo >&2 "Error, please install md5sum and rerun get_eigen.sh."; exit 1; }
@@ -46,7 +46,7 @@ trap cleanup EXIT
 
 # Download Eigen
 echo "--->  Downloading Eigen source"
-wget -q "$eigen_url" -P "$temp_dir_name"
+curl -s -L -o "$temp_dir_name/$eigen_file_name" "$eigen_url"
 if [ $? -ne 0 ]
 then
   echo "Error, failed to download Eigen from $eigen_url."

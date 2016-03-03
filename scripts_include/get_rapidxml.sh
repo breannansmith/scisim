@@ -7,8 +7,8 @@ extracted_rapidxml_name="rapidxml-1.13"
 # md5 on installed RapidXml source files
 actual_installed_rapidxml_md5="d698fa3e3547874766de5ba8cb2177c9"
 
-# Verify that wget is installed
-command -v wget >/dev/null 2>&1 || { echo >&2 "Error, please install wget and rerun get_rapidxml.sh."; exit 1; }
+# Verify that curl is installed
+command -v curl >/dev/null 2>&1 || { echo >&2 "Error, please install curl and rerun get_eigen.sh."; exit 1; }
 
 # Verify that md5sum is installed
 command -v md5sum >/dev/null 2>&1 || { echo >&2 "Error, please install md5sum and rerun get_rapidxml.sh."; exit 1; }
@@ -46,7 +46,7 @@ trap cleanup EXIT
 
 # Download RapidXml
 echo "--->  Downloading RapidXml source"
-wget -q "$rapidxml_url" -P "$temp_dir_name"
+curl -s -L -o "$temp_dir_name/$rapidxml_file_name" "$rapidxml_url"
 if [ $? -ne 0 ]
 then
   echo "Error, failed to download RapidXml from $rapidxml_url."
