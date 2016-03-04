@@ -31,10 +31,10 @@ int executeSpatialGridTest( const scalar (&aabb_data)[N] )
     assert( ( aabbs[aabb_num].min() < aabbs[aabb_num].max() ).all() );
   }
 
-  std::set<std::pair<unsigned, unsigned> > spatial_grid_overlaps;
+  std::set<std::pair<unsigned,unsigned>> spatial_grid_overlaps;
   SpatialGridDetector::getPotentialOverlaps( aabbs, spatial_grid_overlaps );
 
-  std::set<std::pair<unsigned, unsigned> > all_pairs_overlaps;
+  std::set<std::pair<unsigned,unsigned>> all_pairs_overlaps;
   SpatialGridDetector::getPotentialOverlapsAllPairs( aabbs, all_pairs_overlaps );
 
   const bool active_sets_agree{ spatial_grid_overlaps == all_pairs_overlaps };

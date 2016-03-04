@@ -675,7 +675,7 @@ int main( int argc, char** argv )
   //  g_sim.computeNumberOfCollisions( collision_counts, collision_depths );
   //  assert( collision_counts.size() == collision_depths.size() );
   //  if( !collision_counts.empty() ) { std::cout << "Warning, initial collisions detected (name : count : total_depth):" << std::endl; }
-  //  for( const std::pair<std::string,unsigned>& count_pair : collision_counts )
+  //  for( const auto& count_pair : collision_counts )
   //  {
   //    const std::string& constraint_name = count_pair.first;
   //    const unsigned& constraint_count = count_pair.second;

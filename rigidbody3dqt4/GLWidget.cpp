@@ -282,7 +282,7 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
     {
       std::cout << "Warning, initial collisions detected (name : count : total_depth : total_volume):" << std::endl;
     }
-    for( const std::pair<std::string,unsigned>& count_pair : collision_counts )
+    for( const auto& count_pair : collision_counts )
     {
       const std::string& constraint_name{ count_pair.first };
       const unsigned& constraint_count{ count_pair.second };

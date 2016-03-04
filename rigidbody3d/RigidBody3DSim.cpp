@@ -1030,7 +1030,7 @@ void RigidBody3DSim::computeActiveSetBodyBodySpatialGrid( const VectorXs& q0, co
   #endif
 
   // Create constraints for bodies that actually overlap
-  for( const std::pair<unsigned,unsigned>& possible_overlap_pair : possible_overlaps )
+  for( const auto& possible_overlap_pair : possible_overlaps )
   {
     const bool first_teleported{ possible_overlap_pair.first >= nbodies };
     const bool second_teleported{ possible_overlap_pair.second >= nbodies };
@@ -1105,7 +1105,7 @@ void RigidBody3DSim::computeActiveSetBodyBodySpatialGrid( const VectorXs& q0, co
 
   #ifndef NDEBUG
   // Double check that non-teleport duplicate collisions were actually duplicates
-  for( const std::pair<unsigned,unsigned>& dup_col : duplicate_indices )
+  for( const auto& dup_col : duplicate_indices )
   {
     bool entry_found{ false };
     const unsigned dup_idx_0{ std::min( dup_col.first, dup_col.second ) };
