@@ -145,7 +145,7 @@ public:
     #ifdef USE_HDF5
     using HDFSID = HDFID<H5Sclose>;
     using HDFDID = HDFID<H5Dclose>;
-    typedef typename Derived::Scalar Scalar;
+    using Scalar = typename Derived::Scalar;
     static_assert( HDF5SupportedTypes::isSupportedEigenType<Scalar>(), "Error, scalar type of Eigen variable must be float, double, unsigned or integer" );
 
     assert( eigen_variable.rows() >= 0 ); assert( eigen_variable.cols() >= 0 );
@@ -185,7 +185,7 @@ public:
   {
     #ifdef USE_HDF5
     using HDFDID = HDFID<H5Dclose>;
-    typedef typename Derived::Scalar Scalar;
+    using Scalar = typename Derived::Scalar;
     static_assert( HDF5SupportedTypes::isSupportedEigenType<Scalar>(), "Error, scalar type of Eigen variable must be float, double, unsigned or integer" );
 
     const HDFDID dataset_id{ H5Dopen2( m_hdf_file_id, ( group + "/" + variable_name ).c_str(), H5P_DEFAULT ) };

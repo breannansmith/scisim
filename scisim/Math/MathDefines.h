@@ -28,68 +28,68 @@ namespace MathDefines
 
 // TODO: Some of these are incosistent with others (e.g. MatrixXs vs Matrix3Xic), fix that
 
-typedef double scalar;
+using scalar = double;
 
 // Define integer-valued version of Eigen types
-typedef Eigen::Vector3i Vector3i;
-typedef Eigen::Matrix<unsigned,1,1> Vector1u;
-typedef Eigen::Matrix<unsigned,2,1> Vector2u;
-typedef Eigen::Matrix<unsigned,3,1> Vector3u;
-typedef Eigen::Matrix<unsigned,4,1> Vector4u;
-typedef Eigen::VectorXi VectorXi;
-typedef Eigen::Matrix<unsigned,Eigen::Dynamic,1> VectorXu;
-typedef Eigen::Matrix<int,Eigen::Dynamic,Eigen::Dynamic,Eigen::ColMajor> MatrixXXic;
-typedef Eigen::Matrix<int,Eigen::Dynamic,3,Eigen::RowMajor> MatrixX3ir;
-typedef Eigen::Matrix<int,2,Eigen::Dynamic,Eigen::ColMajor> Matrix2Xic;
-typedef Eigen::Matrix<int,3,Eigen::Dynamic,Eigen::ColMajor> Matrix3Xic;
-typedef Eigen::Matrix<unsigned,3,Eigen::Dynamic,Eigen::ColMajor> Matrix3Xuc;
+using Vector3i = Eigen::Vector3i;
+using Vector1u = Eigen::Matrix<unsigned,1,1>;
+using Vector2u = Eigen::Matrix<unsigned,2,1>;
+using Vector3u = Eigen::Matrix<unsigned,3,1>;
+using Vector4u = Eigen::Matrix<unsigned,4,1>;
+using VectorXi = Eigen::VectorXi;
+using VectorXu = Eigen::Matrix<unsigned,Eigen::Dynamic,1>;
+using MatrixXXic = Eigen::Matrix<int,Eigen::Dynamic,Eigen::Dynamic,Eigen::ColMajor>;
+using MatrixX3ir = Eigen::Matrix<int,Eigen::Dynamic,3,Eigen::RowMajor>;
+using Matrix2Xic = Eigen::Matrix<int,2,Eigen::Dynamic,Eigen::ColMajor>;
+using Matrix3Xic = Eigen::Matrix<int,3,Eigen::Dynamic,Eigen::ColMajor>;
+using Matrix3Xuc = Eigen::Matrix<unsigned,3,Eigen::Dynamic,Eigen::ColMajor>;
 
-typedef Eigen::Array<unsigned, 2, 1> Array2u;
-typedef Eigen::Array<unsigned, 3, 1> Array3u;
-typedef Eigen::Array<int, 3, 1> Array3i;
+using Array2u = Eigen::Array<unsigned,2,1>;
+using Array3u = Eigen::Array<unsigned,3,1>;
+using Array3i = Eigen::Array<int,3,1>;
 
-typedef Eigen::Matrix<scalar,2,2> Matrix2s;
-typedef Eigen::Matrix<scalar,3,3> Matrix3s;
-typedef Eigen::Matrix<scalar,4,4> Matrix4s;
-typedef Eigen::Matrix<scalar,Eigen::Dynamic,Eigen::Dynamic> MatrixXs;
-typedef Eigen::Matrix<float,Eigen::Dynamic,Eigen::Dynamic,Eigen::ColMajor> MatrixXXfc;
+using Matrix2s = Eigen::Matrix<scalar,2,2>;
+using Matrix3s = Eigen::Matrix<scalar,3,3>;
+using Matrix4s = Eigen::Matrix<scalar,4,4>;
+using MatrixXs = Eigen::Matrix<scalar,Eigen::Dynamic,Eigen::Dynamic>;
+using MatrixXXfc = Eigen::Matrix<float,Eigen::Dynamic,Eigen::Dynamic,Eigen::ColMajor>;
 
 // Define scalar-valued versions of the Eigen vector types
-typedef Eigen::Matrix<scalar, 2, 1> Vector2s;
-typedef Eigen::Matrix<scalar, 3, 1> Vector3s;
-typedef Eigen::Matrix<scalar, 4, 1> Vector4s;
-typedef Eigen::Matrix<scalar, 6, 1> Vector6s;
-typedef Eigen::Matrix<scalar, Eigen::Dynamic, 1> VectorXs;
+using Vector2s = Eigen::Matrix<scalar,2,1>;
+using Vector3s = Eigen::Matrix<scalar,3,1>;
+using Vector4s = Eigen::Matrix<scalar,4,1>;
+using Vector6s = Eigen::Matrix<scalar,6,1>;
+using VectorXs = Eigen::Matrix<scalar,Eigen::Dynamic,1>;
 
-typedef Eigen::Array<scalar, 2, 1> Array2s;
-typedef Eigen::Array<scalar, 3, 1> Array3s;
-typedef Eigen::Array<scalar, 4, 1> Array4s;
-typedef Eigen::Array<scalar, Eigen::Dynamic, 1> ArrayXs;
+using Array2s = Eigen::Array<scalar,2,1>;
+using Array3s = Eigen::Array<scalar,3,1>;
+using Array4s = Eigen::Array<scalar,4,1>;
+using ArrayXs = Eigen::Array<scalar,Eigen::Dynamic,1>;
 
 
-typedef Eigen::Quaternion<scalar> Quaternions;
+using Quaternions = Eigen::Quaternion<scalar>;
 
 // TODO: Clean this up :)
 // Define scalar-valued versions of the Eigen matrix types. r postfix denotes row-major, c postfix denotes column-major.
-typedef Eigen::Matrix<scalar,2,2,Eigen::RowMajor> Matrix22sr;
-typedef Eigen::Matrix<scalar,2,2,Eigen::ColMajor> Matrix22sc;
-typedef Eigen::Matrix<scalar,3,3,Eigen::RowMajor> Matrix33sr;
-typedef Eigen::Matrix<scalar,3,3,Eigen::ColMajor> Matrix33sc;
-typedef Eigen::Matrix<scalar,6,6,Eigen::ColMajor> Matrix66sc;
-typedef Eigen::Matrix<scalar,2,Eigen::Dynamic,Eigen::ColMajor> Matrix2Xsc;
-typedef Eigen::Matrix<scalar,3,Eigen::Dynamic,Eigen::ColMajor> Matrix3Xsc;
-typedef Eigen::Matrix<scalar,Eigen::Dynamic,2,Eigen::RowMajor> MatrixX2sr;
-typedef Eigen::Matrix<scalar,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> MatrixXXsr;
-typedef Eigen::Matrix<scalar,Eigen::Dynamic,Eigen::Dynamic,Eigen::ColMajor> MatrixXXsc;
+using Matrix22sr = Eigen::Matrix<scalar,2,2,Eigen::RowMajor>;
+using Matrix22sc = Eigen::Matrix<scalar,2,2,Eigen::ColMajor>;
+using Matrix33sr = Eigen::Matrix<scalar,3,3,Eigen::RowMajor>;
+using Matrix33sc = Eigen::Matrix<scalar,3,3,Eigen::ColMajor>;
+using Matrix66sc = Eigen::Matrix<scalar,6,6,Eigen::ColMajor>;
+using Matrix2Xsc = Eigen::Matrix<scalar,2,Eigen::Dynamic,Eigen::ColMajor>;
+using Matrix3Xsc = Eigen::Matrix<scalar,3,Eigen::Dynamic,Eigen::ColMajor>;
+using MatrixX2sr = Eigen::Matrix<scalar,Eigen::Dynamic,2,Eigen::RowMajor>;
+using MatrixXXsr = Eigen::Matrix<scalar,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor>;
+using MatrixXXsc = Eigen::Matrix<scalar,Eigen::Dynamic,Eigen::Dynamic,Eigen::ColMajor>;
 
 // Define scalar-valued versions of the Eigen sparse matrix types
-typedef Eigen::SparseMatrix<scalar,Eigen::ColMajor> SparseMatrixsc;
-typedef Eigen::SparseMatrix<scalar,Eigen::RowMajor> SparseMatrixsr;
+using SparseMatrixsc = Eigen::SparseMatrix<scalar,Eigen::ColMajor>;
+using SparseMatrixsr = Eigen::SparseMatrix<scalar,Eigen::RowMajor>;
 
 // Define some transformation geometry
-typedef Eigen::AngleAxis<scalar> AnglesAxis3s;
+using AnglesAxis3s = Eigen::AngleAxis<scalar>;
 
 // Permutation matrix
-typedef Eigen::PermutationMatrix<Eigen::Dynamic,Eigen::Dynamic,int> PermutationMatrix;
+using PermutationMatrix = Eigen::PermutationMatrix<Eigen::Dynamic,Eigen::Dynamic,int>;
 
 #endif
