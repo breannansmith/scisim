@@ -13,6 +13,9 @@ command -v curl >/dev/null 2>&1 || { echo >&2 "Error, please install curl and re
 # Verify that md5sum is installed
 command -v md5sum >/dev/null 2>&1 || { echo >&2 "Error, please install md5sum and rerun get_rapidxml.sh."; exit 1; }
 
+# Verify that unzip is installed
+command -v unzip >/dev/null 2>&1 || { echo >&2 "Error, please install unzip and rerun get_rapidxml.sh."; exit 1; }
+
 # If the output directory exists
 if [ -d "include/rapidxml" ]; then
   # If the RapidXml install is up to date, no action is needed
