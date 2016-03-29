@@ -51,8 +51,8 @@ protected:
   FlowableSystem() = default;
   FlowableSystem( const FlowableSystem& ) = default;
   FlowableSystem& operator=( const FlowableSystem& other ) = default;
-  FlowableSystem( FlowableSystem&& ) = default;
-  FlowableSystem& operator=( FlowableSystem&& other ) = default;
+  FlowableSystem( FlowableSystem&& ) noexcept = default;
+  FlowableSystem& operator=( FlowableSystem&& other ) noexcept = default;
   virtual ~FlowableSystem() = 0;
 
 };

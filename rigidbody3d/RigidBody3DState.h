@@ -11,12 +11,12 @@
 #include <memory>
 
 #include "scisim/Math/MathDefines.h"
+#include "Portals/PlanarPortal.h"
+#include "StaticGeometry/StaticCylinder.h"
+#include "Forces/Force.h"
+#include "Geometry/RigidBodyGeometry.h"
 
-class Force;
-class RigidBodyGeometry;
-class StaticCylinder;
 class StaticPlane;
-class PlanarPortal;
 
 class RigidBody3DState final
 {
@@ -24,9 +24,14 @@ class RigidBody3DState final
 public:
 
   RigidBody3DState();
-  ~RigidBody3DState();
+
+  ~RigidBody3DState() = default;
+
   RigidBody3DState( const RigidBody3DState& other );
+  RigidBody3DState( RigidBody3DState&& ) = default;
+
   RigidBody3DState& operator=( const RigidBody3DState& other );
+  RigidBody3DState& operator=( RigidBody3DState&& ) = default;
 
   void setState( const std::vector<Vector3s>& X, const std::vector<Vector3s>& V, const std::vector<scalar>& M, const std::vector<VectorXs>& R, const std::vector<Vector3s>& omega, const std::vector<Vector3s>& I0, const std::vector<bool>& fixed, const std::vector<unsigned>& geom_indices, const std::vector<std::unique_ptr<RigidBodyGeometry>>& geometry );
 
@@ -97,6 +102,7 @@ public:
 
 private:
 
+  // TODO: Get num bodies from the containers, don't track separately
   unsigned m_nbodies;
   VectorXs m_q;
   VectorXs m_v;

@@ -38,10 +38,13 @@ class RigidBody3DSim final : private FlowableSystem, private ConstrainedSystem
 
 public:
 
-  RigidBody3DSim();
+  RigidBody3DSim() = default;
+  RigidBody3DSim( const RigidBody3DSim& other ) = default;
+  RigidBody3DSim( RigidBody3DSim&& other ) = default;
+  RigidBody3DSim& operator=( const RigidBody3DSim& other ) = default;
+  RigidBody3DSim& operator=( RigidBody3DSim&& other ) = default;
   virtual ~RigidBody3DSim() override = default;
 
-  void setState( const RigidBody3DState& state );
   const RigidBody3DState& getState() const;
   RigidBody3DState& getState();
 

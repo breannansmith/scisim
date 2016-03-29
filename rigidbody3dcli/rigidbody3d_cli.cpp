@@ -139,7 +139,7 @@ static bool loadXMLScene( const std::string& xml_file_name )
     g_dt_string_precision = computeTimestepDisplayPrecision( g_dt, new_dt_string );
   }
 
-  g_sim.setState( new_sim_state );
+  g_sim.getState() = std::move( new_sim_state );
   g_sim.clearConstraintCache(); // <- TODO: probs not needed, but won't hurt... just assert that it is empty, instead
 
   PythonScripting new_scripting{ xmlFilePath( xml_file_name ), new_scripting_callback_name };

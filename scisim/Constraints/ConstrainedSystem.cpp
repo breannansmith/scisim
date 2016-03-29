@@ -5,5 +5,4 @@
 
 #include "ConstrainedSystem.h"
 
-ConstrainedSystem::~ConstrainedSystem()
-{}
+ConstrainedSystem::~ConstrainedSystem() = default;

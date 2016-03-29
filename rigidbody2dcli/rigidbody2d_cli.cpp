@@ -115,16 +115,16 @@ static bool loadXMLScene( const std::string& xml_file_name )
   std::string scripting_callback_name;
   std::string dt_string;
   CameraSettings2D unused_camera_settings;
-  RigidBody2DState state;
+  RigidBody2DState new_state;
 
-  const bool loaded_successfully{ RigidBody2DSceneParser::parseXMLSceneFile( xml_file_name, scripting_callback_name, state, g_unconstrained_map, dt_string, g_dt, g_end_time, g_impact_operator, g_impact_map, g_CoR, g_friction_solver, g_mu, g_impact_friction_map, unused_camera_settings ) };
+  const bool loaded_successfully{ RigidBody2DSceneParser::parseXMLSceneFile( xml_file_name, scripting_callback_name, new_state, g_unconstrained_map, dt_string, g_dt, g_end_time, g_impact_operator, g_impact_map, g_CoR, g_friction_solver, g_mu, g_impact_friction_map, unused_camera_settings ) };
 
   if( !loaded_successfully )
   {
     return false;
   }
 
-  g_sim = RigidBody2DSim{ state };
+  g_sim.state() = std::move( new_state );
   g_dt_string_precision = computeTimestepDisplayPrecision( g_dt, dt_string );
 
   // Configure the scripting

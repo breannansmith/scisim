@@ -30,9 +30,9 @@ protected:
 
   ConstrainedSystem() = default;
   ConstrainedSystem( const ConstrainedSystem& ) = default;
-  ConstrainedSystem( ConstrainedSystem&& ) = default;
+  ConstrainedSystem( ConstrainedSystem&& ) noexcept = default;
   ConstrainedSystem& operator=( const ConstrainedSystem& other ) = default;
-  ConstrainedSystem& operator=( ConstrainedSystem&& other ) = default;
+  ConstrainedSystem& operator=( ConstrainedSystem&& other ) noexcept = default;
   virtual ~ConstrainedSystem() = 0;
 
 };

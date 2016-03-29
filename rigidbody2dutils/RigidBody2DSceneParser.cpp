@@ -1646,9 +1646,7 @@ bool RigidBody2DSceneParser::parseXMLSceneFile( const std::string& file_name, st
     return false;
   }
 
-  RigidBody2DState new_state{ q, v, m, fixed, indices, geometry, forces, planes, planar_portals };
-
-  swap( sim_state, new_state );
+  sim_state = RigidBody2DState{ q, v, m, fixed, indices, geometry, forces, planes, planar_portals };
 
   return true;
 }

@@ -30,10 +30,9 @@ public:
   RigidBody2DSim() = default;
   RigidBody2DSim( const RigidBody2DSim& other ) = default;
   RigidBody2DSim( RigidBody2DSim&& other ) = default;
-  explicit RigidBody2DSim( const RigidBody2DState& state );
-  virtual ~RigidBody2DSim() override = default;
   RigidBody2DSim& operator=( const RigidBody2DSim& other ) = default;
   RigidBody2DSim& operator=( RigidBody2DSim&& other ) = default;
+  virtual ~RigidBody2DSim() override = default;
 
   RigidBody2DState& state();
   const RigidBody2DState& state() const;

@@ -19,13 +19,13 @@ class Ball2DState final
 
 public:
 
-  friend void swap( Ball2DState& first, Ball2DState& second );
-
   Ball2DState() = default;
+
   Ball2DState( const Ball2DState& other );
-  Ball2DState& operator=( Ball2DState other );
   Ball2DState( Ball2DState&& ) = default;
-  ~Ball2DState() = default;
+
+  Ball2DState& operator=( const Ball2DState& other );
+  Ball2DState& operator=( Ball2DState&& ) = default;
 
   void setMass( const VectorXs& m );
 

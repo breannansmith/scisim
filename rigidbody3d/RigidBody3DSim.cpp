@@ -38,16 +38,6 @@
 #include "StateOutput.h"
 #include "PythonScripting.h"
 
-RigidBody3DSim::RigidBody3DSim()
-: m_sim_state()
-, m_impact_map( false )
-{}
-
-void RigidBody3DSim::setState( const RigidBody3DState& state )
-{
-  m_sim_state = state;
-}
-
 const RigidBody3DState& RigidBody3DSim::getState() const
 {
   return m_sim_state;

@@ -150,14 +150,14 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
 
   std::string dt_string{ "" };
   std::string scripting_callback_name{ "" };
-  RigidBody3DState sim_state;
+  RigidBody3DState new_state;
   Rational<std::intmax_t> dt;
   scalar end_time;
   scalar CoR;
   scalar mu;
   RenderingState new_render_state;
 
-  const bool loaded_successfully{ RigidBody3DSceneParser::parseXMLSceneFile( xml_scene_file_name.toStdString(), scripting_callback_name, sim_state, new_unconstrained_map, dt_string, dt, end_time, new_impact_operator, CoR, new_friction_solver, mu, new_impact_friction_map, new_render_state ) };
+  const bool loaded_successfully{ RigidBody3DSceneParser::parseXMLSceneFile( xml_scene_file_name.toStdString(), scripting_callback_name, new_state, new_unconstrained_map, dt_string, dt, end_time, new_impact_operator, CoR, new_friction_solver, mu, new_impact_friction_map, new_render_state ) };
 
   if( !loaded_successfully )
   {
@@ -190,7 +190,7 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   m_friction_solver.swap( new_friction_solver );
   m_impact_friction_map.swap( new_impact_friction_map );
 
-  m_sim.setState( sim_state );
+  m_sim.getState() = std::move( new_state );
   m_sim.clearConstraintCache();
 
   m_H0 = m_sim.computeTotalEnergy();
@@ -200,7 +200,7 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   m_delta_p0 = Vector3s::Zero();
   m_delta_L0 = Vector3s::Zero();
 
-  m_body_colors.resize( 3 * sim_state.nbodies() );
+  m_body_colors.resize( 3 * m_sim.getState().nbodies() );
   {
     std::vector<QColor> colors;
     {
@@ -267,7 +267,7 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
 
   // Backup the simulation state
   assert( m_sim.getState().q().size() == 12 * m_sim.getState().nbodies() );
-  m_sim_state_backup = m_sim.getState();
+  m_sim0 = m_sim;
 
   initializeRenderingSettings( new_render_state );
 
@@ -480,8 +480,7 @@ void GLWidget::stepSystem()
 
 void GLWidget::resetSystem()
 {
-  m_sim.setState( m_sim_state_backup );
-  m_sim.clearConstraintCache();
+  m_sim = m_sim0;
   if( m_impact_friction_map != nullptr )
   {
     m_impact_friction_map->resetCachedData();

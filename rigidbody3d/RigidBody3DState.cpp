@@ -9,18 +9,13 @@
 #include "scisim/StringUtilities.h"
 #include "scisim/Utilities.h"
 
-#include "Geometry/RigidBodyGeometry.h"
 #include "Geometry/RigidBodyBox.h"
 #include "Geometry/RigidBodySphere.h"
 #include "Geometry/RigidBodyTriangleMesh.h"
 
-#include "Forces/Force.h"
 #include "Forces/NearEarthGravityForce.h"
 
-#include "StaticGeometry/StaticCylinder.h"
 #include "StaticGeometry/StaticPlane.h"
-
-#include "Portals/PlanarPortal.h"
 
 #include <iostream>
 
@@ -41,39 +36,28 @@ RigidBody3DState::RigidBody3DState()
 , m_planar_portals()
 {}
 
-RigidBody3DState::~RigidBody3DState()
-{}
-
 RigidBody3DState::RigidBody3DState( const RigidBody3DState& other )
-{
-  *this = other;
-}
+: m_nbodies( other.m_nbodies )
+, m_q( other.m_q )
+, m_v( other.m_v )
+, m_M0( other.m_M0 )
+, m_Minv0( other.m_Minv0 )
+, m_M( other.m_M )
+, m_Minv( other.m_Minv )
+, m_fixed( other.m_fixed )
+, m_geometry( Utilities::cloneVector( other.m_geometry ) )
+, m_geometry_indices( other.m_geometry_indices )
+, m_forces( Utilities::cloneVector( other.m_forces ) )
+, m_static_planes( other.m_static_planes )
+, m_static_cylinders( other.m_static_cylinders )
+, m_planar_portals( other.m_planar_portals )
+{}
 
 RigidBody3DState& RigidBody3DState::operator=( const RigidBody3DState& other )
 {
-  if( this == &other )
-  {
-    return *this;
-  }
-
-  m_nbodies = other.m_nbodies;
-  m_q = other.m_q;
-  m_v = other.m_v;
-  m_M0 = other.m_M0;
-  m_Minv0 = other.m_Minv0;
-  m_M = other.m_M;
-  m_Minv = other.m_Minv;
-  m_fixed = other.m_fixed;
-
-  Utilities::cloneVector( other.m_geometry, m_geometry );
-  m_geometry_indices = other.m_geometry_indices;
-
-  Utilities::cloneVector( other.m_forces, m_forces );
-
-  m_static_planes = other.m_static_planes;
-  m_static_cylinders = other.m_static_cylinders;
-  m_planar_portals = other.m_planar_portals;
-
+  RigidBody3DState copy{ other };
+  using std::swap;
+  swap( *this, copy );
   return *this;
 }
 

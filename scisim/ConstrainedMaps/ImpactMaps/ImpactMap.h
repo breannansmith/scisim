@@ -20,7 +20,7 @@ class ImpactMap final
 
 public:
 
-  explicit ImpactMap( const bool warm_start );
+  explicit ImpactMap( const bool warm_start = false );
   explicit ImpactMap( std::istream& input_stream );
 
   void flow( ScriptingCallback& call_back, FlowableSystem& fsys, ConstrainedSystem& csys, UnconstrainedMap& umap, ImpactOperator& imap, const unsigned iteration, const scalar& dt, const scalar& CoR_default, const VectorXs& q0, const VectorXs& v0, VectorXs& q1, VectorXs& v1 );
@@ -31,7 +31,7 @@ public:
 
 private:
 
-  const bool m_warm_start;
+  bool m_warm_start;
 
   // Temporary state for writing constraint forces
   bool m_write_constraint_forces;

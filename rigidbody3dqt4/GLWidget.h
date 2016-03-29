@@ -146,7 +146,7 @@ private:
 
   // Simulation
   RigidBody3DSim m_sim;
-  RigidBody3DState m_sim_state_backup;
+  RigidBody3DSim m_sim0;
 
   // Initial energy, momentum, and angular momentum of the simulation
   scalar m_H0;

@@ -283,7 +283,7 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
     swap( m_scripting, new_scripting );
   }
 
-  m_sim = RigidBody2DSim{ new_state };
+  m_sim.state() = std::move( new_state );
 
   // Backup the simulation
   m_sim0 = m_sim;

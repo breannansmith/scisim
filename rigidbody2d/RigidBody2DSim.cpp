@@ -29,10 +29,6 @@
 
 #include <iostream>
 
-RigidBody2DSim::RigidBody2DSim( const RigidBody2DState& state )
-: m_state( state )
-{}
-
 RigidBody2DState& RigidBody2DSim::state()
 {
   return m_state;

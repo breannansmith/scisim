@@ -19,12 +19,12 @@ public:
 
   RigidBody2DState() = default;
   RigidBody2DState( const VectorXs& q, const VectorXs& v, const VectorXs& m, const std::vector<bool>& fixed, const VectorXu& geometry_indices, const std::vector<std::unique_ptr<RigidBody2DGeometry>>& geometry, const std::vector<std::unique_ptr<RigidBody2DForce>>& forces, const std::vector<RigidBody2DStaticPlane>& planes, const std::vector<PlanarPortal>& planar_portals );
+
   RigidBody2DState( const RigidBody2DState& rhs );
-  RigidBody2DState( RigidBody2DState&& rhs ) = default;
+  RigidBody2DState( RigidBody2DState&& ) = default;
 
-  RigidBody2DState& operator=( RigidBody2DState rhs );
-
-  friend void swap( RigidBody2DState& lhs, RigidBody2DState& rhs );
+  RigidBody2DState& operator=( const RigidBody2DState& rhs );
+  RigidBody2DState& operator=( RigidBody2DState&& ) = default;
 
   VectorXs& q();
   const VectorXs& q() const;

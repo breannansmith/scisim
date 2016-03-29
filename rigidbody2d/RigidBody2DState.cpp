@@ -115,26 +115,12 @@ RigidBody2DState::RigidBody2DState( const RigidBody2DState& rhs )
   #endif
 }
 
-RigidBody2DState& RigidBody2DState::operator=( RigidBody2DState rhs )
+RigidBody2DState& RigidBody2DState::operator=( const RigidBody2DState& rhs )
 {
+  RigidBody2DState copy{ rhs };
   using std::swap;
-  swap( *this, rhs );
+  swap( *this, copy );
   return *this;
-}
-
-void swap( RigidBody2DState& lhs, RigidBody2DState& rhs )
-{
-  using std::swap;
-  swap( lhs.m_q, rhs.m_q );
-  swap( lhs.m_v, rhs.m_v );
-  swap( lhs.m_M, rhs.m_M );
-  swap( lhs.m_Minv, rhs.m_Minv );
-  swap( lhs.m_fixed, rhs.m_fixed );
-  swap( lhs.m_geometry_indices, rhs.m_geometry_indices );
-  swap( lhs.m_geometry, rhs.m_geometry );
-  swap( lhs.m_forces, rhs.m_forces );
-  swap( lhs.m_planes, rhs.m_planes );
-  swap( lhs.m_planar_portals, rhs.m_planar_portals );
 }
 
 VectorXs& RigidBody2DState::q()

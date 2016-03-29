@@ -16,21 +16,6 @@
 
 #include <iostream>
 
-void swap( Ball2DState& first, Ball2DState& second )
-{
-  using std::swap;
-  swap( first.m_q, second.m_q );
-  swap( first.m_v, second.m_v );
-  swap( first.m_r, second.m_r );
-  swap( first.m_fixed, second.m_fixed );
-  swap( first.m_M, second.m_M );
-  swap( first.m_Minv, second.m_Minv );
-  swap( first.m_static_drums, second.m_static_drums );
-  swap( first.m_static_planes, second.m_static_planes );
-  swap( first.m_planar_portals, second.m_planar_portals );
-  swap( first.m_forces, second.m_forces );
-}
-
 Ball2DState::Ball2DState( const Ball2DState& other )
 : m_q( other.m_q )
 , m_v( other.m_v )
@@ -44,10 +29,11 @@ Ball2DState::Ball2DState( const Ball2DState& other )
 , m_forces( Utilities::cloneVector( other.m_forces ) )
 {}
 
-Ball2DState& Ball2DState::operator=( Ball2DState other )
+Ball2DState& Ball2DState::operator=( const Ball2DState& other )
 {
+  Ball2DState copy{ other };
   using std::swap;
-  swap( *this, other );
+  swap( *this, copy );
   return *this;
 }
 

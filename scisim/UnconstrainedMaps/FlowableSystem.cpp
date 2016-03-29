@@ -5,8 +5,7 @@
 
 #include "FlowableSystem.h"
 
-FlowableSystem::~FlowableSystem()
-{}
+FlowableSystem::~FlowableSystem() = default;
 
 unsigned FlowableSystem::numBodies() const
 {
