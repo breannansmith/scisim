@@ -886,14 +886,14 @@ void Sobogus::solve( const unsigned iteration, const scalar& dt, const FlowableS
     {
       // Re-map the first body
       {
-        const std::map<unsigned,unsigned>::const_iterator new_idx = gtl.find( con->simulatedBody0() );
+        const std::map<unsigned,unsigned>::const_iterator new_idx{ gtl.find( con->simulatedBody0() ) };
         assert( new_idx != gtl.end() ); assert( new_idx->first == unsigned( con->simulatedBody0() ) );
         con->setSimulatedBody0( new_idx->second );
       }
       // Re-map the second body
       if( con->simulatedBody1() >= 0 )
       {
-        const std::map<unsigned,unsigned>::const_iterator new_idx = gtl.find( con->simulatedBody1() );
+        const std::map<unsigned,unsigned>::const_iterator new_idx{ gtl.find( con->simulatedBody1() ) };
         assert( new_idx != gtl.end() ); assert( new_idx->first == unsigned( con->simulatedBody1() ) );
         con->setSimulatedBody1( new_idx->second );
       }

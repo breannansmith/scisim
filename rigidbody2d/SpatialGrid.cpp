@@ -66,16 +66,16 @@ static void rasterizeAABBs( const std::vector<AABB>& aabbs, const Array2s& min_c
         // Compute the hash key for the given indexed voxel
         const unsigned key{ keyForIndex( Array2u{ x_idx, y_idx }, dimensions ) };
 
-        std::map< unsigned, std::vector<unsigned> >::iterator voxel_iterator{ voxels.find( key ) };
+        auto voxel_iterator = voxels.find( key );
         // Create a new voxel, if needed
         if( voxel_iterator == voxels.end() )
         {
-          const std::pair< std::map< unsigned, std::vector<unsigned> >::iterator, bool > insertion_result{ voxels.insert( std::make_pair( key, std::vector<unsigned>{} ) ) };
+          const auto insertion_result = voxels.insert( std::make_pair( key, std::vector<unsigned>{} ) );
           assert( insertion_result.second );
           voxel_iterator = insertion_result.first;
         }
         // Add the index of the AABB to the voxel
-        voxel_iterator->second.push_back( unsigned( aabb_idx ) );
+        voxel_iterator->second.emplace_back( unsigned( aabb_idx ) );
       }
     }
   }
@@ -122,7 +122,8 @@ void SpatialGrid::getPotentialOverlaps( const std::vector<AABB>& aabbs, std::set
   rasterizeAABBs( aabbs, min_coord, h, dimensions, voxels );
 
   // For each voxel
-  for( std::map<unsigned,std::vector<unsigned>>::const_iterator itr = voxels.begin(); itr != voxels.end(); ++itr )
+  using itr_type = std::map<unsigned,std::vector<unsigned>>::const_iterator;
+  for( itr_type itr = voxels.begin(); itr != voxels.end(); ++itr )
   {
     // Visit each pair of AABBs in this voxel
     for( std::vector<unsigned>::size_type idx0 = 0; idx0 + 1 < (*itr).second.size(); ++idx0 )

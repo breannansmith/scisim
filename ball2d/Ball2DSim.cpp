@@ -209,10 +209,10 @@ void Ball2DSim::computeNumberOfCollisions( std::map<std::string,unsigned>& colli
 
     // Update the collision count for this constraint
     {
-      std::map<std::string,unsigned>::iterator count_iterator{ collision_counts.find( constraint_name ) };
+      auto count_iterator = collision_counts.find( constraint_name );
       if( count_iterator == collision_counts.end() )
       {
-        const std::pair<std::map<std::string,unsigned>::iterator,bool> count_return{ collision_counts.insert( std::make_pair( constraint_name, 0 ) ) };
+        const auto count_return = collision_counts.insert( std::make_pair( constraint_name, 0 ) );
         assert( count_return.second ); assert( count_return.first != collision_counts.end() );
         count_iterator = count_return.first;
       }
@@ -221,10 +221,10 @@ void Ball2DSim::computeNumberOfCollisions( std::map<std::string,unsigned>& colli
 
     // Update the penetration depth for this constraint
     {
-      std::map<std::string,scalar>::iterator depth_iterator{ collision_depths.find( constraint_name ) };
+      auto depth_iterator = collision_depths.find( constraint_name );
       if( depth_iterator == collision_depths.end() )
       {
-        const std::pair<std::map<std::string,scalar>::iterator,bool> depths_return{ collision_depths.insert( std::make_pair( constraint_name, 0 ) ) };
+        const auto depths_return = collision_depths.insert( std::make_pair( constraint_name, 0 ) );
         assert( depths_return.second ); assert( depths_return.first != collision_depths.end() );
         depth_iterator = depths_return.first;
       }
@@ -366,7 +366,8 @@ void Ball2DSim::computeBallBallActiveSetSpatialGrid( const VectorXs& q0, const V
     assert( aabbs.size() == nbodies );
 
     // Compute an AABB for each teleported particle
-    std::map<unsigned,TeleportedBall>::iterator aabb_bdy_map_itr = teleported_aabb_body_indices.begin();
+    using itr_type = std::map<unsigned,TeleportedBall>::const_iterator;
+    itr_type aabb_bdy_map_itr{ teleported_aabb_body_indices.begin() };
     // For each portal
     for( const PlanarPortal& planar_portal : m_state.planarPortals() )
     {

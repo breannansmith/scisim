@@ -812,7 +812,8 @@ void RigidBody2DSim::computeBodyBodyActiveSetSpatialGrid( const VectorXs& q0, co
     assert( aabbs.size() == nbodies );
 
     // Compute an AABB for each teleported body
-    std::map<unsigned,TeleportedBody>::iterator aabb_bdy_map_itr{ teleported_aabb_body_indices.begin() };
+    using itr_type = std::map<unsigned,TeleportedBody>::const_iterator;
+    itr_type aabb_bdy_map_itr{ teleported_aabb_body_indices.begin() };
     // For each portal
     for( const PlanarPortal& planar_portal : m_state.planarPortals() )
     {

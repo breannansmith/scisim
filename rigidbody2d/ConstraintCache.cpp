@@ -69,7 +69,8 @@ void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorX
   if( constraint_type == "circle_circle" )
   {
     assert( constraint.simulatedBody0() < constraint.simulatedBody1() );
-    const auto map_iterator = m_circle_circle_constraints.find( std::make_pair( constraint.simulatedBody0(), constraint.simulatedBody1() ) );
+    using itr_type = std::map<std::pair<unsigned,unsigned>,VectorXs>::const_iterator;
+    const itr_type map_iterator{ m_circle_circle_constraints.find( std::make_pair( constraint.simulatedBody0(), constraint.simulatedBody1() ) ) };
     if( map_iterator != m_circle_circle_constraints.end() )
     {
       assert( r.size() == map_iterator->second.size() );
@@ -82,7 +83,8 @@ void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorX
     const unsigned idx0{ static_cast<unsigned>( std::min( constraint.body0(), constraint.body1() ) ) };
     const unsigned idx1{ static_cast<unsigned>( std::max( constraint.body0(), constraint.body1() ) ) };
     assert( idx0 < idx1 );
-    const auto map_iterator = m_circle_circle_constraints.find( std::make_pair( idx0, idx1 ) );
+    using itr_type = std::map<std::pair<unsigned,unsigned>,VectorXs>::const_iterator;
+    const itr_type map_iterator{ m_circle_circle_constraints.find( std::make_pair( idx0, idx1 ) ) };
     if( map_iterator != m_circle_circle_constraints.end() )
     {
       assert( r.size() == map_iterator->second.size() );
@@ -93,7 +95,8 @@ void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorX
   else if( constraint_type == "static_plane_circle" )
   {
     assert( constraint.simulatedBody1() == -1 );
-    const auto map_iterator = m_plane_circle_constraints.find( std::make_pair( constraint.getStaticObjectIndex(), constraint.simulatedBody0() ) );
+    using itr_type = std::map<std::pair<unsigned,unsigned>,VectorXs>::const_iterator;
+    const itr_type map_iterator{ m_plane_circle_constraints.find( std::make_pair( constraint.getStaticObjectIndex(), constraint.simulatedBody0() ) ) };
     if( map_iterator != m_plane_circle_constraints.end() )
     {
       assert( r.size() == map_iterator->second.size() );
@@ -135,8 +138,10 @@ static void deserializeCache( std::map<std::pair<unsigned,unsigned>,VectorXs>& c
     const unsigned first_index{ Utilities::deserialize<unsigned>( input_stream ) };
     const unsigned second_index{ Utilities::deserialize<unsigned>( input_stream ) };
     const VectorXs force{ MathUtilities::deserialize<VectorXs>( input_stream ) };
-    std::pair< std::map< std::pair<unsigned,unsigned>, VectorXs >::iterator, bool > insert_return;
-    insert_return = constraint_cache.insert( std::make_pair( std::make_pair( first_index, second_index ), force ) );
+    #ifndef NDEBUG
+    const auto insert_return =
+    #endif
+    constraint_cache.insert( std::make_pair( std::make_pair( first_index, second_index ), force ) );
     assert( insert_return.second ); // Should not re-encounter constraints
   }
 }

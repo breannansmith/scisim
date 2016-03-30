@@ -23,24 +23,30 @@ void ConstraintCache::cacheConstraint( const Constraint& constraint, const Vecto
   {
     const BallBallConstraint& ball_ball{ sd_cast<const BallBallConstraint&>( constraint ) };
     // Insert this constraint into the cache
-    std::pair<std::map<std::pair<unsigned,unsigned>,VectorXs>::iterator,bool> insert_return;
-    insert_return = m_ball_ball_constraints.insert( std::make_pair( std::make_pair( ball_ball.idx0(), ball_ball.idx1() ), r ) );
+    #ifndef NDEBUG
+    const auto insert_return =
+    #endif
+    m_ball_ball_constraints.insert( std::make_pair( std::make_pair( ball_ball.idx0(), ball_ball.idx1() ), r ) );
     assert( insert_return.second ); // Should not re-encounter constraints
   }
   else if( constraint.name() == "static_plane_constraint" )
   {
     const StaticPlaneConstraint& plane_ball{ sd_cast<const StaticPlaneConstraint&>( constraint ) };
     // Insert this constraint into the cache
-    std::pair<std::map<std::pair<unsigned,unsigned>,VectorXs>::iterator,bool> insert_return;
-    insert_return = m_plane_ball_constraints.insert( std::make_pair( std::make_pair( plane_ball.planeIdx(), plane_ball.ballIdx() ), r ) );
+    #ifndef NDEBUG
+    const auto insert_return =
+    #endif
+    m_plane_ball_constraints.insert( std::make_pair( std::make_pair( plane_ball.planeIdx(), plane_ball.ballIdx() ), r ) );
     assert( insert_return.second ); // Should not re-encounter constraints
   }
   else if( constraint.name() == "static_drum_constraint" )
   {
     const StaticDrumConstraint& drum_ball{ sd_cast<const StaticDrumConstraint&>( constraint ) };
     // Insert this constraint into the cache
-    std::pair<std::map<std::pair<unsigned,unsigned>,VectorXs>::iterator,bool> insert_return;
-    insert_return = m_drum_ball_constraints.insert( std::make_pair( std::make_pair( drum_ball.drumIdx(), drum_ball.ballIdx() ), r ) );
+    #ifndef NDEBUG
+    const auto insert_return =
+    #endif
+    m_drum_ball_constraints.insert( std::make_pair( std::make_pair( drum_ball.drumIdx(), drum_ball.ballIdx() ), r ) );
     assert( insert_return.second ); // Should not re-encounter constraints
   }
   else
@@ -68,8 +74,8 @@ void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorX
   {
     const BallBallConstraint& ball_ball{ sd_cast<const BallBallConstraint&>( constraint ) };
     // Try to retrieve this constraint from the cache
-    std::map<std::pair<unsigned,unsigned>,VectorXs>::const_iterator map_iterator;
-    map_iterator = m_ball_ball_constraints.find( std::make_pair( ball_ball.idx0(), ball_ball.idx1() ) );
+    using itr_type = std::map<std::pair<unsigned,unsigned>,VectorXs>::const_iterator;
+    const itr_type map_iterator{ m_ball_ball_constraints.find( std::make_pair( ball_ball.idx0(), ball_ball.idx1() ) ) };
     // If object is in the cache, retrieve the force
     if( map_iterator != m_ball_ball_constraints.end() )
     {
@@ -82,8 +88,8 @@ void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorX
   {
     const StaticPlaneConstraint& plane_ball{ sd_cast<const StaticPlaneConstraint&>( constraint ) };
     // Try to retrieve this constraint from the cache
-    std::map<std::pair<unsigned,unsigned>,VectorXs>::const_iterator map_iterator;
-    map_iterator = m_plane_ball_constraints.find( std::make_pair( plane_ball.planeIdx(), plane_ball.ballIdx() ) );
+    using itr_type = std::map<std::pair<unsigned,unsigned>,VectorXs>::const_iterator;
+    const itr_type map_iterator{ m_plane_ball_constraints.find( std::make_pair( plane_ball.planeIdx(), plane_ball.ballIdx() ) ) };
     // If object is in the cache, retrieve the force
     if( map_iterator != m_plane_ball_constraints.end() )
     {
@@ -96,8 +102,8 @@ void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorX
   {
     const StaticDrumConstraint& drum_ball{ sd_cast<const StaticDrumConstraint&>( constraint ) };
     // Try to retrieve this constraint from the cache
-    std::map<std::pair<unsigned,unsigned>,VectorXs>::const_iterator map_iterator;
-    map_iterator = m_drum_ball_constraints.find( std::make_pair( drum_ball.drumIdx(), drum_ball.ballIdx() ) );
+    using itr_type = std::map<std::pair<unsigned,unsigned>,VectorXs>::const_iterator;
+    const itr_type map_iterator{ m_drum_ball_constraints.find( std::make_pair( drum_ball.drumIdx(), drum_ball.ballIdx() ) ) };
     // If object is in the cache, return the force
     if( map_iterator != m_drum_ball_constraints.end() )
     {
@@ -140,8 +146,10 @@ static void deserializeCache( std::map<std::pair<unsigned,unsigned>,VectorXs>& c
     const unsigned first_index{ Utilities::deserialize<unsigned>( input_stream ) };
     const unsigned second_index{ Utilities::deserialize<unsigned>( input_stream ) };
     const VectorXs force{ MathUtilities::deserialize<VectorXs>( input_stream ) };
-    std::pair< std::map< std::pair<unsigned,unsigned>, VectorXs >::iterator, bool > insert_return;
-    insert_return = constraint_cache.insert( std::make_pair( std::make_pair( first_index, second_index ), force ) );
+    #ifndef NDEBUG
+    const auto insert_return =
+    #endif
+    constraint_cache.insert( std::make_pair( std::make_pair( first_index, second_index ), force ) );
     assert( insert_return.second ); // Should not re-encounter constraints
   }
 }

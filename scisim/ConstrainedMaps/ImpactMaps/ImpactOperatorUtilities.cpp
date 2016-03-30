@@ -19,7 +19,7 @@ void ImpactOperatorUtilities::computeN( const FlowableSystem& fsys, const std::v
 
   VectorXi column_nonzeros( N.cols() );
   {
-    std::vector<std::unique_ptr<Constraint>>::const_iterator con_itr = V.begin();
+    std::vector<std::unique_ptr<Constraint>>::const_iterator con_itr{ V.begin() };
     for( int col = 0; col < N.cols(); ++col )
     {
       assert( *con_itr != nullptr );
@@ -31,7 +31,7 @@ void ImpactOperatorUtilities::computeN( const FlowableSystem& fsys, const std::v
 
   N.reserve( column_nonzeros );
   {
-    std::vector<std::unique_ptr<Constraint>>::const_iterator con_itr = V.begin();
+    std::vector<std::unique_ptr<Constraint>>::const_iterator con_itr{ V.begin() };
     for( int col = 0; col < N.cols(); ++col )
     {
       assert( *con_itr != nullptr );
