@@ -253,7 +253,6 @@ void SobogusFrictionProblem::initialize3D( const std::vector<std::unique_ptr<Con
 // TODO: Factor out code by passing in the number of dofs per body?
 void SobogusFrictionProblem::initialize( const std::vector<std::unique_ptr<Constraint>>& active_set, const MatrixXXsc& contact_bases, VectorXs& masses, const VectorXs& q0, const VectorXs& v0, const VectorXs& CoR, const VectorXs& mu, const VectorXs& nrel, const VectorXs& drel )
 {
-  assert( typeid(scalar) == typeid(double) );
   assert( active_set.size() == unsigned( contact_bases.cols() / contact_bases.rows() ) );
   assert( masses.size() % 36 == 0 || masses.size() % 9 == 0 || masses.size() % 4 == 0 );
 
@@ -273,7 +272,6 @@ void SobogusFrictionProblem::initialize( const std::vector<std::unique_ptr<Const
 
 void SobogusFrictionProblem::solve2D( const std::vector<std::unique_ptr<Constraint>>& active_set, const VectorXs& mu, const unsigned max_iters, const unsigned eval_every, const scalar& tol, VectorXs& alpha, VectorXs& beta, VectorXs& f, VectorXs& vout, bool& succeeded, scalar& error, unsigned& num_iterations )
 {
-  assert( typeid(scalar) == typeid(double) );
   assert( tol >= 0.0 );
 
   assert( alpha.size() == m_num_collisions ); assert( beta.size() == m_num_collisions );
@@ -376,7 +374,6 @@ void SobogusFrictionProblem::solve2D( const std::vector<std::unique_ptr<Constrai
 
 void SobogusFrictionProblem::solveRigidBody2D( const std::vector<std::unique_ptr<Constraint>>& active_set, const VectorXs& mu, const unsigned max_iters, const unsigned eval_every, const scalar& tol, VectorXs& alpha, VectorXs& beta, VectorXs& f, VectorXs& vout, bool& succeeded, scalar& error, unsigned& num_iterations )
 {
-  assert( typeid(scalar) == typeid(double) );
   assert( tol >= 0.0 );
 
   assert( alpha.size() == m_num_collisions ); assert( beta.size() == m_num_collisions );
@@ -488,7 +485,6 @@ void SobogusFrictionProblem::solveRigidBody2D( const std::vector<std::unique_ptr
 
 void SobogusFrictionProblem::solve3D( const std::vector<std::unique_ptr<Constraint>>& active_set, const unsigned max_iters, const unsigned eval_every, const scalar& tol, VectorXs& alpha, VectorXs& beta, VectorXs& f, VectorXs& vout, bool& succeeded, scalar& error, unsigned& num_iterations )
 {
-  assert( typeid(scalar) == typeid(double) );
   assert( tol >= 0.0 );
 
   assert( alpha.size() == m_num_collisions ); assert( beta.size() == 2 * m_num_collisions );

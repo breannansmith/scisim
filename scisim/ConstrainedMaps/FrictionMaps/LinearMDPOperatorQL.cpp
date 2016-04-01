@@ -33,7 +33,8 @@ LinearMDPOperatorQL::LinearMDPOperatorQL( std::istream& input_stream )
 
 static int solveQP( const scalar& tol, MatrixXXsc& C, VectorXs& c, MatrixXXsc& A, VectorXs& b, VectorXs& beta, VectorXs& lambda )
 {
-  assert( typeid(scalar) == typeid(double) );  // QL only supports doubles
+  static_assert( std::is_same<scalar,double>::value, "QL only supports doubles." );
+
   assert( C.rows() == C.cols() ); assert( C.rows() == c.size() ); assert( C.rows() == A.cols() );
   assert( A.rows() == b.size() ); assert( C.rows() == beta.size() ); assert( lambda.size() == b.size() );
 

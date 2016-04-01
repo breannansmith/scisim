@@ -29,8 +29,8 @@ LCPOperatorQL::LCPOperatorQL( std::istream& input_stream )
 
 static int solveQP( const scalar& tol, MatrixXXsc& C, VectorXs& dvec, VectorXs& alpha )
 {
-  // QL only supports doubles
-  assert( typeid(scalar).name() == typeid(double).name() );
+  static_assert( std::is_same<scalar,double>::value, "QL only supports doubles." );
+
   assert( dvec.size() == alpha.size() );
 
   // All constraints are bound constraints.

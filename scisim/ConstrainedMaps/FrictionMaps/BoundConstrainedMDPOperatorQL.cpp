@@ -29,8 +29,7 @@ BoundConstrainedMDPOperatorQL::BoundConstrainedMDPOperatorQL( std::istream& inpu
 
 static int solveQP( const scalar& tol, MatrixXXsc& C, VectorXs& c, VectorXs& xl, VectorXs& xu, VectorXs& beta, VectorXs& lambda )
 {
-  // QL only supports doubles
-  assert( typeid(scalar) == typeid(double) );
+  static_assert( std::is_same<scalar,double>::value, "QL only supports doubles." );
 
   // All constraints are bound constraints.
   int m = 0;

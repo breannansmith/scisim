@@ -71,7 +71,6 @@ static void createIpoptApplication( const scalar& tol, Ipopt::SmartPtr<Ipopt::Ip
   }
 
   // Set options
-  assert( typeid(scalar) == typeid(double) );
   assert( tol > 0.0 );
   ipopt_app->Options()->SetNumericValue( "tol", tol );
   ipopt_app->Options()->SetIntegerValue( "print_level", 0 );
@@ -245,7 +244,7 @@ bool QPNLP::get_nlp_info( Ipopt::Index& n, Ipopt::Index& m, Ipopt::Index& nnz_ja
 
 bool QPNLP::get_bounds_info( Ipopt::Index n, Ipopt::Number* x_l, Ipopt::Number* x_u, Ipopt::Index m, Ipopt::Number* g_l, Ipopt::Number* g_u )
 {
-  assert( typeid(Ipopt::Number) == typeid(scalar) );
+  static_assert( std::is_same<Ipopt::Number,scalar>::value, "Ipopt's floating point type must be the same type as SCISim's scalar." );
   assert( m_Q.rows() == m_Q.cols() );
   assert( m_A.size() == m_Q.rows() );
   assert( n == m_Q.rows() );
@@ -264,7 +263,7 @@ bool QPNLP::get_bounds_info( Ipopt::Index n, Ipopt::Number* x_l, Ipopt::Number* 
 // TODO: Why aren't z_L, z_U, and lambda nullptr ?
 bool QPNLP::get_starting_point( Ipopt::Index n, bool init_x, Ipopt::Number* x, bool init_z, Ipopt::Number* z_L, Ipopt::Number* z_U, Ipopt::Index m, bool init_lambda, Ipopt::Number* lambda )
 {
-  assert( typeid(Ipopt::Number) == typeid(scalar) );
+  static_assert( std::is_same<Ipopt::Number,scalar>::value, "Ipopt's floating point type must be the same type as SCISim's scalar." );
   assert( m_Q.rows() == m_Q.cols() );
   assert( m_A.size() == m_Q.rows() );
   assert( n == m_Q.rows() );
@@ -295,7 +294,7 @@ bool QPNLP::get_starting_point( Ipopt::Index n, bool init_x, Ipopt::Number* x, b
 
 bool QPNLP::eval_f( Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::Number& obj_value )
 {
-  assert( typeid(Ipopt::Number) == typeid(scalar) );
+  static_assert( std::is_same<Ipopt::Number,scalar>::value, "Ipopt's floating point type must be the same type as SCISim's scalar." );
   assert( m_Q.rows() == m_Q.cols() );
   assert( m_A.size() == m_Q.rows() );
   assert( n == m_Q.rows() );
@@ -309,7 +308,7 @@ bool QPNLP::eval_f( Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::N
 
 bool QPNLP::eval_grad_f( Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::Number* grad_f )
 {
-  assert( typeid(Ipopt::Number) == typeid(scalar) );
+  static_assert( std::is_same<Ipopt::Number,scalar>::value, "Ipopt's floating point type must be the same type as SCISim's scalar." );
   assert( m_Q.rows() == m_Q.cols() );
   assert( m_A.size() == m_Q.rows() );
   assert( n == m_Q.rows() );
@@ -363,7 +362,7 @@ bool QPNLP::eval_h( Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::N
     assert( lambda == nullptr );
     assert( iRow != nullptr );
     assert( jCol != nullptr );
-    assert( typeid(Ipopt::Index) == typeid(int) );
+    static_assert( std::is_same<Ipopt::Number,scalar>::value, "Ipopt's floating point type must be the same type as SCISim's scalar." );
     #ifndef NDEBUG
     Eigen::Map< Eigen::Matrix< Ipopt::Index, Eigen::Dynamic, 1 > >{ iRow, nele_hess }.setConstant( -1 );
     Eigen::Map< Eigen::Matrix< Ipopt::Index, Eigen::Dynamic, 1 > >{ jCol, nele_hess }.setConstant( -1 );
@@ -377,7 +376,7 @@ bool QPNLP::eval_h( Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::N
     //assert( lambda != nullptr );
     assert( iRow == nullptr );
     assert( jCol == nullptr );
-    assert( typeid(Ipopt::Number) == typeid(scalar) );
+    static_assert( std::is_same<Ipopt::Number,scalar>::value, "Ipopt's floating point type must be the same type as SCISim's scalar." );
     #ifndef NDEBUG
     Eigen::Map< Eigen::Matrix< Ipopt::Number, Eigen::Dynamic, 1 > >{ values, nele_hess }.setConstant( SCALAR_NAN );
     #endif

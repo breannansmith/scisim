@@ -95,7 +95,6 @@ static void createIpoptApplication( const scalar& tol, Ipopt::SmartPtr<Ipopt::Ip
   }
 
   // Set options
-  assert( typeid(scalar) == typeid(double) );
   assert( tol > 0.0 );
   ipopt_app->Options()->SetNumericValue( "tol", tol );
   ipopt_app->Options()->SetIntegerValue( "print_level", 0 );
@@ -272,7 +271,7 @@ bool SmoothMDPNLP::get_nlp_info( Ipopt::Index& n, Ipopt::Index& m, Ipopt::Index&
 
 bool SmoothMDPNLP::get_bounds_info( Ipopt::Index n, Ipopt::Number* x_l, Ipopt::Number* x_u, Ipopt::Index m, Ipopt::Number* g_l, Ipopt::Number* g_u )
 {
-  assert( typeid(Ipopt::Number) == typeid(scalar) );
+  static_assert( std::is_same<Ipopt::Number,scalar>::value, "Ipopt's floating point type must be the same type as SCISim's scalar." );
   assert( n == m_A.size() );
   assert( m == m_C.size() );
 
@@ -295,7 +294,7 @@ bool SmoothMDPNLP::get_bounds_info( Ipopt::Index n, Ipopt::Number* x_l, Ipopt::N
 // TODO: Why aren't z_L, z_U, and lambda nullptr ?
 bool SmoothMDPNLP::get_starting_point( Ipopt::Index n, bool init_x, Ipopt::Number* x, bool init_z, Ipopt::Number* z_L, Ipopt::Number* z_U, Ipopt::Index m, bool init_lambda, Ipopt::Number* lambda )
 {
-  assert( typeid(Ipopt::Number) == typeid(scalar) );
+  static_assert( std::is_same<Ipopt::Number,scalar>::value, "Ipopt's floating point type must be the same type as SCISim's scalar." );
   assert( init_x );
   assert( x != nullptr );
   assert( !init_z );
@@ -311,7 +310,7 @@ bool SmoothMDPNLP::get_starting_point( Ipopt::Index n, bool init_x, Ipopt::Numbe
 
 bool SmoothMDPNLP::eval_f( Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::Number& obj_value )
 {
-  assert( typeid(Ipopt::Number) == typeid(scalar) );
+  static_assert( std::is_same<Ipopt::Number,scalar>::value, "Ipopt's floating point type must be the same type as SCISim's scalar." );
   assert( m_Q.rows() == m_Q.cols() );
   assert( m_A.size() == m_Q.rows() );
   assert( n == m_Q.rows() );
@@ -326,7 +325,7 @@ bool SmoothMDPNLP::eval_f( Ipopt::Index n, const Ipopt::Number* x, bool new_x, I
 
 bool SmoothMDPNLP::eval_grad_f( Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::Number* grad_f )
 {
-  assert( typeid(Ipopt::Number) == typeid(scalar) );
+  static_assert( std::is_same<Ipopt::Number,scalar>::value, "Ipopt's floating point type must be the same type as SCISim's scalar." );
   assert( m_Q.rows() == m_Q.cols() );
   assert( m_A.size() == m_Q.rows() );
   assert( n == m_Q.rows() );
@@ -345,7 +344,7 @@ bool SmoothMDPNLP::eval_grad_f( Ipopt::Index n, const Ipopt::Number* x, bool new
 // TODO: Could re-write this with Eigen column wise stuff if we wanted
 bool SmoothMDPNLP::eval_g( Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::Index m, Ipopt::Number* g )
 {
-  assert( typeid(Ipopt::Number) == typeid(scalar) );
+  static_assert( std::is_same<Ipopt::Number,scalar>::value, "Ipopt's floating point type must be the same type as SCISim's scalar." );
   assert( 2 * m == n );
 
   const Eigen::Map< const Eigen::Array< Ipopt::Number, Eigen::Dynamic, 1 > > x_map{ x, n };
@@ -393,7 +392,7 @@ bool SmoothMDPNLP::eval_jac_g( Ipopt::Index n, const Ipopt::Number* x, bool new_
     assert( values != nullptr );
     assert( iRow == nullptr );
     assert( jCol == nullptr );
-    assert( typeid(Ipopt::Number) == typeid(scalar) );
+    static_assert( std::is_same<Ipopt::Number,scalar>::value, "Ipopt's floating point type must be the same type as SCISim's scalar." );
 
     const Eigen::Map< const Eigen::Matrix< Ipopt::Number, Eigen::Dynamic, 1 > > xMap{ x, nele_jac };
     Eigen::Map< Eigen::Matrix< Ipopt::Number, Eigen::Dynamic, 1 > > valueMap{ values, nele_jac };
@@ -415,7 +414,7 @@ bool SmoothMDPNLP::eval_h( Ipopt::Index n, const Ipopt::Number* x, bool new_x, I
     assert( lambda == nullptr );
     assert( iRow != nullptr );
     assert( jCol != nullptr );
-    assert( typeid(Ipopt::Index) == typeid(int) );
+    static_assert( std::is_same<Ipopt::Number,scalar>::value, "Ipopt's floating point type must be the same type as SCISim's scalar." );
     {
       const int nnz{ MathUtilities::sparsityPatternLowerTriangular( m_Q, iRow, jCol ) };
       assert( nnz == nele_hess );
@@ -438,7 +437,7 @@ bool SmoothMDPNLP::eval_h( Ipopt::Index n, const Ipopt::Number* x, bool new_x, I
     assert( lambda != nullptr );
     assert( iRow == nullptr );
     assert( jCol == nullptr );
-    assert( typeid(Ipopt::Number) == typeid(scalar) );
+    static_assert( std::is_same<Ipopt::Number,scalar>::value, "Ipopt's floating point type must be the same type as SCISim's scalar." );
     assert( Ipopt::Index(m_diagonal_indices.size()) == n );
     {
       const int nnz{ MathUtilities::valuesLowerTriangular( m_Q, values ) };
