@@ -20,9 +20,10 @@ if( APPLE )
   set( CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem " )
 endif()
 
-# TODO: Benchmark optimization flags on Linux. The march=native and flto flags seem to degrade performance on OS X.
-# Enable extra optimizations
-#set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native -flto" )
+# Enable extra optimizations; note that march=native seemds to degrade performance on OS X
+if( NOT APPLE )
+  set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native" )
+endif()
 
 # Flags for code coverage tests
 set( CMAKE_CXX_FLAGS_COVERAGE "-O0 -g --coverage" CACHE STRING "Flags used by the compiler during coverage builds." FORCE )
