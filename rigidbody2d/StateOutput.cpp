@@ -135,7 +135,7 @@ static void writeCircleGeometry( const std::vector<std::unique_ptr<RigidBody2DGe
     {
       case RigidBody2DGeometryType::CIRCLE:
       {
-        const CircleGeometry& circle{ sd_cast<const CircleGeometry&>( *geometry_instance ) };
+        const CircleGeometry& circle{ static_cast<const CircleGeometry&>( *geometry_instance ) };
         hsize_t count[]{ 1 };
         hsize_t offset[]{ current_circle++ };
         hsize_t mem_offset[]{ 0 };
@@ -232,7 +232,7 @@ static void writeBoxGeometry( const std::vector<std::unique_ptr<RigidBody2DGeome
       }
       case RigidBody2DGeometryType::BOX:
       {
-        const BoxGeometry& box{ sd_cast<const BoxGeometry&>( *geometry_instance ) };
+        const BoxGeometry& box{ static_cast<const BoxGeometry&>( *geometry_instance ) };
         Eigen::Map<Vector2s>{ data.r } = box.r();
         const hsize_t count[]{ 1 };
         const hsize_t offset[]{ current_box++ };

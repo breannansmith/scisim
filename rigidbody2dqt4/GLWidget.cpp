@@ -77,13 +77,13 @@ void GLWidget::generateRenderers( const std::vector<std::unique_ptr<RigidBody2DG
     {
       case RigidBody2DGeometryType::CIRCLE:
       {
-        const CircleGeometry& circle{ sd_cast<CircleGeometry&>( *geo ) };
+        const CircleGeometry& circle{ static_cast<CircleGeometry&>( *geo ) };
         m_body_renderers.emplace_back( new CircleGeometryRenderer{ circle, m_circle_renderer } );
         break;
       }
       case RigidBody2DGeometryType::BOX:
       {
-        const BoxGeometry& box{ sd_cast<BoxGeometry&>( *geo ) };
+        const BoxGeometry& box{ static_cast<BoxGeometry&>( *geo ) };
         m_body_renderers.emplace_back( new BoxGeometryRenderer{ box } );
         break;
       }
@@ -103,7 +103,7 @@ void GLWidget::updateRenderers( const std::vector<std::unique_ptr<RigidBody2DGeo
     {
       case RigidBody2DGeometryType::CIRCLE:
       {
-        const CircleGeometry& circle{ sd_cast<CircleGeometry&>( *geometry[new_idx] ) };
+        const CircleGeometry& circle{ static_cast<CircleGeometry&>( *geometry[new_idx] ) };
         m_body_renderers.emplace_back( new CircleGeometryRenderer{ circle, m_circle_renderer } );
         break;
       }

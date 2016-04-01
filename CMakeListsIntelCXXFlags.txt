@@ -19,6 +19,9 @@ if( STRICT_BUILD )
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -wd13368,15527" )
 endif()
 
+# Disable run time type information
+set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti" )
+
 # Add a custom -isystem command due to lack of Intel compiler features in CMake
 if( APPLE )
   set( CMAKE_INCLUDE_SYSTEM_FLAG_C "-isystem " )

@@ -11,13 +11,6 @@
 #include <cassert>
 #include <istream>
 
-// Compiles to static_cast in release mode, and dynamic_cast in debug mode
-#ifndef NDEBUG
-#define sd_cast dynamic_cast
-#else
-#define sd_cast static_cast
-#endif
-
 namespace Utilities
 {
 

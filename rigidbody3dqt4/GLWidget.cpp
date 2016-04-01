@@ -241,7 +241,7 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   {
     if( m_sim.getState().geometry()[i]->getType() == RigidBodyGeometryType::STAPLE )
     {
-      const RigidBodyStaple& geo{ sd_cast<const RigidBodyStaple&>( *m_sim.getState().geometry()[i] ) };
+      const RigidBodyStaple& geo{ static_cast<const RigidBodyStaple&>( *m_sim.getState().geometry()[i] ) };
       m_body_renderers[i].reset( new StapleRenderer{ 4, geo.points(), geo.r() } );
     }
     else
@@ -1138,12 +1138,12 @@ void GLWidget::paintBody( const int geo_idx, const RigidBodyGeometry& geometry, 
 {
   if( geometry.getType() == RigidBodyGeometryType::BOX )
   {
-    const RigidBodyBox& box_geom{ sd_cast<const RigidBodyBox&>( geometry ) };
+    const RigidBodyBox& box_geom{ static_cast<const RigidBodyBox&>( geometry ) };
     paintBox( box_geom, color );
   }
   else if( geometry.getType() == RigidBodyGeometryType::SPHERE )
   {
-    const RigidBodySphere& sphere_geom{ sd_cast<const RigidBodySphere&>( geometry ) };
+    const RigidBodySphere& sphere_geom{ static_cast<const RigidBodySphere&>( geometry ) };
     paintSphere( sphere_geom, color );
   }
   else if( geometry.getType() == RigidBodyGeometryType::STAPLE )
@@ -1155,7 +1155,7 @@ void GLWidget::paintBody( const int geo_idx, const RigidBodyGeometry& geometry, 
   }
   else if( geometry.getType() == RigidBodyGeometryType::TRIANGLE_MESH )
   {
-    const RigidBodyTriangleMesh& triangle_geom{ sd_cast<const RigidBodyTriangleMesh&>( geometry ) };
+    const RigidBodyTriangleMesh& triangle_geom{ static_cast<const RigidBodyTriangleMesh&>( geometry ) };
     paintTriangleMesh( triangle_geom, color );
   }
   else

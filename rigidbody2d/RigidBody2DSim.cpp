@@ -217,12 +217,12 @@ void RigidBody2DSim::dispatchNarrowPhaseCollision( unsigned idx0, unsigned idx1,
   {
     case RigidBody2DGeometryType::CIRCLE:
     {
-      const CircleGeometry& circle_geo0{ sd_cast<CircleGeometry&>( *geo0 ) };
+      const CircleGeometry& circle_geo0{ static_cast<CircleGeometry&>( *geo0 ) };
       switch( geo1->type() )
       {
         case RigidBody2DGeometryType::CIRCLE:
         {
-          const CircleGeometry& circle_geo1{ sd_cast<CircleGeometry&>( *geo1 ) };
+          const CircleGeometry& circle_geo1{ static_cast<CircleGeometry&>( *geo1 ) };
           if( CircleCircleConstraint::isActive( q1.segment<2>( 3 * idx0 ), q1.segment<2>( 3 * idx1 ), circle_geo0.r(), circle_geo1.r() ) )
           {
             // Creation of constraints at q0 to preserve angular momentum
@@ -253,7 +253,7 @@ void RigidBody2DSim::dispatchNarrowPhaseCollision( unsigned idx0, unsigned idx1,
     }
     case RigidBody2DGeometryType::BOX:
     {
-      const BoxGeometry& box_geo0{ sd_cast<BoxGeometry&>( *geo0 ) };
+      const BoxGeometry& box_geo0{ static_cast<BoxGeometry&>( *geo0 ) };
       switch( geo1->type() )
       {
         case RigidBody2DGeometryType::CIRCLE:
@@ -265,7 +265,7 @@ void RigidBody2DSim::dispatchNarrowPhaseCollision( unsigned idx0, unsigned idx1,
         {
           assert( !isKinematicallyScripted( idx0 ) );
           assert( !isKinematicallyScripted( idx1 ) );
-          const BoxGeometry& box_geo1{ sd_cast<BoxGeometry&>( *geo1 ) };
+          const BoxGeometry& box_geo1{ static_cast<BoxGeometry&>( *geo1 ) };
           boxBoxNarrowPhaseCollision( idx0, idx1, box_geo0, box_geo1, q0, q1, active_set );
           break;
         }
@@ -280,12 +280,12 @@ static bool collisionIsActive( const Vector2s& x0, const scalar& theta0, const s
   {
     case RigidBody2DGeometryType::CIRCLE:
     {
-      const CircleGeometry& circle_geo0{ sd_cast<CircleGeometry&>( *geo0 ) };
+      const CircleGeometry& circle_geo0{ static_cast<CircleGeometry&>( *geo0 ) };
       switch( geo1->type() )
       {
         case RigidBody2DGeometryType::CIRCLE:
         {
-          const CircleGeometry& circle_geo1{ sd_cast<CircleGeometry&>( *geo1 ) };
+          const CircleGeometry& circle_geo1{ static_cast<CircleGeometry&>( *geo1 ) };
           if( CircleCircleConstraint::isActive( x0, x1, circle_geo0.r(), circle_geo1.r() ) )
           {
             return true;
@@ -471,12 +471,12 @@ void RigidBody2DSim::dispatchTeleportedNarrowPhaseCollision( const TeleportedCol
     {
       case RigidBody2DGeometryType::CIRCLE:
       {
-        const CircleGeometry& circle_geo0{ sd_cast<CircleGeometry&>( *geo0 ) };
+        const CircleGeometry& circle_geo0{ static_cast<CircleGeometry&>( *geo0 ) };
         switch( geo1->type() )
         {
           case RigidBody2DGeometryType::CIRCLE:
           {
-            const CircleGeometry& circle_geo1{ sd_cast<CircleGeometry&>( *geo1 ) };
+            const CircleGeometry& circle_geo1{ static_cast<CircleGeometry&>( *geo1 ) };
             if( CircleCircleConstraint::isActive( x0_t1, x1_t1, circle_geo0.r(), circle_geo1.r() ) )
             {
               // Creation of constraints at q0 to preserve angular momentum
@@ -526,12 +526,12 @@ void RigidBody2DSim::dispatchTeleportedNarrowPhaseCollision( const TeleportedCol
     {
       case RigidBody2DGeometryType::CIRCLE:
       {
-        const CircleGeometry& circle_geo0{ sd_cast<CircleGeometry&>( *geo0 ) };
+        const CircleGeometry& circle_geo0{ static_cast<CircleGeometry&>( *geo0 ) };
         switch( geo1->type() )
         {
           case RigidBody2DGeometryType::CIRCLE:
           {
-            const CircleGeometry& circle_geo1{ sd_cast<CircleGeometry&>( *geo1 ) };
+            const CircleGeometry& circle_geo1{ static_cast<CircleGeometry&>( *geo1 ) };
             if( CircleCircleConstraint::isActive( x0_t1, x1_t1, circle_geo0.r(), circle_geo1.r() ) )
             {
               // Creation of constraints at q0 to preserve angular momentum
@@ -578,7 +578,7 @@ void RigidBody2DSim::computeBodyPlaneActiveSetAllPairs( const VectorXs& q0, cons
       {
         case RigidBody2DGeometryType::CIRCLE:
         {
-          const CircleGeometry& circle_geo{ sd_cast<CircleGeometry&>( *m_state.geometry()[ m_state.geometryIndices()( bdy_idx ) ] ) };
+          const CircleGeometry& circle_geo{ static_cast<CircleGeometry&>( *m_state.geometry()[ m_state.geometryIndices()( bdy_idx ) ] ) };
           if( StaticPlaneCircleConstraint::isActive( q1.segment<2>( 3 * bdy_idx ), circle_geo.r(), plane ) )
           {
             active_set.emplace_back( new StaticPlaneCircleConstraint{ bdy_idx, plane_idx, circle_geo.r(), plane } );
@@ -588,7 +588,7 @@ void RigidBody2DSim::computeBodyPlaneActiveSetAllPairs( const VectorXs& q0, cons
         case RigidBody2DGeometryType::BOX:
         {
           // TODO: Make this faster, if needed
-          const BoxGeometry& box_geo{ sd_cast<BoxGeometry&>( *m_state.geometry()[ m_state.geometryIndices()( bdy_idx ) ] ) };
+          const BoxGeometry& box_geo{ static_cast<BoxGeometry&>( *m_state.geometry()[ m_state.geometryIndices()( bdy_idx ) ] ) };
 
           const Vector2s x{ q1.segment<2>( 3 * bdy_idx ) };
           const Eigen::Rotation2D<scalar> R{ q1( 3 * bdy_idx + 2 ) };

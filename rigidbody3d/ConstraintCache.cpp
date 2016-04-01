@@ -19,7 +19,7 @@ void ConstraintCache::cacheConstraint( const Constraint& constraint, const Vecto
 {
   if( constraint.name() == "sphere_sphere" )
   {
-    const SphereSphereConstraint& sphere_sphere{ sd_cast<const SphereSphereConstraint&>( constraint ) };
+    const SphereSphereConstraint& sphere_sphere{ static_cast<const SphereSphereConstraint&>( constraint ) };
     // Insert this constraint into the cache
     #ifndef NDEBUG
     const auto insert_return =
@@ -29,7 +29,7 @@ void ConstraintCache::cacheConstraint( const Constraint& constraint, const Vecto
   }
   else if( constraint.name() == "static_plane_sphere" )
   {
-    const StaticPlaneSphereConstraint& plane_sphere{ sd_cast<const StaticPlaneSphereConstraint&>( constraint ) };
+    const StaticPlaneSphereConstraint& plane_sphere{ static_cast<const StaticPlaneSphereConstraint&>( constraint ) };
     // Insert this constraint into the cache
     #ifndef NDEBUG
     const auto insert_return =
@@ -39,7 +39,7 @@ void ConstraintCache::cacheConstraint( const Constraint& constraint, const Vecto
   }
   else if( constraint.name() == "static_cylinder_sphere" )
   {
-    const StaticCylinderSphereConstraint& cylinder_sphere{ sd_cast<const StaticCylinderSphereConstraint&>( constraint ) };
+    const StaticCylinderSphereConstraint& cylinder_sphere{ static_cast<const StaticCylinderSphereConstraint&>( constraint ) };
     // Insert this constraint into the cache
     #ifndef NDEBUG
     const auto insert_return =
@@ -72,7 +72,7 @@ void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorX
 {
   if( constraint.name() == "sphere_sphere" )
   {
-    const SphereSphereConstraint& sphere_sphere{ sd_cast<const SphereSphereConstraint&>( constraint ) };
+    const SphereSphereConstraint& sphere_sphere{ static_cast<const SphereSphereConstraint&>( constraint ) };
     // Try to retrieve this constraint from the cache
     using itr_type = std::map<std::pair<unsigned,unsigned>,VectorXs>::const_iterator;
     const itr_type map_iterator{ m_sphere_sphere_constraint_cache.find( std::make_pair( sphere_sphere.idx0(), sphere_sphere.idx1() ) ) };
@@ -86,7 +86,7 @@ void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorX
   }
   else if( constraint.name() == "static_plane_sphere" )
   {
-    const StaticPlaneSphereConstraint& plane_sphere{ sd_cast<const StaticPlaneSphereConstraint&>( constraint ) };
+    const StaticPlaneSphereConstraint& plane_sphere{ static_cast<const StaticPlaneSphereConstraint&>( constraint ) };
     // Try to retrieve this constraint from the cache
     using itr_type = std::map<std::pair<unsigned,unsigned>,VectorXs>::const_iterator;
     const itr_type map_iterator{ m_static_plane_sphere_constraint_cache.find( std::make_pair( plane_sphere.planeIdx(), plane_sphere.sphereIdx() ) ) };
@@ -100,7 +100,7 @@ void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorX
   }
   else if( constraint.name() == "static_cylinder_sphere" )
   {
-    const StaticCylinderSphereConstraint& cylinder_sphere{ sd_cast<const StaticCylinderSphereConstraint&>( constraint ) };
+    const StaticCylinderSphereConstraint& cylinder_sphere{ static_cast<const StaticCylinderSphereConstraint&>( constraint ) };
     // Try to retrieve this constraint from the cache
     using itr_type = std::map<std::pair<unsigned,unsigned>,VectorXs>::const_iterator;
     const itr_type map_iterator{ m_static_cylinder_sphere_constraint_cache.find( std::make_pair( cylinder_sphere.cylinderIdx(), cylinder_sphere.sphereIdx() ) ) };

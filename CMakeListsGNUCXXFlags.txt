@@ -11,6 +11,9 @@ if( STRICT_BUILD )
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter" )
 endif()
 
+# Disable run time type information
+set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti" )
+
 # Workaround for bug in CMake
 if( APPLE )
   set( CMAKE_INCLUDE_SYSTEM_FLAG_C "-isystem " )

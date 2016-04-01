@@ -791,8 +791,8 @@ void RigidBody3DSim::dispatchNarrowPhaseCollision( const unsigned first_body, co
     // Box-Box
     if( m_sim_state.getGeometryOfBody( body1 ).getType() == RigidBodyGeometryType::BOX )
     {
-      const RigidBodyBox& body_geo0{ sd_cast<const RigidBodyBox&>( m_sim_state.getGeometryOfBody( body0 ) ) };
-      const RigidBodyBox& body_geo1{ sd_cast<const RigidBodyBox&>( m_sim_state.getGeometryOfBody( body1 ) ) };
+      const RigidBodyBox& body_geo0{ static_cast<const RigidBodyBox&>( m_sim_state.getGeometryOfBody( body0 ) ) };
+      const RigidBodyBox& body_geo1{ static_cast<const RigidBodyBox&>( m_sim_state.getGeometryOfBody( body1 ) ) };
       boxBoxNarrowPhaseCollision( body0, body1, body_geo0, body_geo1, q0, q1, active_set );
       return;
     }
@@ -812,8 +812,8 @@ void RigidBody3DSim::dispatchNarrowPhaseCollision( const unsigned first_body, co
     // Sphere-Sphere
     if( m_sim_state.getGeometryOfBody( body1 ).getType() == RigidBodyGeometryType::SPHERE )
     {
-      const RigidBodySphere& body_geo0{ sd_cast<const RigidBodySphere&>( m_sim_state.getGeometryOfBody( body0 ) ) };
-      const RigidBodySphere& body_geo1{ sd_cast<const RigidBodySphere&>( m_sim_state.getGeometryOfBody( body1 ) ) };
+      const RigidBodySphere& body_geo0{ static_cast<const RigidBodySphere&>( m_sim_state.getGeometryOfBody( body0 ) ) };
+      const RigidBodySphere& body_geo1{ static_cast<const RigidBodySphere&>( m_sim_state.getGeometryOfBody( body1 ) ) };
       sphereSphereNarrowPhaseCollision( body0, body1, body_geo0, body_geo1, q0, q1, active_set );
       return;
     }
@@ -833,8 +833,8 @@ void RigidBody3DSim::dispatchNarrowPhaseCollision( const unsigned first_body, co
     // Staple-Staple
     if( m_sim_state.getGeometryOfBody( body1 ).getType() == RigidBodyGeometryType::STAPLE )
     {
-      const RigidBodyStaple& body_geo0{ sd_cast<const RigidBodyStaple&>( m_sim_state.getGeometryOfBody( body0 ) ) };
-      const RigidBodyStaple& body_geo1{ sd_cast<const RigidBodyStaple&>( m_sim_state.getGeometryOfBody( body1 ) ) };
+      const RigidBodyStaple& body_geo0{ static_cast<const RigidBodyStaple&>( m_sim_state.getGeometryOfBody( body0 ) ) };
+      const RigidBodyStaple& body_geo1{ static_cast<const RigidBodyStaple&>( m_sim_state.getGeometryOfBody( body1 ) ) };
       stapleStapleNarrowPhaseCollision( body0, body1, body_geo0, body_geo1, q0, q1, active_set );
       return;
     }
@@ -844,8 +844,8 @@ void RigidBody3DSim::dispatchNarrowPhaseCollision( const unsigned first_body, co
     // Mesh-Mesh
     if( m_sim_state.getGeometryOfBody( body1 ).getType() == RigidBodyGeometryType::TRIANGLE_MESH )
     {
-      const RigidBodyTriangleMesh& body_geo0{ sd_cast<const RigidBodyTriangleMesh&>( m_sim_state.getGeometryOfBody( body0 ) ) };
-      const RigidBodyTriangleMesh& body_geo1{ sd_cast<const RigidBodyTriangleMesh&>( m_sim_state.getGeometryOfBody( body1 ) ) };
+      const RigidBodyTriangleMesh& body_geo0{ static_cast<const RigidBodyTriangleMesh&>( m_sim_state.getGeometryOfBody( body0 ) ) };
+      const RigidBodyTriangleMesh& body_geo1{ static_cast<const RigidBodyTriangleMesh&>( m_sim_state.getGeometryOfBody( body1 ) ) };
       meshMeshNarrowPhaseCollision( body0, body1, body_geo0, body_geo1, q0, q1, active_set );
       return;
     }
@@ -877,8 +877,8 @@ bool RigidBody3DSim::collisionIsActive( const unsigned first_body, const unsigne
     // Box-Box
     if( m_sim_state.getGeometryOfBody( body1 ).getType() == RigidBodyGeometryType::BOX )
     {
-      const RigidBodyBox& body_geo0{ sd_cast<const RigidBodyBox&>( m_sim_state.getGeometryOfBody( body0 ) ) };
-      const RigidBodyBox& body_geo1{ sd_cast<const RigidBodyBox&>( m_sim_state.getGeometryOfBody( body1 ) ) };
+      const RigidBodyBox& body_geo0{ static_cast<const RigidBodyBox&>( m_sim_state.getGeometryOfBody( body0 ) ) };
+      const RigidBodyBox& body_geo1{ static_cast<const RigidBodyBox&>( m_sim_state.getGeometryOfBody( body1 ) ) };
       std::vector<std::unique_ptr<Constraint>> temp_active_set;
       boxBoxNarrowPhaseCollision( body0, body1, body_geo0, body_geo1, q0, q1, temp_active_set );
       return !temp_active_set.empty();
@@ -900,8 +900,8 @@ bool RigidBody3DSim::collisionIsActive( const unsigned first_body, const unsigne
     // Sphere-Sphere
     if( m_sim_state.getGeometryOfBody( body1 ).getType() == RigidBodyGeometryType::SPHERE )
     {
-      const RigidBodySphere& body_geo0{ sd_cast<const RigidBodySphere&>( m_sim_state.getGeometryOfBody( body0 ) ) };
-      const RigidBodySphere& body_geo1{ sd_cast<const RigidBodySphere&>( m_sim_state.getGeometryOfBody( body1 ) ) };
+      const RigidBodySphere& body_geo0{ static_cast<const RigidBodySphere&>( m_sim_state.getGeometryOfBody( body0 ) ) };
+      const RigidBodySphere& body_geo1{ static_cast<const RigidBodySphere&>( m_sim_state.getGeometryOfBody( body1 ) ) };
       std::vector<std::unique_ptr<Constraint>> temp_active_set;
       sphereSphereNarrowPhaseCollision( body0, body1, body_geo0, body_geo1, q0, q1, temp_active_set );
       return !temp_active_set.empty();
@@ -923,8 +923,8 @@ bool RigidBody3DSim::collisionIsActive( const unsigned first_body, const unsigne
     // Staple-Staple
     if( m_sim_state.getGeometryOfBody( body1 ).getType() == RigidBodyGeometryType::STAPLE )
     {
-      const RigidBodyStaple& body_geo0{ sd_cast<const RigidBodyStaple&>( m_sim_state.getGeometryOfBody( body0 ) ) };
-      const RigidBodyStaple& body_geo1{ sd_cast<const RigidBodyStaple&>( m_sim_state.getGeometryOfBody( body1 ) ) };
+      const RigidBodyStaple& body_geo0{ static_cast<const RigidBodyStaple&>( m_sim_state.getGeometryOfBody( body0 ) ) };
+      const RigidBodyStaple& body_geo1{ static_cast<const RigidBodyStaple&>( m_sim_state.getGeometryOfBody( body1 ) ) };
       std::vector<std::unique_ptr<Constraint>> temp_active_set;
       stapleStapleNarrowPhaseCollision( body0, body1, body_geo0, body_geo1, q0, q1, temp_active_set );
       return !temp_active_set.empty();
@@ -935,8 +935,8 @@ bool RigidBody3DSim::collisionIsActive( const unsigned first_body, const unsigne
     // Mesh-Mesh
     if( m_sim_state.getGeometryOfBody( body1 ).getType() == RigidBodyGeometryType::TRIANGLE_MESH )
     {
-      const RigidBodyTriangleMesh& body_geo0{ sd_cast<const RigidBodyTriangleMesh&>( m_sim_state.getGeometryOfBody( body0 ) ) };
-      const RigidBodyTriangleMesh& body_geo1{ sd_cast<const RigidBodyTriangleMesh&>( m_sim_state.getGeometryOfBody( body1 ) ) };
+      const RigidBodyTriangleMesh& body_geo0{ static_cast<const RigidBodyTriangleMesh&>( m_sim_state.getGeometryOfBody( body0 ) ) };
+      const RigidBodyTriangleMesh& body_geo1{ static_cast<const RigidBodyTriangleMesh&>( m_sim_state.getGeometryOfBody( body1 ) ) };
       std::vector<std::unique_ptr<Constraint>> temp_active_set;
       meshMeshNarrowPhaseCollision( body0, body1, body_geo0, body_geo1, q0, q1, temp_active_set );
       return !temp_active_set.empty();
@@ -1177,8 +1177,8 @@ bool RigidBody3DSim::teleportedCollisionHappens( const VectorXs& q, const Telepo
     // Sphere-Sphere
     if( geo1.getType() == RigidBodyGeometryType::SPHERE )
     {
-      const RigidBodySphere& sphere0{ sd_cast<const RigidBodySphere&>( geo0 ) };
-      const RigidBodySphere& sphere1{ sd_cast<const RigidBodySphere&>( geo1 ) };
+      const RigidBodySphere& sphere0{ static_cast<const RigidBodySphere&>( geo0 ) };
+      const RigidBodySphere& sphere1{ static_cast<const RigidBodySphere&>( geo1 ) };
       return SphereSphereConstraint::isActive( x0, x1, sphere0.r(), sphere1.r() );
     }
   }
@@ -1257,9 +1257,9 @@ void RigidBody3DSim::generateTeleportedCollision( const VectorXs& q, const Telep
     std::exit( EXIT_FAILURE );
   }
 
-  const scalar& r0{ sd_cast<const RigidBodySphere&>( geo0 ).r() };
+  const scalar& r0{ static_cast<const RigidBodySphere&>( geo0 ).r() };
   assert( r0 > 0.0 );
-  const scalar& r1{ sd_cast<const RigidBodySphere&>( geo1 ).r() };
+  const scalar& r1{ static_cast<const RigidBodySphere&>( geo1 ).r() };
   assert( r1 > 0.0 );
 
   Vector3s x0;
@@ -1324,7 +1324,7 @@ void RigidBody3DSim::computeBodyPlaneActiveSetAllPairs( const VectorXs& q0, cons
 
       if( m_sim_state.getGeometryOfBody(body).getType() == RigidBodyGeometryType::BOX )
       {
-        const RigidBodyBox& box{ sd_cast<const RigidBodyBox&>( m_sim_state.getGeometryOfBody( body ) ) };
+        const RigidBodyBox& box{ static_cast<const RigidBodyBox&>( m_sim_state.getGeometryOfBody( body ) ) };
         const Matrix33sr R{ Eigen::Map<const Matrix33sr>( q1.segment<9>( 3 * m_sim_state.nbodies() + 9 * body ).data() ) };
         std::vector<short> active_corners;
         const bool box_plane_happens{ StaticPlaneBoxConstraint::isActive( m_sim_state.staticPlanes()[plane].x(), m_sim_state.staticPlanes()[plane].n(), q1.segment<3>( 3 * body ), R, box.halfWidths(), active_corners ) };
@@ -1339,7 +1339,7 @@ void RigidBody3DSim::computeBodyPlaneActiveSetAllPairs( const VectorXs& q0, cons
       }
       else if( m_sim_state.getGeometryOfBody(body).getType() == RigidBodyGeometryType::SPHERE )
       {
-        const RigidBodySphere& sphere{ sd_cast<const RigidBodySphere&>( m_sim_state.getGeometryOfBody( body ) ) };
+        const RigidBodySphere& sphere{ static_cast<const RigidBodySphere&>( m_sim_state.getGeometryOfBody( body ) ) };
         if( StaticPlaneSphereConstraint::isActive( m_sim_state.staticPlanes()[plane].x(), m_sim_state.staticPlanes()[plane].n(), q1.segment<3>( 3 * body ), sphere.r() ) )
         {
           active_set.emplace_back( new StaticPlaneSphereConstraint{ body, sphere.r(), m_sim_state.staticPlane( plane ), static_cast<unsigned>( plane ) } );
@@ -1347,7 +1347,7 @@ void RigidBody3DSim::computeBodyPlaneActiveSetAllPairs( const VectorXs& q0, cons
       }
       else if( m_sim_state.getGeometryOfBody(body).getType() == RigidBodyGeometryType::STAPLE )
       {
-        const RigidBodyStaple& staple{ sd_cast<const RigidBodyStaple&>( m_sim_state.getGeometryOfBody( body ) ) };
+        const RigidBodyStaple& staple{ static_cast<const RigidBodyStaple&>( m_sim_state.getGeometryOfBody( body ) ) };
         const Matrix33sr R{ Eigen::Map<const Matrix33sr>{ q1.segment<9>( 3 * m_sim_state.nbodies() + 9 * body ).data() } };
         std::vector<int> points;
         StapleStapleUtilities::computeStapleHalfPlaneActiveSet( q1.segment<3>( 3 * body ), R, staple, m_sim_state.staticPlanes()[plane].x(), m_sim_state.staticPlanes()[plane].n(), points );
@@ -1367,7 +1367,7 @@ void RigidBody3DSim::computeBodyPlaneActiveSetAllPairs( const VectorXs& q0, cons
       }
       else if( m_sim_state.getGeometryOfBody(body).getType() == RigidBodyGeometryType::TRIANGLE_MESH )
       {
-        const RigidBodyTriangleMesh& mesh{ sd_cast<const RigidBodyTriangleMesh&>( m_sim_state.getGeometryOfBody( body ) ) };
+        const RigidBodyTriangleMesh& mesh{ static_cast<const RigidBodyTriangleMesh&>( m_sim_state.getGeometryOfBody( body ) ) };
         // Determine which vertices of the mesh collide with the half plane
         std::vector<unsigned> colliding_convex_hull_vertices;
         {
@@ -1414,7 +1414,7 @@ void RigidBody3DSim::computeBodyCylinderActiveSetAllPairs( const VectorXs& q0, c
 
       if( m_sim_state.getGeometryOfBody(body).getType() == RigidBodyGeometryType::SPHERE )
       {
-        const RigidBodySphere& sphere{ sd_cast<const RigidBodySphere&>( m_sim_state.getGeometryOfBody( body ) ) };
+        const RigidBodySphere& sphere{ static_cast<const RigidBodySphere&>( m_sim_state.getGeometryOfBody( body ) ) };
         if( StaticCylinderSphereConstraint::isActive( m_sim_state.staticCylinder(cyl).x(), m_sim_state.staticCylinder(cyl).axis(), m_sim_state.staticCylinder(cyl).r(), q1.segment<3>( 3 * body ), sphere.r() ) )
         {
           active_set.emplace_back( new StaticCylinderSphereConstraint{ body, sphere.r(), m_sim_state.staticCylinder(cyl), static_cast<unsigned>( cyl ) } );
@@ -1422,7 +1422,7 @@ void RigidBody3DSim::computeBodyCylinderActiveSetAllPairs( const VectorXs& q0, c
       }
       else if( m_sim_state.getGeometryOfBody(body).getType() == RigidBodyGeometryType::TRIANGLE_MESH )
       {
-        const RigidBodyTriangleMesh& mesh{ sd_cast<const RigidBodyTriangleMesh&>( m_sim_state.getGeometryOfBody( body ) ) };
+        const RigidBodyTriangleMesh& mesh{ static_cast<const RigidBodyTriangleMesh&>( m_sim_state.getGeometryOfBody( body ) ) };
         // Determine which vertices of the mesh collide with the cylinder
         std::vector<unsigned> colliding_convex_hull_vertices;
         {

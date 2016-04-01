@@ -10,6 +10,9 @@ if( STRICT_BUILD )
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-documentation-unknown-command -Wno-old-style-cast -Wno-conversion -Wno-weak-vtables" )
 endif()
 
+# Disable run time type information
+set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti" )
+
 # Compiles with static analysis support
 #set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --analyze" )
 

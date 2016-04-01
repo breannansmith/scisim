@@ -21,7 +21,7 @@ void ConstraintCache::cacheConstraint( const Constraint& constraint, const Vecto
 {
   if( constraint.name() == "ball_ball" )
   {
-    const BallBallConstraint& ball_ball{ sd_cast<const BallBallConstraint&>( constraint ) };
+    const BallBallConstraint& ball_ball{ static_cast<const BallBallConstraint&>( constraint ) };
     // Insert this constraint into the cache
     #ifndef NDEBUG
     const auto insert_return =
@@ -31,7 +31,7 @@ void ConstraintCache::cacheConstraint( const Constraint& constraint, const Vecto
   }
   else if( constraint.name() == "static_plane_constraint" )
   {
-    const StaticPlaneConstraint& plane_ball{ sd_cast<const StaticPlaneConstraint&>( constraint ) };
+    const StaticPlaneConstraint& plane_ball{ static_cast<const StaticPlaneConstraint&>( constraint ) };
     // Insert this constraint into the cache
     #ifndef NDEBUG
     const auto insert_return =
@@ -41,7 +41,7 @@ void ConstraintCache::cacheConstraint( const Constraint& constraint, const Vecto
   }
   else if( constraint.name() == "static_drum_constraint" )
   {
-    const StaticDrumConstraint& drum_ball{ sd_cast<const StaticDrumConstraint&>( constraint ) };
+    const StaticDrumConstraint& drum_ball{ static_cast<const StaticDrumConstraint&>( constraint ) };
     // Insert this constraint into the cache
     #ifndef NDEBUG
     const auto insert_return =
@@ -72,7 +72,7 @@ void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorX
 {
   if( constraint.name() == "ball_ball" )
   {
-    const BallBallConstraint& ball_ball{ sd_cast<const BallBallConstraint&>( constraint ) };
+    const BallBallConstraint& ball_ball{ static_cast<const BallBallConstraint&>( constraint ) };
     // Try to retrieve this constraint from the cache
     using itr_type = std::map<std::pair<unsigned,unsigned>,VectorXs>::const_iterator;
     const itr_type map_iterator{ m_ball_ball_constraints.find( std::make_pair( ball_ball.idx0(), ball_ball.idx1() ) ) };
@@ -86,7 +86,7 @@ void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorX
   }
   else if( constraint.name() == "static_plane_constraint" )
   {
-    const StaticPlaneConstraint& plane_ball{ sd_cast<const StaticPlaneConstraint&>( constraint ) };
+    const StaticPlaneConstraint& plane_ball{ static_cast<const StaticPlaneConstraint&>( constraint ) };
     // Try to retrieve this constraint from the cache
     using itr_type = std::map<std::pair<unsigned,unsigned>,VectorXs>::const_iterator;
     const itr_type map_iterator{ m_plane_ball_constraints.find( std::make_pair( plane_ball.planeIdx(), plane_ball.ballIdx() ) ) };
@@ -100,7 +100,7 @@ void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorX
   }
   else if( constraint.name() == "static_drum_constraint" )
   {
-    const StaticDrumConstraint& drum_ball{ sd_cast<const StaticDrumConstraint&>( constraint ) };
+    const StaticDrumConstraint& drum_ball{ static_cast<const StaticDrumConstraint&>( constraint ) };
     // Try to retrieve this constraint from the cache
     using itr_type = std::map<std::pair<unsigned,unsigned>,VectorXs>::const_iterator;
     const itr_type map_iterator{ m_drum_ball_constraints.find( std::make_pair( drum_ball.drumIdx(), drum_ball.ballIdx() ) ) };

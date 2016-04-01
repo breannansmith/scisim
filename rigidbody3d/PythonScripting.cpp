@@ -601,7 +601,7 @@ static PyObject* setGravityForce( PyObject* self, PyObject* args )
     std::cerr << "Invalid force_idx parameter of " << force_idx << " in setGravityForce, force_idx must be less than " << s_sim_state->forces().size() << ". Exiting." << std::endl;
     std::exit( EXIT_FAILURE );
   }
-  NearEarthGravityForce& near_earth_gravity = sd_cast<NearEarthGravityForce&>( *s_sim_state->forces()[force_idx] );
+  NearEarthGravityForce& near_earth_gravity = static_cast<NearEarthGravityForce&>( *s_sim_state->forces()[force_idx] );
   near_earth_gravity.setForce( new_gravity );
   return Py_BuildValue( "" );
 }

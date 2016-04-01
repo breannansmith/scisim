@@ -137,7 +137,7 @@ static void writeBoxGeometry( const std::vector<std::unique_ptr<RigidBodyGeometr
   {
     if( geometry_instance->getType() == RigidBodyGeometryType::BOX )
     {
-      const RigidBodyBox& box{ sd_cast<const RigidBodyBox&>( *geometry_instance ) };
+      const RigidBodyBox& box{ static_cast<const RigidBodyBox&>( *geometry_instance ) };
       Eigen::Map<Vector3s>{ local_data.r } = box.halfWidths();
       const hsize_t count[]{ 1 };
       const hsize_t offset[]{ current_box++ };
@@ -208,7 +208,7 @@ static void writeSphereGeometry( const std::vector<std::unique_ptr<RigidBodyGeom
   {
     if( geometry_instance->getType() == RigidBodyGeometryType::SPHERE )
     {
-      const RigidBodySphere& sphere{ sd_cast<const RigidBodySphere&>( *geometry_instance ) };
+      const RigidBodySphere& sphere{ static_cast<const RigidBodySphere&>( *geometry_instance ) };
       hsize_t count[]{ 1 };
       hsize_t offset[]{ current_sphere++ };
       hsize_t mem_offset[]{ 0 };
@@ -285,7 +285,7 @@ static void writeMeshGeometry( const std::vector<std::unique_ptr<RigidBodyGeomet
   {
     if( geometry_instance->getType() == RigidBodyGeometryType::TRIANGLE_MESH )
     {
-      const RigidBodyTriangleMesh& mesh{ sd_cast<const RigidBodyTriangleMesh&>( *geometry_instance ) };
+      const RigidBodyTriangleMesh& mesh{ static_cast<const RigidBodyTriangleMesh&>( *geometry_instance ) };
       const LocalMeshData local_data{ mesh.inputFileName().c_str() };
       const hsize_t count[]{ 1 };
       const hsize_t offset[]{ current_mesh++ };
