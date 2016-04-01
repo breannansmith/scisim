@@ -20,7 +20,7 @@ void FrictionOperator::formGeneralizedSmoothFrictionBasis( const unsigned ndofs,
 
   D.resize( ndofs, nsamples * ncons );
 
-  std::vector<std::unique_ptr<Constraint>>::const_iterator itr{ K.begin() };
+  auto itr = K.cbegin();
   {
     VectorXi column_nonzeros( D.cols() );
     for( unsigned collision_number = 0; collision_number < ncons; ++collision_number )
@@ -33,11 +33,11 @@ void FrictionOperator::formGeneralizedSmoothFrictionBasis( const unsigned ndofs,
       ++itr;
     }
     assert( ( column_nonzeros.array() > 0 ).all() );
-    assert( itr == K.end() );
+    assert( itr == K.cend() );
     D.reserve( column_nonzeros );
   }
 
-  itr = K.begin();
+  itr = K.cbegin();
   for( unsigned collision_number = 0; collision_number < ncons; ++collision_number )
   {
     for( unsigned sample_number = 0; sample_number < nsamples; ++sample_number )
@@ -49,7 +49,7 @@ void FrictionOperator::formGeneralizedSmoothFrictionBasis( const unsigned ndofs,
     }
     ++itr;
   }
-  assert( itr == K.end() );
+  assert( itr == K.cend() );
 
   D.makeCompressed();
 }

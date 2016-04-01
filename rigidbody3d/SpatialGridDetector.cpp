@@ -118,8 +118,7 @@ void SpatialGridDetector::getPotentialOverlaps( const std::vector<AABB>& aabbs, 
   rasterizeAABBs( aabbs, min_coord, h, dimensions, voxels );
 
   // For each voxel
-  using itr_type = std::map<unsigned,std::vector<unsigned>>::const_iterator;
-  for( itr_type itr = voxels.begin(); itr != voxels.end(); ++itr )
+  for( auto itr = voxels.cbegin(); itr != voxels.cend(); ++itr )
   {
     // Visit each pair of AABBs in this voxel
     for( std::vector<unsigned>::size_type idx0 = 0; idx0 + 1 < (*itr).second.size(); ++idx0 )

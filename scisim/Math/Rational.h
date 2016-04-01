@@ -224,8 +224,8 @@ std::ostream& operator<<( std::ostream& os, const Rational<T>& r )
 template<class T>
 bool extractFromString( const std::string& in_string, Rational<T>& output )
 {
-  const unsigned slash_count{ static_cast<unsigned>( std::count( in_string.begin(), in_string.end(), '/' ) ) };
-  const unsigned period_count{ static_cast<unsigned>( std::count( in_string.begin(), in_string.end(), '.' ) ) };
+  const unsigned slash_count{ static_cast<unsigned>( std::count( in_string.cbegin(), in_string.cend(), '/' ) ) };
+  const unsigned period_count{ static_cast<unsigned>( std::count( in_string.cbegin(), in_string.cend(), '.' ) ) };
 
   // Valid input: 1 slash 0 periods, 0 slashes 1 period, 0 slashes 0 periods
   if( slash_count > 2 ) { return false; }

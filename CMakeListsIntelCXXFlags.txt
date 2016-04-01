@@ -25,8 +25,8 @@ if( APPLE )
   set( CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem " )
 endif()
 
-# Explicit -std=c++11 to work around lack of support for compiler features for Intel in CMake
-set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
+# Explicit -std=c++14 to work around lack of support for compiler features for Intel in CMake
+set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14" )
 
 # N.B. Significant performance degradation with So-bogus with -xHost and without -fp-model strict
 # N.B. -xHost -fp-model strict seems slower on all platforms with Sobogus

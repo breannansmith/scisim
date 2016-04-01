@@ -366,8 +366,7 @@ void Ball2DSim::computeBallBallActiveSetSpatialGrid( const VectorXs& q0, const V
     assert( aabbs.size() == nbodies );
 
     // Compute an AABB for each teleported particle
-    using itr_type = std::map<unsigned,TeleportedBall>::const_iterator;
-    itr_type aabb_bdy_map_itr{ teleported_aabb_body_indices.begin() };
+    auto aabb_bdy_map_itr = teleported_aabb_body_indices.cbegin();
     // For each portal
     for( const PlanarPortal& planar_portal : m_state.planarPortals() )
     {
@@ -428,8 +427,9 @@ void Ball2DSim::computeBallBallActiveSetSpatialGrid( const VectorXs& q0, const V
 
       if( first_teleported )
       {
-        const std::map<unsigned,TeleportedBall>::const_iterator map_itr{ teleported_aabb_body_indices.find( possible_overlap_pair.first ) };
-        assert( map_itr != teleported_aabb_body_indices.end() );
+        using itr_type = std::map<unsigned,TeleportedBall>::const_iterator;
+        const itr_type map_itr{ teleported_aabb_body_indices.find( possible_overlap_pair.first ) };
+        assert( map_itr != teleported_aabb_body_indices.cend() );
         bdy_idx_0 = map_itr->second.bodyIndex();
         assert( bdy_idx_0 < nbodies );
         prtl_idx_0 = map_itr->second.portalIndex();
@@ -438,8 +438,9 @@ void Ball2DSim::computeBallBallActiveSetSpatialGrid( const VectorXs& q0, const V
       }
       if( second_teleported )
       {
-        const std::map<unsigned,TeleportedBall>::const_iterator map_itr{ teleported_aabb_body_indices.find( possible_overlap_pair.second ) };
-        assert( map_itr != teleported_aabb_body_indices.end() );
+        using itr_type = std::map<unsigned,TeleportedBall>::const_iterator;
+        const itr_type map_itr{ teleported_aabb_body_indices.find( possible_overlap_pair.second ) };
+        assert( map_itr != teleported_aabb_body_indices.cend() );
         bdy_idx_1 = map_itr->second.bodyIndex();
         assert( bdy_idx_1 < nbodies );
         prtl_idx_1 = map_itr->second.portalIndex();

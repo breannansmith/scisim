@@ -77,7 +77,7 @@ void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorX
     using itr_type = std::map<std::pair<unsigned,unsigned>,VectorXs>::const_iterator;
     const itr_type map_iterator{ m_ball_ball_constraints.find( std::make_pair( ball_ball.idx0(), ball_ball.idx1() ) ) };
     // If object is in the cache, retrieve the force
-    if( map_iterator != m_ball_ball_constraints.end() )
+    if( map_iterator != m_ball_ball_constraints.cend() )
     {
       assert( r.size() == map_iterator->second.size() );
       r = map_iterator->second;
@@ -91,7 +91,7 @@ void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorX
     using itr_type = std::map<std::pair<unsigned,unsigned>,VectorXs>::const_iterator;
     const itr_type map_iterator{ m_plane_ball_constraints.find( std::make_pair( plane_ball.planeIdx(), plane_ball.ballIdx() ) ) };
     // If object is in the cache, retrieve the force
-    if( map_iterator != m_plane_ball_constraints.end() )
+    if( map_iterator != m_plane_ball_constraints.cend() )
     {
       assert( r.size() == map_iterator->second.size() );
       r = map_iterator->second;
@@ -105,7 +105,7 @@ void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorX
     using itr_type = std::map<std::pair<unsigned,unsigned>,VectorXs>::const_iterator;
     const itr_type map_iterator{ m_drum_ball_constraints.find( std::make_pair( drum_ball.drumIdx(), drum_ball.ballIdx() ) ) };
     // If object is in the cache, return the force
-    if( map_iterator != m_drum_ball_constraints.end() )
+    if( map_iterator != m_drum_ball_constraints.cend() )
     {
       assert( r.size() == map_iterator->second.size() );
       r = map_iterator->second;
@@ -127,8 +127,7 @@ static void serializeCache( const std::map<std::pair<unsigned,unsigned>,VectorXs
   assert( output_stream.good() );
   Utilities::serializeBuiltInType( constraint_cache.size(), output_stream );
   // For some reason, clang static analyzer does not like the range based for loop here
-  using it_type = std::map<std::pair<unsigned,unsigned>,VectorXs>::const_iterator;
-  for( it_type iterator = constraint_cache.begin(); iterator != constraint_cache.end(); ++iterator )
+  for( auto iterator = constraint_cache.cbegin(); iterator != constraint_cache.cend(); ++iterator )
   {
     Utilities::serializeBuiltInType( iterator->first.first, output_stream );
     Utilities::serializeBuiltInType( iterator->first.second, output_stream );

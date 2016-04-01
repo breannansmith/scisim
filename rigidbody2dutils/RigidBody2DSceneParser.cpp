@@ -61,7 +61,7 @@ static bool loadTextFileIntoVector( const std::string& filename, std::vector<cha
   std::string line;
   while( getline( textfile, line ) )
   {
-    std::copy( line.begin(), line.end(), back_inserter( xmlchars ) );
+    std::copy( line.cbegin(), line.cend(), back_inserter( xmlchars ) );
   }
   xmlchars.emplace_back( '\0' );
 

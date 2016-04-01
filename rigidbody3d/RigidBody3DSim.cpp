@@ -981,8 +981,7 @@ void RigidBody3DSim::computeActiveSetBodyBodySpatialGrid( const VectorXs& q0, co
     assert( aabbs.size() == nbodies );
 
     // Compute an AABB for each teleported particle
-    using itr_type = std::map<unsigned,TeleportedBody>::const_iterator;
-    itr_type aabb_bdy_map_itr{ teleported_aabb_body_indices.begin() };
+    auto aabb_bdy_map_itr = teleported_aabb_body_indices.cbegin();
     // For each portal
     for( std::vector<PlanarPortal>::size_type prtl_idx = 0; prtl_idx < m_sim_state.numPlanarPortals(); ++prtl_idx )
     {
@@ -1047,8 +1046,9 @@ void RigidBody3DSim::computeActiveSetBodyBodySpatialGrid( const VectorXs& q0, co
 
       if( first_teleported )
       {
-        const std::map<unsigned,TeleportedBody>::const_iterator map_itr{ teleported_aabb_body_indices.find( possible_overlap_pair.first ) };
-        assert( map_itr != teleported_aabb_body_indices.end() );
+        using itr_type = std::map<unsigned,TeleportedBody>::const_iterator;
+        const itr_type map_itr{ teleported_aabb_body_indices.find( possible_overlap_pair.first ) };
+        assert( map_itr != teleported_aabb_body_indices.cend() );
         bdy_idx_0 = map_itr->second.bodyIndex();
         assert( bdy_idx_0 < nbodies );
         prtl_idx_0 = map_itr->second.portalIndex();
@@ -1057,8 +1057,9 @@ void RigidBody3DSim::computeActiveSetBodyBodySpatialGrid( const VectorXs& q0, co
       }
       if( second_teleported )
       {
-        const std::map<unsigned,TeleportedBody>::const_iterator map_itr{ teleported_aabb_body_indices.find( possible_overlap_pair.second ) };
-        assert( map_itr != teleported_aabb_body_indices.end() );
+        using itr_type = std::map<unsigned,TeleportedBody>::const_iterator;
+        const itr_type map_itr{ teleported_aabb_body_indices.find( possible_overlap_pair.second ) };
+        assert( map_itr != teleported_aabb_body_indices.cend() );
         bdy_idx_1 = map_itr->second.bodyIndex();
         assert( bdy_idx_1 < nbodies );
         prtl_idx_1 = map_itr->second.portalIndex();

@@ -66,7 +66,7 @@ static bool loadTextFileIntoVector( const std::string& filename, std::vector<cha
   std::string line;
   while( getline( textfile, line ) )
   {
-    std::copy( line.begin(), line.end(), back_inserter( xmlchars ) );
+    std::copy( line.cbegin(), line.cend(), back_inserter( xmlchars ) );
   }
   xmlchars.emplace_back( '\0' );
 
@@ -685,7 +685,7 @@ static bool loadPlanarPortals( const rapidxml::xml_node<>& node, RigidBody3DStat
     {
       renderer_indices[i] = rendering_state.planeRenderer( i ).index();
     }
-    assert( std::is_sorted( std::begin( renderer_indices ), std::end( renderer_indices ) ) );
+    assert( std::is_sorted( std::cbegin( renderer_indices ), std::cend( renderer_indices ) ) );
     std::vector<unsigned> new_renderer_indices{ renderer_indices };
     // For each plane that we removed
     for( std::vector<unsigned>::size_type i = indices.size(); i-- > 0; )

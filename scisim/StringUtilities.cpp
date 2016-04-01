@@ -16,7 +16,7 @@ std::string StringUtilities::deserializeString( std::istream& stm )
   stm.read( reinterpret_cast<char*>( &len ), sizeof(std::string::size_type) );
   std::vector<char> cstr( len );
   stm.read( &cstr.front(), len * sizeof(char) );
-  return std::string( cstr.begin(), cstr.end() );
+  return std::string( cstr.cbegin(), cstr.cend() );
 }
 
 void StringUtilities::serializeString( const std::string& input_string, std::ostream& stm )

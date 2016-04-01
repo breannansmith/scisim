@@ -32,12 +32,12 @@ ImpactMap::ImpactMap( std::istream& input_stream )
 #ifndef NDEBUG
 static bool constraintSetShouldConserveMomentum( const std::vector<std::unique_ptr<Constraint>>& cons )
 {
-  return std::all_of( std::begin( cons ), std::end( cons ), [](const std::unique_ptr<Constraint>& con){ return con->conservesTranslationalMomentum(); } );
+  return std::all_of( std::cbegin( cons ), std::cend( cons ), [](const auto& c){ return c->conservesTranslationalMomentum(); } );
 }
 
 static bool constraintSetShouldConserveAngularMomentum( const std::vector<std::unique_ptr<Constraint>>& cons )
 {
-  return std::all_of( std::begin( cons ), std::end( cons ), [](const std::unique_ptr<Constraint>& con){ return con->conservesAngularMomentumUnderImpact(); } );
+  return std::all_of( std::cbegin( cons ), std::cend( cons ), [](const auto& c){ return c->conservesAngularMomentumUnderImpact(); } );
 }
 #endif
 

@@ -14,7 +14,7 @@ static void reserveSpaceInBasisMatrix( const int nsamples, const std::vector<std
   const int ncons{ D.cols() / nsamples };
 
   VectorXi column_nonzeros{ D.cols() };
-  std::vector<std::unique_ptr<Constraint>>::const_iterator itr{ K.begin() };
+  auto itr = K.cbegin();
   for( int con_idx = 0; con_idx < ncons; ++con_idx )
   {
     for( int smpl_num = 0; smpl_num < nsamples; ++smpl_num )
@@ -23,7 +23,7 @@ static void reserveSpaceInBasisMatrix( const int nsamples, const std::vector<std
     }
     ++itr;
   }
-  assert( itr == K.end() );
+  assert( itr == K.cend() );
   D.reserve( column_nonzeros );
 }
 
@@ -33,13 +33,13 @@ static void buildLinearFrictionBasis( const VectorXs& q, const VectorXs& v, cons
 
   const unsigned ncons{ static_cast<unsigned>( D.cols() ) / nsamples };
 
-  std::vector<std::unique_ptr<Constraint>>::const_iterator itr{ K.begin() };
+  auto itr = K.cbegin();
   for( unsigned con_idx = 0; con_idx < ncons; ++con_idx )
   {
     (*itr)->computeGeneralizedFrictionDisk( q, v, con_idx * nsamples, nsamples, D, drel );
     ++itr;
   }
-  assert( itr == K.end() );
+  assert( itr == K.cend() );
 }
 
 void FrictionOperatorUtilities::formGeneralizedFrictionBasis( const VectorXs& q0, const VectorXs& v0, const std::vector<std::unique_ptr<Constraint>>& K, const int num_samples, SparseMatrixsc& D, VectorXs& drel )

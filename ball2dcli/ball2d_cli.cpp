@@ -682,7 +682,7 @@ int main( int argc, char** argv )
     {
       const std::string& constraint_name = count_pair.first;
       const unsigned& constraint_count = count_pair.second;
-      assert( collision_depths.find( constraint_name ) != collision_depths.end() );
+      assert( collision_depths.find( constraint_name ) != collision_depths.cend() );
       const scalar& constraint_depth = collision_depths[constraint_name];
       std::string depth_string;
       if( !std::isnan( constraint_depth ) )

@@ -433,7 +433,7 @@ int main( int argc, char** argv )
     if( std::vector<std::string>{ "12345abcdefg" } != solution )
     {
       std::cerr << "Error, incorrectly tokenized " << input_string << " at '" << delimiter << "' to: ";
-      std::for_each( solution.begin(), solution.end(), []( const std::string& str){ std::cerr << "'" << str << "' "; } );
+      std::for_each( solution.cbegin(), solution.cend(), []( const std::string& str){ std::cerr << "'" << str << "' "; } );
       std::cerr << std::endl;
       return EXIT_FAILURE;
     }
@@ -453,7 +453,7 @@ int main( int argc, char** argv )
     if( std::vector<std::string>{ "", "12345abcdefg" } != solution )
     {
       std::cerr << "Error, incorrectly tokenized " << input_string << " at '" << delimiter << "' to: ";
-      std::for_each( solution.begin(), solution.end(), []( const std::string& str){ std::cerr << "'" << str << "' "; } );
+      std::for_each( solution.cbegin(), solution.cend(), []( const std::string& str){ std::cerr << "'" << str << "' "; } );
       std::cerr << std::endl;
       return EXIT_FAILURE;
     }
@@ -473,7 +473,7 @@ int main( int argc, char** argv )
     if( std::vector<std::string>{ "", "12345abcdefg", "" } != solution )
     {
       std::cerr << "Error, incorrectly tokenized " << input_string << " at '" << delimiter << "' to: ";
-      std::for_each( solution.begin(), solution.end(), []( const std::string& str){ std::cerr << "'" << str << "' "; } );
+      std::for_each( solution.cbegin(), solution.cend(), []( const std::string& str){ std::cerr << "'" << str << "' "; } );
       std::cerr << std::endl;
       return EXIT_FAILURE;
     }
@@ -493,7 +493,7 @@ int main( int argc, char** argv )
     if( std::vector<std::string>{ "", "123", "adfkdi", "", "bghdkdk" } != solution )
     {
       std::cerr << "Error, incorrectly tokenized " << input_string << " at '" << delimiter << "' to: ";
-      std::for_each( solution.begin(), solution.end(), []( const std::string& str){ std::cerr << "'" << str << "' "; } );
+      std::for_each( solution.cbegin(), solution.cend(), []( const std::string& str){ std::cerr << "'" << str << "' "; } );
       std::cerr << std::endl;
       return EXIT_FAILURE;
     }
@@ -513,7 +513,7 @@ int main( int argc, char** argv )
     if( std::vector<std::string>{ "", "123", "adfkdi", "", "bghdkdk", "" } != solution )
     {
       std::cerr << "Error, incorrectly tokenized " << input_string << " at '" << delimiter << "' to: ";
-      std::for_each( solution.begin(), solution.end(), []( const std::string& str){ std::cerr << "'" << str << "' "; } );
+      std::for_each( solution.cbegin(), solution.cend(), []( const std::string& str){ std::cerr << "'" << str << "' "; } );
       std::cerr << std::endl;
       return EXIT_FAILURE;
     }
@@ -533,7 +533,7 @@ int main( int argc, char** argv )
     if( std::vector<std::string>{ "", "", "", "", "", "", "", "", "", "", "" } != solution )
     {
       std::cerr << "Error, incorrectly tokenized " << input_string << " at '" << delimiter << "' to: ";
-      std::for_each( solution.begin(), solution.end(), []( const std::string& str){ std::cerr << "'" << str << "' "; } );
+      std::for_each( solution.cbegin(), solution.cend(), []( const std::string& str){ std::cerr << "'" << str << "' "; } );
       std::cerr << std::endl;
       return EXIT_FAILURE;
     }
@@ -553,7 +553,7 @@ int main( int argc, char** argv )
     if( std::vector<std::string>{} != solution )
     {
       std::cerr << "Error, incorrectly tokenized " << input_string << " at '" << delimiter << "' to: ";
-      std::for_each( solution.begin(), solution.end(), []( const std::string& str){ std::cerr << "'" << str << "' "; } );
+      std::for_each( solution.cbegin(), solution.cend(), []( const std::string& str){ std::cerr << "'" << str << "' "; } );
       std::cerr << std::endl;
       return EXIT_FAILURE;
     }

@@ -19,26 +19,26 @@ void ImpactOperatorUtilities::computeN( const FlowableSystem& fsys, const std::v
 
   VectorXi column_nonzeros( N.cols() );
   {
-    std::vector<std::unique_ptr<Constraint>>::const_iterator con_itr{ V.begin() };
+    auto con_itr = V.cbegin();
     for( int col = 0; col < N.cols(); ++col )
     {
       assert( *con_itr != nullptr );
       column_nonzeros[col] = (*con_itr)->impactStencilSize();
       ++con_itr;
     }
-    assert( con_itr == V.end() );
+    assert( con_itr == V.cend() );
   }
 
   N.reserve( column_nonzeros );
   {
-    std::vector<std::unique_ptr<Constraint>>::const_iterator con_itr{ V.begin() };
+    auto con_itr = V.cbegin();
     for( int col = 0; col < N.cols(); ++col )
     {
       assert( *con_itr != nullptr );
       (*con_itr)->evalgradg( q, col, N, fsys );
       ++con_itr;
     }
-    assert( con_itr == V.end() );
+    assert( con_itr == V.cend() );
   }
 
   assert( column_nonzeros.sum() == N.nonZeros() );

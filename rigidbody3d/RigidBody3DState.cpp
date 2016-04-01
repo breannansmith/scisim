@@ -297,8 +297,8 @@ void RigidBody3DState::setState( const std::vector<Vector3s>& X, const std::vect
 
   // Load the geometry
   Utilities::cloneVector( geometry, m_geometry );
-  assert( std::all_of( m_geometry.begin(), m_geometry.end(), []( const std::unique_ptr<RigidBodyGeometry>& geo ) { return geo != nullptr; } ) );
-  assert( std::all_of( m_geometry_indices.begin(), m_geometry_indices.end(), [this]( const unsigned idx ) { return idx < m_geometry.size(); } ) );
+  assert( std::all_of( m_geometry.cbegin(), m_geometry.cend(), []( const auto& geo ) { return geo != nullptr; } ) );
+  assert( std::all_of( m_geometry_indices.cbegin(), m_geometry_indices.cend(), [this]( const auto idx ) { return idx < m_geometry.size(); } ) );
 }
 
 unsigned RigidBody3DState::nbodies() const

@@ -65,7 +65,7 @@ RigidBodyTriangleMesh::RigidBodyTriangleMesh( const std::string& input_file_name
       vertex_in_face[m_faces(1,fce_num)] = true;
       vertex_in_face[m_faces(2,fce_num)] = true;
     }
-    assert( std::all_of( vertex_in_face.begin(), vertex_in_face.end(), [](const bool in_face){ return in_face; } ) );
+    assert( std::all_of( vertex_in_face.cbegin(), vertex_in_face.cend(), [](const bool in_face){ return in_face; } ) );
   }
   #endif
 
@@ -139,7 +139,7 @@ RigidBodyTriangleMesh::RigidBodyTriangleMesh( std::istream& input_stream )
       vertex_in_face[m_faces(1,fce_num)] = true;
       vertex_in_face[m_faces(2,fce_num)] = true;
     }
-    assert( std::all_of( vertex_in_face.begin(), vertex_in_face.end(), [](const bool in_face){ return in_face; } ) );
+    assert( std::all_of( vertex_in_face.cbegin(), vertex_in_face.cend(), [](const bool in_face){ return in_face; } ) );
   }
   #endif
   assert( m_volume > 0.0 );

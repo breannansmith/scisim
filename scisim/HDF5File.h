@@ -300,7 +300,7 @@ public:
         }
       }
     }
-    sparse_matrix.derived().setFromTriplets( triplet_list.begin(), triplet_list.end() );
+    sparse_matrix.derived().setFromTriplets( triplet_list.cbegin(), triplet_list.cend() );
     sparse_matrix.derived().makeCompressed();
   }
 

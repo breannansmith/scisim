@@ -161,10 +161,10 @@ void ImpactFrictionMap::exportConstraintForcesToBinaryFile( const VectorXs& q, c
 
 bool ImpactFrictionMap::constraintSetShouldConserveMomentum( const std::vector<std::unique_ptr<Constraint>>& cons )
 {
-  return std::all_of( std::begin(cons), std::end(cons), [](const std::unique_ptr<Constraint>& con){ return con->conservesTranslationalMomentum(); } );
+  return std::all_of( std::cbegin(cons), std::cend(cons), [](const auto& c){ return c->conservesTranslationalMomentum(); } );
 }
 
 bool ImpactFrictionMap::constraintSetShouldConserveAngularMomentum( const std::vector<std::unique_ptr<Constraint>>& cons )
 {
-  return std::all_of( std::begin(cons), std::end(cons), [](const std::unique_ptr<Constraint>& con){ return con->conservesAngularMomentumUnderImpactAndFriction(); } );
+  return std::all_of( std::cbegin(cons), std::cend(cons), [](const auto& c){ return c->conservesAngularMomentumUnderImpactAndFriction(); } );
 }
