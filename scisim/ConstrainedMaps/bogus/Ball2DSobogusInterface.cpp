@@ -131,6 +131,7 @@ double Balls2DSobogusInterface::solve( Eigen::VectorXd& r, Eigen::VectorXd& v, u
     m_dual->applyPermutation( gs.coloring().permutation );
     gs.coloring().resetPermutation();
   }
+  // TODO: cacheTranspose in So-bogus triggers the undefined behavior sanitizer
   m_dual->W.cacheTranspose();
 
   const bool try_zero{ false };
