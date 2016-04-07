@@ -28,6 +28,7 @@ private:
   std::map<std::pair<unsigned,unsigned>,VectorXs> m_circle_circle_constraints;
   // TODO: This cacheing strategy will not work for box-box collisions
   std::map<std::pair<unsigned,unsigned>,VectorXs> m_body_body_constraints;
+  std::map<std::pair<unsigned,unsigned>,VectorXs> m_kinematic_object_circle_constraints;
   std::map<std::pair<unsigned,unsigned>,VectorXs> m_plane_circle_constraints;
 
 };

@@ -78,6 +78,10 @@ if( USE_HDF5 )
   add_test( rb2d_serialization_circle_box_00 assets/shell_scripts/execute_serialization_test.sh assets/box_circle/cd_test.xml 7.0 70 39 10 )
   add_test( rb2d_serialization_circle_box_01 assets/shell_scripts/execute_serialization_test.sh assets/box_circle/box_circle_0.xml 0.5 50 23 100 )
   add_test( rb2d_serialization_circle_box_02 assets/shell_scripts/execute_serialization_test.sh assets/box_circle/box_circle_1.xml 0.5 50 24 100 )
+  # Circle vs fixed box tests
+  add_test( rb2d_serialization_circle_fixed_box_00 assets/shell_scripts/execute_serialization_test.sh assets/box_circle/fixed_box_circle_0.xml 3.5 35 22 10 )
+  add_test( rb2d_serialization_circle_fixed_box_01 assets/shell_scripts/execute_serialization_test.sh assets/box_circle/fixed_box_circle_1.xml 4.0 40 18 10 )
+  add_test( rb2d_serialization_circle_fixed_box_02 assets/shell_scripts/execute_serialization_test.sh assets/box_circle/fixed_box_circle_2.xml 4.0 40 18 10 )
   # Warm-start tests
   add_test( rb2d_serialization_ws_00 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/circles_falling_on_wedge.xml 4.0 40 20 10 )
 else()

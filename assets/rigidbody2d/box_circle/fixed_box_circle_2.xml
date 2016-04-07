@@ -1,0 +1,16 @@
+<rigidbody2d_scene>
+
+  <integrator type="verlet" dt="0.01"/>
+
+  <sobogus_friction_solver mu="0.4" CoR="1.0" max_iters="50000" eval_every="25" tol="9.0e-5" staggering="geometric" cache_impulses="normal_and_friction"/>
+
+  <near_earth_gravity f="0.0 10.0"/>
+
+  <geometry type="circle" r="0.25"/>
+  <geometry type="circle" r="0.45"/>
+  <geometry type="box" r="3.0 0.25"/>
+  <rigid_body x="-1.0 0.0" theta="0.0" v="0.0 0.0" omega="0" rho="1.253" geo_idx="0"/>
+  <rigid_body x="1.0 0.0" theta="0.0" v="0.0 0.0" omega="0" rho="1.253" geo_idx="1"/>
+  <rigid_body x="0.0 2.0" theta="0.0" v="0.0 0.0" omega="0" rho="1.253" geo_idx="2" fixed="1"/>
+
+</rigidbody2d_scene>

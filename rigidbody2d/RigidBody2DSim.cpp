@@ -195,11 +195,11 @@ void RigidBody2DSim::boxBoxNarrowPhaseCollision( const unsigned idx0, const unsi
   }
 }
 
-void RigidBody2DSim::boxCircleNarrowPhaseCollision( const unsigned idx_crcl, const unsigned idx_box, const CircleGeometry& circle, const BoxGeometry& box, const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const
+void RigidBody2DSim::boxCircleNarrowPhaseCollision( const unsigned idx_crcl, const unsigned idx_box, const CircleGeometry& circle, const BoxGeometry& box, const VectorXs& q0, const VectorXs& q1, const VectorXs& v, std::vector<std::unique_ptr<Constraint>>& active_set ) const
 {
-  if( isKinematicallyScripted( idx_crcl ) || isKinematicallyScripted( idx_box ) )
+  if( isKinematicallyScripted( idx_crcl ) )
   {
-    std::cerr << "Circle-Box kinematic collisions not yet supported." << std::endl;
+    std::cerr << "Kinematic circle vs. box collisions not yet supported." << std::endl;
     std::exit( EXIT_FAILURE );
   }
 
@@ -214,13 +214,23 @@ void RigidBody2DSim::boxCircleNarrowPhaseCollision( const unsigned idx_crcl, con
   // ... but constraint construction is at q0 to conserve angular momentum
   if( is_active )
   {
-    if( idx_crcl < idx_box )
+    if( !isKinematicallyScripted( idx_box ) )
     {
-      active_set.emplace_back( new BodyBodyConstraint{ idx_crcl, idx_box, p, n, q0 } );
+      if( idx_crcl < idx_box )
+      {
+        active_set.emplace_back( new BodyBodyConstraint{ idx_crcl, idx_box, p, n, q0 } );
+      }
+      else
+      {
+        active_set.emplace_back( new BodyBodyConstraint{ idx_box, idx_crcl, p, -n, q0 } );
+      }
     }
     else
     {
-      active_set.emplace_back( new BodyBodyConstraint{ idx_box, idx_crcl, p, -n, q0 } );
+      const Vector2s x{ q0.segment<2>( 3 * idx_box ) };
+      const Vector2s vel{ v.segment<2>( 3 * idx_box ) };
+      const scalar omega{ v( 3 * idx_box + 2 ) };
+      active_set.emplace_back( new KinematicObjectCircleConstraint{ idx_crcl, circle.r(), n, idx_box, x, vel, omega } );
     }
   }
 }
@@ -267,7 +277,7 @@ void RigidBody2DSim::dispatchNarrowPhaseCollision( unsigned idx0, unsigned idx1,
             else
             {
               const Vector2s x{ q0.segment<2>( 3 * idx1 ) };
-              const Vector2s vel{ v.segment<2>( 3 * idx1 ).transpose() };
+              const Vector2s vel{ v.segment<2>( 3 * idx1 ) };
               const scalar omega{ v( 3 * idx1 + 2 ) };
               active_set.emplace_back( new KinematicObjectCircleConstraint{ idx0, circle_geo0.r(), n, idx1, x, vel, omega } );
             }
@@ -277,9 +287,8 @@ void RigidBody2DSim::dispatchNarrowPhaseCollision( unsigned idx0, unsigned idx1,
         case RigidBody2DGeometryType::BOX:
         {
           assert( !isKinematicallyScripted( idx0 ) );
-          assert( !isKinematicallyScripted( idx1 ) );
           const BoxGeometry& box_geo1{ static_cast<BoxGeometry&>( *geo1 ) };
-          boxCircleNarrowPhaseCollision( idx0, idx1, circle_geo0, box_geo1, q0, q1, active_set );
+          boxCircleNarrowPhaseCollision( idx0, idx1, circle_geo0, box_geo1, q0, q1, v, active_set );
           break;
         }
       }
@@ -295,7 +304,7 @@ void RigidBody2DSim::dispatchNarrowPhaseCollision( unsigned idx0, unsigned idx1,
           assert( !isKinematicallyScripted( idx0 ) );
           assert( !isKinematicallyScripted( idx1 ) );
           const CircleGeometry& circle_geo1{ static_cast<CircleGeometry&>( *geo1 ) };
-          boxCircleNarrowPhaseCollision( idx1, idx0, circle_geo1, box_geo0, q0, q1, active_set );
+          boxCircleNarrowPhaseCollision( idx1, idx0, circle_geo1, box_geo0, q0, q1, v, active_set );
           break;
         }
         case RigidBody2DGeometryType::BOX:
