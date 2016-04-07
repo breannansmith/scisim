@@ -74,6 +74,10 @@ if( USE_HDF5 )
   # Box-box-plane tests
   add_test( rb2d_serialization_box_box_plane_00 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/boxes/box_box_plane_00.xml 3.5 35 06 10 )
   add_test( rb2d_serialization_box_box_plane_01 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/boxes/box_box_plane_01.xml 2.0 20 06 10 )
+  # Circle-box tests
+  add_test( rb2d_serialization_circle_box_00 assets/shell_scripts/execute_serialization_test.sh assets/box_circle/cd_test.xml 7.0 70 39 10 )
+  add_test( rb2d_serialization_circle_box_01 assets/shell_scripts/execute_serialization_test.sh assets/box_circle/box_circle_0.xml 0.5 50 23 100 )
+  add_test( rb2d_serialization_circle_box_02 assets/shell_scripts/execute_serialization_test.sh assets/box_circle/box_circle_1.xml 0.5 50 24 100 )
   # Warm-start tests
   add_test( rb2d_serialization_ws_00 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/circles_falling_on_wedge.xml 4.0 40 20 10 )
 else()

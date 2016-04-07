@@ -1,0 +1,22 @@
+<rigidbody2d_scene>
+
+  <integrator type="symplectic_euler" dt="0.01"/>
+
+  <geometry type="circle" r="0.25"/>
+  <geometry type="box" r="0.25 0.5"/>
+  <rigid_body x="0.5 0.4" theta="0.0" v="0.0 0.0" omega="2" rho="1.253" geo_idx="0"/>
+  <rigid_body x="-0.5 0.4" theta="0.0" v="0.0 0.0" omega="3" rho="1.253" geo_idx="0"/>
+  <rigid_body x="0.0 0.0" theta="0.0" v="0.0 0.0" omega="0.5" rho="1.253" geo_idx="1"/>
+  <rigid_body x="0.4 -0.4" theta="0.0" v="0.0 0.0" omega="-4" rho="1.253" geo_idx="0"/>
+  <rigid_body x="-0.4 -0.4" theta="0.0" v="0.0 0.0" omega="12" rho="1.253" geo_idx="0"/>
+
+
+  <geometry type="circle" r="0.25"/>
+  <geometry type="box" r="0.25 0.5"/>
+  <rigid_body x="2.5 1.4" theta="0.0" v="0.0 0.0" omega="-2" rho="1.253" geo_idx="2"/>
+  <rigid_body x="1.5 1.4" theta="0.0" v="0.0 0.0" omega="-3" rho="1.253" geo_idx="2"/>
+  <rigid_body x="2.0 1.0" theta="0.0" v="0.0 0.0" omega="-0.5" rho="1.253" geo_idx="3"/>
+  <rigid_body x="2.4 0.6" theta="0.0" v="0.0 0.0" omega="4" rho="1.253" geo_idx="2"/>
+  <rigid_body x="1.6 0.6" theta="0.0" v="0.0 0.0" omega="-12" rho="1.253" geo_idx="2"/>
+
+</rigidbody2d_scene>

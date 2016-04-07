@@ -18,6 +18,7 @@ class ImpactMap;
 class ImpactFrictionMap;
 class HDF5File;
 class FrictionSolver;
+class CircleGeometry;
 class BoxGeometry;
 class PythonScripting;
 template<typename T> class Rational;
@@ -110,6 +111,7 @@ private:
   void computeBodyPlaneActiveSetAllPairs( const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const;
 
   void boxBoxNarrowPhaseCollision( const unsigned idx0, const unsigned idx1, const BoxGeometry& box0, const BoxGeometry& box1, const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const;
+  void boxCircleNarrowPhaseCollision( const unsigned idx0, const unsigned idx1, const CircleGeometry& circle, const BoxGeometry& box, const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const;
   void dispatchNarrowPhaseCollision( unsigned idx0, unsigned idx1, const VectorXs& q0, const VectorXs& q1, const VectorXs& v, std::vector<std::unique_ptr<Constraint>>& active_set ) const;
 
   RigidBody2DState m_state;

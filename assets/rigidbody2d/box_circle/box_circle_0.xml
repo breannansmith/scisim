@@ -1,0 +1,17 @@
+<rigidbody2d_scene>
+
+  <integrator type="symplectic_euler" dt="0.01"/>
+
+  <sobogus_friction_solver mu="0.0" CoR="1.0" max_iters="50000" eval_every="25" tol="9.0e-5" staggering="geometric" cache_impulses="normal_and_friction"/>
+
+  <geometry type="circle" r="0.25"/>
+  <geometry type="box" r="0.25 0.5"/>
+  <rigid_body x="-0.5 1.0" theta="0.0" v="2.0 0.0" omega="0" rho="1.253" geo_idx="0"/>
+  <rigid_body x="0.5 1.0" theta="0.0" v="0.0 0.0" omega="0" rho="1.253" geo_idx="1"/>
+
+  <geometry type="circle" r="0.25"/>
+  <geometry type="box" r="0.25 0.5"/>
+  <rigid_body x="0.5 -1.0" theta="0.0" v="-2.0 0.0" omega="0" rho="1.253" geo_idx="3"/>
+  <rigid_body x="-0.5 -1.0" theta="0.0" v="0.0 0.0" omega="0" rho="1.253" geo_idx="2"/>
+
+</rigidbody2d_scene>

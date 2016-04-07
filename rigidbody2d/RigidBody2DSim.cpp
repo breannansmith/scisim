@@ -13,6 +13,7 @@
 #include "scisim/Utilities.h"
 #include "scisim/HDF5File.h"
 
+#include "CircleBoxTools.h"
 #include "BoxBoxTools.h"
 #include "BoxGeometry.h"
 #include "CircleGeometry.h"
@@ -194,6 +195,36 @@ void RigidBody2DSim::boxBoxNarrowPhaseCollision( const unsigned idx0, const unsi
   }
 }
 
+void RigidBody2DSim::boxCircleNarrowPhaseCollision( const unsigned idx_crcl, const unsigned idx_box, const CircleGeometry& circle, const BoxGeometry& box, const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const
+{
+  if( isKinematicallyScripted( idx_crcl ) || isKinematicallyScripted( idx_box ) )
+  {
+    std::cerr << "Circle-Box kinematic collisions not yet supported." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+
+  // Note: Detection is at q1...
+  const Vector2s x0_t1{ q1.segment<2>( 3 * idx_crcl ) };
+  const Vector2s x1_t1{ q1.segment<2>( 3 * idx_box ) };
+  const scalar theta1_t1{ q1( 3 * idx_box + 2 ) };
+  Vector2s n;
+  Vector2s p;
+  const bool is_active{ CircleBoxTools::isActive( x0_t1, circle.r(), x1_t1, theta1_t1, box.r(), n, p ) };
+
+  // ... but constraint construction is at q0 to conserve angular momentum
+  if( is_active )
+  {
+    if( idx_crcl < idx_box )
+    {
+      active_set.emplace_back( new BodyBodyConstraint{ idx_crcl, idx_box, p, n, q0 } );
+    }
+    else
+    {
+      active_set.emplace_back( new BodyBodyConstraint{ idx_box, idx_crcl, p, -n, q0 } );
+    }
+  }
+}
+
 void RigidBody2DSim::dispatchNarrowPhaseCollision( unsigned idx0, unsigned idx1, const VectorXs& q0, const VectorXs& q1, const VectorXs& v, std::vector<std::unique_ptr<Constraint>>& active_set ) const
 {
   assert( q0.size() % 3 == 0 ); assert( q0.size() == q1.size() );
@@ -245,8 +276,11 @@ void RigidBody2DSim::dispatchNarrowPhaseCollision( unsigned idx0, unsigned idx1,
         }
         case RigidBody2DGeometryType::BOX:
         {
-          std::cerr << "CIRCLE-BOX case not handled in RigidBody2DSim::dispatchNarrowPhaseCollision" << std::endl;
-          std::exit( EXIT_FAILURE );
+          assert( !isKinematicallyScripted( idx0 ) );
+          assert( !isKinematicallyScripted( idx1 ) );
+          const BoxGeometry& box_geo1{ static_cast<BoxGeometry&>( *geo1 ) };
+          boxCircleNarrowPhaseCollision( idx0, idx1, circle_geo0, box_geo1, q0, q1, active_set );
+          break;
         }
       }
       break;
@@ -258,8 +292,11 @@ void RigidBody2DSim::dispatchNarrowPhaseCollision( unsigned idx0, unsigned idx1,
       {
         case RigidBody2DGeometryType::CIRCLE:
         {
-          std::cerr << "BOX-CIRCLE case not handled in RigidBody2DSim::dispatchNarrowPhaseCollision" << std::endl;
-          std::exit( EXIT_FAILURE );
+          assert( !isKinematicallyScripted( idx0 ) );
+          assert( !isKinematicallyScripted( idx1 ) );
+          const CircleGeometry& circle_geo1{ static_cast<CircleGeometry&>( *geo1 ) };
+          boxCircleNarrowPhaseCollision( idx1, idx0, circle_geo1, box_geo0, q0, q1, active_set );
+          break;
         }
         case RigidBody2DGeometryType::BOX:
         {

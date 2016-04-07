@@ -24,6 +24,16 @@ void ConstraintCache::cacheConstraint( const Constraint& constraint, const Vecto
     m_circle_circle_constraints.insert( std::make_pair( std::make_pair( constraint.simulatedBody0(), constraint.simulatedBody1() ), r ) );
     assert( insert_return.second ); // Should not re-encounter constraints
   }
+  else if( constraint_type == "body_body" )
+  {
+    assert( constraint.simulatedBody0() < constraint.simulatedBody1() );
+    #ifndef NDEBUG
+    const auto insert_return =
+    #endif
+    m_body_body_constraints.insert( std::make_pair( std::make_pair( constraint.simulatedBody0(), constraint.simulatedBody1() ), r ) );
+    assert( insert_return.second ); // Should not re-encounter constraints
+  }
+  // !!!!!!!!!!!!! TODO: Create a separte cache for kinematic_object vs. circles
   else if( constraint_type == "kinematic_object_circle" )
   {
     const unsigned idx0{ static_cast<unsigned>( std::min( constraint.body0(), constraint.body1() ) ) };
@@ -54,12 +64,13 @@ void ConstraintCache::cacheConstraint( const Constraint& constraint, const Vecto
 void ConstraintCache::clear()
 {
   m_circle_circle_constraints.clear();
+  m_body_body_constraints.clear();
   m_plane_circle_constraints.clear();
 }
 
 bool ConstraintCache::empty() const
 {
-  return m_circle_circle_constraints.empty() && m_plane_circle_constraints.empty();
+  return m_circle_circle_constraints.empty() && m_body_body_constraints.empty() && m_plane_circle_constraints.empty();
 }
 
 void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorXs& r ) const
@@ -78,6 +89,19 @@ void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorX
       return;
     }
   }
+  else if( constraint_type == "body_body" )
+  {
+    assert( constraint.simulatedBody0() < constraint.simulatedBody1() );
+    using itr_type = std::map<std::pair<unsigned,unsigned>,VectorXs>::const_iterator;
+    const itr_type map_iterator{ m_body_body_constraints.find( std::make_pair( constraint.simulatedBody0(), constraint.simulatedBody1() ) ) };
+    if( map_iterator != m_body_body_constraints.cend() )
+    {
+      assert( r.size() == map_iterator->second.size() );
+      r = map_iterator->second;
+      return;
+    }
+  }
+  // !!!!!!!!!!!!! TODO: Create a separte cache for kinematic_object vs. circles
   else if( constraint_type == "kinematic_object_circle" )
   {
     const unsigned idx0{ static_cast<unsigned>( std::min( constraint.body0(), constraint.body1() ) ) };
@@ -149,6 +173,7 @@ void ConstraintCache::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
   serializeCache( m_circle_circle_constraints, output_stream );
+  serializeCache( m_body_body_constraints, output_stream );
   serializeCache( m_plane_circle_constraints, output_stream );
 }
 
@@ -157,6 +182,8 @@ void ConstraintCache::deserialize( std::istream& input_stream )
   assert( input_stream.good() );
   m_circle_circle_constraints.clear();
   deserializeCache( m_circle_circle_constraints, input_stream );
+  m_body_body_constraints.clear();
+  deserializeCache( m_body_body_constraints, input_stream );
   m_plane_circle_constraints.clear();
   deserializeCache( m_plane_circle_constraints, input_stream );
   // TODO: Check that all dimensions of forces are the same

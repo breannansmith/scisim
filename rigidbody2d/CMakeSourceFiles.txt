@@ -2,6 +2,7 @@ set( Sources
   BodyBodyConstraint.cpp
   BoxBoxTools.cpp
   BoxGeometry.cpp
+  CircleBoxTools.cpp
   CircleCircleConstraint.cpp
   CircleGeometry.cpp
   ConstraintCache.cpp
@@ -29,6 +30,7 @@ set( Headers
   BodyBodyConstraint.h
   BoxBoxTools.h
   BoxGeometry.h
+  CircleBoxTools.h
   CircleCircleConstraint.h
   CircleGeometry.h
   ConstraintCache.h
