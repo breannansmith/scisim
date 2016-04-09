@@ -7,7 +7,6 @@
 #define RIGID_BODY_2D_GEOMETRY_H
 
 #include "scisim/Math/MathDefines.h"
-
 #include <memory>
 
 enum class RigidBody2DGeometryType

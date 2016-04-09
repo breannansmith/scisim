@@ -52,12 +52,8 @@ std::unique_ptr<RigidBody2DForce> NearEarthGravityForce::clone() const
   return std::unique_ptr<NearEarthGravityForce>{ new NearEarthGravityForce{ m_g } };
 }
 
-std::string NearEarthGravityForce::forceName() const
+void NearEarthGravityForce::serialize( std::ostream& output_stream ) const
 {
-  return "near_earth_gravity";
-}
-
-void NearEarthGravityForce::serializeState( std::ostream& output_stream ) const
-{
+  Utilities::serializeBuiltInType( RigidBody2DForceType::NEAR_EARTH_GRAVITY, output_stream );
   MathUtilities::serialize( m_g, output_stream );
 }

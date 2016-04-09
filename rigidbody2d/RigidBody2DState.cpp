@@ -13,8 +13,6 @@
 #include "CircleGeometry.h"
 #include "NearEarthGravityForce.h"
 
-#include <iostream>
-
 static SparseMatrixsc generateM( const VectorXs& m )
 {
   SparseMatrixsc M{ SparseMatrixsc::Index( m.size() ), SparseMatrixsc::Index( m.size() ) };
@@ -509,21 +507,17 @@ static void deserializeGeo( std::istream& input_stream, std::vector<std::unique_
 
 static void deserializeForces( std::istream& input_stream, std::vector<std::unique_ptr<RigidBody2DForce>>& forces )
 {
-  forces.clear();
-  const std::vector<std::unique_ptr<RigidBody2DForce>>::size_type nforces{ Utilities::deserialize<std::vector<std::unique_ptr<RigidBody2DForce>>::size_type>( input_stream ) };
+  using st = std::vector<std::unique_ptr<RigidBody2DForce>>::size_type;
+  const st nforces{ Utilities::deserialize<st>( input_stream ) };
   forces.resize( nforces );
-  for( std::vector<std::unique_ptr<RigidBody2DForce>>::size_type force_idx = 0; force_idx < nforces; ++force_idx )
+  for( st force_idx = 0; force_idx < nforces; ++force_idx )
   {
-    // Read in the force name
-    const std::string force_name{ StringUtilities::deserializeString( input_stream ) };
-    if( "near_earth_gravity" == force_name )
+    const RigidBody2DForceType force_type{ Utilities::deserialize<RigidBody2DForceType>( input_stream ) };
+    switch( force_type )
     {
-      forces[force_idx].reset( new NearEarthGravityForce{ input_stream } );
-    }
-    else
-    {
-      std::cerr << "Invalid 2D force type encountered in deserializeForces, this is a bug, exiting." << std::endl;
-      std::exit( EXIT_FAILURE );
+      case RigidBody2DForceType::NEAR_EARTH_GRAVITY:
+        forces[force_idx].reset( new NearEarthGravityForce{ input_stream } );
+        break;
     }
   }
 }

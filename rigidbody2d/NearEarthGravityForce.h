@@ -25,11 +25,9 @@ public:
 
   virtual std::unique_ptr<RigidBody2DForce> clone() const override;
 
+  virtual void serialize( std::ostream& output_stream ) const override;
+
 private:
-
-  virtual std::string forceName() const override;
-
-  virtual void serializeState( std::ostream& output_stream ) const override;
 
   const Vector2s m_g;
 

@@ -6,13 +6,23 @@
 #ifndef RIGID_BODY_2D_FORCE_H
 #define RIGID_BODY_2D_FORCE_H
 
-#include <memory>
 #include "scisim/Math/MathDefines.h"
+#include <memory>
+
+enum class RigidBody2DForceType
+{
+  NEAR_EARTH_GRAVITY
+};
 
 class RigidBody2DForce
 {
 
 public:
+
+  RigidBody2DForce( const RigidBody2DForce& ) = delete;
+  RigidBody2DForce( RigidBody2DForce&& ) = delete;
+  RigidBody2DForce& operator=( const RigidBody2DForce& ) = delete;
+  RigidBody2DForce& operator=( RigidBody2DForce&& ) = delete;
 
   virtual ~RigidBody2DForce() = 0;
 
@@ -23,14 +33,11 @@ public:
 
   virtual std::unique_ptr<RigidBody2DForce> clone() const = 0;
 
-  std::string name() const;
+  virtual void serialize( std::ostream& output_stream ) const = 0;
 
-  void serialize( std::ostream& output_stream ) const;
+protected:
 
-private:
-
-  virtual std::string forceName() const = 0;
-  virtual void serializeState( std::ostream& output_stream ) const = 0;
+  RigidBody2DForce() = default;
 
 };
 
