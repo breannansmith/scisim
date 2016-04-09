@@ -29,26 +29,26 @@ std::unique_ptr<RigidBody2DGeometry> CircleGeometry::clone() const
   return std::unique_ptr<RigidBody2DGeometry>{ new CircleGeometry{ m_r } };
 }
 
-const scalar& CircleGeometry::r() const
-{
-  return m_r;
-}
-
-void CircleGeometry::AABB( const Vector2s& x, const scalar& theta, Array2s& min, Array2s& max ) const
+void CircleGeometry::computeAABB( const Vector2s& x, const scalar& theta, Array2s& min, Array2s& max ) const
 {
   // Circles are invariant to rotations about the center of mass, so theta is unused here
   min = x.array() - m_r;
   max = x.array() + m_r;
 }
 
-void CircleGeometry::massAndInertia( const scalar& density, scalar& m, scalar& I ) const
+void CircleGeometry::computeMassAndInertia( const scalar& density, scalar& m, scalar& I ) const
 {
   m = density * MathDefines::PI<scalar>() * m_r * m_r;
   I = 0.5 * m * m_r * m_r;
 }
 
-void CircleGeometry::serializeState( std::ostream& output_stream ) const
+void CircleGeometry::serialize( std::ostream& output_stream ) const
 {
   Utilities::serializeBuiltInType( RigidBody2DGeometryType::CIRCLE, output_stream );
   Utilities::serializeBuiltInType( m_r, output_stream );
+}
+
+const scalar& CircleGeometry::r() const
+{
+  return m_r;
 }

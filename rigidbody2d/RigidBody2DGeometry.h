@@ -10,7 +10,7 @@
 
 #include <memory>
 
-enum class RigidBody2DGeometryType : std::uint8_t
+enum class RigidBody2DGeometryType
 {
   CIRCLE, BOX
 };
@@ -20,28 +20,29 @@ class RigidBody2DGeometry
 
 public:
 
+  RigidBody2DGeometry( const RigidBody2DGeometry& ) = delete;
+  RigidBody2DGeometry( RigidBody2DGeometry&& ) = delete;
+  RigidBody2DGeometry& operator=( const RigidBody2DGeometry& ) = delete;
+  RigidBody2DGeometry& operator=( RigidBody2DGeometry&& ) = delete;
+
   virtual ~RigidBody2DGeometry() = 0;
 
   virtual RigidBody2DGeometryType type() const = 0;
 
   virtual std::unique_ptr<RigidBody2DGeometry> clone() const = 0;
 
-  void computeAABB( const Vector2s& x, const scalar& theta, Array2s& min, Array2s& max ) const;
+  virtual void computeAABB( const Vector2s& x, const scalar& theta, Array2s& min, Array2s& max ) const = 0;
 
   // density: (in) positive density of the rigid body
   // m:      (out) positive total mass of the rigid body
   // I:      (out) positive moment of inertia of the rigid body
-  void computeMassAndInertia( const scalar& density, scalar& m, scalar& I ) const;
+  virtual void computeMassAndInertia( const scalar& density, scalar& m, scalar& I ) const = 0;
 
-  void serialize( std::ostream& output_stream ) const;
+  virtual void serialize( std::ostream& output_stream ) const = 0;
 
-private:
+protected:
 
-  virtual void AABB( const Vector2s& x, const scalar& theta, Array2s& min, Array2s& max ) const = 0;
-
-  virtual void massAndInertia( const scalar& density, scalar& m, scalar& I ) const = 0;
-
-  virtual void serializeState( std::ostream& output_stream ) const = 0;
+  RigidBody2DGeometry() = default;
 
 };
 

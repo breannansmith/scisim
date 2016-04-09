@@ -29,20 +29,20 @@ std::unique_ptr<RigidBody2DGeometry> BoxGeometry::clone() const
   return std::unique_ptr<RigidBody2DGeometry>{ new BoxGeometry{ m_r } };
 }
 
-void BoxGeometry::AABB( const Vector2s& x, const scalar& theta, Array2s& min, Array2s& max ) const
+void BoxGeometry::computeAABB( const Vector2s& x, const scalar& theta, Array2s& min, Array2s& max ) const
 {
   const Array2s extents{ Eigen::Rotation2D<scalar>( theta ).matrix().cwiseAbs() * m_r };
   min = x.array() - extents;
   max = x.array() + extents;
 }
 
-void BoxGeometry::massAndInertia( const scalar& density, scalar& m, scalar& I ) const
+void BoxGeometry::computeMassAndInertia( const scalar& density, scalar& m, scalar& I ) const
 {
   m = density * 4.0 * m_r.x() * m_r.y();
   I = m * m_r.squaredNorm() / 3.0;
 }
 
-void BoxGeometry::serializeState( std::ostream& output_stream ) const
+void BoxGeometry::serialize( std::ostream& output_stream ) const
 {
   Utilities::serializeBuiltInType( RigidBody2DGeometryType::BOX, output_stream );
   MathUtilities::serialize( m_r, output_stream );
