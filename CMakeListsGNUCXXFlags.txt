@@ -34,8 +34,7 @@ if( SANITIZER STREQUAL "address" )
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address" )
 elseif( SANITIZER STREQUAL "undefined" )
   # -fsanitize=nonnull-attribute causes issues with Eigen
-  # -fsanitize=null causes issues with So-bogus
-  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined -fno-sanitize-recover -fno-sanitize=nonnull-attribute -fno-sanitize=null" )
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined -fno-sanitize-recover -fno-sanitize=nonnull-attribute" )
 elseif( NOT SANITIZER STREQUAL "none" )
   message( FATAL_ERROR "Error, only 'address' and 'undefined' are supported for GCC sanitizers, in the build system." )
 endif()

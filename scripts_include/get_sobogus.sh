@@ -1,14 +1,14 @@
 #!/bin/bash
 
-original_sobogus_md5="d6ec5a6733cc9d4a0047b7c0ba4db64e"
-patched_sobogus_md5="1dd9a862ded43d2b27be6a9cf105a286"
+original_sobogus_md5="e398eddbfcf580543667d079bfff4c81"
+patched_sobogus_md5="56aee58f76f42857dbd7e3837ee32eae"
 sobogus_url="https://bitbucket.org/gdaviet/so-bogus.git"
-desired_sobogus_revision="44acb51687655760058cf0bbb879d14c18eff6b1"
+desired_sobogus_revision="37841267b7290ae0e7486f6225855bd83dc3e289"
 # md5 on installed So-bogus source files
-actual_installed_sobogus_dir_md5="1a7ef59339952ab4f23a229abf80c2e6"
+actual_installed_sobogus_dir_md5="5f4f4b059f5b5db54a548479e7aa94cf"
 actual_installed_hpp_md5="5f6590e7e6ddb278f6e7740c3e097976"
-actual_installed_cpp_md5="14c5475bbf334d29c56450cfc5363fd7"
-actual_installed_impl_md5="b68880eda45bafba666d7f977c4efc7d"
+actual_installed_cpp_md5="73fba2af92aa42fc13f6bb9a5004b8f0"
+actual_installed_impl_md5="f6ccfaa3d971f99ba80363674d83448b"
 
 # Verify that git is installed
 command -v git >/dev/null 2>&1 || { echo >&2 "Error, please install git and rerun get_sobogus.sh."; exit 1; }

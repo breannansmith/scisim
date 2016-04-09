@@ -82,7 +82,7 @@ static bool loadXMLFile( const std::string& filename, std::vector<char>& xmlchar
   // Initialize the xml parser with the character vector
   try
   {
-    doc.parse<0>( &xmlchars.front() );
+    doc.parse<0>( xmlchars.data() );
   }
   catch( const rapidxml::parse_error& e )
   {

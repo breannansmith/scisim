@@ -52,7 +52,7 @@ namespace Utilities
   // Precondition: element is contained in vec
   template<class T> unsigned index( const std::vector<T>& vec, const T& element )
   {
-    return unsigned( &element - &vec.front() );
+    return unsigned( &element - vec.data() );
   }
 
   template<typename T> void serializeBuiltInType( const T& var, std::ostream& output_stream )

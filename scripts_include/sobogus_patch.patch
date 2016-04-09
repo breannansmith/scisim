@@ -50,7 +50,7 @@ index de50024..d668c42 100644
  
  }
 diff --git a/src/Interfaces/FrictionProblem.cpp b/src/Interfaces/FrictionProblem.cpp
-index b15a412..79cd74b 100644
+index 4dffab5..2bf3f3b 100644
 --- a/src/Interfaces/FrictionProblem.cpp
 +++ b/src/Interfaces/FrictionProblem.cpp
 @@ -20,8 +20,7 @@
@@ -247,7 +247,7 @@ index a872c66..3389cdc 100644
  
  	//! \warning To use the permutation releated functions, all the blocks have to have the same size
 diff --git a/src/Interfaces/FrictionProblem.impl.hpp b/src/Interfaces/FrictionProblem.impl.hpp
-index 3d2aa3e..ca385f5 100644
+index 6e186d8..ea6ce90 100644
 --- a/src/Interfaces/FrictionProblem.impl.hpp
 +++ b/src/Interfaces/FrictionProblem.impl.hpp
 @@ -19,10 +19,9 @@
