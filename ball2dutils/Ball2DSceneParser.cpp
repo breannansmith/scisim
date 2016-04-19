@@ -941,8 +941,17 @@ static bool loadMDPOperator( const rapidxml::xml_node<>& node, std::unique_ptr<F
   {
     return loadQLMDPOperator( node, friction_operator );
   }
-  #endif
+  else
+  {
+    std::cerr << "Error, invalid MDP operator name provided: " << name << std::endl;
+    std::cerr << "Valid names are: ql" << std::endl;
+    return false;
+  }
+  #else
+  std::cerr << "Error, invalid MDP operator name provided: " << name << std::endl;
+  std::cerr << "MDP operator is not currently supported." << std::endl;
   return false;
+  #endif
 }
 
 // Example:

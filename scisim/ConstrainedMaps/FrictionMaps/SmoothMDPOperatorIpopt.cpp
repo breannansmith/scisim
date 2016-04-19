@@ -18,7 +18,6 @@
 #include "IpIpoptData.hpp"
 #include "IpTNLPAdapter.hpp"
 #include "IpOrigIpoptNLP.hpp"
-#include "scisim/Math/MathUtilities.h"
 #include "scisim/ConstrainedMaps/FrictionMaps/FischerBurmeisterSmooth.h"
 #include "scisim/ConstrainedMaps/QPTerminationOperator.h"
 
@@ -263,7 +262,7 @@ bool SmoothMDPNLP::get_nlp_info( Ipopt::Index& n, Ipopt::Index& m, Ipopt::Index&
   m = n / 2;
 
   nnz_jac_g = n;
-  nnz_h_lag = MathUtilities::nzLowerTriangular( m_Q );
+  nnz_h_lag = IpoptUtilities::nzLowerTriangular( m_Q );
   index_style = TNLP::C_STYLE;
 
   return true;
@@ -416,7 +415,7 @@ bool SmoothMDPNLP::eval_h( Ipopt::Index n, const Ipopt::Number* x, bool new_x, I
     assert( jCol != nullptr );
     static_assert( std::is_same<Ipopt::Number,scalar>::value, "Ipopt's floating point type must be the same type as SCISim's scalar." );
     {
-      const int nnz{ MathUtilities::sparsityPatternLowerTriangular( m_Q, iRow, jCol ) };
+      const int nnz{ IpoptUtilities::sparsityPatternLowerTriangular( m_Q, iRow, jCol ) };
       assert( nnz == nele_hess );
       Utilities::ignoreUnusedVariable( nnz ); // To silence warnings in release mode
     }
@@ -440,7 +439,7 @@ bool SmoothMDPNLP::eval_h( Ipopt::Index n, const Ipopt::Number* x, bool new_x, I
     static_assert( std::is_same<Ipopt::Number,scalar>::value, "Ipopt's floating point type must be the same type as SCISim's scalar." );
     assert( Ipopt::Index(m_diagonal_indices.size()) == n );
     {
-      const int nnz{ MathUtilities::valuesLowerTriangular( m_Q, values ) };
+      const int nnz{ IpoptUtilities::valuesLowerTriangular( m_Q, values ) };
       assert( nnz == nele_hess );
       Utilities::ignoreUnusedVariable( nnz ); // To silence warnings in release mode
     }

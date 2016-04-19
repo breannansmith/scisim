@@ -18,6 +18,7 @@ public:
 
   bool overlaps( const AABB& other ) const;
 
+  // TODO: Remove non-const accessors, replace with constructor
   inline Array3s& min() { return m_min; }
   inline Array3s& max() { return m_max; }
 

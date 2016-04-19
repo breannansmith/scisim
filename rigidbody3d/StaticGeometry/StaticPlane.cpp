@@ -7,13 +7,6 @@
 
 #include "scisim/Math/MathUtilities.h"
 
-StaticPlane::StaticPlane()
-: m_x()
-, m_R()
-, m_v()
-, m_omega()
-{}
-
 StaticPlane::StaticPlane( const Vector3s& x, const Vector3s& n )
 : m_x( x )
 , m_R( Quaternions::FromTwoVectors( Vector3s::UnitY(), n.normalized() ) )
@@ -58,16 +51,19 @@ const Vector3s& StaticPlane::x() const
 
 Quaternions& StaticPlane::R()
 {
+  assert( fabs( m_R.norm() - 1.0 ) <= 1.0e-6 );
   return m_R;
 }
 
 const Quaternions& StaticPlane::R() const
 {
+  assert( fabs( m_R.norm() - 1.0 ) <= 1.0e-6 );
   return m_R;
 }
 
 const Vector3s StaticPlane::n() const
 {
+  assert( fabs( m_R.norm() - 1.0 ) <= 1.0e-6 );
   return m_R * Vector3s::UnitY();
 }
 

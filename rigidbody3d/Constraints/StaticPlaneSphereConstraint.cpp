@@ -28,8 +28,6 @@ StaticPlaneSphereConstraint::StaticPlaneSphereConstraint( const unsigned sphere_
 , m_plane_idx( plane_idx )
 {
   assert( m_r >= 0.0 );
-  assert( fabs( m_plane.n().norm() - 1.0 ) <= 1.0e-6 );
-  assert( fabs( m_plane.R().norm() - 1.0 ) <= 1.0e-6 );
 }
 
 StaticPlaneSphereConstraint::~StaticPlaneSphereConstraint()

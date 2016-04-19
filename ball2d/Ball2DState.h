@@ -49,6 +49,7 @@ public:
   const std::vector<StaticPlane>& staticPlanes() const;
   const std::vector<PlanarPortal>& planarPortals() const;
 
+  std::vector<PlanarPortal>::size_type numPlanarPortals() const;
 
   std::vector<std::unique_ptr<Ball2DForce>>& forces();
 

@@ -106,3 +106,83 @@ std::string IpoptUtilities::ipoptReturnStatusToString( const Ipopt::SolverReturn
   }
   return "ERROR: UNHANDLED CASE IN IpoptUtilities::ipoptReturnStatusToString";
 }
+
+int IpoptUtilities::nzLowerTriangular( const SparseMatrixsc& A )
+{
+  int num{ 0 };
+  for( int col = 0; col < A.outerSize(); ++col )
+  {
+    for( SparseMatrixsc::InnerIterator it( A, col ); it; ++it )
+    {
+      // Skip entries above the diagonal
+      if( col > it.row() )
+      {
+        continue;
+      }
+      ++num;
+    }
+  }
+  return num;
+}
+
+int IpoptUtilities::sparsityPatternLowerTriangular( const SparseMatrixsc& A, int* rows, int* cols )
+{
+  assert( rows != nullptr );
+  assert( cols != nullptr );
+
+  int curel{ 0 };
+  for( int col = 0; col < A.outerSize(); ++col )
+  {
+    for( SparseMatrixsc::InnerIterator it( A, col ); it; ++it )
+    {
+      if( col > it.row() )
+      {
+        continue;
+      }
+      rows[curel] = it.row();
+      cols[curel] = col;
+      ++curel;
+    }
+  }
+
+  return curel;
+}
+
+int IpoptUtilities::values( const SparseMatrixsc& A, scalar* vals )
+{
+  assert( vals != nullptr );
+
+  int curel{ 0 };
+  for( int col = 0; col < A.outerSize(); ++col )
+  {
+    for( SparseMatrixsc::InnerIterator it( A, col ); it; ++it )
+    {
+      vals[curel] = it.value();
+      ++curel;
+    }
+  }
+
+  assert( curel == A.nonZeros() );
+  return curel;
+}
+
+int IpoptUtilities::valuesLowerTriangular( const SparseMatrixsc& A, scalar* vals )
+{
+  assert( vals != nullptr );
+
+  int curel{ 0 };
+  for( int col = 0; col < A.outerSize(); ++col )
+  {
+    for( SparseMatrixsc::InnerIterator it( A, col ); it; ++it )
+    {
+      if( col > it.row() )
+      {
+        continue;
+      }
+      vals[curel] = it.value();
+      ++curel;
+    }
+  }
+
+  return curel;
+}

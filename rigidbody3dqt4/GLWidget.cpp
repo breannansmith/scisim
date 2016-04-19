@@ -266,7 +266,6 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   setMovieFPS( m_output_fps );
 
   // Backup the simulation state
-  assert( m_sim.getState().q().size() == 12 * m_sim.getState().nbodies() );
   m_sim0 = m_sim;
 
   initializeRenderingSettings( new_render_state );

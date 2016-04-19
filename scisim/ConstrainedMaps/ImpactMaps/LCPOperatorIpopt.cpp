@@ -20,7 +20,6 @@
 #include "IpOrigIpoptNLP.hpp"
 #include "scisim/ConstrainedMaps/ImpactMaps/FischerBurmeisterImpact.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h"
-#include "scisim/Math/MathUtilities.h"
 #include "scisim/ConstrainedMaps/QPTerminationOperator.h"
 
 LCPOperatorIpopt::LCPOperatorIpopt( const std::vector<std::string>& linear_solvers, const scalar& tol )
@@ -236,7 +235,7 @@ bool QPNLP::get_nlp_info( Ipopt::Index& n, Ipopt::Index& m, Ipopt::Index& nnz_ja
   n = Ipopt::Index( m_A.size() );
   m = 0;
   nnz_jac_g = 0;
-  nnz_h_lag = MathUtilities::nzLowerTriangular( m_Q );
+  nnz_h_lag = IpoptUtilities::nzLowerTriangular( m_Q );
   index_style = TNLP::C_STYLE;
 
   return true;
@@ -368,7 +367,7 @@ bool QPNLP::eval_h( Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::N
     Eigen::Map< Eigen::Matrix< Ipopt::Index, Eigen::Dynamic, 1 > >{ jCol, nele_hess }.setConstant( -1 );
     #endif
 
-    MathUtilities::sparsityPatternLowerTriangular( m_Q, iRow, jCol );
+    IpoptUtilities::sparsityPatternLowerTriangular( m_Q, iRow, jCol );
   }
   else
   {
@@ -381,7 +380,7 @@ bool QPNLP::eval_h( Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::N
     Eigen::Map< Eigen::Matrix< Ipopt::Number, Eigen::Dynamic, 1 > >{ values, nele_hess }.setConstant( SCALAR_NAN );
     #endif
 
-    MathUtilities::valuesLowerTriangular( m_Q, values );
+    IpoptUtilities::valuesLowerTriangular( m_Q, values );
     Eigen::Map< Eigen::Matrix< Ipopt::Number, Eigen::Dynamic, 1 > >{ values, nele_hess } *= obj_factor;
   }
 

@@ -383,20 +383,30 @@ void RigidBody3DSim::flow( PythonScripting& call_back, const unsigned iteration,
   m_sim_state.updateMandMinv();
 
   #ifndef NDEBUG
-  for( unsigned body_index = 0; body_index < m_sim_state.nbodies(); ++body_index )
   {
-    if( m_sim_state.isKinematicallyScripted( body_index ) )
+    const VectorXs& q{ m_sim_state.q() };
+    for( unsigned body_index = 0; body_index < m_sim_state.nbodies(); ++body_index )
     {
-      assert( ( fixed_q.segment<3>( 3 * body_index ).array() == m_sim_state.q().segment<3>( 3 * body_index ).array() ).all() );
-      assert( ( fixed_q.segment<9>( 3 * m_sim_state.nbodies() + 9 * body_index ).array() == m_sim_state.q().segment<9>( 3 * m_sim_state.nbodies() + 9 * body_index ).array() ).all() );
+      if( m_sim_state.isKinematicallyScripted( body_index ) )
+      {
+        const unsigned q_idx{ 3 * body_index };
+        assert( ( fixed_q.segment<3>( q_idx ).array() == q.segment<3>( q_idx ).array() ).all() );
+        const unsigned R_idx{ 3 * m_sim_state.nbodies() + 9 * body_index };
+        assert( ( fixed_q.segment<9>( R_idx ).array() == q.segment<9>( R_idx ).array() ).all() );
+      }
     }
   }
-  for( unsigned body_index = 0; body_index < m_sim_state.nbodies(); ++body_index )
   {
-    if( m_sim_state.isKinematicallyScripted( body_index ) )
+    const VectorXs& v{ m_sim_state.v() };
+    for( unsigned body_index = 0; body_index < m_sim_state.nbodies(); ++body_index )
     {
-      assert( ( fixed_v.segment<3>( 3 * body_index ).array() == m_sim_state.v().segment<3>( 3 * body_index ).array() ).all() );
-      assert( ( fixed_v.segment<3>( 3 * m_sim_state.nbodies() + 3 * body_index ).array() == m_sim_state.v().segment<3>( 3 * m_sim_state.nbodies() + 3 * body_index ).array() ).all() );
+      if( m_sim_state.isKinematicallyScripted( body_index ) )
+      {
+        const unsigned v_idx{ 3 * body_index };
+        assert( ( fixed_v.segment<3>( v_idx ).array() == v.segment<3>( v_idx ).array() ).all() );
+        const unsigned omega_idx{ 3 * m_sim_state.nbodies() + 3 * body_index };
+        assert( ( fixed_v.segment<3>( omega_idx ).array() == v.segment<3>( omega_idx ).array() ).all() );
+      }
     }
   }
   #endif
@@ -446,20 +456,30 @@ void RigidBody3DSim::flow( PythonScripting& call_back, const unsigned iteration,
   m_sim_state.updateMandMinv();
 
   #ifndef NDEBUG
-  for( unsigned body_index = 0; body_index < m_sim_state.nbodies(); ++body_index )
   {
-    if( m_sim_state.isKinematicallyScripted( body_index ) )
+    const VectorXs& q{ m_sim_state.q() };
+    for( unsigned body_index = 0; body_index < m_sim_state.nbodies(); ++body_index )
     {
-      assert( ( fixed_q.segment<3>( 3 * body_index ).array() == m_sim_state.q().segment<3>( 3 * body_index ).array() ).all() );
-      assert( ( fixed_q.segment<9>( 3 * m_sim_state.nbodies() + 9 * body_index ).array() == m_sim_state.q().segment<9>( 3 * m_sim_state.nbodies() + 9 * body_index ).array() ).all() );
+      if( m_sim_state.isKinematicallyScripted( body_index ) )
+      {
+        const unsigned q_idx{ 3 * body_index };
+        assert( ( fixed_q.segment<3>( q_idx ).array() == q.segment<3>( q_idx ).array() ).all() );
+        const unsigned R_idx{ 3 * m_sim_state.nbodies() + 9 * body_index };
+        assert( ( fixed_q.segment<9>( R_idx ).array() == q.segment<9>( R_idx ).array() ).all() );
+      }
     }
   }
-  for( unsigned body_index = 0; body_index < m_sim_state.nbodies(); ++body_index )
   {
-    if( m_sim_state.isKinematicallyScripted( body_index ) )
+    const VectorXs& v{ m_sim_state.v() };
+    for( unsigned body_index = 0; body_index < m_sim_state.nbodies(); ++body_index )
     {
-      assert( ( fixed_v.segment<3>( 3 * body_index ).array() == m_sim_state.v().segment<3>( 3 * body_index ).array() ).all() );
-      assert( ( fixed_v.segment<3>( 3 * m_sim_state.nbodies() + 3 * body_index ).array() == m_sim_state.v().segment<3>( 3 * m_sim_state.nbodies() + 3 * body_index ).array() ).all() );
+      if( m_sim_state.isKinematicallyScripted( body_index ) )
+      {
+        const unsigned v_idx{ 3 * body_index };
+        assert( ( fixed_v.segment<3>( v_idx ).array() == v.segment<3>( v_idx ).array() ).all() );
+        const unsigned omega_idx{ 3 * m_sim_state.nbodies() + 3 * body_index };
+        assert( ( fixed_v.segment<3>( omega_idx ).array() == v.segment<3>( omega_idx ).array() ).all() );
+      }
     }
   }
   #endif
@@ -509,20 +529,30 @@ void RigidBody3DSim::flow( PythonScripting& call_back, const unsigned iteration,
   m_sim_state.updateMandMinv();
 
   #ifndef NDEBUG
-  for( unsigned body_index = 0; body_index < m_sim_state.nbodies(); ++body_index )
   {
-    if( m_sim_state.isKinematicallyScripted( body_index ) )
+    const VectorXs& q{ m_sim_state.q() };
+    for( unsigned body_index = 0; body_index < m_sim_state.nbodies(); ++body_index )
     {
-      assert( ( fixed_q.segment<3>( 3 * body_index ).array() == m_sim_state.q().segment<3>( 3 * body_index ).array() ).all() );
-      assert( ( fixed_q.segment<9>( 3 * m_sim_state.nbodies() + 9 * body_index ).array() == m_sim_state.q().segment<9>( 3 * m_sim_state.nbodies() + 9 * body_index ).array() ).all() );
+      if( m_sim_state.isKinematicallyScripted( body_index ) )
+      {
+        const unsigned q_idx{ 3 * body_index };
+        assert( ( fixed_q.segment<3>( q_idx ).array() == q.segment<3>( q_idx ).array() ).all() );
+        const unsigned R_idx{ 3 * m_sim_state.nbodies() + 9 * body_index };
+        assert( ( fixed_q.segment<9>( R_idx ).array() == q.segment<9>( R_idx ).array() ).all() );
+      }
     }
   }
-  for( unsigned body_index = 0; body_index < m_sim_state.nbodies(); ++body_index )
   {
-    if( m_sim_state.isKinematicallyScripted( body_index ) )
+    const VectorXs& v{ m_sim_state.v() };
+    for( unsigned body_index = 0; body_index < m_sim_state.nbodies(); ++body_index )
     {
-      assert( ( fixed_v.segment<3>( 3 * body_index ).array() == m_sim_state.v().segment<3>( 3 * body_index ).array() ).all() );
-      assert( ( fixed_v.segment<3>( 3 * m_sim_state.nbodies() + 3 * body_index ).array() == m_sim_state.v().segment<3>( 3 * m_sim_state.nbodies() + 3 * body_index ).array() ).all() );
+      if( m_sim_state.isKinematicallyScripted( body_index ) )
+      {
+        const unsigned v_idx{ 3 * body_index };
+        assert( ( fixed_v.segment<3>( v_idx ).array() == v.segment<3>( v_idx ).array() ).all() );
+        const unsigned omega_idx{ 3 * m_sim_state.nbodies() + 3 * body_index };
+        assert( ( fixed_v.segment<3>( omega_idx ).array() == v.segment<3>( omega_idx ).array() ).all() );
+      }
     }
   }
   #endif
@@ -546,8 +576,6 @@ RigidBody3DState& RigidBody3DSim::state()
 
 void RigidBody3DSim::enforcePeriodicBoundaryConditions()
 {
-  assert( m_sim_state.q().size() % 12 == 0 ); assert( m_sim_state.nbodies() == m_sim_state.q().size() / 12 );
-
   const unsigned nbodies{ m_sim_state.nbodies() };
 
   // For each portal
@@ -1002,7 +1030,6 @@ void RigidBody3DSim::computeActiveSetBodyBodySpatialGrid( const VectorXs& q0, co
           assert( ( R * R.transpose() - Matrix33sr::Identity() ).lpNorm<Eigen::Infinity>() <= 1.0e-6 );
           assert( fabs( R.determinant() - 1.0 ) <= 1.0e-6 );
           m_sim_state.getGeometryOfBody( bdy_idx ).computeAABB( x_out, R, new_aabb.min(), new_aabb.max() );
-          assert( ( new_aabb.min() < new_aabb.max() ).all() );
           aabbs.emplace_back( new_aabb );
           aabb_bdy_map_itr = teleported_aabb_body_indices.insert( aabb_bdy_map_itr, std::make_pair( aabbs.size() - 1, TeleportedBody{ bdy_idx, unsigned( prtl_idx ), intersecting_plane_index } ) );
         }

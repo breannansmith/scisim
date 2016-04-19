@@ -486,7 +486,7 @@ void RigidBody2DSim::dispatchTeleportedNarrowPhaseCollision( const TeleportedCol
     #ifndef NDEBUG
     first_was_teleported = true;
     #endif
-    assert( teleported_collision.portalIndex0() < m_state.planarPortals().size() );
+    assert( teleported_collision.portalIndex0() < m_state.nportals() );
     if( m_state.planarPortals()[teleported_collision.portalIndex0()].isLeesEdwards() )
     {
       portal0_is_lees_edwards = true;
@@ -503,7 +503,7 @@ void RigidBody2DSim::dispatchTeleportedNarrowPhaseCollision( const TeleportedCol
     #ifndef NDEBUG
     second_was_teleported = true;
     #endif
-    assert( teleported_collision.portalIndex1() < m_state.planarPortals().size() );
+    assert( teleported_collision.portalIndex1() < m_state.nportals() );
     if( m_state.planarPortals()[teleported_collision.portalIndex1()].isLeesEdwards() )
     {
       portal1_is_lees_edwards = true;
@@ -924,7 +924,7 @@ void RigidBody2DSim::computeBodyBodyActiveSetSpatialGrid( const VectorXs& q0, co
         bdy_idx_0 = map_itr->second.bodyIndex();
         assert( bdy_idx_0 < nbodies );
         prtl_idx_0 = map_itr->second.portalIndex();
-        assert( prtl_idx_0 < m_state.planarPortals().size() );
+        assert( prtl_idx_0 < m_state.nportals() );
         prtl_plane_0 = map_itr->second.planeIndex();
       }
       if( second_teleported )
@@ -935,7 +935,7 @@ void RigidBody2DSim::computeBodyBodyActiveSetSpatialGrid( const VectorXs& q0, co
         bdy_idx_1 = map_itr->second.bodyIndex();
         assert( bdy_idx_1 < nbodies );
         prtl_idx_1 = map_itr->second.portalIndex();
-        assert( prtl_idx_1 < m_state.planarPortals().size() );
+        assert( prtl_idx_1 < m_state.nportals() );
         prtl_plane_1 = map_itr->second.planeIndex();
       }
 
@@ -1034,7 +1034,7 @@ void RigidBody2DSim::writeBinaryState( HDF5File& output_file ) const
   // Output the mass
   {
     // Assemble the mass into a single flat vector like q, v, and r
-    assert( m_state.M().nonZeros() == m_state.q().size() );
+    assert( unsigned(m_state.M().nonZeros()) == 3 * m_state.nbodies() );
     const VectorXs m{ Eigen::Map<const VectorXs>{ &m_state.M().data().value(0), m_state.q().size() } };
     output_file.writeMatrix( "", "m", m );
   }

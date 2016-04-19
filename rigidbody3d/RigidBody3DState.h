@@ -102,7 +102,6 @@ public:
 
 private:
 
-  // TODO: Get num bodies from the containers, don't track separately
   unsigned m_nbodies;
   VectorXs m_q;
   VectorXs m_v;

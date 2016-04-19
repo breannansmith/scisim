@@ -929,9 +929,11 @@ static void paintPlanarPortal( const PlanarPortal& planar_portal )
 
 void GLWidget::paintSystem() const
 {
+  const auto& state{ m_sim.state() };
+
   // Draw each body
   {
-    const VectorXs& q{ m_sim.state().q() };
+    const VectorXs& q{ state.q() };
     assert( q.size() % 3 == 0 );
     const unsigned nbodies{ static_cast<unsigned>( q.size() / 3 ) };
     for( unsigned bdy_idx = 0; bdy_idx < nbodies; ++bdy_idx )
@@ -941,15 +943,15 @@ void GLWidget::paintSystem() const
       const scalar theta_degrees{ 180.0 * q( 3 * bdy_idx + 2 ) / MathDefines::PI<scalar>() };
       glRotated( theta_degrees, 0.0, 0.0, 1.0 );
       assert( bdy_idx < m_body_colors.size() / 3 );
-      assert( bdy_idx < m_sim.state().geometryIndices().size() );
-      assert( m_sim.state().geometryIndices()(bdy_idx) < m_body_renderers.size() );
+      assert( bdy_idx < state.nbodies() );
+      assert( state.geometryIndex( bdy_idx ) < m_body_renderers.size() );
       if( !m_sim.isKinematicallyScripted( bdy_idx ) )
       {
-        m_body_renderers[ m_sim.state().geometryIndices()(bdy_idx) ]->render( m_body_colors.segment<3>( 3 * bdy_idx ) );
+        m_body_renderers[ state.geometryIndices()(bdy_idx) ]->render( m_body_colors.segment<3>( 3 * bdy_idx ) );
       }
       else
       {
-        m_body_renderers[ m_sim.state().geometryIndices()(bdy_idx) ]->render( Vector3s{ 0.5, 0.5, 0.5 } );
+        m_body_renderers[ state.geometryIndices()(bdy_idx) ]->render( Vector3s{ 0.5, 0.5, 0.5 } );
       }
       glPopMatrix();
     }
@@ -957,10 +959,10 @@ void GLWidget::paintSystem() const
 
   // Draw teleported versions of each body
   {
-    const VectorXs& q{ m_sim.state().q() };
+    const VectorXs& q{ state.q() };
     assert( q.size() % 3 == 0 );
     const unsigned nbodies{ static_cast<unsigned>( q.size() / 3 ) };
-    const std::vector<PlanarPortal>& planar_portals{ m_sim.state().planarPortals() };
+    const std::vector<PlanarPortal>& planar_portals{ state.planarPortals() };
     // For each planar portal
     // TODO: More efficient to invert these loops, only cache out pos, theta once per body
     for( const PlanarPortal& planar_portal : planar_portals )
@@ -972,7 +974,7 @@ void GLWidget::paintSystem() const
         // Compute the AABB for the current body
         Array2s min;
         Array2s max;
-        m_sim.state().bodyGeometry( bdy_idx )->computeAABB( pos, theta, min, max );
+        state.bodyGeometry( bdy_idx )->computeAABB( pos, theta, min, max );
         assert( ( min < max ).all() );
         // If the AABB intersects a periodic boundary
         bool intersecting_index;
@@ -985,9 +987,9 @@ void GLWidget::paintSystem() const
           const scalar theta_degrees{ 180.0 * q( 3 * bdy_idx + 2 ) / MathDefines::PI<scalar>() };
           glRotated( theta_degrees, 0.0, 0.0, 1.0 );
           assert( bdy_idx < m_body_colors.size() / 3 );
-          assert( bdy_idx < m_sim.state().geometryIndices().size() );
-          assert( m_sim.state().geometryIndices()(bdy_idx) < m_body_renderers.size() );
-          m_body_renderers[ m_sim.state().geometryIndices()(bdy_idx) ]->renderTeleported( m_body_colors.segment<3>( 3 * bdy_idx ) );
+          assert( bdy_idx < state.nbodies() );
+          assert( state.geometryIndex( bdy_idx ) < m_body_renderers.size() );
+          m_body_renderers[ state.geometryIndex( bdy_idx ) ]->renderTeleported( m_body_colors.segment<3>( 3 * bdy_idx ) );
           glPopMatrix();
         }
       }
@@ -1035,7 +1037,7 @@ void GLWidget::paintSystem() const
     // TODO: Create a set number of nice looking colors for the portal ahead of time instead of regenerating them
     std::mt19937_64 mt{ 123456 };
     std::uniform_int_distribution<int> color_gen{ 0, 255 };
-    const std::vector<PlanarPortal>& planar_portals{ m_sim.state().planarPortals() };
+    const std::vector<PlanarPortal>& planar_portals{ state.planarPortals() };
     for( const PlanarPortal& planar_portal : planar_portals )
     {
       const int r{ color_gen( mt ) };
@@ -1054,7 +1056,7 @@ void GLWidget::paintSystem() const
   glLineWidth( 2.0 );
   qglColor( QColor{ 0, 0, 0 } );
   {
-    const std::vector<RigidBody2DStaticPlane>& planes{ m_sim.state().planes() };
+    const std::vector<RigidBody2DStaticPlane>& planes{ state.planes() };
     for( const RigidBody2DStaticPlane& plane : planes )
     {
       paintInfiniteLine( plane.x(), plane.n() );

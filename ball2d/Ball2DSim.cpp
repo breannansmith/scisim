@@ -135,7 +135,7 @@ void Ball2DSim::computeAngularMomentum( const VectorXs& v, VectorXs& L ) const
 void Ball2DSim::computeActiveSet( const VectorXs& q0, const VectorXs& qp, const VectorXs& v, std::vector<std::unique_ptr<Constraint>>& active_set )
 {
   assert( q0.size() % 2 == 0 );
-  assert( q0.size() / 2 == m_state.r().size() );
+  assert( q0.size() / 2 == m_state.nballs() );
   assert( q0.size() == qp.size() );
   assert( active_set.empty() );
 
@@ -313,8 +313,6 @@ void Ball2DSim::updatePeriodicBoundaryConditionsStartOfStep( const unsigned next
 
 void Ball2DSim::enforcePeriodicBoundaryConditions()
 {
-  assert( m_state.q().size() % 2 == 0 );
-
   const unsigned nbodies{ m_state.nballs() };
 
   // For each portal
@@ -433,7 +431,7 @@ void Ball2DSim::computeBallBallActiveSetSpatialGrid( const VectorXs& q0, const V
         bdy_idx_0 = map_itr->second.bodyIndex();
         assert( bdy_idx_0 < nbodies );
         prtl_idx_0 = map_itr->second.portalIndex();
-        assert( prtl_idx_0 < m_state.planarPortals().size() );
+        assert( prtl_idx_0 < m_state.numPlanarPortals() );
         prtl_plane_0 = map_itr->second.planeIndex();
       }
       if( second_teleported )
@@ -444,7 +442,7 @@ void Ball2DSim::computeBallBallActiveSetSpatialGrid( const VectorXs& q0, const V
         bdy_idx_1 = map_itr->second.bodyIndex();
         assert( bdy_idx_1 < nbodies );
         prtl_idx_1 = map_itr->second.portalIndex();
-        assert( prtl_idx_1 < m_state.planarPortals().size() );
+        assert( prtl_idx_1 < m_state.numPlanarPortals() );
         prtl_plane_1 = map_itr->second.planeIndex();
       }
 
@@ -596,7 +594,7 @@ void Ball2DSim::generateTeleportedBallBallCollision( const VectorXs& q0, const V
     #ifndef NDEBUG
     first_was_teleported = true;
     #endif
-    assert( teleported_collision.portalIndex0() < m_state.planarPortals().size() );
+    assert( teleported_collision.portalIndex0() < m_state.numPlanarPortals() );
     if( m_state.planarPortals()[teleported_collision.portalIndex0()].isLeesEdwards() )
     {
       portal0_is_lees_edwards = true;
@@ -613,7 +611,7 @@ void Ball2DSim::generateTeleportedBallBallCollision( const VectorXs& q0, const V
     #ifndef NDEBUG
     second_was_teleported = true;
     #endif
-    assert( teleported_collision.portalIndex1() < m_state.planarPortals().size() );
+    assert( teleported_collision.portalIndex1() < m_state.numPlanarPortals() );
     if( m_state.planarPortals()[teleported_collision.portalIndex1()].isLeesEdwards() )
     {
       portal1_is_lees_edwards = true;
@@ -694,7 +692,7 @@ void Ball2DSim::writeBinaryState( HDF5File& output_file ) const
     // Output the mass
     {
       // Assemble the mass into a single flat vector like q, v, and r
-      assert( m_state.M().nonZeros() == m_state.q().size() );
+      assert( unsigned(m_state.M().nonZeros()) == 2 * m_state.nballs() );
       const VectorXs m{ Eigen::Map<const VectorXs>( &m_state.M().data().value(0), m_state.q().size() ) };
       output_file.writeMatrix( "", "m", m );
     }

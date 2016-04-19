@@ -15,7 +15,6 @@ class StaticPlane final
 
 public:
 
-  StaticPlane();
   StaticPlane( const Vector3s& x, const Vector3s& n );
   explicit StaticPlane( std::istream& input_stream );
 

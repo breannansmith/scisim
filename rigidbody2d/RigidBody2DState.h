@@ -26,6 +26,9 @@ public:
   RigidBody2DState& operator=( const RigidBody2DState& rhs );
   RigidBody2DState& operator=( RigidBody2DState&& ) = default;
 
+  unsigned nbodies() const;
+  unsigned nportals() const;
+
   VectorXs& q();
   const VectorXs& q() const;
 
@@ -52,6 +55,8 @@ public:
 
   // Removes geometry instances from the simulation
   void removeGeometry( const Eigen::Ref<const VectorXu>& indices );
+
+  unsigned geometryIndex( const unsigned body_index ) const;
 
   // TODO: Remove these
   std::vector<std::unique_ptr<RigidBody2DGeometry>>& geometry();

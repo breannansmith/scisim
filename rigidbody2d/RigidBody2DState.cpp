@@ -121,6 +121,17 @@ RigidBody2DState& RigidBody2DState::operator=( const RigidBody2DState& rhs )
   return *this;
 }
 
+unsigned RigidBody2DState::nbodies() const
+{
+  assert( m_q.size() % 3 == 0 );
+  return static_cast<unsigned>( m_q.size() ) / 3;
+}
+
+unsigned RigidBody2DState::nportals() const
+{
+  return static_cast<unsigned>( m_planar_portals.size() );
+}
+
 VectorXs& RigidBody2DState::q()
 {
   return m_q;
@@ -383,6 +394,12 @@ void RigidBody2DState::removeGeometry( const Eigen::Ref<const VectorXu>& indices
   #ifndef NDEBUG
   checkStateConsistency();
   #endif
+}
+
+unsigned RigidBody2DState::geometryIndex( const unsigned body_index ) const
+{
+  assert( body_index < m_geometry_indices.size() );
+  return m_geometry_indices[ body_index ];
 }
 
 void RigidBody2DState::addCircleGeometry( const scalar& r )

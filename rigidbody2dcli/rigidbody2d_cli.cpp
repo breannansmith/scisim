@@ -665,8 +665,7 @@ int main( int argc, char** argv )
   g_save_number_width = MathUtilities::computeNumDigits( 1 + unsigned( ceil( g_end_time / scalar( g_dt ) ) ) / g_steps_per_save );
 
   printCompileInfo( std::cout );
-  assert( g_sim.state().q().size() % 3 == 0 );
-  std::cout << "Body count: " << g_sim.state().q().size() / 3 << std::endl;
+  std::cout << "Body count: " << g_sim.state().nbodies() << std::endl;
 
   // If there are any intitial collisions, warn the user
   //{

@@ -558,8 +558,7 @@ static PyObject* deleteBodies( PyObject* self, PyObject* args )
 
   const Eigen::Map<const VectorXu> bodies_to_delete( static_cast<unsigned*>( PyArray_DATA( body_list ) ), unsigned( PyArray_DIM( body_list, 0 ) ) );
 
-  assert( s_state->q().size() % 3 == 0 );
-  const unsigned num_total_bodies{ static_cast<unsigned>( s_state->q().size() ) / 3 };
+  const unsigned num_total_bodies{ s_state->nbodies() };
   for( unsigned bdy_idx = 0; bdy_idx < bodies_to_delete.size(); ++bdy_idx )
   {
     if( bodies_to_delete[bdy_idx] >= num_total_bodies )
@@ -615,8 +614,7 @@ static PyObject* deleteGeometry( PyObject* self, PyObject* args )
 static PyObject* numBodies( PyObject* self, PyObject* args )
 {
   assert( args == nullptr );
-  assert( s_state->q().size() % 3 == 0 );
-  return Py_BuildValue( "I", s_state->q().size() / 3 );
+  return Py_BuildValue( "I", s_state->nbodies() );
 }
 
 static PyObject* numGeometry( PyObject* self, PyObject* args )

@@ -36,18 +36,6 @@ namespace MathUtilities
 
   bool isIdentity( const SparseMatrixsc& A, const scalar& tol );
 
-  // The number of non-zeros on or below the diagonal
-  int nzLowerTriangular( const SparseMatrixsc& A );
-
-  // Determine which elements on or below the diagonal are non-zero
-  int sparsityPatternLowerTriangular( const SparseMatrixsc& A, int* rows, int* cols );
-
-  // Extract elements
-  int values( const SparseMatrixsc& A, scalar* vals );
-
-  // Extract elements on or below the diagonal
-  int valuesLowerTriangular( const SparseMatrixsc& A, scalar* vals );
-
   // Generates a Compressed Column Sparse array representation of a sparse matrix
   void extractDataCCS( const SparseMatrixsc& A, VectorXi& col_ptr, VectorXi& row_ind, VectorXs& val );
 

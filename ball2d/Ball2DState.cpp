@@ -156,6 +156,11 @@ const std::vector<PlanarPortal>& Ball2DState::planarPortals() const
   return m_planar_portals;
 }
 
+std::vector<PlanarPortal>::size_type Ball2DState::numPlanarPortals() const
+{
+  return m_planar_portals.size();
+}
+
 std::vector<std::unique_ptr<Ball2DForce>>& Ball2DState::forces()
 {
   return m_forces;
