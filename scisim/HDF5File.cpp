@@ -124,7 +124,6 @@ void HDF5File::writeString( const std::string& group, const std::string& variabl
 HDFID<H5Gclose> HDF5File::getGroup( const std::string& group_name ) const
 {
   #ifdef USE_HDF5
-  using HDFGID = HDFID<H5Gclose>;
   HDFGID group_id;
   if( group_name.empty() )
   {
@@ -151,7 +150,6 @@ HDFID<H5Gclose> HDF5File::getGroup( const std::string& group_name ) const
 HDFID<H5Gclose> HDF5File::findGroup( const std::string& group_name ) const
 {
   #ifdef USE_HDF5
-  using HDFGID = HDFID<H5Gclose>;
   HDFGID group_id;
   if( group_name.empty() )
   {
