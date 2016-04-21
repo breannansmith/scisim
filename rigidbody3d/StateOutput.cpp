@@ -46,8 +46,11 @@ void StateOutput::writeGeometryIndices( const std::vector<std::unique_ptr<RigidB
     throw std::string{ "Failed to create HDF dataspace for geometry indices" };
   }
 
+  // Open the requested group
+  const HDFGID grp_id{ output_file.getGroup( group ) };
+
   // Create an HDF5 dataset
-  const HDFDID data_set{ H5Dcreate2( output_file.fileID(), ( group + "/geometry_indices" ).c_str(), H5T_NATIVE_UINT, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
+  const HDFDID data_set{ H5Dcreate2( grp_id, "geometry_indices", H5T_NATIVE_UINT, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
   if( data_set < 0 )
   {
     throw std::string{ "Failed to create HDF dataset for geometry indices" };
@@ -120,8 +123,11 @@ static void writeBoxGeometry( const std::vector<std::unique_ptr<RigidBodyGeometr
     }
   }
 
+  // Open the requested group
+  const HDFGID grp_id{ output_file.getGroup( group ) };
+
   // Create an HDF5 dataset
-  const HDFDID data_set{ H5Dcreate2( output_file.fileID(), ( group + "/boxes" ).c_str(), struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
+  const HDFDID data_set{ H5Dcreate2( grp_id, "boxes", struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
   if( data_set < 0 )
   {
     throw std::string{ "Failed to create HDF dataset for box geometry" };
@@ -187,8 +193,11 @@ static void writeSphereGeometry( const std::vector<std::unique_ptr<RigidBodyGeom
     throw std::string{ "Failed to create HDF r type for sphere geometry" };
   }
 
+  // Open the requested group
+  const HDFGID grp_id{ output_file.getGroup( group ) };
+
   // Create an HDF5 dataset
-  const HDFDID data_set{ H5Dcreate2( output_file.fileID(), ( group + "/spheres" ).c_str(), struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
+  const HDFDID data_set{ H5Dcreate2( grp_id, "spheres", struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
   if( data_set < 0 )
   {
     throw std::string{ "Failed to create HDF dataset for sphere geometry" };
@@ -269,8 +278,11 @@ static void writeMeshGeometry( const std::vector<std::unique_ptr<RigidBodyGeomet
     }
   }
 
+  // Open the requested group
+  const HDFGID grp_id{ output_file.getGroup( group ) };
+
   // Create an HDF5 dataset
-  const HDFDID data_set{ H5Dcreate2( output_file.fileID(), ( group + "/meshes" ).c_str(), struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
+  const HDFDID data_set{ H5Dcreate2( grp_id, "meshes", struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
   if( data_set < 0 )
   {
     throw std::string{ "Failed to create HDF dataset for mesh geometry" };
@@ -425,8 +437,11 @@ void StateOutput::writeStaticPlanes( const std::vector<StaticPlane>& static_plan
     }
   }
 
+  // Open the requested group
+  const HDFGID grp_id{ output_file.getGroup( group ) };
+
   // Create an HDF5 dataset
-  const HDFDID data_set{ H5Dcreate2( output_file.fileID(), ( group + "/static_planes" ).c_str(), struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
+  const HDFDID data_set{ H5Dcreate2( grp_id, "static_planes", struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
   if( data_set < 0 )
   {
     throw std::string{ "Failed to create HDF dataset for static planes" };
@@ -553,8 +568,11 @@ void StateOutput::writeStaticCylinders( const std::vector<StaticCylinder>& stati
     throw std::string{ "Failed to create HDF r type for static cylinders" };
   }
 
+  // Open the requested group
+  const HDFGID grp_id{ output_file.getGroup( group ) };
+
   // Create an HDF5 dataset
-  const HDFDID data_set{ H5Dcreate2( output_file.fileID(), ( group + "/static_cylinders" ).c_str(), struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
+  const HDFDID data_set{ H5Dcreate2( grp_id, "static_cylinders", struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
   if( data_set < 0 )
   {
     throw std::string{ "Failed to create HDF dataset for static cylinders" };

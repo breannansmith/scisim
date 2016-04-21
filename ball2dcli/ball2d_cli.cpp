@@ -176,7 +176,6 @@ static int saveState()
     // Save out the git hash
     output_file.writeString( "", "git_hash", CompileDefinitions::GitSHA1 );
     // Save the real time
-    //output_file.createGroup( "/run_stats" );
     //output_file.writeString( "/run_stats", "real_time", TimeUtils::currentTime() );
     // Write out the simulation data
     g_sim.writeBinaryState( output_file );
@@ -364,7 +363,6 @@ static int stepSystem()
       // Save out the git hash
       force_file.writeString( "", "git_hash", CompileDefinitions::GitSHA1 );
       // Save the real time
-      //force_file.createGroup( "/run_stats" );
       //force_file.writeString( "/run_stats", "real_time", TimeUtils::currentTime() );
     }
     catch( const std::string& error )

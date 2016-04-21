@@ -26,6 +26,10 @@ class HDFID final
 
 public:
 
+  HDFID()
+  : m_hid_t( -1 )
+  {}
+
   explicit HDFID( const hid_t value )
   : m_hid_t( value )
   {}
@@ -36,6 +40,21 @@ public:
     {
       H5CloseOperation( m_hid_t );
     }
+  }
+
+  HDFID( HDFID&& other )
+  : m_hid_t( other.m_hid_t )
+  {
+    other.m_hid_t = -1;
+  }
+
+  HDFID& operator=( HDFID&& other )
+  {
+    // NB: Backup hid_t to guard against self assignment
+    const hid_t others_hid_t{ other.m_hid_t };
+    other.m_hid_t = -1;
+    m_hid_t = others_hid_t;
+    return *this;
   }
 
   operator hid_t() const
@@ -104,7 +123,7 @@ public:
   HDF5File( const std::string& file_name, const HDF5AccessType& access_type );
   ~HDF5File();
 
-  int fileID();
+  hid_t fileID();
 
   #ifndef USE_HDF5
   [[noreturn]]
@@ -116,7 +135,12 @@ public:
   #ifndef USE_HDF5
   [[noreturn]]
   #endif
-  void createGroup( const std::string& group ) const;
+  HDFID<H5Gclose> getGroup( const std::string& group_name ) const;
+
+  #ifndef USE_HDF5
+  [[noreturn]]
+  #endif
+  HDFID<H5Gclose> findGroup( const std::string& group_name ) const;
 
   #ifndef USE_HDF5
   [[noreturn]]
@@ -144,7 +168,9 @@ public:
   {
     #ifdef USE_HDF5
     using HDFSID = HDFID<H5Sclose>;
+    using HDFGID = HDFID<H5Gclose>;
     using HDFDID = HDFID<H5Dclose>;
+
     using Scalar = typename Derived::Scalar;
     static_assert( HDF5SupportedTypes::isSupportedEigenType<Scalar>(), "Error, scalar type of Eigen variable must be float, double, unsigned or integer" );
 
@@ -156,7 +182,10 @@ public:
       throw std::string{ "Failed to create HDF data space" };
     }
 
-    const HDFDID dataset_id{ H5Dcreate2( m_hdf_file_id, ( group + "/" + variable_name ).c_str(), computeHDFType( eigen_variable ), dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
+    // Open the requested group
+    const HDFGID grp_id{ getGroup( group ) };
+
+    const HDFDID dataset_id{ H5Dcreate2( grp_id, variable_name.c_str(), computeHDFType( eigen_variable ), dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
     if( dataset_id < 0 )
     {
       throw std::string{ "Failed to create HDF data set" };
@@ -185,10 +214,15 @@ public:
   {
     #ifdef USE_HDF5
     using HDFDID = HDFID<H5Dclose>;
+    using HDFGID = HDFID<H5Gclose>;
+
     using Scalar = typename Derived::Scalar;
     static_assert( HDF5SupportedTypes::isSupportedEigenType<Scalar>(), "Error, scalar type of Eigen variable must be float, double, unsigned or integer" );
 
-    const HDFDID dataset_id{ H5Dopen2( m_hdf_file_id, ( group + "/" + variable_name ).c_str(), H5P_DEFAULT ) };
+    // Open the requested group
+    const HDFGID grp_id{ findGroup( group ) };
+
+    const HDFDID dataset_id{ H5Dopen2( grp_id, variable_name.c_str(), H5P_DEFAULT ) };
     if( dataset_id < 0 )
     {
       throw std::string{ "Failed to open HDF data set" };
@@ -262,47 +296,47 @@ public:
     writeMatrix( group, variable_name + "_val", val );
   }
 
-  template <typename Derived>
-  void readSparseMatrix( const std::string& group, const std::string& variable_name, Eigen::SparseMatrixBase<Derived>& sparse_matrix ) const
-  {
-    static_assert( !Derived::IsRowMajor, "Error, HDF5 sparse matrix input only supported for column major matrices" );
-
-    // Read in the sparse data
-    std::vector< Eigen::Triplet<typename Derived::Scalar> > triplet_list;
-    {
-      typename Derived::Index nrows;
-      readScalar( group, variable_name + "_nrows", nrows );
-      typename Derived::Index ncols;
-      readScalar( group, variable_name + "_ncols", ncols );
-      Eigen::Matrix<typename Derived::Index,Eigen::Dynamic,1> col_ptr;
-      readMatrix( group, variable_name + "_col_ptr", col_ptr );
-      if( col_ptr.size() != ncols + 1 )
-      {
-        throw std::string{ "Column count and size of col_ptr do not agree for sparse matrix" };
-      }
-      Eigen::Matrix<typename Derived::Index,Eigen::Dynamic,1> row_ind;
-      readMatrix( group, variable_name + "_row_ind", row_ind );
-      Eigen::Matrix<typename Derived::Scalar,Eigen::Dynamic,1> val;
-      readMatrix( group, variable_name + "_val", val );
-      if( row_ind.size() != val.size() )
-      {
-        throw std::string{ "Row indices and value size do not agree for sparse matrix" };
-      }
-      sparse_matrix.derived().resize( nrows, ncols );
-      sparse_matrix.derived().reserve( val.size() );
-      for( typename Derived::Index col_num = 0; col_num < ncols; ++col_num )
-      {
-        assert( col_ptr( col_num ) <= col_ptr( col_num + 1 ) );
-        for( typename Derived::Index idx = col_ptr( col_num ); idx < col_ptr( col_num + 1 ); ++idx )
-        {
-          typename Derived::Index row_num = row_ind( idx );
-          triplet_list.push_back( Eigen::Triplet<typename Derived::Scalar>( row_num, col_num, val( idx ) ) );
-        }
-      }
-    }
-    sparse_matrix.derived().setFromTriplets( triplet_list.cbegin(), triplet_list.cend() );
-    sparse_matrix.derived().makeCompressed();
-  }
+  //template <typename Derived>
+  //void readSparseMatrix( const std::string& group, const std::string& variable_name, Eigen::SparseMatrixBase<Derived>& sparse_matrix ) const
+  //{
+  //  static_assert( !Derived::IsRowMajor, "Error, HDF5 sparse matrix input only supported for column major matrices" );
+  //
+  //  // Read in the sparse data
+  //  std::vector< Eigen::Triplet<typename Derived::Scalar> > triplet_list;
+  //  {
+  //    typename Derived::Index nrows;
+  //    readScalar( group, variable_name + "_nrows", nrows );
+  //    typename Derived::Index ncols;
+  //    readScalar( group, variable_name + "_ncols", ncols );
+  //    Eigen::Matrix<typename Derived::Index,Eigen::Dynamic,1> col_ptr;
+  //    readMatrix( group, variable_name + "_col_ptr", col_ptr );
+  //    if( col_ptr.size() != ncols + 1 )
+  //    {
+  //      throw std::string{ "Column count and size of col_ptr do not agree for sparse matrix" };
+  //    }
+  //    Eigen::Matrix<typename Derived::Index,Eigen::Dynamic,1> row_ind;
+  //    readMatrix( group, variable_name + "_row_ind", row_ind );
+  //    Eigen::Matrix<typename Derived::Scalar,Eigen::Dynamic,1> val;
+  //    readMatrix( group, variable_name + "_val", val );
+  //    if( row_ind.size() != val.size() )
+  //    {
+  //      throw std::string{ "Row indices and value size do not agree for sparse matrix" };
+  //    }
+  //    sparse_matrix.derived().resize( nrows, ncols );
+  //    sparse_matrix.derived().reserve( val.size() );
+  //    for( typename Derived::Index col_num = 0; col_num < ncols; ++col_num )
+  //    {
+  //      assert( col_ptr( col_num ) <= col_ptr( col_num + 1 ) );
+  //      for( typename Derived::Index idx = col_ptr( col_num ); idx < col_ptr( col_num + 1 ); ++idx )
+  //      {
+  //        typename Derived::Index row_num = row_ind( idx );
+  //        triplet_list.push_back( Eigen::Triplet<typename Derived::Scalar>( row_num, col_num, val( idx ) ) );
+  //      }
+  //    }
+  //  }
+  //  sparse_matrix.derived().setFromTriplets( triplet_list.cbegin(), triplet_list.cend() );
+  //  sparse_matrix.derived().makeCompressed();
+  //}
 
   // Doesn't work because HOFFSET is a macro... find a workaround
   //template < typename StructType, typename ScalarType, unsigned N >
@@ -425,7 +459,7 @@ private:
   }
   #endif
 
-  int m_hdf_file_id;
+  hid_t m_hdf_file_id;
   bool m_file_opened;
 
 };

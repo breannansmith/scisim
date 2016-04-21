@@ -18,6 +18,7 @@ void RigidBody2DStateOutput::writeGeometryIndices( const std::vector<std::unique
   #ifdef USE_HDF5
   using enum_type = std::uint8_t; //std::underlying_type<RigidBody2DGeometryType>::type;
   using HDFSID = HDFID<H5Sclose>;
+  using HDFGID = HDFID<H5Gclose>;
   using HDFDID = HDFID<H5Dclose>;
 
   // Map global indices to 'local' indices; that is, given a global index, gives the index into the particular type (e.g. global index 10 could be sphere number 3)
@@ -40,8 +41,11 @@ void RigidBody2DStateOutput::writeGeometryIndices( const std::vector<std::unique
     throw std::string{ "Failed to create HDF dataspace for geometry indices" };
   }
 
+  // Open the requested group
+  const HDFGID grp_id{ output_file.getGroup( group ) };
+
   // Create an HDF5 dataset
-  const HDFDID data_set{ H5Dcreate2( output_file.fileID(), ( group + "/geometry_indices" ).c_str(), H5T_NATIVE_UINT, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
+  const HDFDID data_set{ H5Dcreate2( grp_id, "geometry_indices", H5T_NATIVE_UINT, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
   if( data_set < 0 )
   {
     throw std::string{ "Failed to create HDF dataset for geometry indices" };
@@ -85,6 +89,7 @@ static void writeCircleGeometry( const std::vector<std::unique_ptr<RigidBody2DGe
   #ifdef USE_HDF5
   using HDFTID = HDFID<H5Tclose>;
   using HDFSID = HDFID<H5Sclose>;
+  using HDFGID = HDFID<H5Gclose>;
   using HDFDID = HDFID<H5Dclose>;
 
   struct CircleData
@@ -112,8 +117,11 @@ static void writeCircleGeometry( const std::vector<std::unique_ptr<RigidBody2DGe
     throw std::string{ "Failed to create HDF r type for circle geometry" };
   }
 
+  // Open the requested group
+  const HDFGID grp_id{ output_file.getGroup( group ) };
+
   // Create an HDF5 dataset
-  const HDFDID data_set{ H5Dcreate2( output_file.fileID(), ( group + "/circles" ).c_str(), struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
+  const HDFDID data_set{ H5Dcreate2( grp_id, "circles", struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
   if( data_set < 0 )
   {
     throw std::string{ "Failed to create HDF dataset for circle geometry" };
@@ -169,6 +177,7 @@ static void writeBoxGeometry( const std::vector<std::unique_ptr<RigidBody2DGeome
   #ifdef USE_HDF5
   using HDFTID = HDFID<H5Tclose>;
   using HDFSID = HDFID<H5Sclose>;
+  using HDFGID = HDFID<H5Gclose>;
   using HDFDID = HDFID<H5Dclose>;
 
   struct BoxData
@@ -204,8 +213,11 @@ static void writeBoxGeometry( const std::vector<std::unique_ptr<RigidBody2DGeome
     }
   }
 
+  // Open the requested group
+  const HDFGID grp_id{ output_file.getGroup( group ) };
+
   // Create an HDF5 dataset
-  const HDFDID data_set{ H5Dcreate2( output_file.fileID(), ( group + "/boxes" ).c_str(), struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
+  const HDFDID data_set{ H5Dcreate2( grp_id, "boxes", struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
   if( data_set < 0 )
   {
     throw std::string{ "Failed to create HDF dataset for box geometry" };
@@ -280,6 +292,7 @@ void RigidBody2DStateOutput::writeStaticPlanes( const std::vector<RigidBody2DSta
   #ifdef USE_HDF5
   using HDFTID = HDFID<H5Tclose>;
   using HDFSID = HDFID<H5Sclose>;
+  using HDFGID = HDFID<H5Gclose>;
   using HDFDID = HDFID<H5Dclose>;
 
   struct LocalStaticPlaneData
@@ -330,8 +343,11 @@ void RigidBody2DStateOutput::writeStaticPlanes( const std::vector<RigidBody2DSta
     }
   }
 
+  // Open the requested group
+  const HDFGID grp_id{ output_file.getGroup( group ) };
+
   // Create an HDF5 dataset
-  const HDFDID data_set{ H5Dcreate2( output_file.fileID(), ( group + "/static_planes" ).c_str(), struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
+  const HDFDID data_set{ H5Dcreate2( grp_id, "static_planes", struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
   if( data_set < 0 )
   {
     throw std::string{ "Failed to create HDF dataset for static planes" };
@@ -372,6 +388,7 @@ void RigidBody2DStateOutput::writePlanarPortals( const std::vector<PlanarPortal>
   #ifdef USE_HDF5
   using HDFTID = HDFID<H5Tclose>;
   using HDFSID = HDFID<H5Sclose>;
+  using HDFGID = HDFID<H5Gclose>;
   using HDFDID = HDFID<H5Dclose>;
 
   struct LocalPlanarPortalData final
@@ -470,8 +487,11 @@ void RigidBody2DStateOutput::writePlanarPortals( const std::vector<PlanarPortal>
     throw std::string{ "Failed to create HDF delta type for planar portals" };
   }
 
+  // Open the requested group
+  const HDFGID grp_id{ output_file.getGroup( group ) };
+
   // Create an HDF5 dataset
-  const HDFDID data_set{ H5Dcreate2( output_file.fileID(), ( group + "/planar_portals" ).c_str(), struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
+  const HDFDID data_set{ H5Dcreate2( grp_id, "planar_portals", struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
   if( data_set < 0 )
   {
     throw std::string{ "Failed to create HDF dataset for planar portals" };

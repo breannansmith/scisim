@@ -14,12 +14,12 @@ using HDFDID = HDFID<H5Dclose>;
 #endif
 
 HDF5File::HDF5File()
-: m_hdf_file_id( 0 )
+: m_hdf_file_id( -1 )
 , m_file_opened( false )
 {}
 
 HDF5File::HDF5File( const std::string& file_name, const HDF5AccessType& access_type )
-: m_hdf_file_id( 0 )
+: m_hdf_file_id( -1 )
 , m_file_opened( false )
 {
   open( file_name, access_type );
@@ -36,7 +36,7 @@ HDF5File::~HDF5File()
   #endif
 }
 
-int HDF5File::fileID()
+hid_t HDF5File::fileID()
 {
   return m_hdf_file_id;
 }
@@ -86,7 +86,10 @@ void HDF5File::writeString( const std::string& group, const std::string& variabl
     throw std::string{ "Failed to set HDF5 string file size" };
   }
   const HDFTID mem_type{ H5Tcopy( H5T_C_S1 ) };
-  if( mem_type < 0 ) { throw std::string{ "Failed to create HDF5 string memory type" }; }
+  if( mem_type < 0 )
+  {
+    throw std::string{ "Failed to create HDF5 string memory type" };
+  }
   const herr_t set_memory_size_status{ H5Tset_size( mem_type, H5T_VARIABLE ) };
   if( set_memory_size_status < 0 )
   {
@@ -99,7 +102,11 @@ void HDF5File::writeString( const std::string& group, const std::string& variabl
     throw std::string{ "Failed to create HDF space" };
   }
   assert( m_hdf_file_id >= 0 );
-  const HDFDID dset{ H5Dcreate2( m_hdf_file_id, ( group + "/" + variable_name ).c_str(), file_type, space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
+
+  // Open the requested group
+  const HDFGID grp_id{ getGroup( group ) };
+
+  const HDFDID dset{ H5Dcreate2( grp_id, variable_name.c_str(), file_type, space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
   if( dset < 0 )
   {
     throw std::string{ "Failed to create HDF dataset" };
@@ -114,15 +121,52 @@ void HDF5File::writeString( const std::string& group, const std::string& variabl
   #endif
 }
 
-void HDF5File::createGroup( const std::string& group ) const
+HDFID<H5Gclose> HDF5File::getGroup( const std::string& group_name ) const
 {
   #ifdef USE_HDF5
-  const HDFGID group_id{ H5Gcreate2( m_hdf_file_id, group.c_str(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
+  using HDFGID = HDFID<H5Gclose>;
+  HDFGID group_id;
+  if( group_name.empty() )
+  {
+    group_id = HDFGID{ H5Gopen2( m_hdf_file_id, "/", H5P_DEFAULT ) };
+  }
+  else if( 0 == H5Lexists( m_hdf_file_id, group_name.c_str(), H5P_DEFAULT ) )
+  {
+    group_id = HDFGID{ H5Gcreate2( m_hdf_file_id, group_name.c_str(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
+  }
+  else
+  {
+    group_id = HDFGID{ H5Gopen2( m_hdf_file_id, group_name.c_str(), H5P_DEFAULT ) };
+  }
   if( group_id < 0 )
   {
-    throw std::string{ "Failed to create group: " } + group;
+    throw std::string{ "Failed to create group: " } + group_name;
   }
+  return group_id;
   #else
-  throw std::string{ "HDF5File::createGroup not compiled with HDF5 support" };
+  throw std::string{ "HDF5File::getGroup not compiled with HDF5 support" };
+  #endif
+}
+
+HDFID<H5Gclose> HDF5File::findGroup( const std::string& group_name ) const
+{
+  #ifdef USE_HDF5
+  using HDFGID = HDFID<H5Gclose>;
+  HDFGID group_id;
+  if( group_name.empty() )
+  {
+    group_id = HDFGID{ H5Gopen2( m_hdf_file_id, "/", H5P_DEFAULT ) };
+  }
+  else
+  {
+    group_id = HDFGID{ H5Gopen2( m_hdf_file_id, group_name.c_str(), H5P_DEFAULT ) };
+  }
+  if( group_id < 0 )
+  {
+    throw std::string{ "Failed to find group: " } + group_name;
+  }
+  return group_id;
+  #else
+  throw std::string{ "HDF5File::findGroup not compiled with HDF5 support" };
   #endif
 }

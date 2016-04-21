@@ -1047,11 +1047,9 @@ void RigidBody2DSim::writeBinaryState( HDF5File& output_file ) const
     output_file.writeMatrix( "", "kinematically_scripted", fixed );
   }
   // Output the simulated geometry
-  output_file.createGroup( "geometry" );
   RigidBody2DStateOutput::writeGeometryIndices( m_state.geometry(), m_state.geometryIndices(), "geometry", output_file );
   RigidBody2DStateOutput::writeGeometry( m_state.geometry(), "geometry", output_file );
   // Output the static geometry
-  output_file.createGroup( "static_geometry" );
   if( !m_state.planes().empty() )
   {
     RigidBody2DStateOutput::writeStaticPlanes( m_state.planes(), "static_geometry", output_file );

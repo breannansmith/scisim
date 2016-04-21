@@ -1482,11 +1482,9 @@ void RigidBody3DSim::writeBinaryState( HDF5File& output_file ) const
 {
   #ifdef USE_HDF5
   // Output the simulated geometry
-  output_file.createGroup( "geometry" );
   StateOutput::writeGeometryIndices( m_sim_state.geometry(), m_sim_state.indices(), "geometry", output_file );
   StateOutput::writeGeometry( m_sim_state.geometry(), "geometry", output_file );
   // Output the static geometry
-  output_file.createGroup( "static_geometry" );
   if( !m_sim_state.staticPlanes().empty() )
   {
     StateOutput::writeStaticPlanes( m_sim_state.staticPlanes(), "static_geometry", output_file );
@@ -1496,7 +1494,6 @@ void RigidBody3DSim::writeBinaryState( HDF5File& output_file ) const
     StateOutput::writeStaticCylinders( m_sim_state.staticCylinders(), "static_geometry", output_file );
   }
   // Write out the state of each body
-  output_file.createGroup( "state" );
   output_file.writeMatrix( "state", "q", m_sim_state.q() );
   output_file.writeMatrix( "state", "v", m_sim_state.v() );
   output_file.writeSparseMatrix( "state", "M0", m_sim_state.M0() );
