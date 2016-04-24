@@ -56,8 +56,8 @@ std::string RigidBodySphere::name() const
 void RigidBodySphere::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
-  Utilities::serializeBuiltInType( RigidBodyGeometryType::SPHERE, output_stream );
-  Utilities::serializeBuiltInType( m_r, output_stream );
+  Utilities::serialize( RigidBodyGeometryType::SPHERE, output_stream );
+  Utilities::serialize( m_r, output_stream );
 }
 
 scalar RigidBodySphere::volume() const

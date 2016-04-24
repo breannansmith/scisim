@@ -110,7 +110,7 @@ std::unique_ptr<Ball2DForce> PenaltyForce::clone() const
 void PenaltyForce::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
-  StringUtilities::serializeString( "hertzian_penalty", output_stream );
-  Utilities::serializeBuiltInType( m_k, output_stream );
-  Utilities::serializeBuiltInType( m_power, output_stream );
+  StringUtilities::serialize( "hertzian_penalty", output_stream );
+  Utilities::serialize( m_k, output_stream );
+  Utilities::serialize( m_power, output_stream );
 }

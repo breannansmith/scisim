@@ -44,8 +44,8 @@ void CircleGeometry::computeMassAndInertia( const scalar& density, scalar& m, sc
 
 void CircleGeometry::serialize( std::ostream& output_stream ) const
 {
-  Utilities::serializeBuiltInType( RigidBody2DGeometryType::CIRCLE, output_stream );
-  Utilities::serializeBuiltInType( m_r, output_stream );
+  Utilities::serialize( RigidBody2DGeometryType::CIRCLE, output_stream );
+  Utilities::serialize( m_r, output_stream );
 }
 
 const scalar& CircleGeometry::r() const

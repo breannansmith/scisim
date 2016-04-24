@@ -44,7 +44,7 @@ void StaticCylinder::serialize( std::ostream& output_stream ) const
   MathUtilities::serialize( m_R, output_stream );
   MathUtilities::serialize( m_v, output_stream );
   MathUtilities::serialize( m_omega, output_stream );
-  Utilities::serializeBuiltInType( m_r, output_stream );
+  Utilities::serialize( m_r, output_stream );
 }
 
 void StaticCylinder::deserialize( std::istream& input_stream )

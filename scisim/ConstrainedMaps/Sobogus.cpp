@@ -1057,8 +1057,8 @@ unsigned Sobogus::numFrictionImpulsesPerNormal( const unsigned ambient_space_dim
 
 void Sobogus::serialize( std::ostream& output_stream ) const
 {
-  Utilities::serializeBuiltInType( m_solver_type, output_stream );
-  Utilities::serializeBuiltInType( m_eval_every, output_stream );
+  Utilities::serialize( m_solver_type, output_stream );
+  Utilities::serialize( m_eval_every, output_stream );
 }
 
 std::string Sobogus::name() const

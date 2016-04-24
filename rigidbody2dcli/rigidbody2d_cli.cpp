@@ -202,35 +202,35 @@ static int serializeSystem()
   }
 
   // Write the magic number
-  Utilities::serializeBuiltInType( MAGIC_BINARY_NUMBER, serial_stream );
+  Utilities::serialize( MAGIC_BINARY_NUMBER, serial_stream );
 
   // Write the git revision
   {
     const std::string git_revision{ CompileDefinitions::GitSHA1 };
-    StringUtilities::serializeString( git_revision, serial_stream );
+    StringUtilities::serialize( git_revision, serial_stream );
   }
 
   // Write the actual state
   g_sim.serialize( serial_stream );
-  Utilities::serializeBuiltInType( g_iteration, serial_stream );
+  Utilities::serialize( g_iteration, serial_stream );
   RigidBody2DUtilities::serialize( g_unconstrained_map, serial_stream );
-  Utilities::serializeBuiltInType( g_dt, serial_stream );
-  Utilities::serializeBuiltInType( g_end_time, serial_stream );
+  Utilities::serialize( g_dt, serial_stream );
+  Utilities::serialize( g_end_time, serial_stream );
   ConstrainedMapUtilities::serialize( g_impact_operator, serial_stream );
-  Utilities::serializeBuiltInType( g_CoR, serial_stream );
+  Utilities::serialize( g_CoR, serial_stream );
   ConstrainedMapUtilities::serialize( g_friction_solver, serial_stream );
-  Utilities::serializeBuiltInType( g_mu, serial_stream );
+  Utilities::serialize( g_mu, serial_stream );
   ConstrainedMapUtilities::serialize( g_impact_map, serial_stream );
   ConstrainedMapUtilities::serialize( g_impact_friction_map, serial_stream );
   g_scripting.serialize( serial_stream );
-  StringUtilities::serializeString( g_output_dir_name, serial_stream );
-  Utilities::serializeBuiltInType( g_output_forces, serial_stream );
-  Utilities::serializeBuiltInType( g_steps_per_save, serial_stream );
-  Utilities::serializeBuiltInType( g_output_frame, serial_stream );
-  Utilities::serializeBuiltInType( g_dt_string_precision, serial_stream );
-  Utilities::serializeBuiltInType( g_save_number_width, serial_stream );
-  Utilities::serializeBuiltInType( g_serialize_snapshots, serial_stream );
-  Utilities::serializeBuiltInType( g_overwrite_snapshots, serial_stream );
+  StringUtilities::serialize( g_output_dir_name, serial_stream );
+  Utilities::serialize( g_output_forces, serial_stream );
+  Utilities::serialize( g_steps_per_save, serial_stream );
+  Utilities::serialize( g_output_frame, serial_stream );
+  Utilities::serialize( g_dt_string_precision, serial_stream );
+  Utilities::serialize( g_save_number_width, serial_stream );
+  Utilities::serialize( g_serialize_snapshots, serial_stream );
+  Utilities::serialize( g_overwrite_snapshots, serial_stream );
 
   return EXIT_SUCCESS;
 }
@@ -257,7 +257,7 @@ static int deserializeSystem( const std::string& file_name )
 
   // Read the git revision
   {
-    const std::string git_revision{ StringUtilities::deserializeString( serial_stream ) };
+    const std::string git_revision{ StringUtilities::deserialize( serial_stream ) };
     if( CompileDefinitions::GitSHA1 != git_revision )
     {
       std::cerr << "Warning, resuming from data file for a different git revision." << std::endl;
@@ -270,7 +270,7 @@ static int deserializeSystem( const std::string& file_name )
   g_sim.deserialize( serial_stream );
   g_iteration = Utilities::deserialize<unsigned>( serial_stream );
   g_unconstrained_map = RigidBody2DUtilities::deserializeUnconstrainedMap( serial_stream );
-  deserialize( g_dt, serial_stream );
+  g_dt = Utilities::deserialize<Rational<std::intmax_t>>( serial_stream );
   assert( g_dt.positive() );
   g_end_time = Utilities::deserialize<scalar>( serial_stream );
   assert( g_end_time > 0.0 );
@@ -286,7 +286,7 @@ static int deserializeSystem( const std::string& file_name )
     PythonScripting new_scripting{ serial_stream };
     swap( g_scripting, new_scripting );
   }
-  g_output_dir_name = StringUtilities::deserializeString( serial_stream );
+  g_output_dir_name = StringUtilities::deserialize( serial_stream );
   g_output_forces = Utilities::deserialize<bool>( serial_stream );
   g_steps_per_save = Utilities::deserialize<unsigned>( serial_stream );
   g_output_frame = Utilities::deserialize<unsigned>( serial_stream );

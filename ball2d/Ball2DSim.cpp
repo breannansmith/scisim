@@ -366,23 +366,23 @@ void Ball2DSim::computeBallBallActiveSetSpatialGrid( const VectorXs& q0, const V
     // Compute an AABB for each teleported particle
     auto aabb_bdy_map_itr = teleported_aabb_body_indices.cbegin();
     // For each portal
-    for( const PlanarPortal& planar_portal : m_state.planarPortals() )
+    using st = std::vector<PlanarPortal>::size_type;
+    for( st prtl_idx = 0; prtl_idx < m_state.planarPortals().size(); ++prtl_idx )
     {
       // For each body
       for( unsigned bdy_idx = 0; bdy_idx < nbodies; ++bdy_idx )
       {
         // If the body is inside a portal
         bool intersecting_plane_index;
-        if( planar_portal.ballTouchesPortal( q1.segment<2>( 2 * bdy_idx ), m_state.r()( bdy_idx ), intersecting_plane_index )  )
+        if( m_state.planarPortals()[prtl_idx].ballTouchesPortal( q1.segment<2>( 2 * bdy_idx ), m_state.r()( bdy_idx ), intersecting_plane_index )  )
         {
           // Teleport to the other side of the portal
           Vector2s x_out;
-          planar_portal.teleportBall( q1.segment<2>( 2 * bdy_idx ), m_state.r()( bdy_idx ), x_out );
+          m_state.planarPortals()[prtl_idx].teleportBall( q1.segment<2>( 2 * bdy_idx ), m_state.r()( bdy_idx ), x_out );
           // Compute an AABB for the teleported particle
           aabbs.emplace_back( x_out.array() - m_state.r()( bdy_idx ), x_out.array() + m_state.r()( bdy_idx ) );
 
-          const unsigned prtl_idx{ Utilities::index( m_state.planarPortals(), planar_portal ) };
-          aabb_bdy_map_itr = teleported_aabb_body_indices.insert( aabb_bdy_map_itr, std::make_pair( aabbs.size() - 1, TeleportedBall{ bdy_idx, prtl_idx, intersecting_plane_index } ) );
+          aabb_bdy_map_itr = teleported_aabb_body_indices.insert( aabb_bdy_map_itr, std::make_pair( aabbs.size() - 1, TeleportedBall{ bdy_idx, static_cast<unsigned>(prtl_idx), intersecting_plane_index } ) );
         }
       }
     }
@@ -650,13 +650,14 @@ void Ball2DSim::computeBallDrumActiveSetAllPairs( const VectorXs& q0, const Vect
 {
   assert( q0.size() == q1.size() ); assert( q0.size() % 2 == 0 ); assert( q0.size() / 2 == m_state.r().size() );
   // Check all ball-drum pairs
-  for( const StaticDrum& static_drum : m_state.staticDrums() )
+  using st = std::vector<StaticDrum>::size_type;
+  for( st drm_idx = 0; drm_idx < m_state.staticDrums().size(); ++drm_idx )
   {
     for( unsigned ball_idx = 0; ball_idx < unsigned( m_state.r().size() ); ++ball_idx )
     {
-      if( StaticDrumConstraint::isActive( ball_idx, q1, m_state.r(), static_drum.x(), static_drum.r() ) )
+      if( StaticDrumConstraint::isActive( ball_idx, q1, m_state.r(), m_state.staticDrums()[drm_idx].x(), m_state.staticDrums()[drm_idx].r() ) )
       {
-        active_set.emplace_back( std::unique_ptr<Constraint>( new StaticDrumConstraint{ ball_idx, q0, m_state.r()( ball_idx ), static_drum.x(), Utilities::index( m_state.staticDrums(), static_drum ) } ) );
+        active_set.emplace_back( std::unique_ptr<Constraint>( new StaticDrumConstraint{ ball_idx, q0, m_state.r()( ball_idx ), m_state.staticDrums()[drm_idx].x(), static_cast<unsigned>(drm_idx) } ) );
       }
     }
   }
@@ -666,13 +667,14 @@ void Ball2DSim::computeBallPlaneActiveSetAllPairs( const VectorXs& q0, const Vec
 {
   assert( q0.size() == q1.size() ); assert( q0.size() % 2 == 0 ); assert( q0.size() / 2 == m_state.r().size() );
   // Check all ball-plane pairs
-  for( const StaticPlane& static_plane : m_state.staticPlanes() )
+  using st = std::vector<StaticPlane>::size_type;
+  for( st pln_idx = 0; pln_idx < m_state.staticPlanes().size(); ++pln_idx )
   {
     for( unsigned ball_idx = 0; ball_idx < unsigned( m_state.r().size() ); ++ball_idx )
     {
-      if( StaticPlaneConstraint::isActive( ball_idx, q1, m_state.r(), static_plane.x(), static_plane.n() ) )
+      if( StaticPlaneConstraint::isActive( ball_idx, q1, m_state.r(), m_state.staticPlanes()[pln_idx].x(), m_state.staticPlanes()[pln_idx].n() ) )
       {
-        active_set.push_back( std::unique_ptr<Constraint>( new StaticPlaneConstraint{ ball_idx, m_state.r()( ball_idx ), static_plane, Utilities::index( m_state.staticPlanes(), static_plane ) } ) );
+        active_set.push_back( std::unique_ptr<Constraint>( new StaticPlaneConstraint{ ball_idx, m_state.r()( ball_idx ), m_state.staticPlanes()[pln_idx], static_cast<unsigned>(pln_idx) } ) );
       }
     }
   }

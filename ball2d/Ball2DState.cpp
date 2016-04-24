@@ -26,7 +26,7 @@ Ball2DState::Ball2DState( const Ball2DState& other )
 , m_static_drums( other.m_static_drums )
 , m_static_planes( other.m_static_planes )
 , m_planar_portals( other.m_planar_portals )
-, m_forces( Utilities::cloneVector( other.m_forces ) )
+, m_forces( Utilities::clone( other.m_forces ) )
 {}
 
 Ball2DState& Ball2DState::operator=( const Ball2DState& other )
@@ -262,13 +262,13 @@ void Ball2DState::serialize( std::ostream& output_stream ) const
   MathUtilities::serialize( m_q, output_stream );
   MathUtilities::serialize( m_v, output_stream );
   MathUtilities::serialize( m_r, output_stream );
-  Utilities::serializeVectorBuiltInType( m_fixed, output_stream );
+  Utilities::serialize( m_fixed, output_stream );
   MathUtilities::serialize( m_M, output_stream );
   MathUtilities::serialize( m_Minv, output_stream );
-  Utilities::serializeVectorCustomType( m_static_drums, output_stream );
-  Utilities::serializeVectorCustomType( m_static_planes, output_stream );
-  Utilities::serializeVectorCustomType( m_planar_portals, output_stream );
-  Utilities::serializeVectorCustomTypePointers( m_forces, output_stream );
+  Utilities::serialize( m_static_drums, output_stream );
+  Utilities::serialize( m_static_planes, output_stream );
+  Utilities::serialize( m_planar_portals, output_stream );
+  Utilities::serialize( m_forces, output_stream );
 }
 
 void Ball2DState::deserialize( std::istream& input_stream )
@@ -279,14 +279,14 @@ void Ball2DState::deserialize( std::istream& input_stream )
   m_v = MathUtilities::deserialize<VectorXs>( input_stream );
   m_r = MathUtilities::deserialize<VectorXs>( input_stream );
   assert( ( m_r.array() > 0.0 ).all() );
-  Utilities::deserializeVectorBuiltInType( m_fixed, input_stream ); assert( input_stream.good() );
-  MathUtilities::deserialize( m_M, input_stream ); assert( input_stream.good() );
+  m_fixed = Utilities::deserializeVector<bool>( input_stream );
+  MathUtilities::deserialize( m_M, input_stream );
   // TODO: Assert data is all positive
-  MathUtilities::deserialize( m_Minv, input_stream ); assert( input_stream.good() );
+  MathUtilities::deserialize( m_Minv, input_stream );
   // TODO: Assert data is all positive
-  Utilities::deserializeVectorCustomType( m_static_drums, input_stream ); assert( input_stream.good() );
-  Utilities::deserializeVectorCustomType( m_static_planes, input_stream ); assert( input_stream.good() );
-  Utilities::deserializeVectorCustomType( m_planar_portals, input_stream ); assert( input_stream.good() );
+  m_static_drums = Utilities::deserializeVector<StaticDrum>( input_stream );
+  m_static_planes = Utilities::deserializeVector<StaticPlane>( input_stream );
+  m_planar_portals = Utilities::deserializeVector<PlanarPortal>( input_stream );
 
   // TODO: Pull this into a utility function along with some code in Ball2DForce
   {
@@ -296,7 +296,7 @@ void Ball2DState::deserialize( std::istream& input_stream )
     for( std::vector<std::unique_ptr<Ball2DForce>>::size_type force_idx = 0; force_idx < m_forces.size(); ++force_idx )
     {
       // Read in the force name
-      const std::string force_name = StringUtilities::deserializeString( input_stream );
+      const std::string force_name{ StringUtilities::deserialize( input_stream ) };
       if( "ball2d_gravity_force" == force_name )
       {
         m_forces[force_idx] = std::unique_ptr<Ball2DForce>{ new Ball2DGravityForce{ input_stream } };

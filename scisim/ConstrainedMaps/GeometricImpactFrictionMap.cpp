@@ -447,9 +447,9 @@ void GeometricImpactFrictionMap::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
   MathUtilities::serialize( m_f, output_stream );
-  Utilities::serializeBuiltInType( m_abs_tol, output_stream );
-  Utilities::serializeBuiltInType( m_max_iters, output_stream );
-  Utilities::serializeBuiltInType( m_impulses_to_cache, output_stream );
+  Utilities::serialize( m_abs_tol, output_stream );
+  Utilities::serialize( m_max_iters, output_stream );
+  Utilities::serialize( m_impulses_to_cache, output_stream );
   assert( m_write_constraint_forces == false );
   assert( m_constraint_force_stream == nullptr );
 }

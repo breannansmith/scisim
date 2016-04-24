@@ -224,9 +224,9 @@ void PlanarPortal::serialize( std::ostream& output_stream ) const
   assert( output_stream.good() );
   m_plane_a.serialize( output_stream );
   m_plane_b.serialize( output_stream );
-  Utilities::serializeBuiltInType( m_v, output_stream );
-  Utilities::serializeBuiltInType( m_bounds, output_stream );
-  Utilities::serializeBuiltInType( m_dx, output_stream );
+  Utilities::serialize( m_v, output_stream );
+  Utilities::serialize( m_bounds, output_stream );
+  Utilities::serialize( m_dx, output_stream );
 }
 
 void PlanarPortal::updateMovingPortals( const scalar& t )

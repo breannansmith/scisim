@@ -45,9 +45,9 @@ RigidBody3DState::RigidBody3DState( const RigidBody3DState& other )
 , m_M( other.m_M )
 , m_Minv( other.m_Minv )
 , m_fixed( other.m_fixed )
-, m_geometry( Utilities::cloneVector( other.m_geometry ) )
+, m_geometry( Utilities::clone( other.m_geometry ) )
 , m_geometry_indices( other.m_geometry_indices )
-, m_forces( Utilities::cloneVector( other.m_forces ) )
+, m_forces( Utilities::clone( other.m_forces ) )
 , m_static_planes( other.m_static_planes )
 , m_static_cylinders( other.m_static_cylinders )
 , m_planar_portals( other.m_planar_portals )
@@ -296,7 +296,7 @@ void RigidBody3DState::setState( const std::vector<Vector3s>& X, const std::vect
   m_geometry_indices = geom_indices;
 
   // Load the geometry
-  Utilities::cloneVector( geometry, m_geometry );
+  m_geometry = Utilities::clone( geometry );
   assert( std::all_of( m_geometry.cbegin(), m_geometry.cend(), []( const auto& geo ) { return geo != nullptr; } ) );
   assert( std::all_of( m_geometry_indices.cbegin(), m_geometry_indices.cend(), [this]( const auto idx ) { return idx < m_geometry.size(); } ) );
 }
@@ -543,20 +543,20 @@ void RigidBody3DState::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
 
-  Utilities::serializeBuiltInType( m_nbodies, output_stream );
+  Utilities::serialize( m_nbodies, output_stream );
   MathUtilities::serialize( m_q, output_stream );
   MathUtilities::serialize( m_v, output_stream );
   MathUtilities::serialize( m_M0, output_stream );
   MathUtilities::serialize( m_Minv0, output_stream );
   MathUtilities::serialize( m_M, output_stream );
   MathUtilities::serialize( m_Minv, output_stream );
-  Utilities::serializeVectorBuiltInType( m_fixed, output_stream );
-  Utilities::serializeVectorCustomTypePointers( m_geometry, output_stream );
-  Utilities::serializeVectorBuiltInType( m_geometry_indices, output_stream );
-  Utilities::serializeVectorCustomTypePointers( m_forces, output_stream );
-  Utilities::serializeVectorCustomType( m_static_planes, output_stream );
-  Utilities::serializeVectorCustomType( m_static_cylinders, output_stream );
-  Utilities::serializeVectorCustomType( m_planar_portals, output_stream );
+  Utilities::serialize( m_fixed, output_stream );
+  Utilities::serialize( m_geometry, output_stream );
+  Utilities::serialize( m_geometry_indices, output_stream );
+  Utilities::serialize( m_forces, output_stream );
+  Utilities::serialize( m_static_planes, output_stream );
+  Utilities::serialize( m_static_cylinders, output_stream );
+  Utilities::serialize( m_planar_portals, output_stream );
 }
 
 static std::vector<std::unique_ptr<RigidBodyGeometry>> deserializeGeometry( std::istream& input_stream )
@@ -596,7 +596,7 @@ static std::vector<std::unique_ptr<Force>> deserializeForces( std::istream& inpu
   for( std::vector<std::unique_ptr<Force>>::size_type force_idx = 0; force_idx < forces.size(); ++force_idx )
   {
     // Read in the force name
-    const std::string force_name{ StringUtilities::deserializeString( input_stream ) };
+    const std::string force_name{ StringUtilities::deserialize( input_stream ) };
     if( "near_earth_gravity" == force_name )
     {
       forces[force_idx].reset( new NearEarthGravityForce{ input_stream } );
@@ -620,11 +620,11 @@ void RigidBody3DState::deserialize( std::istream& input_stream )
   MathUtilities::deserialize( m_Minv0, input_stream );
   MathUtilities::deserialize( m_M, input_stream );
   MathUtilities::deserialize( m_Minv, input_stream );
-  Utilities::deserializeVectorBuiltInType( m_fixed, input_stream );
+  m_fixed = Utilities::deserializeVector<bool>( input_stream );
   m_geometry = deserializeGeometry( input_stream );
-  Utilities::deserializeVectorBuiltInType( m_geometry_indices, input_stream );
+  m_geometry_indices = Utilities::deserializeVector<unsigned>( input_stream );
   m_forces = deserializeForces( input_stream );
-  Utilities::deserializeVectorCustomType( m_static_planes, input_stream );
-  Utilities::deserializeVectorCustomType( m_static_cylinders, input_stream );
-  Utilities::deserializeVectorCustomType( m_planar_portals, input_stream );
+  m_static_planes = Utilities::deserializeVector<StaticPlane>( input_stream );
+  m_static_cylinders = Utilities::deserializeVector<StaticCylinder>( input_stream );
+  m_planar_portals = Utilities::deserializeVector<PlanarPortal>( input_stream );
 }

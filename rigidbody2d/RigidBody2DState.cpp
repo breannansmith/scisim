@@ -86,8 +86,8 @@ RigidBody2DState::RigidBody2DState( const VectorXs& q, const VectorXs& v, const 
 , m_Minv( generateMinv( m ) )
 , m_fixed( fixed )
 , m_geometry_indices( geometry_indices )
-, m_geometry( Utilities::cloneVector( geometry ) )
-, m_forces( Utilities::cloneVector( forces ) )
+, m_geometry( Utilities::clone( geometry ) )
+, m_forces( Utilities::clone( forces ) )
 , m_planes( planes )
 , m_planar_portals( planar_portals )
 {
@@ -103,8 +103,8 @@ RigidBody2DState::RigidBody2DState( const RigidBody2DState& rhs )
 , m_Minv( rhs.m_Minv )
 , m_fixed( rhs.m_fixed )
 , m_geometry_indices( rhs.m_geometry_indices )
-, m_geometry( Utilities::cloneVector( rhs.m_geometry ) )
-, m_forces( Utilities::cloneVector( rhs.m_forces ) )
+, m_geometry( Utilities::clone( rhs.m_geometry ) )
+, m_forces( Utilities::clone( rhs.m_forces ) )
 , m_planes( rhs.m_planes )
 , m_planar_portals( rhs.m_planar_portals )
 {
@@ -489,12 +489,12 @@ void RigidBody2DState::serialize( std::ostream& output_stream ) const
   MathUtilities::serialize( m_v, output_stream );
   MathUtilities::serialize( m_M, output_stream );
   MathUtilities::serialize( m_Minv, output_stream );
-  Utilities::serializeVectorBuiltInType( m_fixed, output_stream );
+  Utilities::serialize( m_fixed, output_stream );
   MathUtilities::serialize( m_geometry_indices, output_stream );
-  Utilities::serializeVectorCustomTypePointers( m_geometry, output_stream );
-  Utilities::serializeVectorCustomTypePointers( m_forces, output_stream );
-  Utilities::serializeVectorCustomType( m_planes, output_stream );
-  Utilities::serializeVectorCustomType( m_planar_portals, output_stream );
+  Utilities::serialize( m_geometry, output_stream );
+  Utilities::serialize( m_forces, output_stream );
+  Utilities::serialize( m_planes, output_stream );
+  Utilities::serialize( m_planar_portals, output_stream );
 }
 
 static void deserializeGeo( std::istream& input_stream, std::vector<std::unique_ptr<RigidBody2DGeometry>>& geo )
@@ -547,10 +547,10 @@ void RigidBody2DState::deserialize( std::istream& input_stream )
   m_v = MathUtilities::deserialize<VectorXs>( input_stream );
   MathUtilities::deserialize( m_M, input_stream );
   MathUtilities::deserialize( m_Minv, input_stream );
-  Utilities::deserializeVectorBuiltInType( m_fixed, input_stream );
+  m_fixed = Utilities::deserializeVector<bool>( input_stream );
   m_geometry_indices = MathUtilities::deserialize<VectorXu>( input_stream );
   deserializeGeo( input_stream, m_geometry );
   deserializeForces( input_stream, m_forces );
-  Utilities::deserializeVectorCustomType( m_planes, input_stream );
-  Utilities::deserializeVectorCustomType( m_planar_portals, input_stream );
+  m_planes = Utilities::deserializeVector<RigidBody2DStaticPlane>( input_stream );
+  m_planar_portals = Utilities::deserializeVector<PlanarPortal>( input_stream );
 }

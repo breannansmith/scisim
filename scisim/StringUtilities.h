@@ -18,8 +18,10 @@ namespace Eigen { template <typename Derived> class DenseBase; }
 namespace StringUtilities
 {
 
-  std::string deserializeString( std::istream& stm );
-  void serializeString( const std::string& input_string, std::ostream& stm );
+  std::string deserialize( std::istream& stm );
+  std::vector<std::string> deserializeVector( std::istream& stm );
+  void serialize( const std::string& input_string, std::ostream& stm );
+  void serializeVector( const std::vector<std::string>& vector, std::ostream& stm );
 
   // Splits a string at the final occurence of the given character
   void splitAtLastCharacterOccurence( const std::string& input_string, std::string& left_substring, std::string& right_substring, const char chr );

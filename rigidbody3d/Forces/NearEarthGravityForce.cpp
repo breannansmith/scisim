@@ -65,7 +65,7 @@ std::unique_ptr<Force> NearEarthGravityForce::clone() const
 void NearEarthGravityForce::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
-  StringUtilities::serializeString( name(), output_stream );
+  StringUtilities::serialize( name(), output_stream );
   MathUtilities::serialize( m_g, output_stream );
 }
 

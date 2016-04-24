@@ -66,7 +66,7 @@ std::string RigidBodyBox::name() const
 void RigidBodyBox::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
-  Utilities::serializeBuiltInType( RigidBodyGeometryType::BOX, output_stream );
+  Utilities::serialize( RigidBodyGeometryType::BOX, output_stream );
   MathUtilities::serialize( m_half_widths, output_stream );
 }
 

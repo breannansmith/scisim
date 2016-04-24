@@ -143,6 +143,6 @@ std::unique_ptr<ImpactOperator> GROperator::clone() const
 void GROperator::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
-  Utilities::serializeBuiltInType( m_v_tol, output_stream );
+  Utilities::serialize( m_v_tol, output_stream );
   ConstrainedMapUtilities::serialize( m_impact_operator, output_stream );
 }

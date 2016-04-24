@@ -36,5 +36,5 @@ void StaticDrum::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
   MathUtilities::serialize( m_x, output_stream );
-  Utilities::serializeBuiltInType( m_r, output_stream );
+  Utilities::serialize( m_r, output_stream );
 }

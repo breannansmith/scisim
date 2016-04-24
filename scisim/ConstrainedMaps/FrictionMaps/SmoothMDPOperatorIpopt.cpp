@@ -49,7 +49,7 @@ SmoothMDPOperatorIpopt::SmoothMDPOperatorIpopt( const std::vector<std::string>& 
 }
 
 SmoothMDPOperatorIpopt::SmoothMDPOperatorIpopt( std::istream& input_stream )
-: m_linear_solver_order( Utilities::deserializeVectorCustomType( StringUtilities::deserializeString, input_stream ) )
+: m_linear_solver_order( StringUtilities::deserializeVector( input_stream ) )
 , m_tol( Utilities::deserialize<scalar>( input_stream ) )
 {
   assert( !m_linear_solver_order.empty() );
@@ -73,8 +73,8 @@ std::unique_ptr<FrictionOperator> SmoothMDPOperatorIpopt::clone() const
 
 void SmoothMDPOperatorIpopt::serialize( std::ostream& output_stream ) const
 {
-  Utilities::serializeVectorCustomType( m_linear_solver_order, StringUtilities::serializeString, output_stream );
-  Utilities::serializeBuiltInType( m_tol, output_stream );
+  StringUtilities::serializeVector( m_linear_solver_order, output_stream );
+  Utilities::serialize( m_tol, output_stream );
 }
 
 bool SmoothMDPOperatorIpopt::isLinearized() const

@@ -202,8 +202,8 @@ std::unique_ptr<FrictionOperator> LinearMDPOperatorQL::clone() const
 void LinearMDPOperatorQL::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
-  Utilities::serializeBuiltInType( m_disk_samples, output_stream );
-  Utilities::serializeBuiltInType( m_tol, output_stream );
+  Utilities::serialize( m_disk_samples, output_stream );
+  Utilities::serialize( m_tol, output_stream );
 }
 
 bool LinearMDPOperatorQL::isLinearized() const

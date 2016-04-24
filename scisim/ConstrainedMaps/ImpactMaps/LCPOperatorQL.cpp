@@ -136,5 +136,5 @@ std::unique_ptr<ImpactOperator> LCPOperatorQL::clone() const
 
 void LCPOperatorQL::serialize( std::ostream& output_stream ) const
 {
-  Utilities::serializeBuiltInType( m_tol, output_stream );
+  Utilities::serialize( m_tol, output_stream );
 }

@@ -188,10 +188,10 @@ void StabilizedImpactFrictionMap::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
   MathUtilities::serialize( m_f, output_stream );
-  Utilities::serializeBuiltInType( m_abs_tol, output_stream );
-  Utilities::serializeBuiltInType( m_max_iters, output_stream );
-  Utilities::serializeBuiltInType( m_external_warm_start_alpha, output_stream );
-  Utilities::serializeBuiltInType( m_external_warm_start_beta, output_stream );
+  Utilities::serialize( m_abs_tol, output_stream );
+  Utilities::serialize( m_max_iters, output_stream );
+  Utilities::serialize( m_external_warm_start_alpha, output_stream );
+  Utilities::serialize( m_external_warm_start_beta, output_stream );
   assert( m_write_constraint_forces == false );
   assert( m_constraint_force_stream == nullptr );
 }

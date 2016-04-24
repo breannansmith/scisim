@@ -54,6 +54,6 @@ std::unique_ptr<Ball2DForce> Ball2DGravityForce::clone() const
 void Ball2DGravityForce::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
-  StringUtilities::serializeString( "ball2d_gravity_force", output_stream );
+  StringUtilities::serialize( "ball2d_gravity_force", output_stream );
   MathUtilities::serialize( m_g, output_stream );
 }

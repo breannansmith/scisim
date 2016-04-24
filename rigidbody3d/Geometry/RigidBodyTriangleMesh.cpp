@@ -113,7 +113,7 @@ RigidBodyTriangleMesh::RigidBodyTriangleMesh( const std::string& input_file_name
 }
 
 RigidBodyTriangleMesh::RigidBodyTriangleMesh( std::istream& input_stream )
-: m_input_file_name( StringUtilities::deserializeString( input_stream ) )
+: m_input_file_name( StringUtilities::deserialize( input_stream ) )
 , m_verts( MathUtilities::deserialize<Matrix3Xsc>( input_stream ) )
 , m_faces( MathUtilities::deserialize<Matrix3Xuc>( input_stream ))
 , m_volume( Utilities::deserialize<scalar>( input_stream ) )
@@ -208,11 +208,11 @@ std::string RigidBodyTriangleMesh::name() const
 
 void RigidBodyTriangleMesh::serialize( std::ostream& output_stream ) const
 {
-  Utilities::serializeBuiltInType( RigidBodyGeometryType::TRIANGLE_MESH, output_stream );
-  StringUtilities::serializeString( m_input_file_name, output_stream );
+  Utilities::serialize( RigidBodyGeometryType::TRIANGLE_MESH, output_stream );
+  StringUtilities::serialize( m_input_file_name, output_stream );
   MathUtilities::serialize( m_verts, output_stream );
   MathUtilities::serialize( m_faces, output_stream );
-  Utilities::serializeBuiltInType( m_volume, output_stream );
+  Utilities::serialize( m_volume, output_stream );
   MathUtilities::serialize( m_I_on_rho, output_stream );
   MathUtilities::serialize( m_center_of_mass, output_stream );
   MathUtilities::serialize( m_R, output_stream );

@@ -179,7 +179,7 @@ void ImpactMap::flow( ScriptingCallback& call_back, FlowableSystem& fsys, Constr
 void ImpactMap::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
-  Utilities::serializeBuiltInType( m_warm_start, output_stream );
+  Utilities::serialize( m_warm_start, output_stream );
   assert( m_write_constraint_forces == false );
   assert( m_impact_solution == nullptr );
 }

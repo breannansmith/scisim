@@ -311,8 +311,8 @@ unsigned StaggeredProjections::numFrictionImpulsesPerNormal( const unsigned ambi
 
 void StaggeredProjections::serialize( std::ostream& output_stream ) const
 {
-  Utilities::serializeBuiltInType( m_warm_start_alpha, output_stream );
-  Utilities::serializeBuiltInType( m_warm_start_beta, output_stream );
+  Utilities::serialize( m_warm_start_alpha, output_stream );
+  Utilities::serialize( m_warm_start_beta, output_stream );
   ConstrainedMapUtilities::serialize( m_impact_operator, output_stream );
   ConstrainedMapUtilities::serialize( m_friction_operator, output_stream );
 }

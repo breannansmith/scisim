@@ -68,5 +68,5 @@ std::unique_ptr<ImpactOperator> GaussSeidelOperator::clone() const
 
 void GaussSeidelOperator::serialize( std::ostream& output_stream ) const
 {
-  Utilities::serializeBuiltInType( m_v_tol, output_stream );
+  Utilities::serialize( m_v_tol, output_stream );
 }

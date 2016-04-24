@@ -7,8 +7,6 @@
 #include <string>
 
 #include "scisim/StringUtilities.h"
-#include "scisim/Math/MathUtilities.h"
-#include "scisim/Utilities.h"
 
 // TODO: What happens when denominator == 0 ?
 // TODO: Handle unsigned numbers
@@ -191,25 +189,6 @@ template <typename T>
 Rational<T> operator/( const T left, const Rational<T>& right )
 {
   return Rational<T>{ right.denominator() * left, right.numerator() };
-}
-
-
-
-template <typename T>
-void serialize( const Rational<T>& rational, std::ostream& stm )
-{
-  assert( stm.good() );
-  Utilities::serializeBuiltInType( rational.numerator(), stm );
-  Utilities::serializeBuiltInType( rational.denominator(), stm );
-}
-
-template <typename T>
-void deserialize( Rational<T>& rational, std::istream& stm )
-{
-  assert( stm.good() );
-  T numerator{ Utilities::deserialize<T>( stm ) };
-  T denominator{ Utilities::deserialize<T>( stm ) };
-  rational.set( numerator, denominator );
 }
 
 template <typename T>

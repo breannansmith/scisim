@@ -149,7 +149,7 @@ std::unique_ptr<FrictionOperator> BoundConstrainedMDPOperatorQL::clone() const
 
 void BoundConstrainedMDPOperatorQL::serialize( std::ostream& output_stream ) const
 {
-  Utilities::serializeBuiltInType( m_tol, output_stream );
+  Utilities::serialize( m_tol, output_stream );
 }
 
 bool BoundConstrainedMDPOperatorQL::isLinearized() const

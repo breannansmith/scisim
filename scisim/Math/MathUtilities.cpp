@@ -156,11 +156,11 @@ void MathUtilities::serialize( const SparseMatrixsc& A, std::ostream& stm )
   MathUtilities::extractDataCCS( A, col_ptr, row_ind, val );
   assert( col_ptr.size() == A.cols() + 1 ); assert( row_ind.size() == A.nonZeros() ); assert( val.size() == A.nonZeros() );
   // Size of col_ptr == A.cols() + 1
-  Utilities::serializeBuiltInType( A.rows(), stm );
-  Utilities::serializeBuiltInType( A.cols(), stm );
+  Utilities::serialize( A.rows(), stm );
+  Utilities::serialize( A.cols(), stm );
   stm.write( reinterpret_cast<char*>( col_ptr.data() ), col_ptr.size() * sizeof(int) );
   // Size of row_ind == size of val == A.nonZeros()
-  Utilities::serializeBuiltInType( A.nonZeros(), stm );
+  Utilities::serialize( A.nonZeros(), stm );
   stm.write( reinterpret_cast<char*>( row_ind.data() ), row_ind.size() * sizeof(int) );
   stm.write( reinterpret_cast<char*>( val.data() ), val.size() * sizeof(scalar) );
 }

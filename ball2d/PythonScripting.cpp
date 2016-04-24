@@ -58,8 +58,8 @@ PythonScripting::PythonScripting( const std::string& path, const std::string& mo
 }
 
 PythonScripting::PythonScripting( std::istream& input_stream )
-: m_path( StringUtilities::deserializeString( input_stream ) )
-, m_module_name( StringUtilities::deserializeString( input_stream ) )
+: m_path( StringUtilities::deserialize( input_stream ) )
+, m_module_name( StringUtilities::deserialize( input_stream ) )
 #ifdef USE_PYTHON
 , m_loaded_module( nullptr )
 , m_loaded_start_of_sim_callback( nullptr )
@@ -322,8 +322,8 @@ void PythonScripting::forgetState()
 
 void PythonScripting::serialize( std::ostream& output_stream )
 {
-  StringUtilities::serializeString( m_path, output_stream );
-  StringUtilities::serializeString( m_module_name, output_stream );
+  StringUtilities::serialize( m_path, output_stream );
+  StringUtilities::serialize( m_module_name, output_stream );
   // Python variables are re-initialized on deserializaiton, so no action needed here
 }
 

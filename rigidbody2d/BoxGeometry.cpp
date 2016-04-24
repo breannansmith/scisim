@@ -44,7 +44,7 @@ void BoxGeometry::computeMassAndInertia( const scalar& density, scalar& m, scala
 
 void BoxGeometry::serialize( std::ostream& output_stream ) const
 {
-  Utilities::serializeBuiltInType( RigidBody2DGeometryType::BOX, output_stream );
+  Utilities::serialize( RigidBody2DGeometryType::BOX, output_stream );
   MathUtilities::serialize( m_r, output_stream );
 }
 

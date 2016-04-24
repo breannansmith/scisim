@@ -20,12 +20,12 @@ void RigidBody2DUtilities::serialize( const std::unique_ptr<UnconstrainedMap>& u
 
   if( unconstrained_map != nullptr )
   {
-    StringUtilities::serializeString( unconstrained_map->name(), output_stream );
+    StringUtilities::serialize( unconstrained_map->name(), output_stream );
     unconstrained_map->serialize( output_stream );
   }
   else
   {
-    StringUtilities::serializeString( "NULL", output_stream );
+    StringUtilities::serialize( "NULL", output_stream );
   }
 }
 
@@ -35,7 +35,7 @@ std::unique_ptr<UnconstrainedMap> RigidBody2DUtilities::deserializeUnconstrained
 
   std::unique_ptr<UnconstrainedMap> unconstrained_map{ nullptr };
 
-  const std::string integrator_name{ StringUtilities::deserializeString( input_stream ) };
+  const std::string integrator_name{ StringUtilities::deserialize( input_stream ) };
   if( "symplectic_euler" == integrator_name )
   {
     unconstrained_map.reset( new SymplecticEulerMap{ input_stream } );

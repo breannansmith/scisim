@@ -49,10 +49,10 @@ namespace MathUtilities
   void serialize( const Eigen::Quaternion<ScalarType>& a, std::ostream& stm )
   {
     assert( stm.good() );
-    Utilities::serializeBuiltInType( a.x(), stm );
-    Utilities::serializeBuiltInType( a.y(), stm );
-    Utilities::serializeBuiltInType( a.z(), stm );
-    Utilities::serializeBuiltInType( a.w(), stm );
+    Utilities::serialize( a.x(), stm );
+    Utilities::serialize( a.y(), stm );
+    Utilities::serialize( a.z(), stm );
+    Utilities::serialize( a.w(), stm );
   }
 
   template <typename ScalarType> inline

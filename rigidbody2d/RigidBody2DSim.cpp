@@ -860,26 +860,26 @@ void RigidBody2DSim::computeBodyBodyActiveSetSpatialGrid( const VectorXs& q0, co
     // Compute an AABB for each teleported body
     auto aabb_bdy_map_itr = teleported_aabb_body_indices.cbegin();
     // For each portal
-    for( const PlanarPortal& planar_portal : m_state.planarPortals() )
+    using st = std::vector<PlanarPortal>::size_type;
+    for( st prtl_idx = 0; prtl_idx < m_state.planarPortals().size(); ++prtl_idx )
     {
       // For each body
       for( unsigned bdy_idx = 0; bdy_idx < nbodies; ++bdy_idx )
       {
         // If the body is inside a portal
         bool intersecting_plane_index;
-        if( planar_portal.aabbTouchesPortal( aabbs[bdy_idx].min(), aabbs[bdy_idx].max(), intersecting_plane_index )  )
+        if( m_state.planarPortals()[prtl_idx].aabbTouchesPortal( aabbs[bdy_idx].min(), aabbs[bdy_idx].max(), intersecting_plane_index )  )
         {
           // Teleport to the other side of the portal
           Vector2s x_out;
-          planar_portal.teleportPoint( q1.segment<2>( 3 * bdy_idx ), intersecting_plane_index, x_out );
+          m_state.planarPortals()[prtl_idx].teleportPoint( q1.segment<2>( 3 * bdy_idx ), intersecting_plane_index, x_out );
           // Compute an AABB for the teleported particle
           Array2s min;
           Array2s max;
           m_state.bodyGeometry( bdy_idx )->computeAABB( x_out, q1( 3 * bdy_idx + 2 ), min, max );
           aabbs.emplace_back( min, max );
 
-          const unsigned prtl_idx{ Utilities::index( m_state.planarPortals(), planar_portal ) };
-          aabb_bdy_map_itr = teleported_aabb_body_indices.insert( aabb_bdy_map_itr, std::make_pair( aabbs.size() - 1, TeleportedBody{ bdy_idx, prtl_idx, intersecting_plane_index } ) );
+          aabb_bdy_map_itr = teleported_aabb_body_indices.insert( aabb_bdy_map_itr, std::make_pair( aabbs.size() - 1, TeleportedBody{ bdy_idx, static_cast<unsigned>(prtl_idx), intersecting_plane_index } ) );
         }
       }
     }

@@ -140,12 +140,12 @@ void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorX
 static void serializeCache( const std::map<std::pair<unsigned,unsigned>,VectorXs>& constraint_cache, std::ostream& output_stream )
 {
   assert( output_stream.good() );
-  Utilities::serializeBuiltInType( constraint_cache.size(), output_stream );
+  Utilities::serialize( constraint_cache.size(), output_stream );
   // For some reason, clang static analyzer does not like the range based for loop here
   for( auto iterator = constraint_cache.cbegin(); iterator != constraint_cache.cend(); ++iterator )
   {
-    Utilities::serializeBuiltInType( iterator->first.first, output_stream );
-    Utilities::serializeBuiltInType( iterator->first.second, output_stream );
+    Utilities::serialize( iterator->first.first, output_stream );
+    Utilities::serialize( iterator->first.second, output_stream );
     MathUtilities::serialize( iterator->second, output_stream );
   }
 }

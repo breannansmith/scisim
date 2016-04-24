@@ -38,13 +38,13 @@ void ConstrainedMapUtilities::serialize( const std::unique_ptr<ImpactOperator>& 
   if( impact_operator != nullptr )
   {
     const std::string name{ impact_operator->name() };
-    StringUtilities::serializeString( name, output_stream );
+    StringUtilities::serialize( name, output_stream );
     impact_operator->serialize( output_stream );
   }
   else
   {
     const std::string null_string{ "NULL" };
-    StringUtilities::serializeString( null_string, output_stream );
+    StringUtilities::serialize( null_string, output_stream );
   }
 }
 
@@ -54,13 +54,13 @@ void ConstrainedMapUtilities::serialize( const std::unique_ptr<FrictionOperator>
   if( friction_operator != nullptr )
   {
     const std::string friction_operator_name{ friction_operator->name() };
-    StringUtilities::serializeString( friction_operator_name, output_stream );
+    StringUtilities::serialize( friction_operator_name, output_stream );
     friction_operator->serialize( output_stream );
   }
   else
   {
     const std::string null_string{ "NULL" };
-    StringUtilities::serializeString( null_string, output_stream );
+    StringUtilities::serialize( null_string, output_stream );
   }
 }
 
@@ -70,13 +70,13 @@ void ConstrainedMapUtilities::serialize( const std::unique_ptr<FrictionSolver>& 
   if( friction_solver != nullptr )
   {
     const std::string friction_solver_name{ friction_solver->name() };
-    StringUtilities::serializeString( friction_solver_name, output_stream );
+    StringUtilities::serialize( friction_solver_name, output_stream );
     friction_solver->serialize( output_stream );
   }
   else
   {
     const std::string null_string{ "NULL" };
-    StringUtilities::serializeString( null_string, output_stream );
+    StringUtilities::serialize( null_string, output_stream );
   }
 }
 
@@ -87,13 +87,13 @@ void ConstrainedMapUtilities::serialize( const std::unique_ptr<ImpactMap>& impac
   {
     // Currently, only one variant of impact map is supported
     const std::string imap_name{ "impact_map" };
-    StringUtilities::serializeString( imap_name, output_stream );
+    StringUtilities::serialize( imap_name, output_stream );
     impact_map->serialize( output_stream );
   }
   else
   {
     const std::string null_string{ "NULL" };
-    StringUtilities::serializeString( null_string, output_stream );
+    StringUtilities::serialize( null_string, output_stream );
   }
 }
 
@@ -103,13 +103,13 @@ void ConstrainedMapUtilities::serialize( const std::unique_ptr<ImpactFrictionMap
   if( impact_friction_map != nullptr )
   {
     const std::string ifmap_name{ impact_friction_map->name() };
-    StringUtilities::serializeString( ifmap_name, output_stream );
+    StringUtilities::serialize( ifmap_name, output_stream );
     impact_friction_map->serialize( output_stream );
   }
   else
   {
     const std::string null_string{ "NULL" };
-    StringUtilities::serializeString( null_string, output_stream );
+    StringUtilities::serialize( null_string, output_stream );
   }
 }
 
@@ -121,7 +121,7 @@ std::unique_ptr<ImpactOperator> ConstrainedMapUtilities::deserializeImpactOperat
   std::unique_ptr<ImpactOperator> impact_operator{ nullptr };
 
   // Read in the name of the operator
-  const std::string impact_operator_name{ StringUtilities::deserializeString( input_stream ) };
+  const std::string impact_operator_name{ StringUtilities::deserialize( input_stream ) };
   // Read in the operator
   if( "gr" == impact_operator_name )
   {
@@ -166,7 +166,7 @@ std::unique_ptr<FrictionOperator> ConstrainedMapUtilities::deserializeFrictionOp
 
   std::unique_ptr<FrictionOperator> friction_operator{ nullptr };
 
-  const std::string friction_operator_name{ StringUtilities::deserializeString( input_stream ) };
+  const std::string friction_operator_name{ StringUtilities::deserialize( input_stream ) };
   #ifdef QL_FOUND
   if( "linear_mdp_ql" == friction_operator_name )
   {
@@ -204,7 +204,7 @@ std::unique_ptr<FrictionSolver> ConstrainedMapUtilities::deserializeFrictionSolv
 
   std::unique_ptr<FrictionSolver> friction_solver{ nullptr };
 
-  const std::string friction_solver_name{ StringUtilities::deserializeString( input_stream ) };
+  const std::string friction_solver_name{ StringUtilities::deserialize( input_stream ) };
   if( "staggered_projections" == friction_solver_name )
   {
     friction_solver.reset( new StaggeredProjections{ input_stream } );
@@ -232,7 +232,7 @@ std::unique_ptr<ImpactMap> ConstrainedMapUtilities::deserializeImpactMap( std::i
 
   std::unique_ptr<ImpactMap> impact_map{ nullptr };
 
-  const std::string impact_map_name{ StringUtilities::deserializeString( input_stream ) };
+  const std::string impact_map_name{ StringUtilities::deserialize( input_stream ) };
   if( "impact_map" == impact_map_name )
   {
     impact_map.reset( new ImpactMap{ input_stream } );
@@ -256,7 +256,7 @@ std::unique_ptr<ImpactFrictionMap> ConstrainedMapUtilities::deserializeImpactFri
 
   std::unique_ptr<ImpactFrictionMap> impact_friction_map{ nullptr };
 
-  const std::string impact_friction_name{ StringUtilities::deserializeString( input_stream ) };
+  const std::string impact_friction_name{ StringUtilities::deserialize( input_stream ) };
   if( "geometric_impact_friction_map" == impact_friction_name )
   {
     impact_friction_map.reset( new GeometricImpactFrictionMap{ input_stream } );

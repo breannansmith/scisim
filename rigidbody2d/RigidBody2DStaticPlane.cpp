@@ -97,5 +97,5 @@ void RigidBody2DStaticPlane::serialize( std::ostream& output_stream ) const
   MathUtilities::serialize( m_n, output_stream );
   MathUtilities::serialize( m_t, output_stream );
   MathUtilities::serialize( m_v, output_stream );
-  Utilities::serializeBuiltInType( m_omega, output_stream );
+  Utilities::serialize( m_omega, output_stream );
 }
