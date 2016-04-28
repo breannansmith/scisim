@@ -451,21 +451,25 @@ static bool loadPlanarPortals( const rapidxml::xml_node<>& node, std::vector<Rig
 
     // Load the bounds on portal a's translation
     scalar bounds;
+    // TODO: Pull into an extract positive scalar function
     {
-      if( nd->first_attribute( "bounds" ) == nullptr )
+      const rapidxml::xml_attribute<>* const bound_attr{ nd->first_attribute( "bounds" ) };
+      if( bound_attr != nullptr )
+      {
+        if( !StringUtilities::extractFromString( std::string{ bound_attr->value() }, bounds ) )
+        {
+          std::cerr << "Could not load bounds attribue for lees_edwards_portal, value must be a scalar" << std::endl;
+          return false;
+        }
+        if( bounds < 0 )
+        {
+          std::cerr << "Failed to load bounds attribute for lees_edwards_portal, value must be positive" << std::endl;
+          return false;
+        }
+      }
+      else
       {
         std::cerr << "Could not locate bounds attribue for lees_edwards_portal" << std::endl;
-        return false;
-      }
-      const rapidxml::xml_attribute<>& bounds_attrib{ *nd->first_attribute( "bounds" ) };
-      if( !StringUtilities::extractFromString( std::string{ bounds_attrib.value() }, bounds ) )
-      {
-        std::cerr << "Could not load bounds attribue for lees_edwards_portal, value must be a scalar" << std::endl;
-        return false;
-      }
-      if( bounds < 0 )
-      {
-        std::cerr << "Failed to load bounds attribute for lees_edwards_portal, value must be positive" << std::endl;
         return false;
       }
     }

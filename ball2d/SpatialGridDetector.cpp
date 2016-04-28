@@ -105,7 +105,7 @@ static void initializeSpatialGrid( const std::vector<AABB>& aabbs, Array2s& min_
   }
 
   // Compute the number of cells in the grid
-  dimensions = ( ( max_coord - min_coord ) / h ).unaryExpr(std::ptr_fun(ceil)).cast<unsigned>();
+  dimensions = ( ( max_coord - min_coord ) / h ).unaryExpr( [](const scalar& y) { return ceil(y); } ).cast<unsigned>();
 }
 
 void SpatialGridDetector::getPotentialOverlaps( const std::vector<AABB>& aabbs, std::set<std::pair<unsigned,unsigned>>& overlaps )

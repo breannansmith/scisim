@@ -282,7 +282,7 @@ bool RigidBodyTriangleMesh::detectCollision( const Vector3s& x, Vector3s& n ) co
   assert( ( x.array() <= m_grid_end.array() ).all() );
 
   // Determine which cell this point lies within
-  const Array3u indices{ ( ( x - m_grid_origin ).array() / m_cell_delta.array() ).unaryExpr( std::ptr_fun( floor ) ).cast<unsigned>() };
+  const Array3u indices{ ( ( x - m_grid_origin ).array() / m_cell_delta.array() ).unaryExpr( [](const scalar& y) { return floor(y); } ).cast<unsigned>() };
   assert( ( indices + 1 < m_grid_dimensions.array() ).all() );
 
   // Compute the 'barycentric' coordinates of the point in the cell
