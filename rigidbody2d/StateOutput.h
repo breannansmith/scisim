@@ -22,21 +22,12 @@ class PlanarPortal;
 namespace RigidBody2DStateOutput
 {
 
-  #ifndef USE_HDF5
-  [[noreturn]]
-  #endif
   void writeGeometryIndices( const std::vector<std::unique_ptr<RigidBody2DGeometry>>& geometry, const VectorXu& indices, const std::string& group, HDF5File& output_file );
 
   void writeGeometry( const std::vector<std::unique_ptr<RigidBody2DGeometry>>& geometry, const std::string& group, HDF5File& output_file );
 
-  #ifndef USE_HDF5
-  [[noreturn]]
-  #endif
   void writeStaticPlanes( const std::vector<RigidBody2DStaticPlane>& static_planes, const std::string& group, HDF5File& output_file );
 
-  #ifndef USE_HDF5
-  [[noreturn]]
-  #endif
   void writePlanarPortals( const std::vector<PlanarPortal>& planar_portals, const std::string& group, HDF5File& output_file );
 
 }

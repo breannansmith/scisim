@@ -22,8 +22,10 @@ GeometricImpactFrictionMap::GeometricImpactFrictionMap( const scalar& abs_tol, c
 , m_abs_tol( abs_tol )
 , m_max_iters( max_iters )
 , m_impulses_to_cache( impulses_to_cache )
+#ifdef USE_HDF5
 , m_write_constraint_forces( false )
 , m_constraint_force_stream( nullptr )
+#endif
 {
   assert( m_abs_tol >= 0.0 );
 }
@@ -33,8 +35,10 @@ GeometricImpactFrictionMap::GeometricImpactFrictionMap( std::istream& input_stre
 , m_abs_tol( Utilities::deserialize<scalar>( input_stream ) )
 , m_max_iters( Utilities::deserialize<unsigned>( input_stream ) )
 , m_impulses_to_cache( Utilities::deserialize<ImpulsesToCache>( input_stream ) )
+#ifdef USE_HDF5
 , m_write_constraint_forces( false )
 , m_constraint_force_stream( nullptr )
+#endif
 {
   assert( m_abs_tol >= 0.0 );
 }
@@ -282,12 +286,14 @@ void GeometricImpactFrictionMap::flow( ScriptingCallback& call_back, FlowableSys
   if( active_set.empty() )
   {
     csys.clearConstraintCache();
+    #ifdef USE_HDF5
     if( m_write_constraint_forces )
     {
       exportConstraintForcesToBinary( q0, active_set, MatrixXXsc{ fsys.ambientSpaceDimensions(), 0 }, VectorXs::Zero(0), VectorXs::Zero(0), dt );
     }
     m_write_constraint_forces = false;
     m_constraint_force_stream = nullptr;
+    #endif
     return;
   }
 
@@ -419,6 +425,7 @@ void GeometricImpactFrictionMap::flow( ScriptingCallback& call_back, FlowableSys
   // Cache the constraints for warm starting
   cacheImpulses( m_impulses_to_cache, fsys.ambientSpaceDimensions(), active_set, csys, alpha, beta );
 
+  #ifdef USE_HDF5
   // Export constraint forces, if requested
   if( m_write_constraint_forces )
   {
@@ -426,6 +433,7 @@ void GeometricImpactFrictionMap::flow( ScriptingCallback& call_back, FlowableSys
   }
   m_write_constraint_forces = false;
   m_constraint_force_stream = nullptr;
+  #endif
 
   // Using the initial configuration and the new velocity, compute the final state
   umap.flow( q0, v2, fsys, iteration, dt, q1, v1 );
@@ -436,12 +444,14 @@ void GeometricImpactFrictionMap::resetCachedData()
   m_f = VectorXs::Zero( 0 );
 }
 
+#ifdef USE_HDF5
 void GeometricImpactFrictionMap::exportConstraintForcesToBinary( const VectorXs& q, const std::vector<std::unique_ptr<Constraint>>& constraints, const MatrixXXsc& contact_bases, const VectorXs& alpha, const VectorXs& beta, const scalar& dt )
 {
   assert( m_write_constraint_forces );
   assert( m_constraint_force_stream != nullptr );
   ImpactFrictionMap::exportConstraintForcesToBinaryFile( q, constraints, contact_bases, alpha, beta, dt, *m_constraint_force_stream );
 }
+#endif
 
 void GeometricImpactFrictionMap::serialize( std::ostream& output_stream ) const
 {
@@ -450,8 +460,10 @@ void GeometricImpactFrictionMap::serialize( std::ostream& output_stream ) const
   Utilities::serialize( m_abs_tol, output_stream );
   Utilities::serialize( m_max_iters, output_stream );
   Utilities::serialize( m_impulses_to_cache, output_stream );
+  #ifdef USE_HDF5
   assert( m_write_constraint_forces == false );
   assert( m_constraint_force_stream == nullptr );
+  #endif
 }
 
 std::string GeometricImpactFrictionMap::name() const
@@ -459,8 +471,10 @@ std::string GeometricImpactFrictionMap::name() const
   return "geometric_impact_friction_map";
 }
 
+#ifdef USE_HDF5
 void GeometricImpactFrictionMap::exportForcesNextStep( HDF5File& output_file )
 {
   m_write_constraint_forces = true;
   m_constraint_force_stream = &output_file;
 }
+#endif

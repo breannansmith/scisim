@@ -23,8 +23,10 @@ StabilizedImpactFrictionMap::StabilizedImpactFrictionMap( const scalar& abs_tol,
 , m_max_iters( max_iters )
 , m_external_warm_start_alpha( external_warm_start_alpha )
 , m_external_warm_start_beta( external_warm_start_beta )
+#ifdef USE_HDF5
 , m_write_constraint_forces( false )
 , m_constraint_force_stream( nullptr )
+#endif
 {
   assert( m_abs_tol >= 0.0 );
 }
@@ -35,8 +37,10 @@ StabilizedImpactFrictionMap::StabilizedImpactFrictionMap( std::istream& input_st
 , m_max_iters( Utilities::deserialize<unsigned>( input_stream ) )
 , m_external_warm_start_alpha( Utilities::deserialize<bool>( input_stream ) )
 , m_external_warm_start_beta( Utilities::deserialize<bool>( input_stream ) )
+#ifdef USE_HDF5
 , m_write_constraint_forces( false )
 , m_constraint_force_stream( nullptr )
+#endif
 {
   assert( m_abs_tol >= 0.0 );
 }
@@ -62,12 +66,14 @@ void StabilizedImpactFrictionMap::flow( ScriptingCallback& call_back, FlowableSy
   // If there are no active constraints, there is no need to perform collision response
   if( active_set.empty() )
   {
+    #ifdef USE_HDF5
     if( m_write_constraint_forces )
     {
       exportConstraintForcesToBinary( q0, active_set, MatrixXXsc{ fsys.ambientSpaceDimensions(), 0 }, VectorXs::Zero(0), VectorXs::Zero(0), dt );
     }
     m_write_constraint_forces = false;
     m_constraint_force_stream = nullptr;
+    #endif
     return;
   }
 
@@ -159,6 +165,7 @@ void StabilizedImpactFrictionMap::flow( ScriptingCallback& call_back, FlowableSy
   // Sanity check: no impulses should apply to kinematic geometry
   //assert( ImpactFrictionMap::noImpulsesToKinematicGeometry( fsys, N, alpha, D, beta, v0 ) );
 
+  #ifdef USE_HDF5
   // Export constraint forces, if requested
   if( m_write_constraint_forces )
   {
@@ -166,6 +173,7 @@ void StabilizedImpactFrictionMap::flow( ScriptingCallback& call_back, FlowableSy
   }
   m_write_constraint_forces = false;
   m_constraint_force_stream = nullptr;
+  #endif
 
   active_set.clear();
 
@@ -177,12 +185,14 @@ void StabilizedImpactFrictionMap::resetCachedData()
   m_f = VectorXs::Zero( 0 );
 }
 
+#ifdef USE_HDF5
 void StabilizedImpactFrictionMap::exportConstraintForcesToBinary( const VectorXs& q, const std::vector<std::unique_ptr<Constraint>>& constraints, const MatrixXXsc& contact_bases, const VectorXs& alpha, const VectorXs& beta, const scalar& dt )
 {
   assert( m_write_constraint_forces );
   assert( m_constraint_force_stream != nullptr );
   ImpactFrictionMap::exportConstraintForcesToBinaryFile( q, constraints, contact_bases, alpha, beta, dt, *m_constraint_force_stream );
 }
+#endif
 
 void StabilizedImpactFrictionMap::serialize( std::ostream& output_stream ) const
 {
@@ -192,8 +202,10 @@ void StabilizedImpactFrictionMap::serialize( std::ostream& output_stream ) const
   Utilities::serialize( m_max_iters, output_stream );
   Utilities::serialize( m_external_warm_start_alpha, output_stream );
   Utilities::serialize( m_external_warm_start_beta, output_stream );
+  #ifdef USE_HDF5
   assert( m_write_constraint_forces == false );
   assert( m_constraint_force_stream == nullptr );
+  #endif
 }
 
 std::string StabilizedImpactFrictionMap::name() const
@@ -201,8 +213,10 @@ std::string StabilizedImpactFrictionMap::name() const
   return "stabilized_impact_friction_map";
 }
 
+#ifdef USE_HDF5
 void StabilizedImpactFrictionMap::exportForcesNextStep( HDF5File& output_file )
 {
   m_write_constraint_forces = true;
   m_constraint_force_stream = &output_file;
 }
+#endif

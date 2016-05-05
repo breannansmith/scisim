@@ -17,7 +17,6 @@
 #include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
 #include "scisim/ConstrainedMaps/StaggeredProjections.h"
 #include "scisim/ConstrainedMaps/Sobogus.h"
-#include "scisim/HDF5File.cpp"
 
 #ifdef IPOPT_FOUND
 #include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorIpopt.h"

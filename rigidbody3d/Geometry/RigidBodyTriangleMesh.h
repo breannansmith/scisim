@@ -13,8 +13,14 @@ class RigidBodyTriangleMesh final : public RigidBodyGeometry
 
 public:
 
-  RigidBodyTriangleMesh( const RigidBodyTriangleMesh& other );
+  // TODO: Fix up constructors, custom copy not needed
+
+  #ifndef USE_HDF5
+  [[noreturn]]
+  #endif
   explicit RigidBodyTriangleMesh( const std::string& input_file_name );
+
+  RigidBodyTriangleMesh( const RigidBodyTriangleMesh& other );
   explicit RigidBodyTriangleMesh( std::istream& input_stream );
   virtual ~RigidBodyTriangleMesh() override;
 

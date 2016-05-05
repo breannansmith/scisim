@@ -17,16 +17,13 @@
 #include <iostream>
 
 // TODO: Move this HDF5 stuff out of here
-#ifdef USE_HDF5
 using HDFGID = HDFID<H5Gclose>;
 using HDFTID = HDFID<H5Tclose>;
 using HDFSID = HDFID<H5Sclose>;
 using HDFDID = HDFID<H5Dclose>;
-#endif
 
 void StateOutput::writeGeometryIndices( const std::vector<std::unique_ptr<RigidBodyGeometry>>& geometry, const std::vector<unsigned>& indices, const std::string& group, HDF5File& output_file )
 {
-  #ifdef USE_HDF5
   // Map global indices to 'local' indices; that is, given a global index, gives the index into the particular type (e.g. global index 10 could be sphere number 3)
   VectorXu global_local_geo_mapping{ static_cast<VectorXu::Index>( geometry.size() ) };
   {
@@ -79,17 +76,10 @@ void StateOutput::writeGeometryIndices( const std::vector<std::unique_ptr<RigidB
     }
   }
   assert( current_geo == indices.size() );
-  #else
-  throw std::string{ "writeGeometryIndices not compiled with HDF5 support" };
-  #endif
 }
 
-#ifndef USE_HDF5
-[[noreturn]]
-#endif
 static void writeBoxGeometry( const std::vector<std::unique_ptr<RigidBodyGeometry>>& geometry, const unsigned box_count, const std::string& group, HDF5File& output_file )
 {
-  #ifdef USE_HDF5
   struct LocalBoxData
   {
     scalar r[3];
@@ -157,17 +147,10 @@ static void writeBoxGeometry( const std::vector<std::unique_ptr<RigidBodyGeometr
     }
   }
   assert( current_box == box_count );
-  #else
-  throw std::string{ "writeSphereGeometry not compiled with HDF5 support" };
-  #endif
 }
 
-#ifndef USE_HDF5
-[[noreturn]]
-#endif
 static void writeSphereGeometry( const std::vector<std::unique_ptr<RigidBodyGeometry>>& geometry, const unsigned sphere_count, const std::string& group, HDF5File& output_file )
 {
-  #ifdef USE_HDF5
   struct SphereData
   {
     scalar r;
@@ -231,17 +214,10 @@ static void writeSphereGeometry( const std::vector<std::unique_ptr<RigidBodyGeom
     }
   }
   assert( current_sphere == sphere_count );
-  #else
-  throw std::string{ "writeSphereGeometry not compiled with HDF5 support" };
-  #endif
 }
 
-#ifndef USE_HDF5
-[[noreturn]]
-#endif
 static void writeMeshGeometry( const std::vector<std::unique_ptr<RigidBodyGeometry>>& geometry, const unsigned mesh_count, const std::string& group, HDF5File& output_file )
 {
-  #ifdef USE_HDF5
   struct LocalMeshData
   {
     const char* file_name;
@@ -311,9 +287,6 @@ static void writeMeshGeometry( const std::vector<std::unique_ptr<RigidBodyGeomet
     }
   }
   assert( current_mesh == mesh_count );
-  #else
-  throw std::string{ "writeMeshGeometry not compiled with HDF5 support" };
-  #endif
 }
 
 void StateOutput::writeGeometry( const std::vector<std::unique_ptr<RigidBodyGeometry>>& geometry, const std::string& group, HDF5File& output_file )
@@ -361,7 +334,6 @@ void StateOutput::writeGeometry( const std::vector<std::unique_ptr<RigidBodyGeom
 
 void StateOutput::writeStaticPlanes( const std::vector<StaticPlane>& static_planes, const std::string& group, HDF5File& output_file )
 {
-  #ifdef USE_HDF5
   struct LocalStaticPlaneData
   {
     scalar x[3];
@@ -479,14 +451,10 @@ void StateOutput::writeStaticPlanes( const std::vector<StaticPlane>& static_plan
     }
   }
   assert( current_plane == static_planes.size() );
-  #else
-  throw std::string{ "writeStaticPlanes not compiled with HDF5 support" };
-  #endif
 }
 
 void StateOutput::writeStaticCylinders( const std::vector<StaticCylinder>& static_cylinders, const std::string& group, HDF5File& output_file )
 {
-  #ifdef USE_HDF5
   struct LocalStaticCylinderData
   {
     scalar x[3];
@@ -611,7 +579,4 @@ void StateOutput::writeStaticCylinders( const std::vector<StaticCylinder>& stati
     }
   }
   assert( current_cylinder == static_cylinders.size() );
-  #else
-  throw std::string{ "writeStaticCylinders not compiled with HDF5 support" };
-  #endif
 }

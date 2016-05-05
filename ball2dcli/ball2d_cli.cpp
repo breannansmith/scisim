@@ -19,7 +19,6 @@
 #include "scisim/Math/Rational.h"
 #include "scisim/StringUtilities.h"
 #include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/ImpactSolution.h"
 #include "scisim/CompileDefinitions.h"
 #include "scisim/Timer/TimeUtils.h"
 #include "scisim/ConstrainedMaps/ConstrainedMapUtilities.h"
@@ -27,7 +26,6 @@
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
 #include "scisim/ConstrainedMaps/FrictionSolver.h"
-#include "scisim/HDF5File.h"
 #include "scisim/Utilities.h"
 #include "scisim/PythonTools.h"
 
@@ -36,6 +34,11 @@
 #include "ball2d/PythonScripting.h"
 
 #include "ball2dutils/Ball2DSceneParser.h"
+
+#ifdef USE_HDF5
+#include "scisim/HDF5File.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactSolution.h"
+#endif
 
 static Ball2DSim g_sim;
 static unsigned g_iteration{ 0 };
@@ -50,8 +53,10 @@ static std::unique_ptr<ImpactMap> g_impact_map{ nullptr };
 static std::unique_ptr<ImpactFrictionMap> g_impact_friction_map{ nullptr };
 static PythonScripting g_scripting;
 
+#ifdef USE_HDF5
 static std::string g_output_dir_name;
 static bool g_output_forces{ false };
+#endif
 // Number of timesteps between saves
 static unsigned g_steps_per_save{ 0 };
 // Number of saves that been conducted so far
@@ -68,10 +73,12 @@ static const unsigned MAGIC_BINARY_NUMBER{ 8675309 };
 static std::string generateOutputConfigurationDataFileName( const std::string& prefix, const std::string& extension )
 {
   std::stringstream ss;
+  #ifdef USE_HDF5
   if( !g_output_dir_name.empty() )
   {
     ss << g_output_dir_name << "/";
   }
+  #endif
   ss << prefix << "_" << std::setfill('0') << std::setw( g_save_number_width ) << g_output_frame << "." << extension;
   return ss.str();
 }
@@ -155,6 +162,7 @@ static std::string generateSimulationTimeString()
   return time_stream.str();
 }
 
+#ifdef USE_HDF5
 static int saveState()
 {
   // Generate a base filename
@@ -164,7 +172,6 @@ static int saveState()
   std::cout << "Saving state at time " << generateSimulationTimeString() << " to " << output_file_name;
   std::cout << "        " << TimeUtils::currentTime() << std::endl;
 
-  #ifdef USE_HDF5
   // Save the simulation state
   try
   {
@@ -186,11 +193,8 @@ static int saveState()
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
-  #else
-  std::cerr << "Error, please rebuild with HDF5 support before saving state." << std::endl;
-  return EXIT_FAILURE;
-  #endif
 }
+#endif
 
 static int serializeSystem()
 {
@@ -232,8 +236,10 @@ static int serializeSystem()
   ConstrainedMapUtilities::serialize( g_impact_map, serial_stream );
   ConstrainedMapUtilities::serialize( g_impact_friction_map, serial_stream );
   g_scripting.serialize( serial_stream );
+  #ifdef USE_HDF5
   StringUtilities::serialize( g_output_dir_name, serial_stream );
   Utilities::serialize( g_output_forces, serial_stream );
+  #endif
   Utilities::serialize( g_steps_per_save, serial_stream );
   Utilities::serialize( g_output_frame, serial_stream );
   Utilities::serialize( g_dt_string_precision, serial_stream );
@@ -295,8 +301,10 @@ static int deserializeSystem( const std::string& file_name )
     PythonScripting new_scripting{ serial_stream };
     swap( g_scripting, new_scripting );
   }
+  #ifdef USE_HDF5
   g_output_dir_name = StringUtilities::deserialize( serial_stream );
   g_output_forces = Utilities::deserialize<bool>( serial_stream );
+  #endif
   g_steps_per_save = Utilities::deserialize<unsigned>( serial_stream );
   g_output_frame = Utilities::deserialize<unsigned>( serial_stream );
   g_dt_string_precision = Utilities::deserialize<unsigned>( serial_stream );
@@ -314,6 +322,7 @@ static int exportConfigurationData()
   assert( g_steps_per_save != 0 );
   if( g_iteration % g_steps_per_save == 0 )
   {
+    #ifdef USE_HDF5
     if( !g_output_dir_name.empty() )
     {
       if( saveState() == EXIT_FAILURE )
@@ -321,6 +330,7 @@ static int exportConfigurationData()
         return EXIT_FAILURE;
       }
     }
+    #endif
     if( g_serialize_snapshots )
     {
       if( serializeSystem() == EXIT_FAILURE )
@@ -333,6 +343,7 @@ static int exportConfigurationData()
   return EXIT_SUCCESS;
 }
 
+#ifdef USE_HDF5
 static std::string generateOutputConstraintForceDataFileName()
 {
   std::stringstream ss;
@@ -340,11 +351,13 @@ static std::string generateOutputConstraintForceDataFileName()
   ss << g_output_dir_name << "/forces_" << std::setfill('0') << std::setw( g_save_number_width ) << g_output_frame - 1 << ".h5";
   return ss.str();
 }
+#endif
 
 static int stepSystem()
 {
   const unsigned next_iter = g_iteration + 1;
 
+  #ifdef USE_HDF5
   HDF5File force_file;
   assert( g_steps_per_save != 0 );
   if( g_output_forces && g_iteration % g_steps_per_save == 0 )
@@ -352,7 +365,6 @@ static int stepSystem()
     assert( !g_output_dir_name.empty() );
     const std::string constraint_force_file_name = generateOutputConstraintForceDataFileName();
     std::cout << "Saving forces at time " << generateSimulationTimeString() << " to " << constraint_force_file_name << std::endl;
-    #ifdef USE_HDF5
     try
     {
       force_file.open( constraint_force_file_name, HDF5AccessType::READ_WRITE );
@@ -370,11 +382,8 @@ static int stepSystem()
       std::cerr << error << std::endl;
       return EXIT_FAILURE;
     }
-    #else
-    std::cerr << "Error, please rebuild with HDF5 support before saving forces." << std::endl;
-    return EXIT_FAILURE;
-    #endif
   }
+  #endif
 
   if( g_unconstrained_map == nullptr && g_impact_operator == nullptr && g_impact_map == nullptr && g_friction_solver == nullptr && g_impact_friction_map == nullptr )
   {
@@ -387,12 +396,15 @@ static int stepSystem()
   else if( g_unconstrained_map != nullptr && g_impact_operator != nullptr && g_impact_map != nullptr && g_friction_solver == nullptr && g_impact_friction_map == nullptr )
   {
     assert( g_impact_map != nullptr );
+    #ifdef USE_HDF5
     ImpactSolution impact_solution;
     if( force_file.is_open() )
     {
       g_impact_map->exportForcesNextStep( impact_solution );
     }
+    #endif
     g_sim.flow( g_scripting, next_iter, g_dt, *g_unconstrained_map, *g_impact_operator, g_CoR, *g_impact_map );
+    #ifdef USE_HDF5
     if( force_file.is_open() )
     {
       try
@@ -405,13 +417,16 @@ static int stepSystem()
         return EXIT_FAILURE;
       }
     }
+    #endif
   }
   else if( g_unconstrained_map != nullptr && g_impact_operator == nullptr && g_impact_map == nullptr && g_friction_solver != nullptr && g_impact_friction_map != nullptr )
   {
+    #ifdef USE_HDF5
     if( force_file.is_open() )
     {
       g_impact_friction_map->exportForcesNextStep( force_file );
     }
+    #endif
     g_sim.flow( g_scripting, next_iter, g_dt, *g_unconstrained_map, g_CoR, g_mu, *g_friction_solver, *g_impact_friction_map );
   }
   else
@@ -437,6 +452,7 @@ static int executeSimLoop()
     // N.B. this will ocassionaly not trigger at the *exact* equal time due to floating point errors
     if( g_iteration * scalar( g_dt ) >= g_end_time )
     {
+      #ifdef USE_HDF5
       // Take one final step to ensure we have force data for end time
       if( g_output_forces )
       {
@@ -445,6 +461,7 @@ static int executeSimLoop()
           return EXIT_FAILURE;
         }
       }
+      #endif
       // User-provided end of simulation python callback
       g_scripting.setState( g_sim.state() );
       g_scripting.endOfSimCallback();
@@ -465,10 +482,12 @@ static void printUsage( const std::string& executable_name )
   std::cout << "Usage: " << executable_name << " xml_scene_file_name [options]" << std::endl;
   std::cout << "Options are:" << std::endl;
   std::cout << "   -h/--help                : prints this help message and exits" << std::endl;
-  std::cout << "   -i/--impulses            : saves impulses in addition to configuration if an output directory is set" << std::endl;
   std::cout << "   -r/--resume file         : resumes the simulation from a serialized file" << std::endl;
   std::cout << "   -e/--end scalar          : overrides the end time specified in the scene file" << std::endl;
+  #ifdef USE_HDF5
+  std::cout << "   -i/--impulses            : saves impulses in addition to configuration if an output directory is set" << std::endl;
   std::cout << "   -o/--output_dir dir      : saves simulation state to the given directory" << std::endl;
+  #endif
   std::cout << "   -f/--frequency integer   : rate at which to save simulation data, in Hz; ignored if no output directory specified" << std::endl;
   std::cout << "   -s/--serialize_snapshots bool : save a bit identical, resumable snapshot; if 0 overwrites the snapshot each timestep, if 1 saves a new snapshot for each timestep" << std::endl;
 }
@@ -478,11 +497,13 @@ static bool parseCommandLineOptions( int* argc, char*** argv, bool& help_mode_en
   const struct option long_options[] =
   {
     { "help", no_argument, nullptr, 'h' },
-    { "impulses", no_argument, nullptr, 'i' },
     { "serialize_snapshots", required_argument, nullptr, 's' },
     { "resume", required_argument, nullptr, 'r' },
     { "end", required_argument, nullptr, 'e' },
+    #ifdef USE_HDF5
+    { "impulses", no_argument, nullptr, 'i' },
     { "output_dir", required_argument, nullptr, 'o' },
+    #endif
     { "frequency", required_argument, nullptr, 'f' },
     { nullptr, 0, nullptr, 0 }
   };
@@ -497,11 +518,6 @@ static bool parseCommandLineOptions( int* argc, char*** argv, bool& help_mode_en
       case 'h':
       {
         help_mode_enabled = true;
-        break;
-      }
-      case 'i':
-      {
-        g_output_forces = true;
         break;
       }
       case 's':
@@ -534,11 +550,18 @@ static bool parseCommandLineOptions( int* argc, char*** argv, bool& help_mode_en
         }
         break;
       }
+      #ifdef USE_HDF5
+      case 'i':
+      {
+        g_output_forces = true;
+        break;
+      }
       case 'o':
       {
         g_output_dir_name = optarg;
         break;
       }
+      #endif
       case 'f':
       {
         if( !StringUtilities::extractFromString( optarg, output_frequency ) )
@@ -592,11 +615,13 @@ int main( int argc, char** argv )
   }
 
   // Check for impossible combinations of options
+  #ifdef USE_HDF5
   if( g_output_forces && g_output_dir_name.empty() )
   {
     std::cerr << "Impulse output requires an output directory." << std::endl;
     return EXIT_FAILURE;
   }
+  #endif
 
   #ifdef USE_PYTHON
   // Initialize the Python interpreter

@@ -5,8 +5,6 @@
 
 #include "RigidBodyTriangleMesh.h"
 
-#include "scisim/HDF5File.h"
-
 #include "scisim/Math/MathUtilities.h"
 #include "scisim/StringUtilities.h"
 #include "scisim/Utilities.h"
@@ -14,6 +12,13 @@
 #ifndef NDEBUG
 #include "rigidbody3d/Geometry/MomentTools.h"
 #endif
+
+#ifdef USE_HDF5
+#include "scisim/HDF5File.h"
+#else
+#include <iostream>
+#endif
+
 
 RigidBodyTriangleMesh::RigidBodyTriangleMesh( const RigidBodyTriangleMesh& other )
 : m_input_file_name( other.m_input_file_name )
@@ -48,6 +53,7 @@ RigidBodyTriangleMesh::RigidBodyTriangleMesh( const std::string& input_file_name
 , m_signed_distance()
 , m_grid_end()
 {
+  #ifdef USE_HDF5
   HDF5File mesh_file( input_file_name, HDF5AccessType::READ_ONLY );
 
   // TODO: Make value return versions of HDF5 readMatrix
@@ -110,6 +116,10 @@ RigidBodyTriangleMesh::RigidBodyTriangleMesh( const std::string& input_file_name
 
   // For convienience, cache the opposite corner of the grid to the origin
   m_grid_end = m_grid_origin + ( ( m_grid_dimensions.array() - 1 ).cast<scalar>() * m_cell_delta.array() ).matrix();
+  #else
+  std::cerr << "Error, loading rigid body triangle meshes requires HDF5 support. Please recompile with USE_HDF5=ON." << std::endl;
+  std::exit( EXIT_FAILURE );
+  #endif
 }
 
 RigidBodyTriangleMesh::RigidBodyTriangleMesh( std::istream& input_stream )

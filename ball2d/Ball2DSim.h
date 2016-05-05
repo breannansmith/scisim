@@ -21,9 +21,12 @@ class TeleportedCollision;
 class ImpactMap;
 class ImpactFrictionMap;
 class PythonScripting;
-class HDF5File;
 class FrictionSolver;
 template<typename T> class Rational;
+
+#ifdef USE_HDF5
+class HDF5File;
+#endif
 
 class Ball2DSim final : private FlowableSystem, private ConstrainedSystem
 {
@@ -84,7 +87,9 @@ public:
   // Flow using an unconstrained map, an impact-friction map
   void flow( PythonScripting& call_back, const unsigned iteration, const Rational<std::intmax_t>& dt, UnconstrainedMap& umap, const scalar& CoR, const scalar& mu, FrictionSolver& solver, ImpactFrictionMap& ifmap );
 
+  #ifdef USE_HDF5
   void writeBinaryState( HDF5File& output_file ) const;
+  #endif
 
   void serialize( std::ostream& output_stream ) const;
   void deserialize( std::istream& input_stream );

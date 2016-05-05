@@ -16,7 +16,10 @@ class ConstrainedSystem;
 class UnconstrainedMap;
 class FrictionSolver;
 class Constraint;
+
+#ifdef USE_HDF5
 class HDF5File;
+#endif
 
 class ImpactFrictionMap
 {
@@ -39,7 +42,9 @@ public:
 
   virtual std::string name() const = 0;
 
+  #ifdef USE_HDF5
   virtual void exportForcesNextStep( HDF5File& output_file ) = 0;
+  #endif
 
 protected:
 
@@ -48,7 +53,9 @@ protected:
   // TODO: Move these shared routines out of here
   // Support routines shared by various ImpactFrictionMap implementations
   //static bool noImpulsesToKinematicGeometry( const FlowableSystem& fsys, const SparseMatrixsc& N, const VectorXs& alpha, const SparseMatrixsc& D, const VectorXs& beta, const VectorXs& v0 );
+  #ifdef USE_HDF5
   static void exportConstraintForcesToBinaryFile( const VectorXs& q, const std::vector<std::unique_ptr<Constraint>>& constraints, const MatrixXXsc& contact_bases, const VectorXs& alpha, const VectorXs& beta, const scalar& dt, HDF5File& output_file );
+  #endif
 
   static bool constraintSetShouldConserveMomentum( const std::vector<std::unique_ptr<Constraint>>& cons );
   static bool constraintSetShouldConserveAngularMomentum( const std::vector<std::unique_ptr<Constraint>>& cons );

@@ -9,8 +9,11 @@
 #include "ImpactFrictionMap.h"
 
 class Constraint;
-class HDF5File;
 class FrictionSolver;
+
+#ifdef USE_HDF5
+class HDF5File;
+#endif
 
 enum class ImpulsesToCache: std::uint8_t
 {
@@ -38,12 +41,16 @@ public:
 
   virtual std::string name() const override;
 
+  #ifdef USE_HDF5
   virtual void exportForcesNextStep( HDF5File& output_file ) override;
+  #endif
 
 private:
 
+  #ifdef USE_HDF5
   // For saving out constraint forces
   void exportConstraintForcesToBinary( const VectorXs& q, const std::vector<std::unique_ptr<Constraint>>& constraints, const MatrixXXsc& contact_bases, const VectorXs& alpha, const VectorXs& beta, const scalar& dt );
+  #endif
 
   // Cached friction impulse from last solve
   VectorXs m_f;
@@ -55,9 +62,11 @@ private:
   // Controls which portion of the impulse to cache and warm start with
   ImpulsesToCache m_impulses_to_cache;
 
+  #ifdef USE_HDF5
   // Temporary state for writing constraint forces
   bool m_write_constraint_forces;
   HDF5File* m_constraint_force_stream;
+  #endif
 
 };
 

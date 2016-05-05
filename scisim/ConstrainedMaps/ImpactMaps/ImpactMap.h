@@ -13,7 +13,10 @@ class FlowableSystem;
 class ConstrainedSystem;
 class UnconstrainedMap;
 class ImpactOperator;
+
+#ifdef USE_HDF5
 class ImpactSolution;
+#endif
 
 class ImpactMap final
 {
@@ -27,15 +30,19 @@ public:
 
   void serialize( std::ostream& output_stream ) const;
 
+  #ifdef USE_HDF5
   void exportForcesNextStep( ImpactSolution& impact_solution );
+  #endif
 
 private:
 
   bool m_warm_start;
 
+  #ifdef USE_HDF5
   // Temporary state for writing constraint forces
   bool m_write_constraint_forces;
   ImpactSolution* m_impact_solution;
+  #endif
 
 };
 

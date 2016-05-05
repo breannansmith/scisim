@@ -8,7 +8,6 @@
 #include <memory>
 
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/ImpactSolution.h"
 #include "scisim/Constraints/ConstrainedSystem.h"
 #include "scisim/Constraints/Constraint.h"
 #include "scisim/UnconstrainedMaps/FlowableSystem.h"
@@ -17,16 +16,24 @@
 #include "scisim/Utilities.h"
 #include "ImpactOperator.h"
 
+#ifdef USE_HDF5
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactSolution.h"
+#endif
+
 ImpactMap::ImpactMap( const bool warm_start )
 : m_warm_start( warm_start )
+#ifdef USE_HDF5
 , m_write_constraint_forces( false )
 , m_impact_solution( nullptr )
+#endif
 {}
 
 ImpactMap::ImpactMap( std::istream& input_stream )
 : m_warm_start( Utilities::deserialize<bool>( input_stream ) )
+#ifdef USE_HDF5
 , m_write_constraint_forces( false )
 , m_impact_solution( nullptr )
+#endif
 {}
 
 #ifndef NDEBUG
@@ -54,6 +61,7 @@ void ImpactMap::flow( ScriptingCallback& call_back, FlowableSystem& fsys, Constr
   if( active_set.empty() )
   {
     csys.clearConstraintCache();
+    #ifdef USE_HDF5
     if( m_write_constraint_forces )
     {
       assert( m_impact_solution != nullptr );
@@ -61,6 +69,7 @@ void ImpactMap::flow( ScriptingCallback& call_back, FlowableSystem& fsys, Constr
     }
     m_write_constraint_forces = false;
     m_impact_solution = nullptr;
+    #endif
     return;
   }
 
@@ -160,6 +169,7 @@ void ImpactMap::flow( ScriptingCallback& call_back, FlowableSystem& fsys, Constr
   }
 
   // Export constraint forces, if requested
+  #ifdef USE_HDF5
   if( m_write_constraint_forces )
   {
     assert( m_impact_solution != nullptr );
@@ -169,6 +179,7 @@ void ImpactMap::flow( ScriptingCallback& call_back, FlowableSystem& fsys, Constr
   }
   m_write_constraint_forces = false;
   m_impact_solution = nullptr;
+  #endif
 
   active_set.clear();
 
@@ -180,12 +191,16 @@ void ImpactMap::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
   Utilities::serialize( m_warm_start, output_stream );
+  #ifdef USE_HDF5
   assert( m_write_constraint_forces == false );
   assert( m_impact_solution == nullptr );
+  #endif
 }
 
+#ifdef USE_HDF5
 void ImpactMap::exportForcesNextStep( ImpactSolution& impact_solution )
 {
   m_write_constraint_forces = true;
   m_impact_solution = &impact_solution;
 }
+#endif

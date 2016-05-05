@@ -16,12 +16,15 @@ class UnconstrainedMap;
 class ImpactOperator;
 class ImpactMap;
 class ImpactFrictionMap;
-class HDF5File;
 class FrictionSolver;
 class CircleGeometry;
 class BoxGeometry;
 class PythonScripting;
 template<typename T> class Rational;
+
+#ifdef USE_HDF5
+class HDF5File;
+#endif
 
 class RigidBody2DSim final : private FlowableSystem, private ConstrainedSystem
 {
@@ -84,10 +87,9 @@ public:
   // Flow using an unconstrained map, an impact-friction map
   void flow( PythonScripting& call_back, const unsigned iteration, const Rational<std::intmax_t>& dt, UnconstrainedMap& umap, const scalar& CoR, const scalar& mu, FrictionSolver& solver, ImpactFrictionMap& ifmap );
 
-  #ifndef USE_HDF5
-  [[noreturn]]
-  #endif
+  #ifdef USE_HDF5
   void writeBinaryState( HDF5File& output_file ) const;
+  #endif
 
   void serialize( std::ostream& output_stream ) const;
   void deserialize( std::istream& input_stream );

@@ -18,13 +18,15 @@ set( Sources
   RigidBody2DStaticPlane.cpp
   RigidBody2DUtilities.cpp
   SpatialGrid.cpp
-  StateOutput.cpp
   StaticPlaneBodyConstraint.cpp
   StaticPlaneCircleConstraint.cpp
   SymplecticEulerMap.cpp
   TeleportedCircleCircleConstraint.cpp
   VerletMap.cpp
 )
+if( USE_HDF5 )
+  list( APPEND Sources StateOutput.cpp )
+endif()
 
 set( Headers
   BodyBodyConstraint.h
@@ -46,10 +48,12 @@ set( Headers
   RigidBody2DStaticPlane.h
   RigidBody2DUtilities.h
   SpatialGrid.h
-  StateOutput.h
   StaticPlaneBodyConstraint.h
   StaticPlaneCircleConstraint.h
   SymplecticEulerMap.h
   TeleportedCircleCircleConstraint.h
   VerletMap.h
 )
+if( USE_HDF5 )
+  list( APPEND Headers StateOutput.h )
+endif()

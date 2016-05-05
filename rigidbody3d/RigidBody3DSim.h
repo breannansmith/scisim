@@ -28,10 +28,13 @@ class RigidBodyStaple;
 class RigidBodyTriangleMesh;
 class AABB;
 class TeleportedCollision;
-class HDF5File;
 class FrictionSolver;
 class PythonScripting;
 template<typename T> class Rational;
+
+#ifdef USE_HDF5
+class HDF5File;
+#endif
 
 class RigidBody3DSim final : private FlowableSystem, private ConstrainedSystem
 {
@@ -109,10 +112,9 @@ public:
 
   RigidBody3DState& state();
 
-  #ifndef USE_HDF5
-  [[noreturn]]
-  #endif
+  #ifdef USE_HDF5
   void writeBinaryState( HDF5File& output_file ) const;
+  #endif
 
   void serialize( std::ostream& output_stream ) const;
   void deserialize( std::istream& input_stream );

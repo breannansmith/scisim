@@ -2,7 +2,6 @@ set( Sources
   ConstraintCache.cpp
   RigidBody3DState.cpp
   SpatialGridDetector.cpp
-  StateOutput.cpp
   RigidBody3DSim.cpp
   RigidBody3DUtilities.cpp
   PythonScripting.cpp
@@ -38,12 +37,14 @@ set( Sources
   StaticGeometry/StaticCylinder.cpp
   StaticGeometry/StaticPlane.cpp
 )
+if( USE_HDF5 )
+  list( APPEND Sources StateOutput.cpp )
+endif()
 
 set( Headers
   ConstraintCache.h
   RigidBody3DState.h
   SpatialGridDetector.h
-  StateOutput.h
   RigidBody3DSim.h
   RigidBody3DUtilities.h
   PythonScripting.h
@@ -79,3 +80,6 @@ set( Headers
   StaticGeometry/StaticCylinder.h
   StaticGeometry/StaticPlane.h
 )
+if( USE_HDF5 )
+  list( APPEND Headers StateOutput.h )
+endif()

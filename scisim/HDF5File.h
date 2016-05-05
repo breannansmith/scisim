@@ -16,7 +16,6 @@
 #include <Eigen/Core>
 #include <Eigen/Sparse>
 
-#ifdef USE_HDF5
 #include "hdf5.h"
 
 // Wrapper for HDF5 group id. Functionality for HDF5 types differs only in the required close operaiton.
@@ -70,7 +69,6 @@ private:
   hid_t m_hid_t;
 
 };
-#endif
 
 namespace HDF5SupportedTypes
 {
@@ -117,34 +115,19 @@ class HDF5File final
 public:
 
   HDF5File();
-  #ifndef USE_HDF5
-  [[noreturn]]
-  #endif
   HDF5File( const std::string& file_name, const HDF5AccessType& access_type );
   ~HDF5File();
 
   hid_t fileID();
 
-  #ifndef USE_HDF5
-  [[noreturn]]
-  #endif
   void open( const std::string& file_name, const HDF5AccessType& access_type );
 
   bool is_open() const;
 
-  #ifndef USE_HDF5
-  [[noreturn]]
-  #endif
   HDFID<H5Gclose> getGroup( const std::string& group_name ) const;
 
-  #ifndef USE_HDF5
-  [[noreturn]]
-  #endif
   HDFID<H5Gclose> findGroup( const std::string& group_name ) const;
 
-  #ifndef USE_HDF5
-  [[noreturn]]
-  #endif
   void writeString( const std::string& group, const std::string& variable_name, const std::string& string_variable ) const;
 
   template <typename Scalar>
@@ -166,7 +149,6 @@ public:
   template <typename Derived>
   void writeMatrix( const std::string& group, const std::string& variable_name, const Eigen::DenseBase<Derived>& eigen_variable ) const
   {
-    #ifdef USE_HDF5
     using HDFSID = HDFID<H5Sclose>;
     using HDFGID = HDFID<H5Gclose>;
     using HDFDID = HDFID<H5Dclose>;
@@ -204,15 +186,11 @@ public:
     {
       throw std::string{ "Failed to write HDF data" };
     }
-    #else
-    throw std::string{ "HDF5File::writeMatrix not compiled with HDF5 support" };
-    #endif
   }
 
   template <typename Derived>
   void readMatrix( const std::string& group, const std::string& variable_name, Eigen::DenseBase<Derived>& eigen_variable ) const
   {
-    #ifdef USE_HDF5
     using HDFDID = HDFID<H5Dclose>;
     using HDFGID = HDFID<H5Gclose>;
 
@@ -270,9 +248,6 @@ public:
     {
       eigen_variable.derived().matrix() = col_major_input_data;
     }
-    #else
-    throw std::string{ "HDF5File::readMatrix not compiled with HDF5 support" };
-    #endif
   }
 
   template <typename Derived>
@@ -370,7 +345,6 @@ private:
     val = Eigen::Map< const Eigen::Array<typename Derived::Scalar,Eigen::Dynamic,1> >( A.derived().valuePtr(), A.nonZeros() );
   }
 
-  #ifdef USE_HDF5
   static hid_t getNativeType( const hid_t dataset_id )
   {
     using HDFTID = HDFID<H5Tclose>;
@@ -457,7 +431,6 @@ private:
   {
     return Derived::ColsAtCompileTime != Eigen::Dynamic;
   }
-  #endif
 
   hid_t m_hdf_file_id;
   bool m_file_opened;

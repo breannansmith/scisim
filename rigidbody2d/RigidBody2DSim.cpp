@@ -11,7 +11,6 @@
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
 #include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
 #include "scisim/Utilities.h"
-#include "scisim/HDF5File.h"
 
 #include "CircleBoxTools.h"
 #include "BoxBoxTools.h"
@@ -27,6 +26,10 @@
 #include "SpatialGrid.h"
 #include "StateOutput.h"
 #include "PythonScripting.h"
+
+#ifdef USE_HDF5
+#include "scisim/HDF5File.h"
+#endif
 
 #include <iostream>
 
@@ -1023,10 +1026,10 @@ void RigidBody2DSim::computeBodyBodyActiveSetSpatialGrid( const VectorXs& q0, co
   //#endif
 }
 
+#ifdef USE_HDF5
 // TODO: 0 size plane matrices are not output due to a bug in an older version of HDF5
 void RigidBody2DSim::writeBinaryState( HDF5File& output_file ) const
 {
-  #ifdef USE_HDF5
   // Output the configuration
   output_file.writeMatrix( "", "q", m_state.q() );
   // Output the velocity
@@ -1058,11 +1061,8 @@ void RigidBody2DSim::writeBinaryState( HDF5File& output_file ) const
   {
     RigidBody2DStateOutput::writePlanarPortals( m_state.planarPortals(), "static_geometry", output_file );
   }
-  #else
-  std::cerr << "Error, RigidBody2DSim::writeBinaryState requires HDF5 support." << std::endl;
-  std::exit( EXIT_FAILURE );
-  #endif
 }
+#endif
 
 void RigidBody2DSim::serialize( std::ostream& output_stream ) const
 {

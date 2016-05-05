@@ -7,7 +7,9 @@
 
 #include "scisim/Constraints/Constraint.h"
 
+#ifdef USE_HDF5
 #include "scisim/HDF5File.h"
+#endif
 
 ImpactFrictionMap::~ImpactFrictionMap()
 {}
@@ -52,6 +54,7 @@ ImpactFrictionMap::~ImpactFrictionMap()
 //  return true;
 //}
 
+#ifdef USE_HDF5
 static void getCollisionIndices( const Constraint& con, std::pair<int,int>& indices )
 {
   con.getBodyIndices( indices );
@@ -158,6 +161,7 @@ void ImpactFrictionMap::exportConstraintForcesToBinaryFile( const VectorXs& q, c
     output_file.writeMatrix( "", "collision_forces", collision_forces );
   }
 }
+#endif
 
 bool ImpactFrictionMap::constraintSetShouldConserveMomentum( const std::vector<std::unique_ptr<Constraint>>& cons )
 {

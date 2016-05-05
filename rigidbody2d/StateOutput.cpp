@@ -15,7 +15,6 @@
 
 void RigidBody2DStateOutput::writeGeometryIndices( const std::vector<std::unique_ptr<RigidBody2DGeometry>>& geometry, const VectorXu& indices, const std::string& group, HDF5File& output_file )
 {
-  #ifdef USE_HDF5
   using enum_type = std::uint8_t; //std::underlying_type<RigidBody2DGeometryType>::type;
   using HDFSID = HDFID<H5Sclose>;
   using HDFGID = HDFID<H5Gclose>;
@@ -75,18 +74,11 @@ void RigidBody2DStateOutput::writeGeometryIndices( const std::vector<std::unique
     }
   }
   assert( current_geo == indices.size() );
-  #else
-  throw std::string{ "writeGeometryIndices not compiled with HDF5 support" };
-  #endif
 }
 
 // TODO: Combine the write circle geometry and write box geometry code into one function
-#ifndef USE_HDF5
-[[noreturn]]
-#endif
 static void writeCircleGeometry( const std::vector<std::unique_ptr<RigidBody2DGeometry>>& geometry, const unsigned circle_count, const std::string& group, HDF5File& output_file )
 {
-  #ifdef USE_HDF5
   using HDFTID = HDFID<H5Tclose>;
   using HDFSID = HDFID<H5Sclose>;
   using HDFGID = HDFID<H5Gclose>;
@@ -164,17 +156,10 @@ static void writeCircleGeometry( const std::vector<std::unique_ptr<RigidBody2DGe
     }
   }
   assert( current_circle == circle_count );
-  #else
-  throw std::string{ "writeCircleGeometry not compiled with HDF5 support" };
-  #endif
 }
 
-#ifndef USE_HDF5
-[[noreturn]]
-#endif
 static void writeBoxGeometry( const std::vector<std::unique_ptr<RigidBody2DGeometry>>& geometry, const unsigned box_count, const std::string& group, HDF5File& output_file )
 {
-  #ifdef USE_HDF5
   using HDFTID = HDFID<H5Tclose>;
   using HDFSID = HDFID<H5Sclose>;
   using HDFGID = HDFID<H5Gclose>;
@@ -259,9 +244,6 @@ static void writeBoxGeometry( const std::vector<std::unique_ptr<RigidBody2DGeome
     }
   }
   assert( current_box == box_count );
-  #else
-  throw std::string{ "writeBoxGeometry not compiled with HDF5 support" };
-  #endif
 }
 
 void RigidBody2DStateOutput::writeGeometry( const std::vector<std::unique_ptr<RigidBody2DGeometry>>& geometry, const std::string& group, HDF5File& output_file )
@@ -289,7 +271,6 @@ void RigidBody2DStateOutput::writeGeometry( const std::vector<std::unique_ptr<Ri
 // TODO: Abstract out the struct type creation into own routines
 void RigidBody2DStateOutput::writeStaticPlanes( const std::vector<RigidBody2DStaticPlane>& static_planes, const std::string& group, HDF5File& output_file )
 {
-  #ifdef USE_HDF5
   using HDFTID = HDFID<H5Tclose>;
   using HDFSID = HDFID<H5Sclose>;
   using HDFGID = HDFID<H5Gclose>;
@@ -378,14 +359,10 @@ void RigidBody2DStateOutput::writeStaticPlanes( const std::vector<RigidBody2DSta
     }
   }
   assert( current_plane == static_planes.size() );
-  #else
-  throw std::string{ "writeStaticPlanes not compiled with HDF5 support" };
-  #endif
 }
 
 void RigidBody2DStateOutput::writePlanarPortals( const std::vector<PlanarPortal>& planar_portals, const std::string& group, HDF5File& output_file )
 {
-  #ifdef USE_HDF5
   using HDFTID = HDFID<H5Tclose>;
   using HDFSID = HDFID<H5Sclose>;
   using HDFGID = HDFID<H5Gclose>;
@@ -527,7 +504,4 @@ void RigidBody2DStateOutput::writePlanarPortals( const std::vector<PlanarPortal>
     }
   }
   assert( current_portal == planar_portals.size() );
-  #else
-  throw std::string{ "writePlanarPortals not compiled with HDF5 support" };
-  #endif
 }

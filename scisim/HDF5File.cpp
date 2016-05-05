@@ -5,13 +5,12 @@
 
 #include "HDF5File.h"
 
-#ifdef USE_HDF5
 #include <cassert>
+
 using HDFGID = HDFID<H5Gclose>;
 using HDFTID = HDFID<H5Tclose>;
 using HDFSID = HDFID<H5Sclose>;
 using HDFDID = HDFID<H5Dclose>;
-#endif
 
 HDF5File::HDF5File()
 : m_hdf_file_id( -1 )
@@ -27,13 +26,11 @@ HDF5File::HDF5File( const std::string& file_name, const HDF5AccessType& access_t
 
 HDF5File::~HDF5File()
 {
-  #ifdef USE_HDF5
   if( m_file_opened )
   {
     assert( m_hdf_file_id >= 0 );
     H5Fclose( m_hdf_file_id );
   }
-  #endif
 }
 
 hid_t HDF5File::fileID()
@@ -43,7 +40,6 @@ hid_t HDF5File::fileID()
 
 void HDF5File::open( const std::string& file_name, const HDF5AccessType& access_type )
 {
-  #ifdef USE_HDF5
   // Attempt to open a file
   switch( access_type )
   {
@@ -60,9 +56,6 @@ void HDF5File::open( const std::string& file_name, const HDF5AccessType& access_
     throw std::string{ "Failed to open file: " } + file_name;
   }
   m_file_opened = true;
-  #else
-  throw std::string{ "HDF5File::HDF5File not compiled with HDF5 support" };
-  #endif
 }
 
 bool HDF5File::is_open() const
@@ -72,7 +65,6 @@ bool HDF5File::is_open() const
 
 void HDF5File::writeString( const std::string& group, const std::string& variable_name, const std::string& string_variable ) const
 {
-  #ifdef USE_HDF5
   // HDF5 expects an array of strings
   const char* string_data[1] = { string_variable.c_str() };
   const HDFTID file_type{ H5Tcopy( H5T_FORTRAN_S1 ) };
@@ -116,14 +108,10 @@ void HDF5File::writeString( const std::string& group, const std::string& variabl
   {
     throw std::string{ "Failed to write HDF data" };
   }
-  #else
-  throw std::string{ "HDF5File::writeString not compiled with HDF5 support" };
-  #endif
 }
 
 HDFID<H5Gclose> HDF5File::getGroup( const std::string& group_name ) const
 {
-  #ifdef USE_HDF5
   HDFGID group_id;
   if( group_name.empty() )
   {
@@ -142,14 +130,10 @@ HDFID<H5Gclose> HDF5File::getGroup( const std::string& group_name ) const
     throw std::string{ "Failed to create group: " } + group_name;
   }
   return group_id;
-  #else
-  throw std::string{ "HDF5File::getGroup not compiled with HDF5 support" };
-  #endif
 }
 
 HDFID<H5Gclose> HDF5File::findGroup( const std::string& group_name ) const
 {
-  #ifdef USE_HDF5
   HDFGID group_id;
   if( group_name.empty() )
   {
@@ -164,7 +148,4 @@ HDFID<H5Gclose> HDF5File::findGroup( const std::string& group_name ) const
     throw std::string{ "Failed to find group: " } + group_name;
   }
   return group_id;
-  #else
-  throw std::string{ "HDF5File::findGroup not compiled with HDF5 support" };
-  #endif
 }

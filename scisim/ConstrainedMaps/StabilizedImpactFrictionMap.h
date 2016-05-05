@@ -9,8 +9,11 @@
 #include "ImpactFrictionMap.h"
 
 class Constraint;
-class HDF5File;
 class FrictionSolver;
+
+#ifdef USE_HDF5
+class HDF5File;
+#endif
 
 class StabilizedImpactFrictionMap final : public ImpactFrictionMap
 {
@@ -31,7 +34,9 @@ public:
 
   virtual std::string name() const override;
 
+  #ifdef USE_HDF5
   virtual void exportForcesNextStep( HDF5File& output_file ) override;
+  #endif
 
 private:
 
@@ -45,13 +50,16 @@ private:
   scalar m_abs_tol;
   unsigned m_max_iters;
 
+  // TODO: Update warm starting to be consistent with GeometricImpactFrictionMap
   // If true, initialize solve with alpha/beta from last time step, otherwise initialize alpha/beta to zero
   bool m_external_warm_start_alpha;
   bool m_external_warm_start_beta;
 
+  #ifdef USE_HDF5
   // Temporary state for writing constraint forces
   bool m_write_constraint_forces;
   HDF5File* m_constraint_force_stream;
+  #endif
 
 };
 

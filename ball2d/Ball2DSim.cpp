@@ -10,7 +10,6 @@
 #include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
 #include "scisim/Math/MathUtilities.h"
 #include "scisim/Utilities.h"
-#include "scisim/HDF5File.h"
 #include "scisim/Math/Rational.h"
 
 #include "Constraints/BallBallConstraint.h"
@@ -26,6 +25,10 @@
 #include "SpatialGridDetector.h"
 
 #include "PythonScripting.h"
+
+#ifdef USE_HDF5
+#include "scisim/HDF5File.h"
+#endif
 
 #include <iostream>
 
@@ -680,6 +683,7 @@ void Ball2DSim::computeBallPlaneActiveSetAllPairs( const VectorXs& q0, const Vec
   }
 }
 
+#ifdef USE_HDF5
 // TODO: 0 size matrices are not output due to a bug in an older version of HDF5
 void Ball2DSim::writeBinaryState( HDF5File& output_file ) const
 {
@@ -723,6 +727,7 @@ void Ball2DSim::writeBinaryState( HDF5File& output_file ) const
     output_file.writeMatrix( "", "static_plane_normals", static_plane_normals );
   }
 }
+#endif
 
 void Ball2DSim::serialize( std::ostream& output_stream ) const
 {

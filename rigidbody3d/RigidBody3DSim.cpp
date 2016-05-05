@@ -10,7 +10,6 @@
 #include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
 #include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
 #include "scisim/Utilities.h"
-#include "scisim/HDF5File.h"
 #include "scisim/Math/Rational.h"
 #include "Forces/Force.h"
 #include "Geometry/RigidBodyBox.h"
@@ -37,6 +36,10 @@
 #include "Portals/PlanarPortal.h"
 #include "StateOutput.h"
 #include "PythonScripting.h"
+
+#ifdef USE_HDF5
+#include "scisim/HDF5File.h"
+#endif
 
 const RigidBody3DState& RigidBody3DSim::getState() const
 {
@@ -1478,9 +1481,9 @@ void RigidBody3DSim::computeBodyCylinderActiveSetAllPairs( const VectorXs& q0, c
   }
 }
 
+#ifdef USE_HDF5
 void RigidBody3DSim::writeBinaryState( HDF5File& output_file ) const
 {
-  #ifdef USE_HDF5
   // Output the simulated geometry
   StateOutput::writeGeometryIndices( m_sim_state.geometry(), m_sim_state.indices(), "geometry", output_file );
   StateOutput::writeGeometry( m_sim_state.geometry(), "geometry", output_file );
@@ -1505,11 +1508,8 @@ void RigidBody3DSim::writeBinaryState( HDF5File& output_file ) const
     }
     output_file.writeMatrix( "state", "kinematically_scripted", fixed );
   }
-  #else
-  std::cerr << "Error, RigidBody3DSim::writeBinaryState requires HDF5 support." << std::endl;
-  std::exit( EXIT_FAILURE );
-  #endif
 }
+#endif
 
 void RigidBody3DSim::serialize( std::ostream& output_stream ) const
 {
