@@ -11,15 +11,23 @@ actual_installed_cpp_md5="73fba2af92aa42fc13f6bb9a5004b8f0"
 actual_installed_impl_md5="f6ccfaa3d971f99ba80363674d83448b"
 
 # Verify that git is installed
+command -v md5sum >/dev/null 2>&1 || command -v md5 >/dev/null 2>&1 || { echo >&2 "Error, please install md5 and rerun get_dependencies.sh."; exit 1; }
 command -v git >/dev/null 2>&1 || { echo >&2 "Error, please install git and rerun get_sobogus.sh."; exit 1; }
 
 # Verify that md5sum is installed
-command -v md5sum >/dev/null 2>&1 || { echo >&2 "Error, please install md5sum and rerun get_sobogus.sh."; exit 1; }
+command -v md5sum >/dev/null 2>&1 || command -v md5 >/dev/null 2>&1 || { echo >&2 "Error, please install md5 and rerun get_dependencies.sh."; exit 1; }
+if command -v md5 > /dev/null 2>&1 ; then
+  md5sum() 
+  {
+    md5 "$@" | sed -e 's#^MD5 [(]\(.*\)[)] = \(.*\)$#\2 \1#' 
+  }
+  export -f md5sum 
+fi
 
 # If the output directory or interface scripts exist
 if [ -d "include/sobogus" ] || [ -e "scisim/ConstrainedMaps/bogus/FrictionProblem.hpp" ] || [ -e "scisim/ConstrainedMaps/bogus/FrictionProblem.cpp" ] || [ -e "scisim/ConstrainedMaps/bogus/FrictionProblem.impl.hpp" ]; then
   # If the So-bogus install is up to date, no action is needed
-  computed_installed_sobogus_dir_md5=`find include/sobogus -type f -name '*.[hc]pp' -exec md5sum {} + | awk '{print $2$1}' | sort -fd | md5sum | cut -c -32`
+  computed_installed_sobogus_dir_md5=`find include/sobogus -type f -name '*.[hc]pp' -exec bash -c 'md5sum "$0" "$@"' {} + | awk '{print $2$1}' | sort -fd | md5sum | cut -c -32`
   computed_installed_hpp_md5=`md5sum scisim/ConstrainedMaps/bogus/FrictionProblem.hpp | cut -c -32`
   computed_installed_cpp_md5=`md5sum scisim/ConstrainedMaps/bogus/FrictionProblem.cpp | cut -c -32`
   computed_installed_impl_md5=`md5sum scisim/ConstrainedMaps/bogus/FrictionProblem.impl.hpp | cut -c -32`
@@ -66,7 +74,7 @@ cd - > /dev/null
 
 # Run a checksum on the download
 echo "--->  Verifying So-bogus checksum"
-computed_original_sobogus_md5=`find $temp_dir_name/so_bogus/src -type f -name '*.[hc]pp' -exec md5sum {} + | awk '{print $2$1}' | while read inputline; do echo "${inputline#*/}"; done | sort -fd | md5sum | cut -c -32`
+computed_original_sobogus_md5=`find $temp_dir_name/so_bogus/src -type f -name '*.[hc]pp' -exec bash -c 'md5sum "$0" "$@"' {} + | awk '{print $2$1}' | while read inputline; do echo "${inputline#*/}"; done | sort -fd | md5sum | cut -c -32`
 if [ "$original_sobogus_md5" != "$computed_original_sobogus_md5" ]
 then
   echo "Error, md5 checksum for So-bogus of $computed_original_sobogus_md5 is not $original_sobogus_md5."
@@ -78,7 +86,7 @@ patch -d $temp_dir_name/so_bogus/src -p2 --quiet < scripts_include/sobogus_patch
 
 # Run a checksum on the patched download
 echo "--->  Verifying patched So-bogus checksum"
-computed_patched_sobogus_md5=`find $temp_dir_name/so_bogus/src -type f -name '*.[hc]pp' -exec md5sum {} + | awk '{print $2$1}' | while read inputline; do echo "${inputline#*/}"; done | sort -fd | md5sum | cut -c -32`
+computed_patched_sobogus_md5=`find $temp_dir_name/so_bogus/src -type f -name '*.[hc]pp' -exec bash -c 'md5sum "$0" "$@"' {} + | awk '{print $2$1}' | while read inputline; do echo "${inputline#*/}"; done | sort -fd | md5sum | cut -c -32`
 if [ "$patched_sobogus_md5" != "$computed_patched_sobogus_md5" ]
 then
   echo "Error, patched md5 checksum for So-bogus of $computed_patched_sobogus_md5 is not $patched_sobogus_md5."
