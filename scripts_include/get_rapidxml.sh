@@ -11,7 +11,14 @@ actual_installed_rapidxml_md5="d698fa3e3547874766de5ba8cb2177c9"
 command -v curl >/dev/null 2>&1 || { echo >&2 "Error, please install curl and rerun get_eigen.sh."; exit 1; }
 
 # Verify that md5sum is installed
-command -v md5sum >/dev/null 2>&1 || { echo >&2 "Error, please install md5sum and rerun get_rapidxml.sh."; exit 1; }
+command -v md5sum >/dev/null 2>&1 || command -v md5 >/dev/null 2>&1 || { echo >&2 "Error, please install md5 and rerun get_dependencies.sh."; exit 1; }
+if command -v md5 > /dev/null 2>&1 ; then
+  md5sum() 
+  {
+    md5 "$@" | sed -e 's#^MD5 [(]\(.*\)[)] = \(.*\)$#\2 \1#' 
+  }
+  export -f md5sum 
+fi
 
 # Verify that unzip is installed
 command -v unzip >/dev/null 2>&1 || { echo >&2 "Error, please install unzip and rerun get_rapidxml.sh."; exit 1; }
@@ -19,7 +26,7 @@ command -v unzip >/dev/null 2>&1 || { echo >&2 "Error, please install unzip and 
 # If the output directory exists
 if [ -d "include/rapidxml" ]; then
   # If the RapidXml install is up to date, no action is needed
-  computed_installed_rapidxml_md5=`find include/rapidxml -type f -name '*.hpp' -exec md5sum {} + | awk '{print $2$1}' | sort -fd | md5sum | cut -c -32`
+  computed_installed_rapidxml_md5=`find include/rapidxml -type f -name '*.hpp' -exec bash -c 'md5sum "$0" "$@"' {} + | awk '{print $2$1}' | sort -fd | md5sum | cut -c -32`
   if [ "$computed_installed_rapidxml_md5" == "$actual_installed_rapidxml_md5" ]
   then
     echo "RapidXml library is already up to date, no further action is needed."
