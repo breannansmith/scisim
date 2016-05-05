@@ -11,11 +11,11 @@ actual_installed_cpp_md5="73fba2af92aa42fc13f6bb9a5004b8f0"
 actual_installed_impl_md5="f6ccfaa3d971f99ba80363674d83448b"
 
 # Verify that git is installed
-command -v md5sum >/dev/null 2>&1 || command -v md5 >/dev/null 2>&1 || { echo >&2 "Error, please install md5 and rerun get_dependencies.sh."; exit 1; }
+command -v md5sum >/dev/null 2>&1 || command -v md5 >/dev/null 2>&1 || { echo >&2 "Error, please install md5 or md5sum and rerun get_dependencies.sh."; exit 1; }
 command -v git >/dev/null 2>&1 || { echo >&2 "Error, please install git and rerun get_sobogus.sh."; exit 1; }
 
 # Verify that md5sum is installed
-command -v md5sum >/dev/null 2>&1 || command -v md5 >/dev/null 2>&1 || { echo >&2 "Error, please install md5 and rerun get_dependencies.sh."; exit 1; }
+command -v md5sum >/dev/null 2>&1 || command -v md5 >/dev/null 2>&1 || { echo >&2 "Error, please install md5 or md5sum and rerun get_dependencies.sh."; exit 1; }
 if command -v md5 > /dev/null 2>&1 ; then
   md5sum() 
   {

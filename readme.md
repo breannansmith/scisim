@@ -56,7 +56,7 @@ To obtain a minimal demo build that simulates colliding triangle meshes:
         git clone https://github.com/breannansmith/scisim.git
         cd scisim
 
-3. From the project root, run the script get_dependencies.sh to download, extract, and verify the required dependencies. Note that this script requires the md5sum utility:
+3. From the project root, run the script get_dependencies.sh to download, extract, and verify the required dependencies. Note that this script requires the md5 or md5sum utility:
 
         ./get_dependencies.sh
 
