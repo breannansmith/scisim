@@ -1031,15 +1031,15 @@ void RigidBody2DSim::computeBodyBodyActiveSetSpatialGrid( const VectorXs& q0, co
 void RigidBody2DSim::writeBinaryState( HDF5File& output_file ) const
 {
   // Output the configuration
-  output_file.writeMatrix( "", "q", m_state.q() );
+  output_file.writeMatrix( "q", m_state.q() );
   // Output the velocity
-  output_file.writeMatrix( "", "v", m_state.v() );
+  output_file.writeMatrix( "v", m_state.v() );
   // Output the mass
   {
     // Assemble the mass into a single flat vector like q, v, and r
     assert( unsigned(m_state.M().nonZeros()) == 3 * m_state.nbodies() );
     const VectorXs m{ Eigen::Map<const VectorXs>{ &m_state.M().data().value(0), m_state.q().size() } };
-    output_file.writeMatrix( "", "m", m );
+    output_file.writeMatrix( "m", m );
   }
   {
     VectorXu fixed{ numBodies() };
@@ -1047,7 +1047,7 @@ void RigidBody2DSim::writeBinaryState( HDF5File& output_file ) const
     {
       fixed( body_index ) = isKinematicallyScripted( body_index ) ? 1 : 0;
     }
-    output_file.writeMatrix( "", "kinematically_scripted", fixed );
+    output_file.writeMatrix( "kinematically_scripted", fixed );
   }
   // Output the simulated geometry
   RigidBody2DStateOutput::writeGeometryIndices( m_state.geometry(), m_state.geometryIndices(), "geometry", output_file );

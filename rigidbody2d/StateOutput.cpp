@@ -41,7 +41,7 @@ void RigidBody2DStateOutput::writeGeometryIndices( const std::vector<std::unique
   }
 
   // Open the requested group
-  const HDFGID grp_id{ output_file.getGroup( group ) };
+  const HDFGID grp_id{ output_file.findOrCreateGroup( group ) };
 
   // Create an HDF5 dataset
   const HDFDID data_set{ H5Dcreate2( grp_id, "geometry_indices", H5T_NATIVE_UINT, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
@@ -110,7 +110,7 @@ static void writeCircleGeometry( const std::vector<std::unique_ptr<RigidBody2DGe
   }
 
   // Open the requested group
-  const HDFGID grp_id{ output_file.getGroup( group ) };
+  const HDFGID grp_id{ output_file.findOrCreateGroup( group ) };
 
   // Create an HDF5 dataset
   const HDFDID data_set{ H5Dcreate2( grp_id, "circles", struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
@@ -199,7 +199,7 @@ static void writeBoxGeometry( const std::vector<std::unique_ptr<RigidBody2DGeome
   }
 
   // Open the requested group
-  const HDFGID grp_id{ output_file.getGroup( group ) };
+  const HDFGID grp_id{ output_file.findOrCreateGroup( group ) };
 
   // Create an HDF5 dataset
   const HDFDID data_set{ H5Dcreate2( grp_id, "boxes", struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
@@ -325,7 +325,7 @@ void RigidBody2DStateOutput::writeStaticPlanes( const std::vector<RigidBody2DSta
   }
 
   // Open the requested group
-  const HDFGID grp_id{ output_file.getGroup( group ) };
+  const HDFGID grp_id{ output_file.findOrCreateGroup( group ) };
 
   // Create an HDF5 dataset
   const HDFDID data_set{ H5Dcreate2( grp_id, "static_planes", struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
@@ -465,7 +465,7 @@ void RigidBody2DStateOutput::writePlanarPortals( const std::vector<PlanarPortal>
   }
 
   // Open the requested group
-  const HDFGID grp_id{ output_file.getGroup( group ) };
+  const HDFGID grp_id{ output_file.findOrCreateGroup( group ) };
 
   // Create an HDF5 dataset
   const HDFDID data_set{ H5Dcreate2( grp_id, "planar_portals", struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };

@@ -49,10 +49,8 @@ public:
 
   HDFID& operator=( HDFID&& other )
   {
-    // NB: Backup hid_t to guard against self assignment
-    const hid_t others_hid_t{ other.m_hid_t };
-    other.m_hid_t = -1;
-    m_hid_t = others_hid_t;
+    using std::swap;
+    swap( other.m_hid_t, m_hid_t );
     return *this;
   }
 
@@ -117,6 +115,10 @@ public:
   HDF5File();
   HDF5File( const std::string& file_name, const HDF5AccessType& access_type );
   ~HDF5File();
+  HDF5File( const HDF5File& ) = delete;
+  HDF5File& operator=( const HDF5File& ) = delete;
+  HDF5File( HDF5File&& other );
+  HDF5File& operator=( HDF5File&& other );
 
   hid_t fileID();
 
@@ -124,30 +126,30 @@ public:
 
   bool is_open() const;
 
-  HDFID<H5Gclose> getGroup( const std::string& group_name ) const;
+  HDFID<H5Gclose> findOrCreateGroup( const std::string& group_name ) const;
 
   HDFID<H5Gclose> findGroup( const std::string& group_name ) const;
 
-  void writeString( const std::string& group, const std::string& variable_name, const std::string& string_variable ) const;
+  void writeString( const std::string& full_name, const std::string& string_variable ) const;
 
   template <typename Scalar>
-  void writeScalar( const std::string& group, const std::string& variable_name, const Scalar& variable ) const
+  void writeScalar( const std::string& full_name, const Scalar& variable ) const
   {
     Eigen::Matrix<Scalar,1,1> output_mat;
     output_mat << variable;
-    writeMatrix( group, variable_name, output_mat );
+    writeMatrix( full_name, output_mat );
   }
 
   template <typename Scalar>
-  void readScalar( const std::string& group, const std::string& variable_name, Scalar& variable ) const
+  void readScalar( const std::string& full_name, Scalar& variable ) const
   {
     Eigen::Matrix<Scalar,1,1> input_mat;
-    readMatrix( group, variable_name, input_mat );
+    readMatrix( full_name, input_mat );
     variable = input_mat( 0, 0 );
   }
 
   template <typename Derived>
-  void writeMatrix( const std::string& group, const std::string& variable_name, const Eigen::DenseBase<Derived>& eigen_variable ) const
+  void writeMatrix( const std::string& full_name, const Eigen::DenseBase<Derived>& eigen_variable ) const
   {
     using HDFSID = HDFID<H5Sclose>;
     using HDFGID = HDFID<H5Gclose>;
@@ -155,6 +157,8 @@ public:
 
     using Scalar = typename Derived::Scalar;
     static_assert( HDF5SupportedTypes::isSupportedEigenType<Scalar>(), "Error, scalar type of Eigen variable must be float, double, unsigned or integer" );
+
+    const auto split_name = splitFullName( full_name );
 
     assert( eigen_variable.rows() >= 0 ); assert( eigen_variable.cols() >= 0 );
     const hsize_t dims[2] = { hsize_t( eigen_variable.rows() ), hsize_t( eigen_variable.cols() ) };
@@ -165,9 +169,9 @@ public:
     }
 
     // Open the requested group
-    const HDFGID grp_id{ getGroup( group ) };
+    const HDFGID grp_id{ findOrCreateGroup( split_name.first ) };
 
-    const HDFDID dataset_id{ H5Dcreate2( grp_id, variable_name.c_str(), computeHDFType( eigen_variable ), dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
+    const HDFDID dataset_id{ H5Dcreate2( grp_id, split_name.second.c_str(), computeHDFType( eigen_variable ), dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
     if( dataset_id < 0 )
     {
       throw std::string{ "Failed to create HDF data set" };
@@ -189,7 +193,7 @@ public:
   }
 
   template <typename Derived>
-  void readMatrix( const std::string& group, const std::string& variable_name, Eigen::DenseBase<Derived>& eigen_variable ) const
+  void readMatrix( const std::string& full_name, Eigen::DenseBase<Derived>& eigen_variable ) const
   {
     using HDFDID = HDFID<H5Dclose>;
     using HDFGID = HDFID<H5Gclose>;
@@ -197,10 +201,12 @@ public:
     using Scalar = typename Derived::Scalar;
     static_assert( HDF5SupportedTypes::isSupportedEigenType<Scalar>(), "Error, scalar type of Eigen variable must be float, double, unsigned or integer" );
 
-    // Open the requested group
-    const HDFGID grp_id{ findGroup( group ) };
+    const auto split_name = splitFullName( full_name );
 
-    const HDFDID dataset_id{ H5Dopen2( grp_id, variable_name.c_str(), H5P_DEFAULT ) };
+    // Open the requested group
+    const HDFGID grp_id{ findGroup( split_name.first ) };
+
+    const HDFDID dataset_id{ H5Dopen2( grp_id, split_name.second.c_str(), H5P_DEFAULT ) };
     if( dataset_id < 0 )
     {
       throw std::string{ "Failed to open HDF data set" };
@@ -251,7 +257,7 @@ public:
   }
 
   template <typename Derived>
-  void writeSparseMatrix( const std::string& group, const std::string& variable_name, const Eigen::SparseMatrixBase<Derived>& sparse_matrix ) const
+  void writeSparseMatrix( const std::string& full_name, const Eigen::SparseMatrixBase<Derived>& sparse_matrix ) const
   {
     static_assert( !Derived::IsRowMajor, "Error, HDF5 sparse matrix output only supported for column major matrices" );
 
@@ -263,12 +269,12 @@ public:
 
     // Write out the sparse data
     const typename Derived::Index nrows = sparse_matrix.rows();
-    writeScalar( group, variable_name + "_nrows", nrows );
+    writeScalar( full_name + "_nrows", nrows );
     const typename Derived::Index ncols = sparse_matrix.cols();
-    writeScalar( group, variable_name + "_ncols", ncols );
-    writeMatrix( group, variable_name + "_col_ptr", col_ptr );
-    writeMatrix( group, variable_name + "_row_ind", row_ind );
-    writeMatrix( group, variable_name + "_val", val );
+    writeScalar( full_name + "_ncols", ncols );
+    writeMatrix( full_name + "_col_ptr", col_ptr );
+    writeMatrix( full_name + "_row_ind", row_ind );
+    writeMatrix( full_name + "_val", val );
   }
 
   //template <typename Derived>
@@ -432,8 +438,23 @@ private:
     return Derived::ColsAtCompileTime != Eigen::Dynamic;
   }
 
+  static std::pair<std::string,std::string> splitFullName( const std::string& full_name )
+  {
+    std::pair<std::string,std::string> split_name;
+    const std::size_t found{ full_name.find_last_of('/') };
+    if( found == std::string::npos )
+    {
+      split_name.second = full_name;
+    }
+    else
+    {
+      split_name.first = full_name.substr( 0, found );
+      split_name.second = full_name.substr( found + 1 );
+    }
+    return split_name;
+  }
+
   hid_t m_hdf_file_id;
-  bool m_file_opened;
 
 };
 

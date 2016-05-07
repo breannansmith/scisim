@@ -14,23 +14,33 @@ using HDFDID = HDFID<H5Dclose>;
 
 HDF5File::HDF5File()
 : m_hdf_file_id( -1 )
-, m_file_opened( false )
 {}
 
 HDF5File::HDF5File( const std::string& file_name, const HDF5AccessType& access_type )
 : m_hdf_file_id( -1 )
-, m_file_opened( false )
 {
   open( file_name, access_type );
 }
 
 HDF5File::~HDF5File()
 {
-  if( m_file_opened )
+  if( m_hdf_file_id >= 0 )
   {
-    assert( m_hdf_file_id >= 0 );
     H5Fclose( m_hdf_file_id );
   }
+}
+
+HDF5File::HDF5File( HDF5File&& other )
+: m_hdf_file_id( other.m_hdf_file_id )
+{
+  other.m_hdf_file_id = -1;
+}
+
+HDF5File& HDF5File::operator=( HDF5File&& other )
+{
+  using std::swap;
+  swap( other.m_hdf_file_id, m_hdf_file_id );
+  return *this;
 }
 
 hid_t HDF5File::fileID()
@@ -55,16 +65,17 @@ void HDF5File::open( const std::string& file_name, const HDF5AccessType& access_
   {
     throw std::string{ "Failed to open file: " } + file_name;
   }
-  m_file_opened = true;
 }
 
 bool HDF5File::is_open() const
 {
-  return m_file_opened;
+  return m_hdf_file_id >= 0;
 }
 
-void HDF5File::writeString( const std::string& group, const std::string& variable_name, const std::string& string_variable ) const
+void HDF5File::writeString( const std::string& full_name, const std::string& string_variable ) const
 {
+  const auto split_name = splitFullName( full_name );
+
   // HDF5 expects an array of strings
   const char* string_data[1] = { string_variable.c_str() };
   const HDFTID file_type{ H5Tcopy( H5T_FORTRAN_S1 ) };
@@ -96,9 +107,9 @@ void HDF5File::writeString( const std::string& group, const std::string& variabl
   assert( m_hdf_file_id >= 0 );
 
   // Open the requested group
-  const HDFGID grp_id{ getGroup( group ) };
+  const HDFGID grp_id{ findOrCreateGroup( split_name.first ) };
 
-  const HDFDID dset{ H5Dcreate2( grp_id, variable_name.c_str(), file_type, space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
+  const HDFDID dset{ H5Dcreate2( grp_id, split_name.second.c_str(), file_type, space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
   if( dset < 0 )
   {
     throw std::string{ "Failed to create HDF dataset" };
@@ -110,7 +121,7 @@ void HDF5File::writeString( const std::string& group, const std::string& variabl
   }
 }
 
-HDFID<H5Gclose> HDF5File::getGroup( const std::string& group_name ) const
+HDFID<H5Gclose> HDF5File::findOrCreateGroup( const std::string& group_name ) const
 {
   HDFGID group_id;
   if( group_name.empty() )

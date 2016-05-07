@@ -1497,16 +1497,16 @@ void RigidBody3DSim::writeBinaryState( HDF5File& output_file ) const
     StateOutput::writeStaticCylinders( m_sim_state.staticCylinders(), "static_geometry", output_file );
   }
   // Write out the state of each body
-  output_file.writeMatrix( "state", "q", m_sim_state.q() );
-  output_file.writeMatrix( "state", "v", m_sim_state.v() );
-  output_file.writeSparseMatrix( "state", "M0", m_sim_state.M0() );
+  output_file.writeMatrix( "state/q", m_sim_state.q() );
+  output_file.writeMatrix( "state/v", m_sim_state.v() );
+  output_file.writeSparseMatrix( "state/M0", m_sim_state.M0() );
   {
     VectorXu fixed{ m_sim_state.nbodies() };
     for( unsigned body_index = 0; body_index < m_sim_state.nbodies(); ++body_index )
     {
       fixed( body_index ) = m_sim_state.isKinematicallyScripted( body_index ) ? 1 : 0;
     }
-    output_file.writeMatrix( "state", "kinematically_scripted", fixed );
+    output_file.writeMatrix( "state/kinematically_scripted", fixed );
   }
 }
 #endif

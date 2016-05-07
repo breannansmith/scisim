@@ -44,7 +44,7 @@ void StateOutput::writeGeometryIndices( const std::vector<std::unique_ptr<RigidB
   }
 
   // Open the requested group
-  const HDFGID grp_id{ output_file.getGroup( group ) };
+  const HDFGID grp_id{ output_file.findOrCreateGroup( group ) };
 
   // Create an HDF5 dataset
   const HDFDID data_set{ H5Dcreate2( grp_id, "geometry_indices", H5T_NATIVE_UINT, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
@@ -114,7 +114,7 @@ static void writeBoxGeometry( const std::vector<std::unique_ptr<RigidBodyGeometr
   }
 
   // Open the requested group
-  const HDFGID grp_id{ output_file.getGroup( group ) };
+  const HDFGID grp_id{ output_file.findOrCreateGroup( group ) };
 
   // Create an HDF5 dataset
   const HDFDID data_set{ H5Dcreate2( grp_id, "boxes", struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
@@ -177,7 +177,7 @@ static void writeSphereGeometry( const std::vector<std::unique_ptr<RigidBodyGeom
   }
 
   // Open the requested group
-  const HDFGID grp_id{ output_file.getGroup( group ) };
+  const HDFGID grp_id{ output_file.findOrCreateGroup( group ) };
 
   // Create an HDF5 dataset
   const HDFDID data_set{ H5Dcreate2( grp_id, "spheres", struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
@@ -255,7 +255,7 @@ static void writeMeshGeometry( const std::vector<std::unique_ptr<RigidBodyGeomet
   }
 
   // Open the requested group
-  const HDFGID grp_id{ output_file.getGroup( group ) };
+  const HDFGID grp_id{ output_file.findOrCreateGroup( group ) };
 
   // Create an HDF5 dataset
   const HDFDID data_set{ H5Dcreate2( grp_id, "meshes", struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
@@ -410,7 +410,7 @@ void StateOutput::writeStaticPlanes( const std::vector<StaticPlane>& static_plan
   }
 
   // Open the requested group
-  const HDFGID grp_id{ output_file.getGroup( group ) };
+  const HDFGID grp_id{ output_file.findOrCreateGroup( group ) };
 
   // Create an HDF5 dataset
   const HDFDID data_set{ H5Dcreate2( grp_id, "static_planes", struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
@@ -537,7 +537,7 @@ void StateOutput::writeStaticCylinders( const std::vector<StaticCylinder>& stati
   }
 
   // Open the requested group
-  const HDFGID grp_id{ output_file.getGroup( group ) };
+  const HDFGID grp_id{ output_file.findOrCreateGroup( group ) };
 
   // Create an HDF5 dataset
   const HDFDID data_set{ H5Dcreate2( grp_id, "static_cylinders", struct_tid, data_space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };

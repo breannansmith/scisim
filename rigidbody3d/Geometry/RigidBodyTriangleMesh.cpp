@@ -58,8 +58,8 @@ RigidBodyTriangleMesh::RigidBodyTriangleMesh( const std::string& input_file_name
 
   // TODO: Make value return versions of HDF5 readMatrix
   // Load the mesh
-  mesh_file.readMatrix( "mesh", "vertices", m_verts );
-  mesh_file.readMatrix( "mesh", "faces", m_faces );
+  mesh_file.readMatrix( "mesh/vertices", m_verts );
+  mesh_file.readMatrix( "mesh/faces", m_faces );
   assert( ( m_faces.array() < unsigned( m_verts.cols() ) ).all() );
   // Verify that each vertex is part of a face
   #ifndef NDEBUG
@@ -76,12 +76,12 @@ RigidBodyTriangleMesh::RigidBodyTriangleMesh( const std::string& input_file_name
   #endif
 
   // Load the moments
-  mesh_file.readScalar( "moments", "volume", m_volume );
+  mesh_file.readScalar( "moments/volume", m_volume );
   assert( m_volume > 0.0 );
-  mesh_file.readMatrix( "moments", "I_on_rho", m_I_on_rho );
+  mesh_file.readMatrix( "moments/I_on_rho", m_I_on_rho );
   assert( ( m_I_on_rho.array() > 0.0 ).all() );
-  mesh_file.readMatrix( "moments", "x", m_center_of_mass );
-  mesh_file.readMatrix( "moments", "R", m_R );
+  mesh_file.readMatrix( "moments/x", m_center_of_mass );
+  mesh_file.readMatrix( "moments/R", m_R );
   assert( fabs( m_R.determinant() - 1.0 ) <= 1.0e-6 );
   assert( ( m_R * m_R.transpose() - Eigen::Matrix3d::Identity() ).lpNorm<Eigen::Infinity>() <= 1.0e-6 );
   // TODO: Remove these checks and the duplicated code
@@ -101,18 +101,18 @@ RigidBodyTriangleMesh::RigidBodyTriangleMesh( const std::string& input_file_name
   #endif
 
   // Load the surface samples
-  mesh_file.readMatrix( "surface_samples", "samples", m_samples );
+  mesh_file.readMatrix( "surface_samples/samples", m_samples );
 
   // Load the convex hull samples
-  mesh_file.readMatrix( "convex_hull", "vertices", m_convex_hull_samples );
+  mesh_file.readMatrix( "convex_hull/vertices", m_convex_hull_samples );
 
   // Load the signed distance field
-  mesh_file.readMatrix( "sdf", "cell_delta", m_cell_delta );
+  mesh_file.readMatrix( "sdf/cell_delta", m_cell_delta );
   assert( ( m_cell_delta.array() > 0.0 ).all() );
-  mesh_file.readMatrix( "sdf", "grid_dimensions", m_grid_dimensions );
+  mesh_file.readMatrix( "sdf/grid_dimensions", m_grid_dimensions );
   assert( ( m_grid_dimensions.array() >= 1 ).all() );
-  mesh_file.readMatrix( "sdf", "grid_origin", m_grid_origin );
-  mesh_file.readMatrix( "sdf", "signed_distance", m_signed_distance );
+  mesh_file.readMatrix( "sdf/grid_origin", m_grid_origin );
+  mesh_file.readMatrix( "sdf/signed_distance", m_signed_distance );
 
   // For convienience, cache the opposite corner of the grid to the origin
   m_grid_end = m_grid_origin + ( ( m_grid_dimensions.array() - 1 ).cast<scalar>() * m_cell_delta.array() ).matrix();
