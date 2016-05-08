@@ -61,5 +61,5 @@ script:
   - mkdir build
   - cd build
   - CC=$CC_COMPILER CXX=$CXX_COMPILER cmake -DSTRICT_BUILD=ON -DUSE_HDF5=ON -DUSE_PYTHON=ON ${EXTRA_FLAGS} .. -GNinja
-  - ninja -v -j 4
-  - ctest -j 4 --output-on-failure
+  - ninja -v -j 2
+  - ctest -j 2 --output-on-failure
