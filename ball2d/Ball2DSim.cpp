@@ -690,17 +690,17 @@ void Ball2DSim::writeBinaryState( HDF5File& output_file ) const
   if( m_state.q().size() != 0 )
   {
     // Output the ball positions
-    output_file.writeMatrix( "q", m_state.q() );
+    output_file.write( "q", m_state.q() );
     // Output the ball velocities
-    output_file.writeMatrix( "v", m_state.v() );
+    output_file.write( "v", m_state.v() );
     // Output the ball radii
-    output_file.writeMatrix( "r", m_state.r() );
+    output_file.write( "r", m_state.r() );
     // Output the mass
     {
       // Assemble the mass into a single flat vector like q, v, and r
       assert( unsigned(m_state.M().nonZeros()) == 2 * m_state.nballs() );
       const VectorXs m{ Eigen::Map<const VectorXs>( &m_state.M().data().value(0), m_state.q().size() ) };
-      output_file.writeMatrix( "m", m );
+      output_file.write( "m", m );
     }
   }
   // Output the static planes
@@ -713,7 +713,7 @@ void Ball2DSim::writeBinaryState( HDF5File& output_file ) const
       static_plane_centers.col( pln_idx ) = m_state.staticPlanes()[pln_idx].x();
     }
     // Save out the plane centers
-    output_file.writeMatrix( "static_plane_centers", static_plane_centers );
+    output_file.write( "static_plane_centers", static_plane_centers );
   }
   if( !m_state.staticPlanes().empty() )
   {
@@ -724,7 +724,7 @@ void Ball2DSim::writeBinaryState( HDF5File& output_file ) const
       static_plane_normals.col( pln_idx ) = m_state.staticPlanes()[pln_idx].n();
     }
     // Save out the plane normals
-    output_file.writeMatrix( "static_plane_normals", static_plane_normals );
+    output_file.write( "static_plane_normals", static_plane_normals );
   }
 }
 #endif

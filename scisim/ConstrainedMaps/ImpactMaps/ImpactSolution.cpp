@@ -76,7 +76,7 @@ void ImpactSolution::writeSolution( HDF5File& output_file )
 {
   const unsigned ncons{ unsigned( m_indices.cols() ) };
 
-  output_file.writeScalar( "collision_count", ncons );
+  output_file.write( "collision_count", ncons );
 
   // NB: Prior to version 1.8.7, HDF5 did not support zero sized dimensions.
   //     Some versions of Ubuntu still have old versions of HDF5, so workaround.
@@ -93,8 +93,8 @@ void ImpactSolution::writeSolution( HDF5File& output_file )
   assert( m_points.rows() == m_forces.rows() );
   assert( m_points.cols() == m_forces.cols() );
 
-  output_file.writeMatrix( "collision_indices", m_indices );
-  output_file.writeMatrix( "collision_points", m_points );
-  output_file.writeMatrix( "collision_normals", m_normals );
-  output_file.writeMatrix( "collision_forces", m_forces );
+  output_file.write( "collision_indices", m_indices );
+  output_file.write( "collision_points", m_points );
+  output_file.write( "collision_normals", m_normals );
+  output_file.write( "collision_forces", m_forces );
 }

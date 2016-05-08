@@ -70,38 +70,38 @@ private:
 
 namespace HDF5SupportedTypes
 {
-  template <typename T>
+  template<typename T>
   constexpr bool isSupportedEigenType()
   {
     return false;
   }
 
-  template <>
+  template<>
   constexpr bool isSupportedEigenType<int>()
   {
     return true;
   }
 
-  template <>
+  template<>
   constexpr bool isSupportedEigenType<unsigned>()
   {
     return true;
   }
 
-  template <>
+  template<>
   constexpr bool isSupportedEigenType<float>()
   {
     return true;
   }
 
-  template <>
+  template<>
   constexpr bool isSupportedEigenType<double>()
   {
     return true;
   }
 }
 
-enum class HDF5AccessType : std::uint8_t
+enum class HDF5AccessType
 {
   READ_ONLY,
   READ_WRITE
@@ -130,26 +130,20 @@ public:
 
   HDFID<H5Gclose> findGroup( const std::string& group_name ) const;
 
-  void writeString( const std::string& full_name, const std::string& string_variable ) const;
+  void write( const std::string& full_name, const std::string& string_variable ) const;
 
-  template <typename Scalar>
-  void writeScalar( const std::string& full_name, const Scalar& variable ) const
+  template<typename Scalar>
+  typename std::enable_if<HDF5SupportedTypes::isSupportedEigenType<Scalar>()>::type
+  write( const std::string& full_name, const Scalar& variable ) const
   {
     Eigen::Matrix<Scalar,1,1> output_mat;
     output_mat << variable;
-    writeMatrix( full_name, output_mat );
+    write( full_name, output_mat );
   }
 
-  template <typename Scalar>
-  void readScalar( const std::string& full_name, Scalar& variable ) const
-  {
-    Eigen::Matrix<Scalar,1,1> input_mat;
-    readMatrix( full_name, input_mat );
-    variable = input_mat( 0, 0 );
-  }
-
-  template <typename Derived>
-  void writeMatrix( const std::string& full_name, const Eigen::DenseBase<Derived>& eigen_variable ) const
+  template<typename Derived>
+  typename std::enable_if<!HDF5SupportedTypes::isSupportedEigenType<Derived>()>::type
+  write( const std::string& full_name, const Eigen::DenseBase<Derived>& eigen_variable ) const
   {
     using HDFSID = HDFID<H5Sclose>;
     using HDFGID = HDFID<H5Gclose>;
@@ -171,7 +165,7 @@ public:
     // Open the requested group
     const HDFGID grp_id{ findOrCreateGroup( split_name.first ) };
 
-    const HDFDID dataset_id{ H5Dcreate2( grp_id, split_name.second.c_str(), computeHDFType( eigen_variable ), dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
+    const HDFDID dataset_id{ H5Dcreate2( grp_id, split_name.second.c_str(), computeHDFType<Scalar>(), dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
     if( dataset_id < 0 )
     {
       throw std::string{ "Failed to create HDF data set" };
@@ -179,85 +173,21 @@ public:
 
     // Convert to row major format, if needed
     Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> col_major_output_data;
-    if( isColumnMajor( eigen_variable ) )
+    if( isColumnMajor<Derived>() )
     {
       col_major_output_data.resize( eigen_variable.rows(), eigen_variable.cols() );
       col_major_output_data = eigen_variable.derived().matrix();
     }
 
-    const herr_t status_write{ H5Dwrite( dataset_id, computeHDFType( eigen_variable ), H5S_ALL, H5S_ALL, H5P_DEFAULT, isColumnMajor( eigen_variable ) ? col_major_output_data.data() : eigen_variable.derived().data() ) };
+    const herr_t status_write{ H5Dwrite( dataset_id, computeHDFType<Scalar>(), H5S_ALL, H5S_ALL, H5P_DEFAULT, isColumnMajor<Derived>() ? col_major_output_data.data() : eigen_variable.derived().data() ) };
     if( status_write < 0 )
     {
       throw std::string{ "Failed to write HDF data" };
     }
   }
 
-  template <typename Derived>
-  void readMatrix( const std::string& full_name, Eigen::DenseBase<Derived>& eigen_variable ) const
-  {
-    using HDFDID = HDFID<H5Dclose>;
-    using HDFGID = HDFID<H5Gclose>;
-
-    using Scalar = typename Derived::Scalar;
-    static_assert( HDF5SupportedTypes::isSupportedEigenType<Scalar>(), "Error, scalar type of Eigen variable must be float, double, unsigned or integer" );
-
-    const auto split_name = splitFullName( full_name );
-
-    // Open the requested group
-    const HDFGID grp_id{ findGroup( split_name.first ) };
-
-    const HDFDID dataset_id{ H5Dopen2( grp_id, split_name.second.c_str(), H5P_DEFAULT ) };
-    if( dataset_id < 0 )
-    {
-      throw std::string{ "Failed to open HDF data set" };
-    }
-    if( getNativeType( dataset_id ) != computeHDFType( eigen_variable ) )
-    {
-      throw std::string{ "Requested HDF data set is not of given type from Eigen variable" };
-    }
-
-    Eigen::ArrayXi dimensions;
-    getDimensions( dataset_id, dimensions );
-    if( dimensions.size() != 2 )
-    {
-      throw std::string{ "Invalid dimensions for Eigen matrix type in file" };
-    }
-    if( ( dimensions < 0 ).any() )
-    {
-      throw std::string{ "Negative dimensions for Eigen matrix type in file" };
-    }
-    // If the Eigen type has a fixed dimension, ensure it is correct
-    if( rowsFixed( eigen_variable ) && eigen_variable.rows() != dimensions( 0 ) )
-    {
-      throw std::string{ "Eigen type of fixed row size does not have correct number of rows" };
-    }
-    if( colsFixed( eigen_variable ) && eigen_variable.cols() != dimensions( 1 ) )
-    {
-      throw std::string{ "Eigen type of fixed cols size does not have correct number of cols" };
-    }
-    // Resize the Eigen type
-    eigen_variable.derived().resize( dimensions( 0 ), dimensions( 1 ) );
-
-    // Convert to row major format, if needed
-    Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> col_major_input_data;
-    if( isColumnMajor( eigen_variable ) )
-    {
-      col_major_input_data.resize( eigen_variable.rows(), eigen_variable.cols() );
-    }
-
-    const herr_t read_status{ H5Dread( dataset_id, getNativeType( dataset_id ), H5S_ALL, H5S_ALL, H5P_DEFAULT, isColumnMajor( eigen_variable ) ? col_major_input_data.data() : eigen_variable.derived().data() ) };
-    if( read_status < 0 )
-    {
-      throw std::string{ "Failed to read data from HDF file" };
-    }
-    if( isColumnMajor( eigen_variable ) )
-    {
-      eigen_variable.derived().matrix() = col_major_input_data;
-    }
-  }
-
-  template <typename Derived>
-  void writeSparseMatrix( const std::string& full_name, const Eigen::SparseMatrixBase<Derived>& sparse_matrix ) const
+  template<typename Derived>
+  void write( const std::string& full_name, const Eigen::SparseMatrixBase<Derived>& sparse_matrix ) const
   {
     static_assert( !Derived::IsRowMajor, "Error, HDF5 sparse matrix output only supported for column major matrices" );
 
@@ -269,12 +199,87 @@ public:
 
     // Write out the sparse data
     const typename Derived::Index nrows = sparse_matrix.rows();
-    writeScalar( full_name + "_nrows", nrows );
+    write( full_name + "_nrows", nrows );
     const typename Derived::Index ncols = sparse_matrix.cols();
-    writeScalar( full_name + "_ncols", ncols );
-    writeMatrix( full_name + "_col_ptr", col_ptr );
-    writeMatrix( full_name + "_row_ind", row_ind );
-    writeMatrix( full_name + "_val", val );
+    write( full_name + "_ncols", ncols );
+    write( full_name + "_col_ptr", col_ptr );
+    write( full_name + "_row_ind", row_ind );
+    write( full_name + "_val", val );
+  }
+
+  template<typename Scalar>
+  typename std::enable_if<HDF5SupportedTypes::isSupportedEigenType<Scalar>(),Scalar>::type
+  read( const std::string& full_name ) const
+  {
+    return read<Eigen::Matrix<Scalar,1,1>>( full_name )( 0, 0 );
+  }
+
+  template<typename T>
+  typename std::enable_if<!HDF5SupportedTypes::isSupportedEigenType<T>(),T>::type
+  read( const std::string& full_name ) const
+  {
+    using HDFDID = HDFID<H5Dclose>;
+    using HDFGID = HDFID<H5Gclose>;
+
+    using Scalar = typename T::Scalar;
+    static_assert( HDF5SupportedTypes::isSupportedEigenType<Scalar>(), "Error, scalar type of Eigen variable must be float, double, unsigned or integer" );
+
+    T eigen_variable;
+
+    const auto split_name = splitFullName( full_name );
+
+    // Open the requested group
+    const HDFGID grp_id{ findGroup( split_name.first ) };
+
+    const HDFDID dataset_id{ H5Dopen2( grp_id, split_name.second.c_str(), H5P_DEFAULT ) };
+    if( dataset_id < 0 )
+    {
+      throw std::string{ "Failed to open HDF data set" };
+    }
+    if( getNativeType( dataset_id ) != computeHDFType<Scalar>() )
+    {
+      throw std::string{ "Requested HDF data set is not of given type from Eigen variable" };
+    }
+
+    const Eigen::ArrayXi dimensions{ getDimensions( dataset_id ) };
+    if( dimensions.size() != 2 )
+    {
+      throw std::string{ "Invalid dimensions for Eigen matrix type in file" };
+    }
+    if( ( dimensions < 0 ).any() )
+    {
+      throw std::string{ "Negative dimensions for Eigen matrix type in file" };
+    }
+    // If the Eigen type has a fixed dimension, ensure it is correct
+    if( rowsFixed<T>() && eigen_variable.rows() != dimensions( 0 ) )
+    {
+      throw std::string{ "Eigen type of fixed row size does not have correct number of rows" };
+    }
+    if( colsFixed<T>() && eigen_variable.cols() != dimensions( 1 ) )
+    {
+      throw std::string{ "Eigen type of fixed cols size does not have correct number of cols" };
+    }
+    // Resize the Eigen type
+    eigen_variable.derived().resize( dimensions( 0 ), dimensions( 1 ) );
+
+    // Convert to row major format, if needed
+    Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> col_major_input_data;
+    if( isColumnMajor<T>() )
+    {
+      col_major_input_data.resize( eigen_variable.rows(), eigen_variable.cols() );
+    }
+
+    const herr_t read_status{ H5Dread( dataset_id, getNativeType( dataset_id ), H5S_ALL, H5S_ALL, H5P_DEFAULT, isColumnMajor<T>() ? col_major_input_data.data() : eigen_variable.derived().data() ) };
+    if( read_status < 0 )
+    {
+      throw std::string{ "Failed to read data from HDF file" };
+    }
+    if( isColumnMajor<T>() )
+    {
+      eigen_variable.derived().matrix() = col_major_input_data;
+    }
+
+    return eigen_variable;
   }
 
   //template <typename Derived>
@@ -343,7 +348,7 @@ public:
 
 private:
 
-  template <typename Derived>
+  template<typename Derived>
   static void extractDataCCS( const Eigen::SparseMatrixBase<Derived>& A, Eigen::Matrix<typename Derived::Index,Eigen::Dynamic,1>& outer_ptr, Eigen::Matrix<typename Derived::Index,Eigen::Dynamic,1>& inner_ptr, Eigen::Matrix<typename Derived::Scalar,Eigen::Dynamic,1>& val )
   {
     outer_ptr = Eigen::Map< const Eigen::Array<typename Derived::Index,Eigen::Dynamic,1> >( A.derived().outerIndexPtr(), A.outerSize() + 1 );
@@ -379,9 +384,11 @@ private:
     else return -1;
   }
 
-  static void getDimensions( const hid_t dataset_id, Eigen::ArrayXi& dimensions )
+  static Eigen::ArrayXi getDimensions( const hid_t dataset_id )
   {
     using HDFSID = HDFID<H5Sclose>;
+
+    Eigen::ArrayXi dimensions;
 
     const HDFSID space_id{ H5Dget_space( dataset_id ) };
     if( space_id < 0 )
@@ -405,35 +412,31 @@ private:
     {
       dimensions( i ) = int( dims[i] );
     }
+
+    return dimensions;
   }
 
-  template <typename ScalarType>
+  template<typename ScalarType>
   static constexpr hid_t computeHDFType()
   {
     using std::is_same;
     return is_same<ScalarType,double>::value ? H5T_NATIVE_DOUBLE : is_same<ScalarType,float>::value ? H5T_NATIVE_FLOAT : is_same<ScalarType,int>::value ? H5T_NATIVE_INT : is_same<ScalarType,unsigned>::value ? H5T_NATIVE_UINT : -1;
   }
 
-  template <typename Derived>
-  static constexpr hid_t computeHDFType( const Eigen::EigenBase<Derived>& )
-  {
-    return computeHDFType<typename Derived::Scalar>();
-  }
-
-  template <typename Derived>
-  static constexpr bool isColumnMajor( const Eigen::EigenBase<Derived>& )
+  template<typename Derived>
+  static constexpr bool isColumnMajor()
   {
     return !Derived::IsRowMajor;
   }
 
-  template <typename Derived>
-  static constexpr bool rowsFixed( const Eigen::EigenBase<Derived>& )
+  template<typename Derived>
+  static constexpr bool rowsFixed()
   {
     return Derived::RowsAtCompileTime != Eigen::Dynamic;
   }
 
-  template <typename Derived>
-  static constexpr bool colsFixed( const Eigen::EigenBase<Derived>& )
+  template<typename Derived>
+  static constexpr bool colsFixed()
   {
     return Derived::ColsAtCompileTime != Eigen::Dynamic;
   }

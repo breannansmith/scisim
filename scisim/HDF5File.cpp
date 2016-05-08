@@ -72,7 +72,7 @@ bool HDF5File::is_open() const
   return m_hdf_file_id >= 0;
 }
 
-void HDF5File::writeString( const std::string& full_name, const std::string& string_variable ) const
+void HDF5File::write( const std::string& full_name, const std::string& string_variable ) const
 {
   const auto split_name = splitFullName( full_name );
 

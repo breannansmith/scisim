@@ -183,11 +183,11 @@ static int saveState()
   {
     HDF5File output_file{ output_file_name, HDF5AccessType::READ_WRITE };
     // Save the iteration and time step and time
-    output_file.writeScalar( "timestep", scalar( g_dt ) );
-    output_file.writeScalar( "iteration", g_iteration );
-    output_file.writeScalar( "time", scalar( g_dt ) * g_iteration );
+    output_file.write( "timestep", scalar( g_dt ) );
+    output_file.write( "iteration", g_iteration );
+    output_file.write( "time", scalar( g_dt ) * g_iteration );
     // Save out the git hash
-    output_file.writeString( "git_hash", CompileDefinitions::GitSHA1 );
+    output_file.write( "git_hash", CompileDefinitions::GitSHA1 );
     // Save the real time
     //output_file.writeString( "/run_stats", "real_time", TimeUtils::currentTime() );
     // Write out the simulation data
@@ -371,11 +371,11 @@ static int stepSystem()
     {
       force_file.open( constraint_force_file_name, HDF5AccessType::READ_WRITE );
       // Save the iteration and time step and time
-      force_file.writeScalar( "timestep", scalar( g_dt ) );
-      force_file.writeScalar( "iteration", g_iteration );
-      force_file.writeScalar( "time", scalar( g_dt ) * g_iteration );
+      force_file.write( "timestep", scalar( g_dt ) );
+      force_file.write( "iteration", g_iteration );
+      force_file.write( "time", scalar( g_dt ) * g_iteration );
       // Save out the git hash
-      force_file.writeString( "git_hash", CompileDefinitions::GitSHA1 );
+      force_file.write( "git_hash", CompileDefinitions::GitSHA1 );
       // Save the real time
       //force_file.writeString( "/run_stats", "real_time", TimeUtils::currentTime() );
     }

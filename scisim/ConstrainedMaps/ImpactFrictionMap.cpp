@@ -77,7 +77,7 @@ void ImpactFrictionMap::exportConstraintForcesToBinaryFile( const VectorXs& q, c
   assert( beta.size() == ncons * ( ambient_space_dims - 1 ) );
 
   // Write out the number of collisions
-  output_file.writeScalar( "collision_count", ncons );
+  output_file.write( "collision_count", ncons );
 
   // NB: Prior to version 1.8.7, HDF5 did not support zero sized dimensions.
   //     Some versions of Ubuntu still have old versions of HDF5, so workaround.
@@ -99,7 +99,7 @@ void ImpactFrictionMap::exportConstraintForcesToBinaryFile( const VectorXs& q, c
       collision_indices.col( con ) << indices.first, indices.second;
     }
     // Output the indices
-    output_file.writeMatrix( "collision_indices", collision_indices );
+    output_file.write( "collision_indices", collision_indices );
   }
 
   // Write out the world space contact points
@@ -115,7 +115,7 @@ void ImpactFrictionMap::exportConstraintForcesToBinaryFile( const VectorXs& q, c
       collision_points.col( con ) = contact_point;
     }
     // Output the points
-    output_file.writeMatrix( "collision_points", collision_points );
+    output_file.write( "collision_points", collision_points );
   }
 
   // Write out the world space contact normals
@@ -133,7 +133,7 @@ void ImpactFrictionMap::exportConstraintForcesToBinaryFile( const VectorXs& q, c
     }
     #endif
     // Output the normals
-    output_file.writeMatrix( "collision_normals", collision_normals );
+    output_file.write( "collision_normals", collision_normals );
   }
 
   // Write out the collision forces
@@ -158,7 +158,7 @@ void ImpactFrictionMap::exportConstraintForcesToBinaryFile( const VectorXs& q, c
       }
     }
     // Output the forces
-    output_file.writeMatrix( "collision_forces", collision_forces );
+    output_file.write( "collision_forces", collision_forces );
   }
 }
 #endif
