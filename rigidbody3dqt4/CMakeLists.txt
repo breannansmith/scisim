@@ -1,6 +1,11 @@
 include( CMakeSourceFiles.txt )
 
-add_executable( rigidbody3d_qt4 ${Headers} ${Sources} ${HWQ_MOC_CPP} )
+if( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
+  add_executable( rigidbody3d_qt4 MACOSX_BUNDLE ${Headers} ${Sources} ${HWQ_MOC_CPP} )
+else()
+  add_executable( rigidbody3d_qt4 ${Headers} ${Sources} ${HWQ_MOC_CPP} )
+endif()
+
 if( ENABLE_IWYU )
   set_property( TARGET rigidbody3d_qt4 PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path} )
 endif()

@@ -3,7 +3,7 @@ Updates
 
 * Update all GUIs to Qt5.
 
-  * Upgrading to Qt5 should fix numerous issues on OS X (including improved retina support, bugs with regards to keyboard input and menus, etc).
+  * Upgrading to Qt5 should enable robust retina support on OS X.
 
 * Restore support for energy and momentum tracking from the GUI
 
@@ -22,13 +22,13 @@ New Features
 
 * User documentation.
 
-* Faceted friction disc support (currently broken).
+* Faceted friction disc support (currently disabled).
 
 * Expand the supported collision primitives for 2D and 3D rigid body simulations.
 
 * Expose all functionality through Python bindings.
 
-* Support for mutli-precision floating point operations.
+* Support for multi-precision floating point operations.
 
 * Support for analytical solutions to rigid body precession.
 
@@ -43,4 +43,3 @@ Known Issues
 ------------
 
 * Lees-Edwards boundary conditions for 3D rigid bodies are inconsistent with the 2D implementations.
-
