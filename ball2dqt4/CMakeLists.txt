@@ -1,7 +1,10 @@
 include( CMakeSourceFiles.txt )
 
 if( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
-  add_executable( ball2d_qt4 MACOSX_BUNDLE ${Headers} ${Sources} ${HWQ_MOC_CPP} )
+  set( MACOSX_BUNDLE_ICON_FILE SCISim )
+  set( AppIcon ${PROJECT_SOURCE_DIR}/resources/SCISim.icns )
+  set_source_files_properties( ${AppIcon} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources" )
+  add_executable( ball2d_qt4 MACOSX_BUNDLE ${AppIcon} ${Headers} ${Sources} ${HWQ_MOC_CPP} )
 else()
   add_executable( ball2d_qt4 ${Headers} ${Sources} ${HWQ_MOC_CPP} )
 endif()
