@@ -2,6 +2,7 @@
 
 #include "scisim/Math/MathDefines.h"
 
+// TODO: This could die hard if the user passes in a value < 3
 GLCircleRenderer2D::GLCircleRenderer2D( const unsigned num_points_single_half )
 : m_x_crds( num_points_single_half )
 , m_y_crds( num_points_single_half )

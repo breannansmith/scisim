@@ -2,10 +2,10 @@
 if( STRICT_BUILD )
   # Do not work with Qt4: -Wzero-as-null-pointer-constant -Wuseless-cast
   # Do not work with Sobogus: -Wsign-conversion -Wold-style-cast -Weffc++
-  # Do not work with SCISim: -Wfloat-equal -Wstrict-overflow=5 -Wsuggest-final-types -Wunsafe-loop-optimizations -Wsuggest-final-methods
+  # Do not work with SCISim: -Wfloat-equal -Wstrict-overflow=5 -Wsuggest-final-types -Wunsafe-loop-optimizations -Wsuggest-final-methods -Wnull-dereference
 
   # Enable as many warnings as possible
-  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -Wpedantic -Wcast-align -Wdisabled-optimization -Wformat=2 -Winit-self -Winvalid-pch -Wmissing-include-dirs -Wnoexcept -Woverloaded-virtual -Wsign-promo -Wstrict-null-sentinel -Wtrampolines -Wundef -Wvector-operation-performance -Wconversion -Wctor-dtor-privacy -Wlogical-op -Wshadow -Wabi -Wcast-qual -Wmissing-declarations -Wredundant-decls -Werror=double-promotion" )
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -Wpedantic -Wcast-align -Wdisabled-optimization -Wformat=2 -Winit-self -Winvalid-pch -Wmissing-include-dirs -Wnoexcept -Woverloaded-virtual -Wsign-promo -Wstrict-null-sentinel -Wtrampolines -Wundef -Wvector-operation-performance -Wconversion -Wctor-dtor-privacy -Wlogical-op -Wshadow -Wabi -Wcast-qual -Wmissing-declarations -Wredundant-decls -Werror=double-promotion -Wlogical-op -Wduplicated-cond" )
 
   # Remove warnings that the code does not pass
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter" )
