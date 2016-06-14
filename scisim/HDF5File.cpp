@@ -43,11 +43,6 @@ HDF5File& HDF5File::operator=( HDF5File&& other )
   return *this;
 }
 
-hid_t HDF5File::fileID()
-{
-  return m_hdf_file_id;
-}
-
 void HDF5File::open( const std::string& file_name, const HDF5AccessType& access_type )
 {
   // Attempt to open a file

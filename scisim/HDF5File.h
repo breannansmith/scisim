@@ -120,8 +120,6 @@ public:
   HDF5File( HDF5File&& other );
   HDF5File& operator=( HDF5File&& other );
 
-  hid_t fileID();
-
   void open( const std::string& file_name, const HDF5AccessType& access_type );
 
   bool is_open() const;
