@@ -19,7 +19,6 @@ public:
   virtual ~StaticCylinderBodyConstraint() final override = default;
 
   virtual scalar evalNdotV( const VectorXs& q, const VectorXs& v ) const final override;
-  virtual void evalgradg( const VectorXs& q, const int col, SparseMatrixsc& G, const FlowableSystem& fsys ) const final override;
   virtual int impactStencilSize() const final override;
   virtual void getSimulatedBodyIndices( std::pair<int,int>& bodies ) const override;
   virtual void evalH( const VectorXs& q, const MatrixXXsc& basis, MatrixXXsc& H0, MatrixXXsc& H1 ) const override;
