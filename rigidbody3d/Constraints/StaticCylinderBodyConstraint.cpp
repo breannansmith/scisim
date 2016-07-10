@@ -5,11 +5,11 @@
 
 #include "StaticCylinderBodyConstraint.h"
 
+#include "scisim/Math/MathUtilities.h"
 #include "rigidbody3d/StaticGeometry/StaticCylinder.h"
+#include "FrictionUtilities.h"
 
 #include <iostream>
-
-#include "FrictionUtilities.h"
 
 StaticCylinderBodyConstraint::StaticCylinderBodyConstraint( const unsigned body_index, const Vector3s& collision_point, const StaticCylinder& cyl, const unsigned cylinder_index, const VectorXs& q )
 : m_idx_body( body_index )
@@ -94,8 +94,8 @@ VectorXs StaticCylinderBodyConstraint::computeKinematicRelativeVelocity( const V
 {
   // IMPORTANT NOTE: This code has not been updated to treat kinematic boundaries, yet. If this is important to you, please email smith@cs.columbia.edu
   // TODO: Fixing this will require mirroring the structure of StaticPlaneSphereConstraint
-  assert( m_cyl.v().array() == 0.0 );
-  assert( m_cyl.omega().array() == 0.0 );
+  assert( ( m_cyl.v().array() == 0.0 ).all() );
+  assert( ( m_cyl.omega().array() == 0.0 ).all() );
   return VectorXs::Zero( 3 );
 }
 
