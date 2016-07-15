@@ -119,7 +119,7 @@ Options of note include:
 
 * USE_PYTHON: Enables support for embedded Python language scripting. Required for kinematic scripting.
 
-* SANITIZER: Enables support for compiler sanitizer modes. Options are: none, address
+* SANITIZER: Enables support for compiler sanitizer modes. Options are: none, address, undefined
 
 To enable the build system to find Ipopt, prefix the cmake command with CMAKE_PREFIX_PATH set to your Ipopt [installation directory](https://github.com/breannansmith/scisim/blob/master/readme_ipopt.md):
 
