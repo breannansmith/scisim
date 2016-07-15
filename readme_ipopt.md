@@ -8,7 +8,7 @@ Building Ipopt (Optional)
 
 2. Download Ipopt:
 
-        wget http://www.coin-or.org/download/source/Ipopt/Ipopt-3.12.4.tgz
+        wget http://www.coin-or.org/download/source/Ipopt/Ipopt-3.12.5.tgz
 
 3. Extract Ipopt:
 
