@@ -7,14 +7,14 @@ dependencies:
   post:
     - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
     - sudo apt-get update
-    - sudo apt-get install gcc-5 g++-5 libhdf5-dev hdf5-tools python-dev python-numpy python-h5py ninja-build
+    - sudo apt-get install gcc-6 g++-6 libhdf5-dev hdf5-tools python-dev python-numpy python-h5py ninja-build
     - rm -rf `pyenv root`
     - ./get_dependencies.sh
     - mkdir build_asan
-    - cd build_asan && CC=gcc-5 CXX=g++-5 $HOME/cmake-3.6.0-Linux-x86_64/bin/cmake -DUSE_HDF5=ON -DUSE_PYTHON=OFF -DSTRICT_BUILD=ON -DCMAKE_BUILD_TYPE=Release -DSANITIZER=address .. -GNinja
+    - cd build_asan && CC=gcc-6 CXX=g++-6 $HOME/cmake-3.6.0-Linux-x86_64/bin/cmake -DUSE_HDF5=ON -DUSE_PYTHON=OFF -DSTRICT_BUILD=ON -DCMAKE_BUILD_TYPE=Release -DSANITIZER=address .. -GNinja
     - cd build_asan && ninja -j 2 -v
     - mkdir build_ubsan
-    - cd build_ubsan && CC=gcc-5 CXX=g++-5 $HOME/cmake-3.6.0-Linux-x86_64/bin/cmake -DUSE_HDF5=ON -DUSE_PYTHON=OFF -DSTRICT_BUILD=ON -DCMAKE_BUILD_TYPE=Release -DSANITIZER=undefined .. -GNinja
+    - cd build_ubsan && CC=gcc-6 CXX=g++-6 $HOME/cmake-3.6.0-Linux-x86_64/bin/cmake -DUSE_HDF5=ON -DUSE_PYTHON=OFF -DSTRICT_BUILD=ON -DCMAKE_BUILD_TYPE=Release -DSANITIZER=undefined .. -GNinja
     - cd build_ubsan && ninja -j 2 -v
 
 test:
