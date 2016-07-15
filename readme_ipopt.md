@@ -8,24 +8,24 @@ Building Ipopt (Optional)
 
 2. Download Ipopt:
 
-        wget http://www.coin-or.org/download/source/Ipopt/Ipopt-3.12.5.tgz
+        curl -L -O http://www.coin-or.org/download/source/Ipopt/Ipopt-3.12.5.tgz
 
 3. Extract Ipopt:
 
-        tar -xf Ipopt-3.12.4.tgz
+        tar -xf Ipopt-3.12.5.tgz
 
 4. Download Metis:
 
-        ./Ipopt-3.12.4/ThirdParty/Metis/get.Metis
+        ./Ipopt-3.12.5/ThirdParty/Metis/get.Metis
 
 5. Download the HSL Solvers.
     1. Complete the registration form at http://www.hsl.rl.ac.uk/ipopt/ for HSL2013
-    2. When you receive an email with a download link, extract the archive coinhsl-2014.01.10.tar.gz to Ipopt-3.12.4/ThirdParty/HSL/coinhsl
+    2. When you receive an email with a download link, extract the archive coinhsl-2014.01.10.tar.gz to Ipopt-3.12.5/ThirdParty/HSL/coinhsl
 
 6. Create and change into a build directory:
 
-        mkdir Ipopt-3.12.4/build
-        cd Ipopt-3.12.4/build
+        mkdir Ipopt-3.12.5/build
+        cd Ipopt-3.12.5/build
 
 7. Configure Ipopt (see examples below)
 
@@ -49,11 +49,11 @@ Some example configurations for Ipopt include
 
 * Homebrew GCC toolchain, OS X Accelerate framework, single threaded
 
-        ../configure CXX=g++-5 CC=gcc-5 F77=gfortran-5 --with-blas="-framework accelerate" --prefix=$IPOPT_DIR
+        ../configure CXX=g++-6 CC=gcc-6 F77=gfortran-6 --with-blas="-framework accelerate" --prefix=$IPOPT_DIR
 
 * MacPort GCC toolchain, OS X Accelerate framework, single threaded
 
-        ../configure CXX=g++-mp-5 CC=gcc-mp-5 F77=gfortran-mp-5 --with-blas="-framework accelerate" --prefix=$IPOPT_DIR
+        ../configure CXX=g++-mp-6 CC=gcc-mp-6 F77=gfortran-mp-6 --with-blas="-framework accelerate" --prefix=$IPOPT_DIR
 
 * Intel compiler toolchain, MKL BLAS, multithreaded
 
