@@ -1,5 +1,6 @@
-# 3.2.1 to allow set_property( TARGET target PROPERTY CXX_STANDARD 11 ) and similar
-cmake_minimum_required( VERSION 3.2.1 )
+# 3.6.0 fixes a bug with GCC and the system flag on OS X. Older CMake versions
+# are acceptable if a different platform or toolchain are used.
+cmake_minimum_required( VERSION 3.6.0 )
 
 # Check that the Eigen is installed
 execute_process( COMMAND ./scripts_include/eigen_found.sh RESULT_VARIABLE EIGEN_NOT_FOUND WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )

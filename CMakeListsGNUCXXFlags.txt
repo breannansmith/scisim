@@ -14,12 +14,6 @@ endif()
 # Disable run time type information
 set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti" )
 
-# Workaround for bug in CMake
-if( APPLE )
-  set( CMAKE_INCLUDE_SYSTEM_FLAG_C "-isystem " )
-  set( CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem " )
-endif()
-
 # Enable extra optimizations; note that march=native seemds to degrade performance on OS X
 if( NOT APPLE )
   set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native" )

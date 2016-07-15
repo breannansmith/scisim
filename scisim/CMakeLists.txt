@@ -59,13 +59,13 @@ endif()
 
 # HDF5 is an external library and is used internal to scisim
 if( USE_HDF5 )
-  find_package( HDF5 REQUIRED )
+  find_package( HDF5 REQUIRED C )
   if( NOT ${HDF5_FOUND} )
     message( FATAL_ERROR "HDF5 not found." )
   endif()
   target_include_directories( scisim SYSTEM PUBLIC ${HDF5_INCLUDE_DIRS} )
   target_compile_definitions( scisim PUBLIC USE_HDF5 )
-  target_link_libraries( scisim INTERFACE ${HDF5_LIBRARIES} )
+  target_link_libraries( scisim INTERFACE ${HDF5_C_LIBRARIES} )
 endif()
 
 # Embedded Python and the Interpreter are external libraries and required for callers of scisim
