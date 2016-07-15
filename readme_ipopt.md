@@ -3,6 +3,7 @@ Building Ipopt (Optional)
 
 1. Create a directory in which to install Ipopt and export the path. Replace YOUR_INSTALL_DIR with the actual desired installation directory:
 
+        mkdir YOUR_INSTALL_DIR
         export IPOPT_DIR=YOUR_INSTALL_DIR
 
 2. Download Ipopt:

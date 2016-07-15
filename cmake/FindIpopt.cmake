@@ -1,29 +1,34 @@
 # Created:
-# IPOPT_INC_DIRS - Directories to include to use IPOPT
-# IPOPT_LIB      - Library to link against to use IPOPT
-# IPOPT_FOUND    - If false, don't try to use IPOPT
+# IPOPT_INC_DIRS - Directories to include to use Ipopt
+# IPOPT_LIB      - Library to link against to use Ipopt
+# IPOPT_DOC_PATH - Directory containing Ipopt link instructions
+# IPOPT_FOUND    - If false, don't try to use Ipopt
 
 # NOTE NOTE NOTE NOTE NOTE
 # This file uses the ipopt_addlibs_cpp.txt file
 
-set( IPOPT_DIR $ENV{IPOPT_DIR} )
-
-if( NOT IPOPT_DIR )
-  message( FATAL_ERROR "Please set the environment variable IPOPT_DIR to point to your Ipopt installation." )
+find_library( IPOPT_LIB ipopt )
+if( NOT IPOPT_LIB )
+  message( FATAL_ERROR "Failed to find the Ipopt library. Ensure that the path to Ipopt is in CMAKE_PREFIX_PATH." )
 endif()
 
-# TODO: Actually verify that the proper files are here
-set( IPOPT_INC_DIRS ${IPOPT_DIR}/include/coin )
+find_path( IPOPT_INC_DIRS IpNLP.hpp PATH_SUFFIXES include/coin )
+if( NOT IPOPT_INC_DIRS )
+  message( FATAL_ERROR "Failed to find the Ipopt header include path. Ensure that the path to Ipopt is in CMAKE_PREFIX_PATH." )
+endif()
 
-find_library( IPOPT_LIB ipopt ${IPOPT_DIR}/lib ${IPOPT_DIR}/lib/coin NO_DEFAULT_PATH )
+find_path( IPOPT_DOC_PATH ipopt_addlibs_cpp.txt PATH_SUFFIXES share/coin/doc/Ipopt )
+if( NOT IPOPT_DOC_PATH )
+  message( FATAL_ERROR "Failed to find the Ipopt doc path. Ensure that the path to Ipopt is in CMAKE_PREFIX_PATH." )
+endif()
 
 if( IPOPT_LIB )
   # Determine the additional libraries that Ipopt must be linked against.
   # Luckily, the Ipopt build process now generates these for us.
-  file( READ ${IPOPT_DIR}/share/coin/doc/Ipopt/ipopt_addlibs_cpp.txt IPOPT_DEP )
+  file( READ ${IPOPT_DOC_PATH}/ipopt_addlibs_cpp.txt IPOPT_DEP )
   
   if( NOT IPOPT_DEP )
-    message( FATAL_ERROR "Failed to locate the ipopt_addlibs_cpp.txt file at: ${IPOPT_DIR}/share/coin/doc/Ipopt/ipopt_addlibs_cpp.txt" )
+    message( FATAL_ERROR "Failed to read the ipopt_addlibs_cpp.txt file at: ${IPOPT_DOC_PATH}/ipopt_addlibs_cpp.txt" )
   endif()
 
   # TODO: Should the list of libraries have the -L and -l stuff stripped?
@@ -64,10 +69,12 @@ if( IPOPT_LIB )
   set( IPOPT_FOUND TRUE )
 else()
   set( IPOPT_FOUND FALSE )
-  set( IPOPT_INC_DIRS "" )
   set( IPOPT_LIB "" )
+  set( IPOPT_INC_DIRS "" )
+  set( IPOPT_DOC_PATH "" )
 endif()
 
-mark_as_advanced(IPOPT_INC_DIRS)
 mark_as_advanced(IPOPT_LIB)
+mark_as_advanced(IPOPT_INC_DIRS)
+mark_as_advanced(IPOPT_DOC_PATH)
 mark_as_advanced(IPOPT_FOUND)

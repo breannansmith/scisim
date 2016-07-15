@@ -121,6 +121,9 @@ Options of note include:
 
 * SANITIZER: Enables support for compiler sanitizer modes. Options are: none, address
 
+To enable the build system to find Ipopt, prefix the cmake command with CMAKE_PREFIX_PATH set to your Ipopt [https://github.com/breannansmith/scisim/blob/master/readme_ipopt.md](installation directory):
+
+    CMAKE_PREFIX_PATH=/path/to/ipopt/install CC=gcc CXX=g++ FC=gfortran cmake -DUSE_IPOPT=ON ..
 
 Platform Specific Issues
 ------------------------
