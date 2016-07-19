@@ -1,11 +1,11 @@
 #!/bin/bash
 
-actual_eigen_tar_md5="9e3bfaaab3db18253cfd87ea697b3ab1"
-eigen_url="http://bitbucket.org/eigen/eigen/get/3.2.8.tar.bz2"
-eigen_file_name="3.2.8.tar.bz2"
-extracted_eigen_name="eigen-eigen-07105f7124f9"
+actual_eigen_tar_md5="de11bfbfe2fd2dc4b32e8f416f58ee98"
+eigen_url="http://bitbucket.org/eigen/eigen/get/3.2.9.tar.bz2"
+eigen_file_name="3.2.9.tar.bz2"
+extracted_eigen_name="eigen-eigen-dc6cfdf9bcec"
 # md5 on installed Eigen source files
-actual_installed_eigen_md5="730a5ac451cea99fc13b916c01eb27b2"
+actual_installed_eigen_md5="15e0f40cadd4fb245d7552f75d8f33db"
 
 # Verify that curl is installed
 command -v curl >/dev/null 2>&1 || { echo >&2 "Error, please install curl and rerun get_eigen.sh."; exit 1; }
@@ -76,7 +76,17 @@ tar -xf "$temp_dir_name"/"$eigen_file_name" -C "$temp_dir_name"
 echo "--->  Moving Eigen to destination"
 mkdir -p include/eigen
 mv $temp_dir_name/$extracted_eigen_name/Eigen include/eigen/
+if [ $? -ne 0 ]
+then
+  echo "Error, failed to move Eigen source from $temp_dir_name/$extracted_eigen_name/Eigen to include/eigen/."
+  exit 1
+fi
 mv $temp_dir_name/$extracted_eigen_name/signature_of_eigen3_matrix_library include/eigen/
+if [ $? -ne 0 ]
+then
+  echo "Error, failed to move Eigen signature from $temp_dir_name/$extracted_eigen_name/signature_of_eigen3_matrix_library to include/eigen/."
+  exit 1
+fi
 
 trap - EXIT
 cleanup
