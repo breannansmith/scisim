@@ -47,12 +47,10 @@ matrix:
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update -qq ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -y libhdf5-dev hdf5-tools libpython-dev python-h5py python-numpy ninja-build ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then CMAKE_EXEC=cmake ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then CTEST_EXEC=ctest ; fi
-  # - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo curl -L -O https://cmake.org/files/v3.6/cmake-3.6.0-Linux-x86_64.tar.gz ; fi
-  # - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo tar xf cmake-3.6.0-Linux-x86_64.tar.gz ; fi
-  # - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then CMAKE_EXEC=`pwd`/cmake-3.6.0-Linux-x86_64/bin/cmake ; fi
-  # - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then CTEST_EXEC=`pwd`/cmake-3.6.0-Linux-x86_64/bin/ctest ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo curl -L -O https://cmake.org/files/v3.6/cmake-3.6.1-Linux-x86_64.tar.gz ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo tar xf cmake-3.6.1-Linux-x86_64.tar.gz ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then CMAKE_EXEC=`pwd`/cmake-3.6.1-Linux-x86_64/bin/cmake ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then CTEST_EXEC=`pwd`/cmake-3.6.1-Linux-x86_64/bin/ctest ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then CMAKE_EXEC=cmake ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then CTEST_EXEC=ctest ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update > /dev/null ; fi
