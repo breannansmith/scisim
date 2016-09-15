@@ -27,17 +27,9 @@ mark_as_advanced( CMAKE_CXX_FLAGS_COVERAGE )
 # Enable sanitizers, if requested
 if( SANITIZER STREQUAL "address" )
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address" )
-  # Workaround: explicity request gold linker
-  if( NOT APPLE )
-    set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=gold" )
-  endif()
 elseif( SANITIZER STREQUAL "undefined" )
   # -fsanitize=nonnull-attribute causes issues with Eigen
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined -fno-sanitize-recover -fno-sanitize=nonnull-attribute" )
-  # Workaround: explicity request gold linker
-  if( NOT APPLE )
-    set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=gold" )
-  endif()
 elseif( NOT SANITIZER STREQUAL "none" )
   message( FATAL_ERROR "Error, only 'address' and 'undefined' are supported for GCC sanitizers, in the build system." )
 endif()
