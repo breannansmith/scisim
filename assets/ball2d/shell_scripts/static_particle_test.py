@@ -31,7 +31,7 @@ if abs( q[0] ) > 4.0e-7:
 if abs( q[1] ) > 3.0e-4:
   print 'q[1] residual', q[1]
   sys.exit('Second q component incorect')
-if abs( v[0] ) > 1.0e-12:
+if abs( v[0] ) > 4.0e-7:
   print 'v[0] residual', v[0]
   sys.exit('First v component incorrect')
 if abs( v[1] ) > 2.0e-4:
