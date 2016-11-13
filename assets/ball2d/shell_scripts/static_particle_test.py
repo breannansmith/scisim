@@ -25,7 +25,7 @@ except KeyError as key_exception:
   sys.exit('HDF5 Key Error: ' + key_exception.message)
 
 # Can tighten these tolerances further by decreasing the time step, but then the simulations are slow
-if abs( q[0] ) > 1.0e-11:
+if abs( q[0] ) > 4.0e-7:
   print 'q[0] residual', q[0]
   sys.exit('First q component incorect')
 if abs( q[1] ) > 3.0e-4:
