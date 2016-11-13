@@ -87,6 +87,7 @@ void RigidBody2DSobogusInterface::fromPrimal( const unsigned num_bodies, const E
   m_primal->f = f_in.data();
   m_primal->w = w_in.data();
   m_primal->mu = mu.data();
+  m_primal->computeMInv();
 }
 
 void RigidBody2DSobogusInterface::computeDual()

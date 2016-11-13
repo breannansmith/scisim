@@ -10,10 +10,10 @@ if command -v md5 > /dev/null 2>&1 ; then
   export -f md5sum 
 fi
 
-installed_sobogus_dir_md5="5f4f4b059f5b5db54a548479e7aa94cf"
-installed_hpp_md5="5f6590e7e6ddb278f6e7740c3e097976"
-installed_cpp_md5="73fba2af92aa42fc13f6bb9a5004b8f0"
-installed_impl_md5="f6ccfaa3d971f99ba80363674d83448b"
+installed_sobogus_dir_md5="e8b8f43311b47248e93dbab09ff80b4d"
+installed_hpp_md5="4a4c172dac2fed99bde9ae2104d1d7b8"
+installed_cpp_md5="b18f0cf99d78d6105f3c7f24470a9f4c"
+installed_impl_md5="1143d047b297566c96c9678b6be41302"
 
 # Check the installed headers
 computed_installed_sobogus_dir_md5=`find include/sobogus -type f -name '*.[hc]pp' -exec bash -c 'md5sum "$0" "$@"' {} + | awk '{print $2$1}' | sort -fd | md5sum | cut -c -32`

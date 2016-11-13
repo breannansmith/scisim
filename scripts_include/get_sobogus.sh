@@ -1,14 +1,14 @@
 #!/bin/bash
 
-original_sobogus_md5="e398eddbfcf580543667d079bfff4c81"
-patched_sobogus_md5="56aee58f76f42857dbd7e3837ee32eae"
+original_sobogus_md5="d1b1c747ff5c0ae5e83a9f5abec895c7"
+patched_sobogus_md5="9a290f486298d71341ef99816e816b04"
 sobogus_url="https://bitbucket.org/gdaviet/so-bogus.git"
-desired_sobogus_revision="37841267b7290ae0e7486f6225855bd83dc3e289"
+desired_sobogus_revision="99f279d56c440644258aef6b80498f6954ab6cba"
 # md5 on installed So-bogus source files
-actual_installed_sobogus_dir_md5="5f4f4b059f5b5db54a548479e7aa94cf"
-actual_installed_hpp_md5="5f6590e7e6ddb278f6e7740c3e097976"
-actual_installed_cpp_md5="73fba2af92aa42fc13f6bb9a5004b8f0"
-actual_installed_impl_md5="f6ccfaa3d971f99ba80363674d83448b"
+actual_installed_sobogus_dir_md5="e8b8f43311b47248e93dbab09ff80b4d"
+actual_installed_hpp_md5="4a4c172dac2fed99bde9ae2104d1d7b8"
+actual_installed_cpp_md5="b18f0cf99d78d6105f3c7f24470a9f4c"
+actual_installed_impl_md5="1143d047b297566c96c9678b6be41302"
 
 # Verify that git is installed
 command -v md5sum >/dev/null 2>&1 || command -v md5 >/dev/null 2>&1 || { echo >&2 "Error, please install md5 or md5sum and rerun get_dependencies.sh."; exit 1; }

@@ -87,6 +87,7 @@ void RigidBodies3DSobogusInterface::fromPrimal( const unsigned num_bodies, const
   m_primal->f = f_in.data();
   m_primal->w = w_in.data();
   m_primal->mu = mu.data();
+  m_primal->computeMInv();
 }
 
 void RigidBodies3DSobogusInterface::computeDual()

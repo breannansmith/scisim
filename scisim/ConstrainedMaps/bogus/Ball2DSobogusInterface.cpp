@@ -90,6 +90,7 @@ void Balls2DSobogusInterface::fromPrimal( const unsigned num_bodies, const Eigen
   m_primal->f = f_in.data();
   m_primal->w = w_in.data();
   m_primal->mu = mu.data();
+  m_primal->computeMInv();
 }
 
 void Balls2DSobogusInterface::computeDual()

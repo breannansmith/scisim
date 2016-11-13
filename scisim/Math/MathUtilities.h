@@ -97,7 +97,7 @@ namespace MathUtilities
   // Deserialization for dense Eigen types of fixed row count, fixed column count
   template <typename Derived>
   typename std::enable_if< Derived::RowsAtCompileTime != Eigen::Dynamic && Derived::ColsAtCompileTime != Eigen::Dynamic, Derived >::type
-   deserialize( std::istream& stm )
+  deserialize( std::istream& stm )
   {
     assert( stm.good() );
     Derived output_matrix;

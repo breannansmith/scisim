@@ -1,9 +1,9 @@
 diff --git a/src/Core/BlockSolvers/ConstrainedSolverBase.hpp b/src/Core/BlockSolvers/ConstrainedSolverBase.hpp
-index 4a628b9..00ce792 100644
+index 20789b3..bafecc2 100644
 --- a/src/Core/BlockSolvers/ConstrainedSolverBase.hpp
 +++ b/src/Core/BlockSolvers/ConstrainedSolverBase.hpp
-@@ -42,9 +42,9 @@ public:
- 	Scalar eval ( const NSLaw &law, const ResT &y, const RhsT &x ) const ;
+@@ -52,9 +52,9 @@ public:
+ 	void dualityCOV( const NSLaw &law, const RhsT &b, ResT &x ) const ;
  
  	template < typename NSLaw, typename RhsT, typename ResT >
 -	Scalar solve( const NSLaw &law, const RhsT &b, ResT &x ) const
@@ -15,7 +15,7 @@ index 4a628b9..00ce792 100644
  
  	//! Sets the system matrix and initializes internal structures
 diff --git a/src/Core/BlockSolvers/GaussSeidel.hpp b/src/Core/BlockSolvers/GaussSeidel.hpp
-index c70b67d..01da058 100644
+index ae34d6a..52fa1f5 100644
 --- a/src/Core/BlockSolvers/GaussSeidel.hpp
 +++ b/src/Core/BlockSolvers/GaussSeidel.hpp
 @@ -80,7 +80,7 @@ public:
@@ -25,183 +25,247 @@ index c70b67d..01da058 100644
 -	Scalar solve( const NSLaw &law, const RhsT &b, ResT &x, bool tryZeroAsWell = true ) const ;
 +	Scalar solve( const NSLaw &law, const RhsT &b, ResT &x, unsigned& num_iterations, bool tryZeroAsWell ) const ;
  
+ 	/*!
+ 	   Solves
+@@ -122,7 +122,7 @@ public:
+ 	template < typename NSLaw, typename RhsT, typename ResT, typename WDerived >
+ 	Scalar solveWithLinearConstraints( const NSLaw &law,
+ 	                                   const BlockObjectBase < WDerived >& W,
+-	                                   const RhsT &b, ResT &x,
++	                                   const RhsT &b, ResT &x, unsigned& num_iterations,
+ 	                                   bool tryZeroAsWell = true, unsigned solveEvery = 1 ) const ;
  
  	//! Access to the current Coloring. Will be reset whenever the matrix is changed.
 diff --git a/src/Core/BlockSolvers/GaussSeidel.impl.hpp b/src/Core/BlockSolvers/GaussSeidel.impl.hpp
-index de50024..d668c42 100644
+index 69744f2..6f725fc 100644
 --- a/src/Core/BlockSolvers/GaussSeidel.impl.hpp
 +++ b/src/Core/BlockSolvers/GaussSeidel.impl.hpp
-@@ -41,7 +41,7 @@ GaussSeidel< BlockMatrixType >& GaussSeidel< BlockMatrixType >::setMatrix( const
- template < typename BlockMatrixType >
+@@ -148,10 +148,10 @@ template < typename BlockMatrixType >
  template < typename NSLaw, typename RhsT, typename ResT >
- typename GaussSeidel< BlockMatrixType >::Scalar GaussSeidel< BlockMatrixType >::solve( const NSLaw &law,
--																						 const RhsT &b, ResT &x, bool tryZeroAsWell ) const
-+																						 const RhsT &b, ResT &x, unsigned& num_iterations, bool tryZeroAsWell ) const
+ typename GaussSeidel< BlockMatrixType >::Scalar
+ GaussSeidel< BlockMatrixType >::solve( const NSLaw &law,
+-									   const RhsT &b, ResT &x, bool tryZeroAsWell ) const
++									   const RhsT &b, ResT &x, unsigned& num_iterations, bool tryZeroAsWell ) const
+ {
+ 	const Zero< Scalar > zero ;
+-	return solveWithLinearConstraints( law, zero, b, x, tryZeroAsWell, 0 ) ;
++	return solveWithLinearConstraints( law, zero, b, x, num_iterations, tryZeroAsWell, 0 ) ;
+ }
+ 
+ template < typename BlockMatrixType >
+@@ -176,7 +176,7 @@ template < typename NSLaw, typename RhsT, typename ResT, typename WDerived >
+ typename GaussSeidel< BlockMatrixType >::Scalar
+ GaussSeidel< BlockMatrixType >::solveWithLinearConstraints( const NSLaw &law,
+ 								   const BlockObjectBase < WDerived >& W,
+-								   const RhsT &b, ResT &x,
++								   const RhsT &b, ResT &x, unsigned& num_iterations,
+ 								   bool tryZeroAsWell, unsigned solveEvery) const
  {
  	assert( m_matrix ) ;
- 
-@@ -174,7 +174,7 @@ typename GaussSeidel< BlockMatrixType >::Scalar GaussSeidel< BlockMatrixType >::
- #endif
+@@ -240,6 +240,7 @@ GaussSeidel< BlockMatrixType >::solveWithLinearConstraints( const NSLaw &law,
  
  	if( GSIter > m_maxIters ) x = x_best ;
--
-+	num_iterations = GSIter;
+ 
++  num_iterations = GSIter;
  	return err_best ;
  
  }
 diff --git a/src/Interfaces/FrictionProblem.cpp b/src/Interfaces/FrictionProblem.cpp
-index 4dffab5..2bf3f3b 100644
+index ac25cde..9a78f4a 100644
 --- a/src/Interfaces/FrictionProblem.cpp
 +++ b/src/Interfaces/FrictionProblem.cpp
-@@ -20,8 +20,7 @@
+@@ -20,12 +20,28 @@
  
  #include "FrictionProblem.impl.hpp"
  
 -#include "../Core/BlockSolvers/GaussSeidel.impl.hpp"
 -#include "../Core/BlockSolvers/ProjectedGradient.impl.hpp"
 +#include "Core/BlockSolvers/GaussSeidel.impl.hpp"
++#include "Core/BlockSolvers/ProjectedGradient.impl.hpp"
  
  
  namespace bogus {
-@@ -51,65 +50,18 @@ void DualFrictionProblem< Dimension >::computeFrom(PrimalFrictionProblem<Dimensi
+ 
++// PrimalFrictionProblem
++
++template< unsigned Dimension >
++void PrimalFrictionProblem< Dimension >::computeMInv( )
++{
++  // M^-1
++  MInv.cloneStructure( M ) ;
++#ifndef BOGUS_DONT_PARALLELIZE
++#pragma omp parallel for
++#endif
++  for( std::ptrdiff_t i = 0 ; i < (std::ptrdiff_t) M.nBlocks()  ; ++ i )
++  {
++    MInv.block(i).compute( M.block(i) ) ;
++  }
++}
++
+ // DualFrictionProblem
+ 
+ template< unsigned Dimension >
+@@ -43,22 +59,21 @@ void DualFrictionProblem< Dimension >::computeFrom(const PrimalFrictionProblem<D
  }
  
  template< unsigned Dimension >
 -double DualFrictionProblem< Dimension >::solveWith( GaussSeidelType &gs, double *r,
--										 const bool staticProblem ) const
+-                                         const bool staticProblem ) const
 +double DualFrictionProblem< Dimension >::solveWith( GaussSeidelType &gs, double *r, unsigned& num_iterations, bool tryZeroAsWell ) const
  {
  	gs.setMatrix( W );
  
 -	return friction_problem::solve( *this, gs, r, staticProblem ) ;
--}
--
++	return friction_problem::solve( *this, gs, r, num_iterations, tryZeroAsWell ) ;
+ }
+ 
 -template< unsigned Dimension >
 -double DualFrictionProblem< Dimension >::solveWith( ProjectedGradientType &pg,
--													double *r ) const
+-                                                    double *r ) const
 -{
 -	pg.setMatrix( W );
 -
 -	return friction_problem::solve( *this, pg, r, true ) ;
-+	return friction_problem::solve( *this, gs, r, num_iterations, tryZeroAsWell ) ;
- }
+-}
++//template< unsigned Dimension >
++//double DualFrictionProblem< Dimension >::solveWith( ProjectedGradientType &pg,
++//                                                    double *r ) const
++//{
++//	pg.setMatrix( W );
++//
++//	return friction_problem::solve( *this, pg, r, true ) ;
++//}
  
  template< unsigned Dimension >
  double DualFrictionProblem< Dimension >::evalWith( const GaussSeidelType &gs,
--													 const double *r,
--													 const bool staticProblem ) const
--{
--	return friction_problem::eval( *this, gs, r, staticProblem ) ;
--}
--
--template< unsigned Dimension >
--double DualFrictionProblem< Dimension >::evalWith( const ProjectedGradientType &gs,
- 													 const double *r ) const
- {
--	return friction_problem::eval( *this, gs, r, true) ;
--}
--
--
+@@ -76,41 +91,41 @@ double DualFrictionProblem< Dimension >::evalWith( const ProjectedGradientType &
+ }
+ 
+ 
 -template< unsigned Dimension >
 -double DualFrictionProblem< Dimension >::solveCadoux(GaussSeidelType &gs, double *r, const unsigned cadouxIterations,
--		const Signal<unsigned, double> *callback ) const
+-        const Signal<unsigned, double> *callback ) const
 -{
+-	gs.setMatrix( W );
+-
 -	return friction_problem::solveCadoux( *this, gs, r, cadouxIterations, callback ) ;
 -}
 -
 -template< unsigned Dimension >
 -double DualFrictionProblem< Dimension >::solveCadoux(ProjectedGradientType &pg, double *r, const unsigned cadouxIterations,
--		const Signal<unsigned, double> *callback ) const
+-        const Signal<unsigned, double> *callback ) const
 -{
+-	pg.setMatrix( W );
+-
 -	return friction_problem::solveCadoux( *this, pg, r, cadouxIterations, callback ) ;
 -}
 -
 -template< unsigned Dimension >
 -double DualFrictionProblem< Dimension >::solveCadouxVel(GaussSeidelType &gs, double *u, const unsigned cadouxIterations,
--		const Signal<unsigned, double> *callback ) const
+-        const Signal<unsigned, double> *callback ) const
 -{
+-	gs.setMatrix( W );
+-
 -	return friction_problem::solveCadouxVel( *this, gs, u, cadouxIterations, callback ) ;
 -}
 -
 -template< unsigned Dimension >
 -double DualFrictionProblem< Dimension >::solveCadouxVel(ProjectedGradientType &pg, double *u, const unsigned cadouxIterations,
--		const Signal<unsigned, double> *callback ) const
+-        const Signal<unsigned, double> *callback ) const
 -{
+-	pg.setMatrix( W );
+-
 -	return friction_problem::solveCadouxVel( *this, pg, u, cadouxIterations, callback ) ;
-+	return friction_problem::eval( *this, gs, r ) ;
- }
+-}
++//template< unsigned Dimension >
++//double DualFrictionProblem< Dimension >::solveCadoux(GaussSeidelType &gs, double *r, const unsigned cadouxIterations,
++//        const Signal<unsigned, double> *callback ) const
++//{
++//	gs.setMatrix( W );
++//
++//	return friction_problem::solveCadoux( *this, gs, r, cadouxIterations, callback ) ;
++//}
++//
++//template< unsigned Dimension >
++//double DualFrictionProblem< Dimension >::solveCadoux(ProjectedGradientType &pg, double *r, const unsigned cadouxIterations,
++//        const Signal<unsigned, double> *callback ) const
++//{
++//	pg.setMatrix( W );
++//
++//	return friction_problem::solveCadoux( *this, pg, r, cadouxIterations, callback ) ;
++//}
++//
++//template< unsigned Dimension >
++//double DualFrictionProblem< Dimension >::solveCadouxVel(GaussSeidelType &gs, double *u, const unsigned cadouxIterations,
++//        const Signal<unsigned, double> *callback ) const
++//{
++//	gs.setMatrix( W );
++//
++//	return friction_problem::solveCadouxVel( *this, gs, u, cadouxIterations, callback ) ;
++//}
++//
++//template< unsigned Dimension >
++//double DualFrictionProblem< Dimension >::solveCadouxVel(ProjectedGradientType &pg, double *u, const unsigned cadouxIterations,
++//        const Signal<unsigned, double> *callback ) const
++//{
++//	pg.setMatrix( W );
++//
++//	return friction_problem::solveCadouxVel( *this, pg, u, cadouxIterations, callback ) ;
++//}
  
  template< unsigned Dimension >
-@@ -142,19 +94,7 @@ void DualFrictionProblem< Dimension >::undoPermutation()
+ void DualFrictionProblem< Dimension >::applyPermutation(
+@@ -142,13 +157,15 @@ void DualFrictionProblem< Dimension >::undoPermutation()
  	m_permutation.clear() ;
  }
  
 -#ifdef BOGUS_INSTANTIATE_2D_SOC
++//#ifdef BOGUS_INSTANTIATE_2D_SOC
++template struct PrimalFrictionProblem< 2u > ;
  template struct DualFrictionProblem< 2u > ;
--template struct PrimalFrictionProblem< 2u > ;
 -#endif
--
--#ifdef BOGUS_INSTANTIATE_3D_SOC
- template struct DualFrictionProblem< 3u > ;
--template struct PrimalFrictionProblem< 3u > ;
--#endif
--
--#ifdef BOGUS_INSTANTIATE_DYNAMIC_SOC
--template struct DualFrictionProblem< Eigen::Dynamic > ;
--template struct PrimalFrictionProblem< Eigen::Dynamic > ;
--#endif
++//#endif
  
- } //namespace bogus
+-#ifdef BOGUS_INSTANTIATE_3D_SOC
++//#ifdef BOGUS_INSTANTIATE_3D_SOC
++template struct PrimalFrictionProblem< 3u > ;
+ template struct DualFrictionProblem< 3u > ;
+-#endif
++//#endif
+ 
+ #ifdef BOGUS_INSTANTIATE_DYNAMIC_SOC
+ template struct DualFrictionProblem< Eigen::Dynamic > ;
 diff --git a/src/Interfaces/FrictionProblem.hpp b/src/Interfaces/FrictionProblem.hpp
-index a872c66..3389cdc 100644
+index 2c6cd21..239ea5d 100644
 --- a/src/Interfaces/FrictionProblem.hpp
 +++ b/src/Interfaces/FrictionProblem.hpp
-@@ -1,32 +1,10 @@
--/*
-- * This file is part of So-bogus, a C++ sparse block matrix library and
-- * Second Order Cone solver.
-- *
-- * Copyright 2013 Gilles Daviet <gdaviet@gmail.com>
-- *
-- * So-bogus is free software: you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation, either version 2 of the License, or
-- * (at your option) any later version.
--
-- * So-bogus is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
--
-- * You should have received a copy of the GNU General Public License
-- * along with So-bogus.  If not, see <http://www.gnu.org/licenses/>.
--*/
--
+@@ -21,12 +21,12 @@
  #ifndef BOGUS_FRICTION_PROBLEM_HPP
  #define BOGUS_FRICTION_PROBLEM_HPP
  
 -#include "../Core/Block.hpp"
 -#include "../Core/BlockSolvers.fwd.hpp"
--
--#include "../Extra/SecondOrder.fwd.hpp"
 +#include "Core/Block.hpp"
 +#include "Core/BlockSolvers.fwd.hpp"
  
--#include "../Core/Utils/Signal.hpp"
+-#include "../Extra/SecondOrder.fwd.hpp"
 +#include "Extra/SecondOrder.fwd.hpp"
+ 
+-#include "../Core/Utils/Signal.hpp"
++//#include "Core/Utils/Signal.hpp"
  
  namespace bogus
  {
-@@ -71,8 +49,6 @@ struct DualFrictionProblem
+@@ -138,7 +138,7 @@ struct DualFrictionProblem
  	typedef SOCLaw< Dimension, double, true  > CoulombLawType	;
  	typedef SOCLaw< Dimension, double, false > SOCLawType	;
  
 -	typedef Signal< unsigned, double > SignalType ;
--
++//	typedef Signal< unsigned, double > SignalType ;
+ 
  	//! W -- Delassus operator
  	WType W ;
- 
-@@ -89,42 +65,17 @@ struct DualFrictionProblem
+@@ -157,11 +157,10 @@ struct DualFrictionProblem
  	/*!
  	  \param gs The GaussSeidel< WType > solver to use
  	  \param r  Both the initial guess and the result
@@ -211,50 +275,45 @@ index a872c66..3389cdc 100644
 -	double solveWith( GaussSeidelType &gs, double * r, const bool staticProblem = false ) const ;
 -	double solveWith( ProjectedGradientType &pg, double * r ) const ;
 +	double solveWith( GaussSeidelType &gs, double * r, unsigned& num_iterations, bool tryZeroAsWell ) const ;
++//	double solveWith( ProjectedGradientType &pg, double * r ) const ;
  
  	//! Evaluate a residual using the GS's error function
  	/*!
- 	  \param gs The GaussSeidel< WType > solver to use
- 	  \param r  Both the current force
--	  \param staticProblem If true, eval this problem as a \b SOCQP instead of a Coulomb Friction problem
--
- 	  \returns the error as returned by the GaussSeidel::eval() function
+@@ -183,16 +182,16 @@ struct DualFrictionProblem
+ 	  \param callback 0, or a pointer to a user-defined function that takes ( unsigned iteration, double residual ) as arguments
+ 	  \returns the error as returned by the GaussSeidel::solve() function
  	  */
--	double evalWith( const GaussSeidelType &gs, const double * r, const bool staticProblem = false ) const ;
--	double evalWith( const ProjectedGradientType &gs, const double * r ) const ;
--
--	//! Solves this problem using the Cadoux algorithm ( with fixed-point iteration )
--	/*!
--	  See \cite ACLM11
--	  \param gs The GaussSeidel< WType > solver to use
--	  \param r  Both the initial guess and the result
--	  \param fpIterations Number of fixed-point iterations
--	  \param callback 0, or a pointer to a user-defined function that takes ( unsigned iteration, double residual ) as arguments
--	  \returns the error as returned by the GaussSeidel::solve() function
--	  */
 -	double solveCadoux( GaussSeidelType &gs, double * r, const unsigned fpIterations,
--		   const SignalType* callback = BOGUS_NULL_PTR(const SignalType) ) const ;
+-	       const SignalType* callback = BOGUS_NULL_PTR(const SignalType) ) const ;
 -	double solveCadoux( ProjectedGradientType &pg, double * r, const unsigned fpIterations,
--		   const SignalType* callback = BOGUS_NULL_PTR(const SignalType) ) const ;
--
--	//! Idem as solveCadoux, but interpreting the problem as r = Wu + b
+-	       const SignalType* callback = BOGUS_NULL_PTR(const SignalType) ) const ;
++//	double solveCadoux( GaussSeidelType &gs, double * r, const unsigned fpIterations,
++//	       const SignalType* callback = BOGUS_NULL_PTR(const SignalType) ) const ;
++//	double solveCadoux( ProjectedGradientType &pg, double * r, const unsigned fpIterations,
++//	       const SignalType* callback = BOGUS_NULL_PTR(const SignalType) ) const ;
+ 
+ 	//! Idem as solveCadoux, but interpreting the problem as r = Wu + b
 -	double solveCadouxVel( GaussSeidelType &gs, double * u, const unsigned fpIterations,
--		   const SignalType* callback = BOGUS_NULL_PTR(const SignalType) ) const ;
+-	       const SignalType* callback = BOGUS_NULL_PTR(const SignalType) ) const ;
 -	double solveCadouxVel( ProjectedGradientType &pg, double * u, const unsigned fpIterations,
--		   const SignalType* callback = BOGUS_NULL_PTR(const SignalType) ) const ;
-+	double evalWith( const GaussSeidelType &gs, const double * r ) const ;
+-	       const SignalType* callback = BOGUS_NULL_PTR(const SignalType) ) const ;
++//	double solveCadouxVel( GaussSeidelType &gs, double * u, const unsigned fpIterations,
++//	       const SignalType* callback = BOGUS_NULL_PTR(const SignalType) ) const ;
++//	double solveCadouxVel( ProjectedGradientType &pg, double * u, const unsigned fpIterations,
++//	       const SignalType* callback = BOGUS_NULL_PTR(const SignalType) ) const ;
  
  
- 	//! \warning To use the permutation releated functions, all the blocks have to have the same size
+ 	//! Apply a permutation on the contact indices
 diff --git a/src/Interfaces/FrictionProblem.impl.hpp b/src/Interfaces/FrictionProblem.impl.hpp
-index 6e186d8..ea6ce90 100644
+index 7b373a1..1cd666b 100644
 --- a/src/Interfaces/FrictionProblem.impl.hpp
 +++ b/src/Interfaces/FrictionProblem.impl.hpp
-@@ -19,10 +19,9 @@
+@@ -19,10 +19,10 @@
  */
  
  #include "FrictionProblem.hpp"
 -#include "Cadoux.hpp"
++//#include "Cadoux.hpp"
  
 -#include "../Core/Block.impl.hpp"
 -#include "../Extra/SecondOrder.impl.hpp"
@@ -263,10 +322,10 @@ index 6e186d8..ea6ce90 100644
  
  namespace bogus {
  
-@@ -43,18 +42,15 @@ void applyPermutation(
- template< unsigned Dimension, template <typename> class Method >
+@@ -43,18 +43,15 @@ void applyPermutation(
+ template< unsigned Dimension, typename Method, typename MatrixT >
  static double solve( const DualFrictionProblem< Dimension >& dual,
- 		const ConstrainedSolverBase< Method, typename DualFrictionProblem< Dimension >::WType > &gs,
+ 		const ConstrainedSolverBase< Method, MatrixT > &gs,
 -		double *r, const bool staticProblem )
 +		double *r, unsigned& num_iterations, bool tryZeroAsWell )
  {
@@ -285,32 +344,13 @@ index 6e186d8..ea6ce90 100644
  
  	if( dual.permuted() )
  		applyPermutation< Dimension >( dual.invPermutation(), r_map, dual.W.majorIndex().innerOffsetsData() ) ;
-@@ -65,7 +61,7 @@ static double solve( const DualFrictionProblem< Dimension >& dual,
- template< unsigned Dimension, template <typename> class Method >
- static double eval( const DualFrictionProblem< Dimension >& dual,
- 		const ConstrainedSolverBase< Method, typename DualFrictionProblem< Dimension >::WType > &gs,
--		const double *r_data, const bool staticProblem  )
-+		const double *r_data  )
- {
- 	Eigen::VectorXd r = Eigen::VectorXd::Map( r_data, dual.W.rows() ) ;
- 
-@@ -74,53 +70,12 @@ static double eval( const DualFrictionProblem< Dimension >& dual,
- 
- 	const Eigen::VectorXd u = dual.W*r + dual.b ;
- 
--	double res = staticProblem
--			? gs.eval( typename DualFrictionProblem< Dimension >::SOCLawType
--					   ( dual.W.rowsOfBlocks(), dual.mu.data() ), u, r )
--			: gs.eval( typename DualFrictionProblem< Dimension >::CoulombLawType
-+	double res = gs.eval( typename DualFrictionProblem< Dimension >::CoulombLawType
- 					   ( dual.W.rowsOfBlocks(), dual.mu.data() ), u, r ) ;
- 
+@@ -83,43 +80,43 @@ static double eval( const DualFrictionProblem< Dimension >& dual,
  	return res ;
  }
  
--template< unsigned Dimension, template <typename> class Method >
+-template< unsigned Dimension, typename Method, typename MatrixT >
 -static double solveCadoux( const DualFrictionProblem< Dimension >& problem,
--		ConstrainedSolverBase< Method, typename DualFrictionProblem< Dimension >::WType > &minimizer,
+-		ConstrainedSolverBase< Method, MatrixT > &minimizer,
 -		double *r, const unsigned cadouxIterations, const Signal<unsigned, double> *callback )
 -{
 -	Eigen::Map< Eigen::VectorXd > r_map ( r, problem.W.rows() ) ;
@@ -327,9 +367,9 @@ index 6e186d8..ea6ce90 100644
 -	return res ;
 -}
 -
--template< unsigned Dimension, template <typename> class Method >
+-template< unsigned Dimension, typename Method, typename MatrixT >
 -static double solveCadouxVel( const DualFrictionProblem< Dimension >& problem,
--		ConstrainedSolverBase< Method, typename DualFrictionProblem< Dimension >::WType > &minimizer,
+-		ConstrainedSolverBase< Method, MatrixT > &minimizer,
 -		double *u, const unsigned cadouxIterations, const Signal<unsigned, double> *callback )
 -{
 -	Eigen::Map< Eigen::VectorXd > u_map ( u, problem.W.rows() ) ;
@@ -345,7 +385,46 @@ index 6e186d8..ea6ce90 100644
 -
 -	return res ;
 -}
--
++//template< unsigned Dimension, typename Method, typename MatrixT >
++//static double solveCadoux( const DualFrictionProblem< Dimension >& problem,
++//		ConstrainedSolverBase< Method, MatrixT > &minimizer,
++//		double *r, const unsigned cadouxIterations, const Signal<unsigned, double> *callback )
++//{
++//	Eigen::Map< Eigen::VectorXd > r_map ( r, problem.W.rows() ) ;
++//
++//	if( problem.permuted() )
++//		applyPermutation< Dimension >( problem.permutation(), r_map, problem.W.majorIndex().innerOffsetsData() ) ;
++//
++//	const double res = solveCadoux< Dimension >( problem.W, problem.b.data(), problem.mu.data(),
++//									minimizer, r, cadouxIterations, callback ) ;
++//
++//	if( problem.permuted() )
++//		applyPermutation< Dimension >( problem.invPermutation(), r_map, problem.W.majorIndex().innerOffsetsData() ) ;
++//
++//	return res ;
++//}
++
++//template< unsigned Dimension, typename Method, typename MatrixT >
++//static double solveCadouxVel( const DualFrictionProblem< Dimension >& problem,
++//		ConstrainedSolverBase< Method, MatrixT > &minimizer,
++//		double *u, const unsigned cadouxIterations, const Signal<unsigned, double> *callback )
++//{
++//	Eigen::Map< Eigen::VectorXd > u_map ( u, problem.W.rows() ) ;
++//
++//	if( problem.permuted() )
++//		applyPermutation< Dimension >( problem.permutation(), u_map, problem.W.majorIndex().innerOffsetsData() ) ;
++//
++//	const double res = solveCadouxVel< Dimension >( problem.W, problem.b.data(), problem.mu.data(),
++//									minimizer, u, cadouxIterations, callback ) ;
++//
++//	if( problem.permuted() )
++//		applyPermutation< Dimension >( problem.invPermutation(), u_map, problem.W.majorIndex().innerOffsetsData() ) ;
++//
++//	return res ;
++//}
+ 
  } //namespace friction_problem
  
- } //namespace bogus
+-- 
+2.10.2
+
