@@ -8,7 +8,7 @@
 
   <integrator type="verlet" dt="0.00001"/>
 
-  <sobogus_friction_solver mu="0.5" CoR="0.0" max_iters="5000" tol="1.0e-12" eval_every="1" staggering="geometric" cache_impulses="none"/>
+  <sobogus_friction_solver mu="0.5" CoR="0.0" max_iters="5000" tol="2.0e-12" eval_every="1" staggering="geometric" cache_impulses="none"/>
 
   <gravity fx="0.0" fy="-10.0"/>
 
