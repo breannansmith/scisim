@@ -3,8 +3,6 @@
 // Breannan Smith
 // Last updated: 09/21/2015
 
-// TODO: Store n directly instead of implicitly through a rotation. Using the rotation leads to subtle issues if a user expects a plane to align exactly with a cartesian axis.
-
 #ifndef STATIC_PLANE_H
 #define STATIC_PLANE_H
 
@@ -21,8 +19,7 @@ public:
   Vector3s& x();
   const Vector3s& x() const;
 
-  Quaternions& R();
-  const Quaternions& R() const;
+  Quaternions R() const;
 
   // t0 x n = t1
   const Vector3s n() const;
@@ -42,7 +39,7 @@ public:
 private:
 
   Vector3s m_x;
-  Quaternions m_R; // Rotation about x from yhat to current normal
+  Vector3s m_n;
   Vector3s m_v; // Linear velocity of point x
   Vector3s m_omega; // Angular velocity about x
 

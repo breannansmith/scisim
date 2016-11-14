@@ -337,7 +337,7 @@ void StateOutput::writeStaticPlanes( const std::vector<StaticPlane>& static_plan
   struct LocalStaticPlaneData
   {
     scalar x[3];
-    scalar R[4];
+    scalar n[3];
     scalar v[3];
     scalar omega[3];
   };
@@ -369,17 +369,17 @@ void StateOutput::writeStaticPlanes( const std::vector<StaticPlane>& static_plan
       throw std::string{ "Failed to insert x in HDF struct for static planes" };
     }
   }
-  // Insert the R type in the struct
+  // Insert the n type in the struct
   {
-    const hsize_t array_dim[]{ 4 };
+    const hsize_t array_dim[]{ 3 };
     const HDFTID array_tid{ H5Tarray_create2( H5T_NATIVE_DOUBLE, 1, array_dim ) };
     if( array_tid < 0 )
     {
-      throw std::string{ "Failed to create HDF R type for static planes" };
+      throw std::string{ "Failed to create HDF n type for static planes" };
     }
-    if( H5Tinsert( struct_tid, "R", HOFFSET( LocalStaticPlaneData, R ), array_tid ) < 0 )
+    if( H5Tinsert( struct_tid, "n", HOFFSET( LocalStaticPlaneData, n ), array_tid ) < 0 )
     {
-      throw std::string{ "Failed to insert R in HDF struct for static planes" };
+      throw std::string{ "Failed to insert n in HDF struct for static planes" };
     }
   }
   // Insert the v type in the struct
@@ -431,15 +431,10 @@ void StateOutput::writeStaticPlanes( const std::vector<StaticPlane>& static_plan
   LocalStaticPlaneData local_data;
   for( const StaticPlane& plane : static_planes )
   {
-    {
-      Eigen::Map<Vector3s>{ local_data.x } = plane.x();
-      local_data.R[0] = plane.R().x();
-      local_data.R[1] = plane.R().y();
-      local_data.R[2] = plane.R().z();
-      local_data.R[3] = plane.R().w();
-      Eigen::Map<Vector3s>{ local_data.v } = plane.v();
-      Eigen::Map<Vector3s>{ local_data.omega } = plane.omega();
-    }
+    Eigen::Map<Vector3s>{ local_data.x } = plane.x();
+    Eigen::Map<Vector3s>{ local_data.n } = plane.n();
+    Eigen::Map<Vector3s>{ local_data.v } = plane.v();
+    Eigen::Map<Vector3s>{ local_data.omega } = plane.omega();
     const hsize_t count[]{ 1 };
     const hsize_t offset[]{ current_plane++ };
     const hsize_t mem_offset[]{ 0 };

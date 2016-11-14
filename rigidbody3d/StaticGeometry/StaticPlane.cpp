@@ -9,21 +9,17 @@
 
 StaticPlane::StaticPlane( const Vector3s& x, const Vector3s& n )
 : m_x( x )
-, m_R( Quaternions::FromTwoVectors( Vector3s::UnitY(), n.normalized() ) )
+, m_n( n.normalized() )
 , m_v( Vector3s::Zero() )
 , m_omega( Vector3s::Zero() )
-{
-  assert( fabs ( m_R.norm() - 1.0 ) < 1.0e-6 );
-}
+{}
 
 StaticPlane::StaticPlane( std::istream& input_stream )
 : m_x( MathUtilities::deserialize<Vector3s>( input_stream ) )
-, m_R( MathUtilities::deserializeQuaternion<scalar>( input_stream ) )
+, m_n( MathUtilities::deserialize<Vector3s>( input_stream ) )
 , m_v( MathUtilities::deserialize<Vector3s>( input_stream ) )
 , m_omega( MathUtilities::deserialize<Vector3s>( input_stream ) )
-{
-  assert( fabs ( m_R.norm() - 1.0 ) < 1.0e-6 );
-}
+{}
 
 scalar StaticPlane::distanceToPoint( const Vector3s& x ) const
 {
@@ -34,7 +30,7 @@ void StaticPlane::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
   MathUtilities::serialize( m_x, output_stream );
-  MathUtilities::serialize( m_R, output_stream );
+  MathUtilities::serialize( m_n, output_stream );
   MathUtilities::serialize( m_v, output_stream );
   MathUtilities::serialize( m_omega, output_stream );
 }
@@ -49,32 +45,24 @@ const Vector3s& StaticPlane::x() const
   return m_x;
 }
 
-Quaternions& StaticPlane::R()
+Quaternions StaticPlane::R() const
 {
-  assert( fabs( m_R.norm() - 1.0 ) <= 1.0e-6 );
-  return m_R;
-}
-
-const Quaternions& StaticPlane::R() const
-{
-  assert( fabs( m_R.norm() - 1.0 ) <= 1.0e-6 );
-  return m_R;
+  return Quaternions::FromTwoVectors( Vector3s::UnitY(), m_n );
 }
 
 const Vector3s StaticPlane::n() const
 {
-  assert( fabs( m_R.norm() - 1.0 ) <= 1.0e-6 );
-  return m_R * Vector3s::UnitY();
+  return m_n;
 }
 
 const Vector3s StaticPlane::t0() const
 {
-  return m_R * Vector3s::UnitX();
+  return Quaternions::FromTwoVectors( Vector3s::UnitY(), m_n ) * Vector3s::UnitX();
 }
 
 const Vector3s StaticPlane::t1() const
 {
-  return m_R * Vector3s::UnitZ();
+  return Quaternions::FromTwoVectors( Vector3s::UnitY(), m_n ) * Vector3s::UnitZ();
 }
 
 Vector3s& StaticPlane::v()
