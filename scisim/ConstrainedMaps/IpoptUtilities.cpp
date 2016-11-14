@@ -139,7 +139,7 @@ int IpoptUtilities::sparsityPatternLowerTriangular( const SparseMatrixsc& A, int
       {
         continue;
       }
-      rows[curel] = it.row();
+      rows[curel] = int(it.row());
       cols[curel] = col;
       ++curel;
     }
