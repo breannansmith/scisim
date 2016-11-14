@@ -81,29 +81,6 @@ unsigned MathUtilities::computeNumDigits( unsigned n )
   return num_digits;
 }
 
-void MathUtilities::extractDataCCS( const SparseMatrixsc& A, VectorXi& col_ptr, VectorXi& row_ind, VectorXs& val )
-{
-  col_ptr.resize( A.cols() + 1 );
-  row_ind.resize( A.nonZeros() );
-  val.resize( A.nonZeros() );
-
-  col_ptr(0) = 0;
-  for( int col = 0; col < A.outerSize(); ++col )
-  {
-    col_ptr(col+1) = col_ptr(col);
-    for( SparseMatrixsc::InnerIterator it(A,col); it; ++it )
-    {
-      const int row{ it.row() };
-
-      val(col_ptr(col+1)) = it.value();
-      row_ind(col_ptr(col+1)) = row;
-      ++col_ptr(col+1);
-    }
-  }
-
-  assert( col_ptr( col_ptr.size() - 1 ) == row_ind.size() );
-}
-
 // TODO: Pull the outerIndexPtr arithmetic into a helper function
 void MathUtilities::extractColumns( const SparseMatrixsc& A0, const std::vector<unsigned>& cols, SparseMatrixsc& A1 )
 {
@@ -149,65 +126,36 @@ void MathUtilities::extractColumns( const SparseMatrixsc& A0, const std::vector<
 void MathUtilities::serialize( const SparseMatrixsc& A, std::ostream& stm )
 {
   assert( stm.good() );
+  assert( A.isCompressed() );
 
-  VectorXi col_ptr;
-  VectorXi row_ind;
-  VectorXs val;
-  MathUtilities::extractDataCCS( A, col_ptr, row_ind, val );
-  assert( col_ptr.size() == A.cols() + 1 ); assert( row_ind.size() == A.nonZeros() ); assert( val.size() == A.nonZeros() );
-  // Size of col_ptr == A.cols() + 1
   Utilities::serialize( A.rows(), stm );
   Utilities::serialize( A.cols(), stm );
-  stm.write( reinterpret_cast<char*>( col_ptr.data() ), col_ptr.size() * sizeof(int) );
-  // Size of row_ind == size of val == A.nonZeros()
   Utilities::serialize( A.nonZeros(), stm );
-  stm.write( reinterpret_cast<char*>( row_ind.data() ), row_ind.size() * sizeof(int) );
-  stm.write( reinterpret_cast<char*>( val.data() ), val.size() * sizeof(scalar) );
+  // TODO: Write a utility class to save out pointers to arrays of data
+  stm.write( reinterpret_cast<const char*>( A.innerIndexPtr() ), A.nonZeros() * sizeof(SparseMatrixsc::StorageIndex) );
+  stm.write( reinterpret_cast<const char*>( A.outerIndexPtr() ), ( A.outerSize() + 1 ) * sizeof(SparseMatrixsc::StorageIndex) );
+  stm.write( reinterpret_cast<const char*>( A.valuePtr() ), A.nonZeros() * sizeof(SparseMatrixsc::Scalar) );
 }
 
-// TODO: Use utility class here
 void MathUtilities::deserialize( SparseMatrixsc& A, std::istream& stm )
 {
   assert( stm.good() );
 
-  VectorXi col_ptr;
-  VectorXi row_ind;
-  VectorXs val;
+  const Eigen::Index rows{ Utilities::deserialize<Eigen::Index>( stm ) };
+  const Eigen::Index cols{ Utilities::deserialize<Eigen::Index>( stm ) };
+  const Eigen::Index nnz{ Utilities::deserialize<Eigen::Index>( stm ) };
 
-  // Read the number of rows in the matrix
-  int rows{ -1 };
-  stm.read((char*)&rows,sizeof(int));
-  assert( rows >= 0 );
-  // Read the number of columns in the matrix
-  int cols{ -1 };
-  stm.read((char*)&cols,sizeof(int));
-  assert( cols >= 0 );
-  // Read the column pointer array
-  col_ptr.resize(cols+1);
-  stm.read((char*)col_ptr.data(),col_ptr.size()*sizeof(int));
-  // Read the number of nonzeros in the array
-  int nnz{ -1 };
-  stm.read((char*)&nnz,sizeof(int));
-  assert( nnz >= 0 );
-  // Read the row-index array
-  row_ind.resize(nnz);
-  stm.read((char*)row_ind.data(),row_ind.size()*sizeof(int));
-  // Read the value array
-  val.resize(nnz);
-  stm.read((char*)val.data(),val.size()*sizeof(scalar));
+  Eigen::Matrix<SparseMatrixsc::StorageIndex,Eigen::Dynamic,1> inner_indices{ nnz };
+  stm.read( reinterpret_cast<char*>( inner_indices.data() ), inner_indices.size() * sizeof(SparseMatrixsc::StorageIndex) );
 
-  A.resize(rows,cols);
-  A.reserve(nnz);
+  Eigen::Matrix<SparseMatrixsc::StorageIndex,Eigen::Dynamic,1> outter_indices{ cols + 1 };
+  stm.read( reinterpret_cast<char*>( outter_indices.data() ), outter_indices.size() * sizeof(SparseMatrixsc::StorageIndex) );
 
-  for( int col = 0; col < cols; ++col )
-  {
-    A.startVec(col);
-    for( int curel = col_ptr(col); curel < col_ptr(col+1); ++curel )
-    {
-      int row = row_ind(curel);
-      scalar curval = val(curel);
-      A.insertBack(row,col) = curval;
-    }
-  }
-  A.finalize();
+  Eigen::Matrix<SparseMatrixsc::Scalar,Eigen::Dynamic,1> values{ nnz };
+  stm.read( reinterpret_cast<char*>( values.data() ), values.size() * sizeof(SparseMatrixsc::Scalar) );
+
+  const Eigen::Map<const SparseMatrixsc> matrix_map{ rows, cols, nnz, outter_indices.data(), inner_indices.data(), values.data() };
+
+  A = matrix_map;
+  assert( A.isCompressed() );
 }

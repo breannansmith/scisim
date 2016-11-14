@@ -83,6 +83,12 @@ namespace HDF5SupportedTypes
   }
 
   template<>
+  constexpr bool isSupportedEigenType<long>()
+  {
+    return true;
+  }
+
+  template<>
   constexpr bool isSupportedEigenType<unsigned>()
   {
     return true;
@@ -190,15 +196,15 @@ public:
     static_assert( !Derived::IsRowMajor, "Error, HDF5 sparse matrix output only supported for column major matrices" );
 
     // Grab the sparse data
-    Eigen::Matrix<typename Derived::Index,Eigen::Dynamic,1> col_ptr;
-    Eigen::Matrix<typename Derived::Index,Eigen::Dynamic,1> row_ind;
+    Eigen::Matrix<typename Derived::StorageIndex,Eigen::Dynamic,1> col_ptr;
+    Eigen::Matrix<typename Derived::StorageIndex,Eigen::Dynamic,1> row_ind;
     Eigen::Matrix<typename Derived::Scalar,Eigen::Dynamic,1> val;
     extractDataCCS( sparse_matrix, col_ptr, row_ind, val );
 
     // Write out the sparse data
-    const typename Derived::Index nrows = sparse_matrix.rows();
+    const Eigen::Index nrows{ sparse_matrix.rows() };
     write( full_name + "_nrows", nrows );
-    const typename Derived::Index ncols = sparse_matrix.cols();
+    const Eigen::Index ncols{ sparse_matrix.cols() };
     write( full_name + "_ncols", ncols );
     write( full_name + "_col_ptr", col_ptr );
     write( full_name + "_row_ind", row_ind );
@@ -346,12 +352,13 @@ public:
 
 private:
 
+  // TODO: Don't extract data first, just directly save out to disk
   template<typename Derived>
-  static void extractDataCCS( const Eigen::SparseMatrixBase<Derived>& A, Eigen::Matrix<typename Derived::Index,Eigen::Dynamic,1>& outer_ptr, Eigen::Matrix<typename Derived::Index,Eigen::Dynamic,1>& inner_ptr, Eigen::Matrix<typename Derived::Scalar,Eigen::Dynamic,1>& val )
+  static void extractDataCCS( const Eigen::SparseMatrixBase<Derived>& A, Eigen::Matrix<typename Derived::StorageIndex,Eigen::Dynamic,1>& outer_ptr, Eigen::Matrix<typename Derived::StorageIndex,Eigen::Dynamic,1>& inner_ptr, Eigen::Matrix<typename Derived::Scalar,Eigen::Dynamic,1>& val )
   {
-    outer_ptr = Eigen::Map< const Eigen::Array<typename Derived::Index,Eigen::Dynamic,1> >( A.derived().outerIndexPtr(), A.outerSize() + 1 );
-    inner_ptr = Eigen::Map< const Eigen::Array<typename Derived::Index,Eigen::Dynamic,1> >( A.derived().innerIndexPtr(), A.nonZeros() );
-    val = Eigen::Map< const Eigen::Array<typename Derived::Scalar,Eigen::Dynamic,1> >( A.derived().valuePtr(), A.nonZeros() );
+    outer_ptr = Eigen::Map< const Eigen::Matrix<typename Derived::StorageIndex,Eigen::Dynamic,1> >( A.derived().outerIndexPtr(), A.outerSize() + 1 );
+    inner_ptr = Eigen::Map< const Eigen::Matrix<typename Derived::StorageIndex,Eigen::Dynamic,1> >( A.derived().innerIndexPtr(), A.derived().nonZeros() );
+    val = Eigen::Map< const Eigen::Array<typename Derived::Scalar,Eigen::Dynamic,1> >( A.derived().valuePtr(), A.derived().nonZeros() );
   }
 
   static hid_t getNativeType( const hid_t dataset_id )
@@ -418,7 +425,8 @@ private:
   static constexpr hid_t computeHDFType()
   {
     using std::is_same;
-    return is_same<ScalarType,double>::value ? H5T_NATIVE_DOUBLE : is_same<ScalarType,float>::value ? H5T_NATIVE_FLOAT : is_same<ScalarType,int>::value ? H5T_NATIVE_INT : is_same<ScalarType,unsigned>::value ? H5T_NATIVE_UINT : -1;
+    static_assert( is_same<ScalarType,double>::value || is_same<ScalarType,float>::value || is_same<ScalarType,int>::value || is_same<ScalarType,unsigned>::value || is_same<ScalarType,long>::value, "Error, unsupported HDF5 type encountered." );
+    return is_same<ScalarType,double>::value ? H5T_NATIVE_DOUBLE : is_same<ScalarType,float>::value ? H5T_NATIVE_FLOAT : is_same<ScalarType,int>::value ? H5T_NATIVE_INT : is_same<ScalarType,unsigned>::value ? H5T_NATIVE_UINT : is_same<ScalarType,long>::value ? H5T_NATIVE_LONG : -1;
   }
 
   template<typename Derived>

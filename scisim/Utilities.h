@@ -40,7 +40,7 @@ namespace Utilities
     static_assert( std::is_trivially_copyable<T>::value, "Error in serialization, type is not trivially copyable." );
     static_assert( !std::is_pointer<T>::value, "Error in serialization, type is a pointer." );
     assert( output_stream.good() );
-    output_stream.write( reinterpret_cast<char*>( const_cast<T*>( &var ) ), sizeof(T) );
+    output_stream.write( reinterpret_cast<const char*>( &var ), sizeof(T) );
   }
 
   // Serializes a vector of unique pointers of non-trivially copyable objects that have a custom serialize method
@@ -84,7 +84,7 @@ namespace Utilities
     static_assert( !std::is_pointer<T>::value, "Error in vector serialization, type is a pointer." );
     assert( output_stream.good() );
     serialize( vector.size(), output_stream );
-    output_stream.write( reinterpret_cast<char*>( const_cast<T*>( vector.data() ) ), vector.size() * sizeof(T) );
+    output_stream.write( reinterpret_cast<const char*>( vector.data() ), vector.size() * sizeof(T) );
   }
 
   // Serializes a vector of bools

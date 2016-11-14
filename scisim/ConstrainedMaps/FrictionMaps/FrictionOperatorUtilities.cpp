@@ -11,7 +11,7 @@ static void reserveSpaceInBasisMatrix( const int nsamples, const std::vector<std
 {
   assert( D.cols() % nsamples == 0 );
 
-  const int ncons{ D.cols() / nsamples };
+  const int ncons{ int(D.cols()) / nsamples };
 
   VectorXi column_nonzeros{ D.cols() };
   auto itr = K.cbegin();
@@ -74,5 +74,5 @@ void FrictionOperatorUtilities::formLinearFrictionDiskConstraint( const int num_
   }
   E.makeCompressed();
   assert( E.nonZeros() == E.cols() * num_samples );
-  assert( E.sum() == E.nonZeros() );
+  assert( fabs( E.sum() - scalar( E.nonZeros() ) ) <= 1.0e-9 );
 }

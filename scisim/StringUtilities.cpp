@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <algorithm>
 
+// TODO: Use the utilities helpers
 std::string StringUtilities::deserialize( std::istream& stm )
 {
   assert( stm.good() );
@@ -19,6 +20,7 @@ std::string StringUtilities::deserialize( std::istream& stm )
   return std::string( cstr.cbegin(), cstr.cend() );
 }
 
+// TODO: Use the utilities helpers
 std::vector<std::string> StringUtilities::deserializeVector( std::istream& stm )
 {
   assert( stm.good() );
@@ -34,20 +36,22 @@ std::vector<std::string> StringUtilities::deserializeVector( std::istream& stm )
   return vec;
 }
 
+// TODO: Use the utilities helpers
 void StringUtilities::serialize( const std::string& input_string, std::ostream& stm )
 {
   assert( stm.good() );
-  std::string::size_type len{ input_string.length() };
-  stm.write( reinterpret_cast<char*>( &len ), sizeof(std::string::size_type) );
-  stm.write( const_cast<char*>( input_string.c_str() ), len * sizeof(char) );
+  const std::string::size_type len{ input_string.length() };
+  stm.write( reinterpret_cast<const char*>( &len ), sizeof(std::string::size_type) );
+  stm.write( input_string.c_str(), len * sizeof(char) );
 }
 
+// TODO: Use the utilities helpers
 void StringUtilities::serializeVector( const std::vector<std::string>& vector, std::ostream& stm )
 {
   assert( stm.good() );
   using st = std::vector<std::string>::size_type;
-  st len{ vector.size() };
-  stm.write( reinterpret_cast<char*>( &len ), sizeof(st) );
+  const st len{ vector.size() };
+  stm.write( reinterpret_cast<const char*>( &len ), sizeof(st) );
   for( st idx = 0; idx < len; idx++ )
   {
     StringUtilities::serialize( vector[idx], stm );

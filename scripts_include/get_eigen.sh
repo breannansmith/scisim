@@ -1,11 +1,11 @@
 #!/bin/bash
 
-actual_eigen_tar_md5="de11bfbfe2fd2dc4b32e8f416f58ee98"
-eigen_url="http://bitbucket.org/eigen/eigen/get/3.2.9.tar.bz2"
-eigen_file_name="3.2.9.tar.bz2"
-extracted_eigen_name="eigen-eigen-dc6cfdf9bcec"
+actual_eigen_tar_md5="fd1ecefaacc9223958b6a66f9a348424"
+eigen_url="http://bitbucket.org/eigen/eigen/get/3.3.0.tar.bz2"
+eigen_file_name="3.3.0.tar.bz2"
+extracted_eigen_name="eigen-eigen-26667be4f70b"
 # md5 on installed Eigen source files
-actual_installed_eigen_md5="15e0f40cadd4fb245d7552f75d8f33db"
+actual_installed_eigen_md5="ceef07846ef40188dd4999de834b6ed9"
 
 # Verify that curl is installed
 command -v curl >/dev/null 2>&1 || { echo >&2 "Error, please install curl and rerun get_eigen.sh."; exit 1; }

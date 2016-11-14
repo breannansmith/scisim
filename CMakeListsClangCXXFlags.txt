@@ -6,6 +6,9 @@ if( STRICT_BUILD )
   # Remove warnings that cause issues with SCISim
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter -Wno-padded -Wno-float-equal -Wno-global-constructors -Wno-exit-time-destructors" )
 
+  # Remove warnigns that cause issues with the Qt4 front-ends
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-over-aligned" )
+
   # Warnings that cause issues with the FrictionProblem cpp file
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-documentation-unknown-command -Wno-old-style-cast -Wno-conversion -Wno-weak-vtables" )
 endif()

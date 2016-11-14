@@ -368,7 +368,7 @@ void SobogusFrictionProblem::solve2D( const std::vector<std::unique_ptr<Constrai
     f_contact.segment<2>( 2 * clsn_idx ) += beta( clsn_idx ) * t;
   }
   const scalar test_error{ computeError( f_contact ) };
-  assert( fabs( error - test_error ) <= 1.0e-12 );
+  assert( fabs( error - test_error ) <= 7.0e-9 );
   #endif
 }
 
@@ -479,7 +479,7 @@ void SobogusFrictionProblem::solveRigidBody2D( const std::vector<std::unique_ptr
     f_contact.segment<2>( 2 * clsn_idx ) += beta( clsn_idx ) * t;
   }
   const scalar test_error{ computeError( f_contact ) };
-  assert( fabs( error - test_error ) <= 1.0e-12 );
+  assert( fabs( error - test_error ) <= 2.0e-8 );
   #endif
 }
 

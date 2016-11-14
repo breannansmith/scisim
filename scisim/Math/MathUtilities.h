@@ -36,9 +36,6 @@ namespace MathUtilities
 
   bool isIdentity( const SparseMatrixsc& A, const scalar& tol );
 
-  // Generates a Compressed Column Sparse array representation of a sparse matrix
-  void extractDataCCS( const SparseMatrixsc& A, VectorXi& col_ptr, VectorXi& row_ind, VectorXs& val );
-
   // Extracts columns in cols from A0, in order, and places them in A1
   void extractColumns( const SparseMatrixsc& A0, const std::vector<unsigned>& cols, SparseMatrixsc& A1 );
 
@@ -81,16 +78,16 @@ namespace MathUtilities
     // If the size of either dimension is dynamic, it must be serialized
     if( Derived::RowsAtCompileTime == Eigen::Dynamic )
     {
-      typename Derived::Index nrows = eigen_variable.rows();
-      stm.write( reinterpret_cast<char*>( &nrows ), sizeof(typename Eigen::DenseBase<Derived>::Index) );
+      const typename Derived::Index nrows = eigen_variable.rows();
+      stm.write( reinterpret_cast<const char*>( &nrows ), sizeof(typename Eigen::DenseBase<Derived>::Index) );
     }
     if( Derived::ColsAtCompileTime == Eigen::Dynamic )
     {
-      typename Derived::Index ncols = eigen_variable.cols();
-      stm.write( reinterpret_cast<char*>( &ncols ), sizeof(typename Eigen::DenseBase<Derived>::Index) );
+      const typename Derived::Index ncols = eigen_variable.cols();
+      stm.write( reinterpret_cast<const char*>( &ncols ), sizeof(typename Eigen::DenseBase<Derived>::Index) );
     }
     // Write the data
-    stm.write( const_cast<char*>( reinterpret_cast<const char*>( eigen_variable.derived().data() ) ), eigen_variable.rows() * eigen_variable.cols() * sizeof(typename Derived::Scalar) );
+    stm.write( reinterpret_cast<const char*>( eigen_variable.derived().data() ), eigen_variable.rows() * eigen_variable.cols() * sizeof(typename Derived::Scalar) );
     assert( stm.good() );
   }
 
@@ -117,6 +114,7 @@ namespace MathUtilities
     Derived output_matrix;
     assert( output_matrix.rows() == Derived::RowsAtCompileTime );
     {
+      // TODO: Use the utilities helpers
       typename Derived::Index ncols;
       stm.read( reinterpret_cast<char*>( &ncols ), sizeof(typename Derived::Index) );
       output_matrix.resize( Derived::RowsAtCompileTime, ncols );
@@ -135,6 +133,7 @@ namespace MathUtilities
     Derived output_matrix;
     assert( output_matrix.cols() == Derived::ColsAtCompileTime );
     {
+      // TODO: Use the utilities helpers
       typename Derived::Index nrows;
       stm.read( reinterpret_cast<char*>( &nrows ), sizeof(typename Derived::Index) );
       output_matrix.resize( nrows, Derived::ColsAtCompileTime );

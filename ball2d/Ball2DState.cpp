@@ -281,6 +281,8 @@ void Ball2DState::deserialize( std::istream& input_stream )
   assert( ( m_r.array() > 0.0 ).all() );
   m_fixed = Utilities::deserializeVector<bool>( input_stream );
   MathUtilities::deserialize( m_M, input_stream );
+  assert( m_M.rows() == m_M.cols() );
+  assert( m_M.rows() == 2 * long(m_fixed.size()) );
   // TODO: Assert data is all positive
   MathUtilities::deserialize( m_Minv, input_stream );
   // TODO: Assert data is all positive
