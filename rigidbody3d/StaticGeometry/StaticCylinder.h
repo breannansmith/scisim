@@ -3,19 +3,18 @@
 // Breannan Smith
 // Last updated: 09/21/2015
 
-// TODO: Store n directly instead of implicitly through a rotation. Using the rotation leads to subtle issues if a user expects a plane to align exactly with a cartesian axis.
+// TODO: Store n and theta directly instead of implicitly through a rotation. Using the rotation leads to subtle issues if a user expects a plane to align exactly with a cartesian axis.
 
 #ifndef STATIC_CYLINDER_H
 #define STATIC_CYLINDER_H
 
 #include "scisim/Math/MathDefines.h"
 
-class StaticCylinder
+class StaticCylinder final
 {
 
 public:
 
-  StaticCylinder();
   StaticCylinder( const Vector3s& x, const Vector3s& axis, const scalar& radius );
   explicit StaticCylinder( std::istream& input_stream );
 

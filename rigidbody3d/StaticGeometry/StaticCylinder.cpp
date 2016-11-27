@@ -8,14 +8,6 @@
 #include "scisim/Utilities.h"
 #include "scisim/Math/MathUtilities.h"
 
-StaticCylinder::StaticCylinder()
-: m_x()
-, m_R()
-, m_v()
-, m_omega()
-, m_r()
-{}
-
 StaticCylinder::StaticCylinder( const Vector3s& x, const Vector3s& axis, const scalar& radius )
 : m_x( x )
 , m_R( Quaternions::FromTwoVectors( Vector3s::UnitY(), axis.normalized() ) )
