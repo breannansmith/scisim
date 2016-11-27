@@ -620,11 +620,11 @@ void RigidBody3DState::deserialize( std::istream& input_stream )
   MathUtilities::deserialize( m_Minv0, input_stream );
   MathUtilities::deserialize( m_M, input_stream );
   MathUtilities::deserialize( m_Minv, input_stream );
-  m_fixed = Utilities::deserializeVector<bool>( input_stream );
+  m_fixed = Utilities::deserialize<std::vector<bool>>( input_stream );
   m_geometry = deserializeGeometry( input_stream );
-  m_geometry_indices = Utilities::deserializeVector<unsigned>( input_stream );
+  m_geometry_indices = Utilities::deserialize<std::vector<unsigned>>( input_stream );
   m_forces = deserializeForces( input_stream );
-  m_static_planes = Utilities::deserializeVector<StaticPlane>( input_stream );
-  m_static_cylinders = Utilities::deserializeVector<StaticCylinder>( input_stream );
-  m_planar_portals = Utilities::deserializeVector<PlanarPortal>( input_stream );
+  m_static_planes = Utilities::deserialize<std::vector<StaticPlane>>( input_stream );
+  m_static_cylinders = Utilities::deserialize<std::vector<StaticCylinder>>( input_stream );
+  m_planar_portals = Utilities::deserialize<std::vector<PlanarPortal>>( input_stream );
 }

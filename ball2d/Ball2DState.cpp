@@ -279,16 +279,16 @@ void Ball2DState::deserialize( std::istream& input_stream )
   m_v = MathUtilities::deserialize<VectorXs>( input_stream );
   m_r = MathUtilities::deserialize<VectorXs>( input_stream );
   assert( ( m_r.array() > 0.0 ).all() );
-  m_fixed = Utilities::deserializeVector<bool>( input_stream );
+  m_fixed = Utilities::deserialize<std::vector<bool>>( input_stream );
   MathUtilities::deserialize( m_M, input_stream );
   assert( m_M.rows() == m_M.cols() );
   assert( m_M.rows() == 2 * long(m_fixed.size()) );
   // TODO: Assert data is all positive
   MathUtilities::deserialize( m_Minv, input_stream );
   // TODO: Assert data is all positive
-  m_static_drums = Utilities::deserializeVector<StaticDrum>( input_stream );
-  m_static_planes = Utilities::deserializeVector<StaticPlane>( input_stream );
-  m_planar_portals = Utilities::deserializeVector<PlanarPortal>( input_stream );
+  m_static_drums = Utilities::deserialize<std::vector<StaticDrum>>( input_stream );
+  m_static_planes = Utilities::deserialize<std::vector<StaticPlane>>( input_stream );
+  m_planar_portals = Utilities::deserialize<std::vector<PlanarPortal>>( input_stream );
 
   // TODO: Pull this into a utility function along with some code in Ball2DForce
   {

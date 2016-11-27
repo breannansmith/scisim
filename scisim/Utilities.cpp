@@ -18,7 +18,7 @@ void Utilities::serialize<bool>( const std::vector<bool>& vector, std::ostream& 
 }
 
 template<>
-std::vector<bool> Utilities::deserializeVector<bool>( std::istream& input_stream )
+std::vector<bool> Utilities::deserialize<std::vector<bool>>( std::istream& input_stream )
 {
   assert( input_stream.good() );
   std::vector<bool> vector;

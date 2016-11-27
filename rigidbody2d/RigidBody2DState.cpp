@@ -547,10 +547,10 @@ void RigidBody2DState::deserialize( std::istream& input_stream )
   m_v = MathUtilities::deserialize<VectorXs>( input_stream );
   MathUtilities::deserialize( m_M, input_stream );
   MathUtilities::deserialize( m_Minv, input_stream );
-  m_fixed = Utilities::deserializeVector<bool>( input_stream );
+  m_fixed = Utilities::deserialize<std::vector<bool>>( input_stream );
   m_geometry_indices = MathUtilities::deserialize<VectorXu>( input_stream );
   deserializeGeo( input_stream, m_geometry );
   deserializeForces( input_stream, m_forces );
-  m_planes = Utilities::deserializeVector<RigidBody2DStaticPlane>( input_stream );
-  m_planar_portals = Utilities::deserializeVector<PlanarPortal>( input_stream );
+  m_planes = Utilities::deserialize<std::vector<RigidBody2DStaticPlane>>( input_stream );
+  m_planar_portals = Utilities::deserialize<std::vector<PlanarPortal>>( input_stream );
 }

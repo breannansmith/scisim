@@ -15,6 +15,12 @@
 namespace Utilities
 {
 
+  template<typename Test, template<typename...> class Ref>
+  struct is_specialization : public std::false_type {};
+
+  template<template<typename...> class Ref, typename... Args>
+  struct is_specialization<Ref<Args...>, Ref> : public std::true_type {};
+
   // Supresses unused variable warnings
   template<typename T>
   void ignoreUnusedVariable( const T& ) {}
@@ -93,7 +99,8 @@ namespace Utilities
 
   // Deserializes a trivially copyable non-pointer variable
   template<typename T>
-  T deserialize( std::istream& input_stream )
+  typename std::enable_if<!is_specialization<T, std::vector>::value,T>::type
+  deserialize( std::istream& input_stream )
   {
     static_assert( std::is_trivially_copyable<T>::value, "Error in deserialization, type is not trivially copyable." );
     static_assert( !std::is_pointer<T>::value, "Error in deserialization, type is a pointer." );
@@ -103,17 +110,16 @@ namespace Utilities
     return type_to_read;
   }
 
-  // Serializes a vector of non-trivially copyable objects with custom deserialize constructor
+  // Deserializes a vector of objects with custom deserialize constructor
   template<typename T>
-  typename std::enable_if<!std::is_trivially_copyable<T>::value,std::vector<T>>::type
-  deserializeVector( std::istream& input_stream )
+  typename std::enable_if<is_specialization<T, std::vector>::value && !std::is_trivially_copyable<typename T::value_type>::value, T>::type
+  deserialize( std::istream& input_stream )
   {
-    static_assert( !std::is_trivially_copyable<T>::value, "Error in vector custom deserialization, type is trivially copyable." );
     assert( input_stream.good() );
-    std::vector<T> vector;
-    const typename std::vector<T>::size_type length{ deserialize<typename std::vector<T>::size_type>( input_stream ) };
+    T vector;
+    const typename T::size_type length{ deserialize<typename T::size_type>( input_stream ) };
     vector.reserve( length );
-    for( typename std::vector<T>::size_type idx = 0; idx < length; ++idx )
+    for( typename T::size_type idx = 0; idx < length; ++idx )
     {
       vector.emplace_back( input_stream );
       assert( input_stream.good() );
@@ -124,22 +130,21 @@ namespace Utilities
 
   // Deserializes a vector of trivially copyable non-pointer variables
   template<class T>
-  typename std::enable_if<std::is_trivially_copyable<T>::value,std::vector<T>>::type
-  deserializeVector( std::istream& input_stream )
+  typename std::enable_if<is_specialization<T, std::vector>::value && std::is_trivially_copyable<typename T::value_type>::value, T>::type
+  deserialize( std::istream& input_stream )
   {
-    static_assert( std::is_trivially_copyable<T>::value, "Error in vector deserialization, type is not trivially copyable." );
-    static_assert( !std::is_pointer<T>::value, "Error in vector deserialization, type is a pointer." );
+    static_assert( !std::is_pointer<typename T::value_type>::value, "Error in vector deserialization, type is a pointer." );
     assert( input_stream.good() );
-    std::vector<T> vector;
-    const typename std::vector<T>::size_type length{ deserialize<typename std::vector<T>::size_type>( input_stream ) };
+    T vector;
+    const typename T::size_type length{ deserialize<typename T::size_type>( input_stream ) };
     vector.resize( length );
-    input_stream.read( reinterpret_cast<char*>( vector.data() ), length * sizeof(T) );
+    input_stream.read( reinterpret_cast<char*>( vector.data() ), length * sizeof(typename T::value_type) );
     return vector;
   }
 
   // Deserializes a vector of bools
   template<>
-  std::vector<bool> deserializeVector<bool>( std::istream& input_stream );
+  std::vector<bool> deserialize<std::vector<bool>>( std::istream& input_stream );
 
 }
 
