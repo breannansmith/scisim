@@ -509,8 +509,16 @@ static bool parseCommandLineOptions( int* argc, char*** argv, bool& help_mode_en
   while( true )
   {
     int option_index = 0;
-    const int c = getopt_long( *argc, *argv, "his:r:e:o:f:", long_options, &option_index );
-    if( c == -1 ) { break; }
+    #ifdef USE_HDF5
+    constexpr auto command_line_options{ "his:r:e:o:f:" };
+    #else
+    constexpr auto command_line_options{ "hs:r:e:f:" };
+    #endif
+    const int c{ getopt_long( *argc, *argv, command_line_options, long_options, &option_index ) };
+    if( c == -1 )
+    {
+      break;
+    }
     switch( c )
     {
       case 'h':
