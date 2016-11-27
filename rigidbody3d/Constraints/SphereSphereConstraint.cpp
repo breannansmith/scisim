@@ -360,7 +360,7 @@ scalar SphereSphereConstraint::computePenetrationDepth( const VectorXs& q ) cons
 static scalar overlapVolumeGivenDistanceAndRadii( const scalar& d, const scalar& r, const scalar& R )
 {
   assert( d != 0.0 );
-  return MathDefines::PI<scalar>() * ( R + r - d ) * ( R + r - d ) * ( d * d + 2.0 * d * r - 3.0 * r * r + 2.0 * d * R + 6.0 * r * R - 3.0 * R * R ) / ( 12.0 * d );
+  return PI<scalar> * ( R + r - d ) * ( R + r - d ) * ( d * d + 2.0 * d * r - 3.0 * r * r + 2.0 * d * R + 6.0 * r * R - 3.0 * R * R ) / ( 12.0 * d );
 }
 
 scalar SphereSphereConstraint::computeOverlapVolume( const VectorXs& q ) const
@@ -380,7 +380,7 @@ scalar SphereSphereConstraint::computeOverlapVolume( const VectorXs& q ) const
   // If one sphere is totally within another, return the smaller sphere's volume
   if( d + r <= R )
   {
-    return 4.0 * MathDefines::PI<scalar>() * r * r * r / 3.0;
+    return 4.0 * PI<scalar> * r * r * r / 3.0;
   }
 
   // Otherwise, compute the volume of intersection

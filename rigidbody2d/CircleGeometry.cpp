@@ -38,7 +38,7 @@ void CircleGeometry::computeAABB( const Vector2s& x, const scalar& theta, Array2
 
 void CircleGeometry::computeMassAndInertia( const scalar& density, scalar& m, scalar& I ) const
 {
-  m = density * MathDefines::PI<scalar>() * m_r * m_r;
+  m = density * PI<scalar> * m_r * m_r;
   I = 0.5 * m * m_r * m_r;
 }
 

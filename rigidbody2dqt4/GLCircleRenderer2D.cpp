@@ -9,9 +9,9 @@ GLCircleRenderer2D::GLCircleRenderer2D( const unsigned num_points_single_half )
 {
   assert( num_points_single_half >= 3 );
   // Sample the circle at equal intervals
-  const GLdouble dtheta{ MathDefines::PI<GLdouble>() / GLdouble( num_points_single_half - 1 ) };
+  const GLdouble dtheta{ PI<GLdouble> / GLdouble( num_points_single_half - 1 ) };
   m_x_crds( 0 ) = 0.0;
-  m_x_crds( num_points_single_half - 1 ) = MathDefines::PI<GLdouble>();
+  m_x_crds( num_points_single_half - 1 ) = PI<GLdouble>;
   for( unsigned pnt_num = 1; pnt_num < num_points_single_half - 1; ++pnt_num )
   {
     m_x_crds( pnt_num ) = pnt_num * dtheta;

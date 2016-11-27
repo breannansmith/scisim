@@ -694,7 +694,7 @@ void GLWidget::exportCameraSettings()
 
 static void paintInfiniteLine( const Vector2s& x, const Vector2s& n )
 {
-  const scalar theta{ - scalar( 180.0 ) * atan2( n.x(), n.y() ) / MathDefines::PI<scalar>() };
+  const scalar theta{ - scalar( 180.0 ) * atan2( n.x(), n.y() ) / PI<scalar> };
 
   glPushMatrix();
 
@@ -716,7 +716,7 @@ static void paintPlanarPortal( const PlanarPortal& planar_portal )
 {
   // Draw the first plane of the portal
   {
-    const scalar theta{ -180.0 * atan2( planar_portal.planeA().n().x(), planar_portal.planeA().n().y() ) / MathDefines::PI<scalar>() };
+    const scalar theta{ -180.0 * atan2( planar_portal.planeA().n().x(), planar_portal.planeA().n().y() ) / PI<scalar> };
 
     glPushMatrix();
     glTranslated( GLdouble( planar_portal.planeA().x().x() ), GLdouble( planar_portal.planeA().x().y() ), 0.0 );
@@ -822,7 +822,7 @@ static void paintPlanarPortal( const PlanarPortal& planar_portal )
 
   // Draw the second plane of the portal
   {
-    const scalar theta{ -180.0 * atan2( planar_portal.planeB().n().x(), planar_portal.planeB().n().y() ) / MathDefines::PI<scalar>() };
+    const scalar theta{ -180.0 * atan2( planar_portal.planeB().n().x(), planar_portal.planeB().n().y() ) / PI<scalar> };
 
     glPushMatrix();
     glTranslated( GLdouble( planar_portal.planeB().x().x() ), GLdouble( planar_portal.planeB().x().y() ), 0.0 );
@@ -940,7 +940,7 @@ void GLWidget::paintSystem() const
     {
       glPushMatrix();
       glTranslated( GLdouble( q( 3 * bdy_idx + 0 ) ), GLdouble( q( 3 * bdy_idx + 1 ) ), GLdouble( 0.0 ) );
-      const scalar theta_degrees{ 180.0 * q( 3 * bdy_idx + 2 ) / MathDefines::PI<scalar>() };
+      const scalar theta_degrees{ 180.0 * q( 3 * bdy_idx + 2 ) / PI<scalar> };
       glRotated( theta_degrees, 0.0, 0.0, 1.0 );
       assert( bdy_idx < m_body_colors.size() / 3 );
       assert( bdy_idx < state.nbodies() );
@@ -984,7 +984,7 @@ void GLWidget::paintSystem() const
           planar_portal.teleportPoint( pos, intersecting_index, teleported_pos );
           glPushMatrix();
           glTranslated( GLdouble( teleported_pos.x() ), GLdouble( teleported_pos.y() ), GLdouble( 0.0 ) );
-          const scalar theta_degrees{ 180.0 * q( 3 * bdy_idx + 2 ) / MathDefines::PI<scalar>() };
+          const scalar theta_degrees{ 180.0 * q( 3 * bdy_idx + 2 ) / PI<scalar> };
           glRotated( theta_degrees, 0.0, 0.0, 1.0 );
           assert( bdy_idx < m_body_colors.size() / 3 );
           assert( bdy_idx < state.nbodies() );

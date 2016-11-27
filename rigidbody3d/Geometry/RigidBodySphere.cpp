@@ -9,7 +9,7 @@
 
 void RigidBodySphere::computeMassAndInertia( const scalar& density, scalar& M, Vector3s& CM, Vector3s& I, Matrix33sr& R ) const
 {
-  M = 4.0 * MathDefines::PI<scalar>() * m_r * m_r * m_r / 3.0;
+  M = 4.0 * PI<scalar> * m_r * m_r * m_r / 3.0;
   I.setConstant( 2.0 * M * m_r * m_r / 5.0 );
   M *= density;
   I *= density;
@@ -62,7 +62,7 @@ void RigidBodySphere::serialize( std::ostream& output_stream ) const
 
 scalar RigidBodySphere::volume() const
 {
-  return 4.0 * MathDefines::PI<scalar>() * m_r * m_r * m_r / 3.0;
+  return 4.0 * PI<scalar> * m_r * m_r * m_r / 3.0;
 }
 
 const scalar& RigidBodySphere::r() const

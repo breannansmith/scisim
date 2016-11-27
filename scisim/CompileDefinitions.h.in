@@ -1,0 +1,26 @@
+#ifndef COMPILE_DEFINITIONS_H
+#define COMPILE_DEFINITIONS_H
+
+namespace CompileDefinitions
+{
+
+  // SHA1 hash of the Git commit for this build
+  constexpr char GitSHA1[] = "@GIT_SHA1@";
+
+  // Build mode (Debug, Release, etc)
+  constexpr char BuildMode[] = "@CMAKE_BUILD_TYPE@";
+
+  // C compiler used for this build
+  constexpr char CCompiler[] = "@CMAKE_C_COMPILER@";
+
+  // C++ compiler used for this build
+  constexpr char CXXCompiler[] = "@CMAKE_CXX_COMPILER@";
+
+  // Optional Fortran compiler used for this build
+  #ifdef FORTRAN_FOUND
+  constexpr char FortranCompiler[] = "@CMAKE_Fortran_COMPILER@"
+  #endif
+
+}
+
+#endif

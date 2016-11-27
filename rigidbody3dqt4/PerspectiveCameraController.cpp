@@ -7,8 +7,8 @@
 PerspectiveCameraController::PerspectiveCameraController()
 : m_fovy( 60.0 )
 , m_aspect( 1.0 )
-, m_theta_cam( MathDefines::PI<GLdouble>() / 3.0 )
-, m_phi_cam( MathDefines::PI<GLdouble>() / 4.0 )
+, m_theta_cam( PI<GLdouble> / 3.0 )
+, m_phi_cam( PI<GLdouble> / 4.0 )
 , m_rho_cam( 3.0 )
 , m_cam_lookat( Eigen::Matrix<GLdouble,3,1>::Zero() )
 , m_cam_psn( Eigen::Matrix<GLdouble,3,1>::Zero() )
@@ -49,7 +49,7 @@ void PerspectiveCameraController::setPerspective( const int width, const int hei
   glLoadIdentity();
 
   // TODO: Off by a factor of 2?
-  const GLdouble top{ tan( fovy / 360.0 * MathDefines::PI<GLdouble>() ) * z_near };
+  const GLdouble top{ tan( fovy / 360.0 * PI<GLdouble> ) * z_near };
   const GLdouble right{ top * aspect };
   glFrustum( -right, right, -top, top, z_near, z_far );
   m_fovy = fovy;
@@ -73,7 +73,7 @@ void PerspectiveCameraController::centerCameraAtSphere( const Eigen::Matrix<GLdo
 {
   m_cam_lookat = center;
 
-  const GLdouble degrees_to_radians{ MathDefines::PI<GLdouble>() / 180.0 };
+  const GLdouble degrees_to_radians{ PI<GLdouble> / 180.0 };
   const GLdouble d1{ radius / sin( 0.5 * m_fovy * degrees_to_radians ) };
   const GLdouble d2{ radius / sin( 0.5 * m_aspect * m_fovy * degrees_to_radians ) };
 
@@ -100,9 +100,9 @@ void PerspectiveCameraController::addToZenithAngle( const GLdouble& znth_amnt )
   {
     m_theta_cam = 0.0;
   }
-  if( m_theta_cam > MathDefines::PI<GLdouble>() )
+  if( m_theta_cam > PI<GLdouble> )
   {
-    m_theta_cam = MathDefines::PI<GLdouble>();
+    m_theta_cam = PI<GLdouble>;
   }
   updatePositionAndFrame();
 }

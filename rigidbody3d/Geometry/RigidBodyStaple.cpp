@@ -18,8 +18,8 @@ void RigidBodyStaple::computeMassAndInertia( const scalar& density, scalar& M, V
   }
 
   // Mass of the horizontal component and the vertical components
-  const scalar Mx = density * m_w * MathDefines::PI<scalar>() * m_r * m_r;
-  const scalar My = density * m_l * MathDefines::PI<scalar>() * m_r * m_r;
+  const scalar Mx = density * m_w * PI<scalar> * m_r * m_r;
+  const scalar My = density * m_l * PI<scalar> * m_r * m_r;
 
   M = Mx + 2.0 * My;
 

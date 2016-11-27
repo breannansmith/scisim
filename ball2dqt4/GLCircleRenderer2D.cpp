@@ -6,7 +6,7 @@ GLCircleRenderer2D::GLCircleRenderer2D( const unsigned num_pts )
 {
   assert( num_pts >= 3 );
   // Sample the circle at equal intervals
-  const GLdouble dtheta{ 2.0 * MathDefines::PI<GLdouble>() / GLdouble( num_pts ) };
+  const GLdouble dtheta{ 2.0 * PI<GLdouble> / GLdouble( num_pts ) };
   for( unsigned pnt_num = 0; pnt_num < num_pts; ++pnt_num )
   {
     m_x_crds[pnt_num] = pnt_num * dtheta;

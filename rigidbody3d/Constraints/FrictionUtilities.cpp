@@ -42,7 +42,7 @@ void FrictionUtilities::generateOrthogonalVectors( const Vector3s& n, std::vecto
   assert( fabs( n.dot( vectors[0] ) ) <= 1.0e-10 );
 
   // Generate the remaining vectors by rotating the first vector about n
-  const scalar dtheta{ 2.0 * MathDefines::PI<scalar>() / scalar( vectors.size() ) };
+  const scalar dtheta{ 2.0 * PI<scalar> / scalar( vectors.size() ) };
   for( std::vector<Vector3s>::size_type i = 1; i < vectors.size(); ++i )
   {
     vectors[i] = Eigen::AngleAxis<scalar>{ scalar(i) * dtheta, n } * vectors[0];

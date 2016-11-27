@@ -46,7 +46,7 @@ void OrthographicCameraController::setCamera( const ProjectionPlane& projection_
 void OrthographicCameraController::useXYView()
 {
   m_projection_plane = ProjectionPlane::XY;
-  m_theta_cam = MathDefines::PI<GLdouble>() / 2.0;
+  m_theta_cam = PI<GLdouble> / 2.0;
   m_phi_cam = 0.0;
   updatePositionAndFrame();
 }
@@ -54,8 +54,8 @@ void OrthographicCameraController::useXYView()
 void OrthographicCameraController::useZYView()
 {
   m_projection_plane = ProjectionPlane::ZY;
-  m_theta_cam = MathDefines::PI<GLdouble>() / 2.0;
-  m_phi_cam = - MathDefines::PI<GLdouble>() / 2.0;
+  m_theta_cam = PI<GLdouble> / 2.0;
+  m_phi_cam = - PI<GLdouble> / 2.0;
   updatePositionAndFrame();
 }
 
@@ -63,7 +63,7 @@ void OrthographicCameraController::useZXView()
 {
   m_projection_plane = ProjectionPlane::ZX;
   m_theta_cam = 0.0;
-  m_phi_cam = - MathDefines::PI<GLdouble>() / 2.0;
+  m_phi_cam = - PI<GLdouble> / 2.0;
   updatePositionAndFrame();
 }
 

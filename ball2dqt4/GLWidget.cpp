@@ -641,7 +641,7 @@ void GLWidget::exportCameraSettings()
 
 static void paintInfiniteLine( const Vector2s& x, const Vector2s& n )
 {
-  const scalar theta{ -180.0 * atan2( n.x(), n.y() ) / MathDefines::PI<scalar>() };
+  const scalar theta{ -180.0 * atan2( n.x(), n.y() ) / PI<scalar> };
 
   glPushMatrix();
 
@@ -686,7 +686,7 @@ static void paintPlanarPortal( const PlanarPortal& planar_portal )
 {
   // Draw the first plane of the portal
   {
-    const scalar theta{ -180.0 * atan2( planar_portal.planeA().n().x(), planar_portal.planeA().n().y() ) / MathDefines::PI<scalar>() };
+    const scalar theta{ -180.0 * atan2( planar_portal.planeA().n().x(), planar_portal.planeA().n().y() ) / PI<scalar> };
 
     glPushMatrix();
     glTranslated( GLdouble( planar_portal.planeA().x().x() ), GLdouble( planar_portal.planeA().x().y() ), 0.0 );
@@ -792,7 +792,7 @@ static void paintPlanarPortal( const PlanarPortal& planar_portal )
 
   // Draw the second plane of the portal
   {
-    const scalar theta{ -180.0 * atan2( planar_portal.planeB().n().x(), planar_portal.planeB().n().y() ) / MathDefines::PI<scalar>() };
+    const scalar theta{ -180.0 * atan2( planar_portal.planeB().n().x(), planar_portal.planeB().n().y() ) / PI<scalar> };
 
     glPushMatrix();
     glTranslated( GLdouble( planar_portal.planeB().x().x() ), GLdouble( planar_portal.planeB().x().y() ), 0.0 );

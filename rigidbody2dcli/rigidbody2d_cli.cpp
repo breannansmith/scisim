@@ -62,7 +62,7 @@ static bool g_serialize_snapshots{ false };
 static bool g_overwrite_snapshots{ true };
 
 // Magic number to print in front of binary output to aid in debugging
-static const unsigned MAGIC_BINARY_NUMBER{ 8675309 };
+static constexpr unsigned MAGIC_BINARY_NUMBER{ 1337 };
 
 static std::string generateOutputConfigurationDataFileName( const std::string& prefix, const std::string& extension )
 {
@@ -501,9 +501,9 @@ static bool parseCommandLineOptions( int* argc, char*** argv, bool& help_mode_en
   {
     int option_index = 0;
     #ifdef USE_HDF5
-    constexpr auto command_line_options{ "his:r:e:o:f:" };
+    constexpr char command_line_options[]{ "his:r:e:o:f:" };
     #else
-    constexpr auto command_line_options{ "hs:r:e:f:" };
+    constexpr char command_line_options[]{ "hs:r:e:f:" };
     #endif
     const int c{ getopt_long( *argc, *argv, command_line_options, long_options, &option_index ) };
     if( c == -1 )

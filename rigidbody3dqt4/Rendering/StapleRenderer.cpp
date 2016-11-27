@@ -162,7 +162,7 @@ void StapleRenderer::initializeCylinderMemory()
   m_cylinder_verts.resize( 3 * 4 * m_num_samples );
   m_cylinder_normals.resize( 3 * 4 * m_num_samples );
 
-  const GLfloat dtheta{ static_cast<GLfloat>( 2.0 ) * MathDefines::PI<GLfloat>() / GLfloat( m_num_samples ) };
+  const GLfloat dtheta{ static_cast<GLfloat>( 2.0 ) * PI<GLfloat> / GLfloat( m_num_samples ) };
 
   using std::cos;
   using std::sin;

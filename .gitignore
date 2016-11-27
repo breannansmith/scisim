@@ -4,5 +4,6 @@ scisim/ConstrainedMaps/bogus/FrictionProblem.cpp
 scisim/ConstrainedMaps/bogus/FrictionProblem.hpp
 scisim/ConstrainedMaps/bogus/FrictionProblem.impl.hpp
 scisim/Math/QL/ql.for
+scisim/CompileDefinitions.h
 xcode
 *.pyc

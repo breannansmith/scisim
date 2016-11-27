@@ -3,13 +3,12 @@ include( CMakeSourceFiles.txt )
 # Track the Git commit within the source
 include( GetGitRevisionDescription )
 get_git_head_revision( GIT_REFSPEC GIT_SHA1 )
-list( APPEND Sources "${CMAKE_CURRENT_BINARY_DIR}/CompileDefinitions.cpp" )
 
 # Create a file with build information
-configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/CompileDefinitions.cpp.in" "${CMAKE_CURRENT_BINARY_DIR}/CompileDefinitions.cpp" @ONLY )
+configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/CompileDefinitions.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/CompileDefinitions.h" @ONLY )
 
 if( CMAKE_Fortran_COMPILER )
-  set_source_files_properties( CompileDefinitions.h CompileDefinitions.cpp PROPERTIES COMPILE_DEFINITIONS FORTRAN_FOUND )
+  set_source_files_properties( CompileDefinitions.h PROPERTIES COMPILE_DEFINITIONS FORTRAN_FOUND )
 endif()
 
 add_library( scisim ${Headers} ${Sources} ${FORTRAN_SOURCES} )

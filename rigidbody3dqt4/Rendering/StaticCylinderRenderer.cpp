@@ -11,7 +11,7 @@ StaticCylinderRenderer::StaticCylinderRenderer( const int idx, const scalar& len
   const int num_pts{ 64 };
   m_crds.resize( 3 * num_pts );
   // Sample the circle at equal intervals
-  const GLfloat dtheta{ static_cast<GLfloat>( 2.0 ) * MathDefines::PI<GLfloat>() / GLfloat( num_pts ) };
+  const GLfloat dtheta{ static_cast<GLfloat>( 2.0 ) * PI<GLfloat> / GLfloat( num_pts ) };
   using std::cos;
   using std::sin;
   for( int i = 0; i < num_pts; ++i )
@@ -40,7 +40,7 @@ void StaticCylinderRenderer::draw( const StaticCylinder& cylinder ) const
   // Draw the top circle
   glPushMatrix();
   glTranslatef( center.x() + translation.x(), center.y() + translation.y(), center.z() + translation.z() );
-  glRotatef( ( 180.0f / MathDefines::PI<GLfloat>() ) * rotation.angle(), rotation.axis().x(), rotation.axis().y(), rotation.axis().z() );
+  glRotatef( ( 180.0f / PI<GLfloat> ) * rotation.angle(), rotation.axis().x(), rotation.axis().y(), rotation.axis().z() );
   glScalef( r, 1.0, r );
 
   glEnableClientState( GL_VERTEX_ARRAY );
@@ -52,7 +52,7 @@ void StaticCylinderRenderer::draw( const StaticCylinder& cylinder ) const
   // Draw the bottom circle
   glPushMatrix();
   glTranslatef( center.x() - translation.x(), center.y() - translation.y(), center.z() - translation.z() );
-  glRotatef( ( 180.0f / MathDefines::PI<GLfloat>() ) * rotation.angle(), rotation.axis().x(), rotation.axis().y(), rotation.axis().z() );
+  glRotatef( ( 180.0f / PI<GLfloat> ) * rotation.angle(), rotation.axis().x(), rotation.axis().y(), rotation.axis().z() );
   glScalef( r, 1.0, r );
   
   glEnableClientState( GL_VERTEX_ARRAY );
@@ -64,7 +64,7 @@ void StaticCylinderRenderer::draw( const StaticCylinder& cylinder ) const
   // Draw the 'supports'
   glPushMatrix();
   glTranslatef( center.x(), center.y(), center.z() );
-  glRotatef( ( 180.0f / MathDefines::PI<GLfloat>() ) * rotation.angle(), rotation.axis().x(), rotation.axis().y(), rotation.axis().z() );
+  glRotatef( ( 180.0f / PI<GLfloat> ) * rotation.angle(), rotation.axis().x(), rotation.axis().y(), rotation.axis().z() );
 
   glBegin( GL_LINES );
   glVertex3f( 0.0, 0.5f * m_L, r );
