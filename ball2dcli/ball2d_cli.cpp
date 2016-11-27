@@ -312,8 +312,6 @@ static int deserializeSystem( const std::string& file_name )
   g_serialize_snapshots = Utilities::deserialize<bool>( serial_stream );
   g_overwrite_snapshots = Utilities::deserialize<bool>( serial_stream );
 
-  serial_stream.close();
-
   return EXIT_SUCCESS;
 }
 
