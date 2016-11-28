@@ -42,35 +42,6 @@ namespace MathUtilities
   void serialize( const SparseMatrixsc& A, std::ostream& stm );
   void deserialize( SparseMatrixsc& A, std::istream& stm );
 
-  template <typename ScalarType> inline
-  void serialize( const Eigen::Quaternion<ScalarType>& a, std::ostream& stm )
-  {
-    assert( stm.good() );
-    Utilities::serialize( a.x(), stm );
-    Utilities::serialize( a.y(), stm );
-    Utilities::serialize( a.z(), stm );
-    Utilities::serialize( a.w(), stm );
-  }
-
-  template <typename ScalarType> inline
-  void deserialize( Eigen::Quaternion<ScalarType>& a, std::istream& stm )
-  {
-    assert( stm.good() );
-    a.x() = Utilities::deserialize<ScalarType>( stm );
-    a.y() = Utilities::deserialize<ScalarType>( stm );
-    a.z() = Utilities::deserialize<ScalarType>( stm );
-    a.w() = Utilities::deserialize<ScalarType>( stm );
-  }
-
-  template <typename ScalarType> inline
-  Eigen::Quaternion<ScalarType> deserializeQuaternion( std::istream& stm )
-  {
-    assert( stm.good() );
-    Eigen::Quaternion<ScalarType> a;
-    deserialize( a, stm );
-    return a;
-  }
-
   template <typename Derived>
   void serialize( const Eigen::DenseBase<Derived>& eigen_variable, std::ostream& stm )
   {

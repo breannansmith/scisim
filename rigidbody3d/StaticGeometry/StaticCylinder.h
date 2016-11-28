@@ -3,8 +3,6 @@
 // Breannan Smith
 // Last updated: 09/21/2015
 
-// TODO: Store n and theta directly instead of implicitly through a rotation. Using the rotation leads to subtle issues if a user expects a plane to align exactly with a cartesian axis.
-
 #ifndef STATIC_CYLINDER_H
 #define STATIC_CYLINDER_H
 
@@ -20,8 +18,9 @@ public:
 
   const Vector3s& x() const;
 
-  Quaternions& R();
-  const Quaternions& R() const;
+  void setOrientation( const Vector3s& axis, const scalar& theta );
+
+  Quaternions R() const;
 
   const Vector3s& v() const;
 
@@ -30,7 +29,7 @@ public:
 
   const scalar& r() const;
 
-  const Vector3s axis() const;
+  const Vector3s& axis() const;
 
   void serialize( std::ostream& output_stream ) const;
   void deserialize( std::istream& input_stream );
@@ -39,8 +38,10 @@ private:
 
   // Point on the cylinder's axis
   Vector3s m_x;
-  // Orientation of this cylinder relative to one parallel to yhat
-  Quaternions m_R;
+  // Cylinder's axis
+  Vector3s m_n;
+  // Rotation about the cylinder's axis
+  scalar m_theta;
   // Linear velocity of point x
   Vector3s m_v;
   // Angular velocity about x

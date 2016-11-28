@@ -440,12 +440,13 @@ static PyObject* setStaticCylinderOrientation( PyObject* self, PyObject* args )
   using std::is_same;
   static_assert( is_same<scalar,double>::value || is_same<scalar,float>::value, "Error, scalar type must be double or float for Python interface." );
   unsigned cylinder_idx;
-  Quaternions orientation_data;
+  Vector3s axis;
+  scalar theta;
   assert( args != nullptr );
-  if( !PyArg_ParseTuple( args, is_same<scalar,double>::value ? "Idddd" : "Iffff", &cylinder_idx, &orientation_data.w(), &orientation_data.x(), &orientation_data.y(), &orientation_data.z() ) )
+  if( !PyArg_ParseTuple( args, is_same<scalar,double>::value ? "Idddd" : "Iffff", &cylinder_idx, &axis.x(), &axis.y(), &axis.z(), &theta ) )
   {
     PyErr_Print();
-    std::cerr << "Failed to read parameters for setStaticCylinderOrientation, parameters are: cylinder_idx, w, x, y, z. Exiting." << std::endl;
+    std::cerr << "Failed to read parameters for setStaticCylinderOrientation, parameters are: cylinder_idx, n_x, n_y, n_z, theta. Exiting." << std::endl;
     std::exit( EXIT_FAILURE );
   }
   assert( s_sim_state != nullptr );
@@ -454,8 +455,12 @@ static PyObject* setStaticCylinderOrientation( PyObject* self, PyObject* args )
     std::cerr << "Invalid cylinder_idx parameter of " << cylinder_idx << " in setStaticCylinderOrientation, cylinder_idx must be less than " << s_sim_state->staticCylinders().size() << ". Exiting." << std::endl;
     std::exit( EXIT_FAILURE );
   }
-  assert( fabs( orientation_data.norm() - 1.0 ) <= 1.0e-6 );
-  s_sim_state->staticCylinder(cylinder_idx).R() = orientation_data;
+  if( fabs( axis.norm() - 1.0 ) > 1.0e-6 )
+  {
+    std::cerr << "Invalid cylynder axis for setStaticCylinderOrientation, axis must have unit norm." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+  s_sim_state->staticCylinder(cylinder_idx).setOrientation( axis, theta );
   return Py_BuildValue( "" );
 }
 
@@ -630,7 +635,7 @@ static PyMethodDef RigidBody3DFunctions[] = {
   { "setStaticPlanePosition", setStaticPlanePosition, METH_VARARGS, "Sets the position of a static plane." },
   { "setStaticPlaneVelocity", setStaticPlaneVelocity, METH_VARARGS, "Sets the velocity of a static plane." },
   { "numStaticCylinders", numStaticCylinders, METH_NOARGS, "Returns the number of static cylinders." },
-  { "setStaticCylinderOrientation", setStaticCylinderOrientation, METH_VARARGS, "Sets the orientation of a static cylinder." },
+  { "setStaticCylinderOrientation", setStaticCylinderOrientation, METH_VARARGS, "Sets the orientation of a given static cylinder via an axis and rotation about that axis." },
   { "setStaticCylinderAngularVelocity", setStaticCylinderAngularVelocity, METH_VARARGS, "Sets the angular velocity of a static cylinder." },
   { "mu", mu, METH_NOARGS, "Returns the coefficients of friction." },
   { "cor", cor, METH_NOARGS, "Returns the coefficients of restitution." },
