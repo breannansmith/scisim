@@ -47,6 +47,8 @@ static void diagonalizeInertiaTensor( const Matrix3s& I, Matrix3s& R0, Vector3s&
   {
     R0.col( 0 ) *= -1.0;
   }
+
+  // TODO: Verify that R * I0 * R.transpose() == Input Inertia Tensor
 }
 
 namespace MomentTools
@@ -57,10 +59,10 @@ void computeMoments( const Matrix3Xsc& vertices, const Matrix3Xuc& indices, scal
 {
   assert( ( indices.array() < unsigned( vertices.cols() ) ).all() );
 
-  const scalar oneDiv6{ 1.0 / 6.0 };
-  const scalar oneDiv24{ 1.0 / 24.0 };
-  const scalar oneDiv60{ 1.0 / 60.0 };
-  const scalar oneDiv120{ 1.0 / 120.0 };
+  constexpr scalar oneDiv6{ 1.0 / 6.0 };
+  constexpr scalar oneDiv24{ 1.0 / 24.0 };
+  constexpr scalar oneDiv60{ 1.0 / 60.0 };
+  constexpr scalar oneDiv120{ 1.0 / 120.0 };
 
   // order:  1, x, y, z, x^2, y^2, z^2, xy, yz, zx
   VectorXs integral{ VectorXs::Zero( 10 ) };
