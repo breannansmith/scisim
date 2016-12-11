@@ -278,7 +278,7 @@ static bool loadSimState( const rapidxml::xml_node<>& node, RigidBody3DState& si
   std::vector<Vector3s> omegas;
   std::vector<Vector3s> I0s;
   std::vector<bool> fixeds;
-  std::vector<unsigned> geometry_indices;
+  std::vector<unsigned> geo_indices;
 
   for( rapidxml::xml_node<>* nd = node.first_node( "rigid_body_with_density" ); nd; nd = nd->next_sibling( "rigid_body_with_density" ) )
   {
@@ -411,13 +411,27 @@ static bool loadSimState( const rapidxml::xml_node<>& node, RigidBody3DState& si
         return false;
       }
     }
-    geometry_indices.emplace_back( geometry_index );
-
-    if( geometry_indices.back() >= geometry.size() )
+    if( geometry_index < 0 )
     {
-      std::cerr << "Invalid geometry index specified: " << geometry_indices.back() << std::endl;
+      using std::abs;
+      if( static_cast<unsigned long>(abs(geometry_index)) > geometry.size() )
+      {
+        std::cerr << "Invalid geometry index specified: " << geometry_index << std::endl;
+        std::cerr << "Valid indices: [" << -int(geometry.size()) << ", " << geometry.size() - 1 << "]" << std::endl;
+        return false;
+      }
+      geometry_index = int(geometry.size()) + geometry_index;
+    }
+    else if( static_cast<unsigned long>(geometry_index) >= geometry.size() )
+    {
+      std::cerr << "Invalid geometry index specified: " << geometry_index << std::endl;
+      std::cerr << "Valid indices: [" << -int(geometry.size()) << ", " << geometry.size() - 1 << "]" << std::endl;
       return false;
     }
+    assert( geometry_index >= 0 );
+    assert( static_cast<unsigned long>(geometry_index) < geometry.size() );
+    geo_indices.emplace_back( geometry_index );
+
     // Load an optional orientation
     Matrix33sr R0;
     {
@@ -450,7 +464,7 @@ static bool loadSimState( const rapidxml::xml_node<>& node, RigidBody3DState& si
     Vector3s CM;
     Vector3s I;
     Matrix33sr R;
-    geometry[geometry_indices.back()]->computeMassAndInertia( rho, M, CM, I, R );
+    geometry[geo_indices.back()]->computeMassAndInertia( rho, M, CM, I, R );
     Ms.emplace_back( M );
     xs.emplace_back( x + CM );
     I0s.emplace_back( I );
@@ -461,7 +475,7 @@ static bool loadSimState( const rapidxml::xml_node<>& node, RigidBody3DState& si
   }
 
   // TODO: Replace with a swap?
-  sim_state.setState( xs, vs, Ms, Rs, omegas, I0s, fixeds, geometry_indices, geometry );
+  sim_state.setState( xs, vs, Ms, Rs, omegas, I0s, fixeds, geo_indices, geometry );
 
   return true;
 }
