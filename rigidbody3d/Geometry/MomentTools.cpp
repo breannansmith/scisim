@@ -47,8 +47,6 @@ static void diagonalizeInertiaTensor( const Matrix3s& I, Matrix3s& R0, Vector3s&
   {
     R0.col( 0 ) *= -1.0;
   }
-
-  // TODO: Verify that R * I0 * R.transpose() == Input Inertia Tensor
 }
 
 namespace MomentTools
@@ -73,7 +71,7 @@ void computeMoments( const Matrix3Xsc& vertices, const Matrix3Xuc& indices, scal
     const Vector3s v0{ vertices.col( indices( 0, i ) ) };
     const Vector3s v1{ vertices.col( indices( 1, i ) ) };
     const Vector3s v2{ vertices.col( indices( 2, i ) ) };
-    
+
     // Compute a normal for the current triangle
     const Vector3s N{ ( v1 - v0 ).cross( v2 - v0 ) };
 
@@ -87,7 +85,7 @@ void computeMoments( const Matrix3Xsc& vertices, const Matrix3Xuc& indices, scal
     const scalar g0x{ f2x + v0.x() * ( f1x + v0.x() ) };
     const scalar g1x{ f2x + v1.x() * ( f1x + v1.x() ) };
     const scalar g2x{ f2x + v2.x() * ( f1x + v2.x() ) };
-    
+
     tmp0 = v0.y() + v1.y();
     tmp1 = v0.y() * v0.y();
     tmp2 = tmp1 + v1.y() * tmp0;
@@ -97,7 +95,7 @@ void computeMoments( const Matrix3Xsc& vertices, const Matrix3Xuc& indices, scal
     const scalar g0y{ f2y + v0.y() * ( f1y + v0.y() ) };
     const scalar g1y{ f2y + v1.y() * ( f1y + v1.y() ) };
     const scalar g2y{ f2y + v2.y() * ( f1y + v2.y() ) };
-    
+
     tmp0 = v0.z() + v1.z();
     tmp1 = v0.z()*v0.z();
     tmp2 = tmp1 + v1.z()*tmp0;
@@ -107,7 +105,7 @@ void computeMoments( const Matrix3Xsc& vertices, const Matrix3Xuc& indices, scal
     const scalar g0z{ f2z + v0.z() * ( f1z + v0.z() ) };
     const scalar g1z{ f2z + v1.z() * ( f1z + v1.z() ) };
     const scalar g2z{ f2z + v2.z() * ( f1z + v2.z() ) };
-    
+
     // Update integrals
     integral(0) += N.x() * f1x;
     integral(1) += N.x() * f2x;
@@ -120,7 +118,7 @@ void computeMoments( const Matrix3Xsc& vertices, const Matrix3Xuc& indices, scal
     integral(8) += N.y() * ( v0.z() * g0y + v1.z() * g1y + v2.z() * g2y );
     integral(9) += N.z() * ( v0.x() * g0z + v1.x() * g1z + v2.x() * g2z );
   }
-  
+
   integral(0) *= oneDiv6;
   integral(1) *= oneDiv24;
   integral(2) *= oneDiv24;
@@ -131,13 +129,13 @@ void computeMoments( const Matrix3Xsc& vertices, const Matrix3Xuc& indices, scal
   integral(7) *= oneDiv120;
   integral(8) *= oneDiv120;
   integral(9) *= oneDiv120;
-  
+
   // Mass
   mass = integral(0);
-  
+
   // Center of mass
-  center = Vector3s( integral(1), integral(2), integral(3) )/mass;
-  
+  center = Vector3s{ integral(1), integral(2), integral(3) } / mass;
+
   // Inertia relative to world origin
   R(0,0) = integral(5) + integral(6);
   R(0,1) = -integral(7);
@@ -148,7 +146,7 @@ void computeMoments( const Matrix3Xsc& vertices, const Matrix3Xuc& indices, scal
   R(2,0) = R(0,2);
   R(2,1) = R(1,2);
   R(2,2) = integral(4) + integral(5);
-  
+
   // Comptue the inertia relative to the center of mass
   R(0,0) -= mass * ( center.y() * center.y() + center.z() * center.z() );
   R(0,1) += mass * center.x() * center.y();
@@ -163,17 +161,16 @@ void computeMoments( const Matrix3Xsc& vertices, const Matrix3Xuc& indices, scal
   // Diagonalize the inertia tensor
   Matrix3s R0;
   diagonalizeInertiaTensor( R, R0, I );
-
   // Check that we actually diagonalized the inertia tensor
-  assert( ( R0 * Matrix3s( I.asDiagonal() ) * R0.transpose() - R ).lpNorm<Eigen::Infinity>() <= 1.0e-6 );
-  assert( ( Matrix3s( I.asDiagonal() ) - R0.transpose() * R * R0 ).lpNorm<Eigen::Infinity>() <= 1.0e-6 );
+  assert( ( R0 * I.asDiagonal() * R0.transpose() - R ).lpNorm<Eigen::Infinity>() <= 1.0e-9 );
+  assert( ( R0.transpose() * R * R0 - Matrix3s{ I.asDiagonal() } ).lpNorm<Eigen::Infinity>() <= 1.0e-9 );
   R = R0;
 
   // All inertias should be positive
   assert( ( I.array() > 0.0 ).all() );
   // Check that we have an orthonormal transformation
-  assert( ( R * R.transpose() - Matrix3s::Identity() ).lpNorm<Eigen::Infinity>() <= 1.0e-6 );
-  assert( fabs( R.determinant() - 1.0 ) <= 1.0e-6 );
+  assert( ( R * R.transpose() - Matrix3s::Identity() ).lpNorm<Eigen::Infinity>() <= 1.0e-9 );
+  assert( fabs( R.determinant() - 1.0 ) <= 1.0e-9 );
 }
 
 }
