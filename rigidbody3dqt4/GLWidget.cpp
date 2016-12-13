@@ -8,7 +8,7 @@
 #include <random>
 #include <iomanip>
 
-#include "RigidBody3DUtils/RigidBody3DSceneParser.h"
+#include "rigidbody3dutils/RigidBody3DSceneParser.h"
 
 #include "scisim/Utilities.h"
 #include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
@@ -24,7 +24,7 @@
 #include "rigidbody3d/StaticGeometry/StaticPlane.h"
 #include "rigidbody3d/StaticGeometry/StaticCylinder.h"
 
-#include "RigidBody3DUtils/RenderingState.h"
+#include "rigidbody3dutils/RenderingState.h"
 #include "Rendering/OpenGL3DSphereRenderer.h"
 #include "Rendering/BodyGeometryRenderer.h"
 #include "Rendering/StapleRenderer.h"

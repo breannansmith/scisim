@@ -16,8 +16,8 @@
 #include "rigidbody2d/CircleGeometry.h"
 #include "rigidbody2d/RigidBody2DState.h"
 
-#include "RigidBody2DUtils/RigidBody2DSceneParser.h"
-#include "RigidBody2DUtils/CameraSettings2D.h"
+#include "rigidbody2dutils/RigidBody2DSceneParser.h"
+#include "rigidbody2dutils/CameraSettings2D.h"
 
 #include "BoxGeometryRenderer.h"
 #include "CircleGeometryRenderer.h"
