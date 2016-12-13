@@ -43,7 +43,8 @@ void ImpactOperatorUtilities::computeN( const FlowableSystem& fsys, const std::v
 
   assert( column_nonzeros.sum() == N.nonZeros() );
 
-  N.makeCompressed();
+  N.prune( []( const Eigen::Index& row, const Eigen::Index& col, const scalar& value ) { return value != 0.0; } );
+  assert( N.innerNonZeroPtr() == nullptr );
 }
 
 void ImpactOperatorUtilities::computeLCPQPLinearTerm( const SparseMatrixsc& N, const VectorXs& nrel, const VectorXs& CoR, const VectorXs& v0, const VectorXs& v0F, VectorXs& linear_term )

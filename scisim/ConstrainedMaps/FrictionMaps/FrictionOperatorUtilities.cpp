@@ -54,7 +54,8 @@ void FrictionOperatorUtilities::formGeneralizedFrictionBasis( const VectorXs& q0
   // Build the matrix
   buildLinearFrictionBasis( q0, v0, num_samples, K, D, drel );
 
-  D.makeCompressed();
+  D.prune( []( const Eigen::Index& row, const Eigen::Index& col, const scalar& value ) { return value != 0.0; } );
+  assert( D.innerNonZeroPtr() == nullptr );
 }
 
 void FrictionOperatorUtilities::formLinearFrictionDiskConstraint( const int num_samples, SparseMatrixsc& E )

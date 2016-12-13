@@ -183,9 +183,11 @@ void StaggeredProjections::solve( const unsigned iteration, const scalar& dt, co
 
   // Quadratic term in LCP QP
   const SparseMatrixsc QN{ N.transpose() * Minv * N };
+  assert( ( Eigen::Map<const ArrayXs>{QN.valuePtr(), QN.nonZeros()} != 0.0 ).any() );
 
   // Quadratic term in MDP QP
   const SparseMatrixsc QD{ D.transpose() * Minv * D };
+  assert( ( Eigen::Map<const ArrayXs>{QD.valuePtr(), QD.nonZeros()} != 0.0 ).any() );
 
   // Track the 'best' friction result as progress is not always monotonic
   VectorXs best_alpha{ alpha };

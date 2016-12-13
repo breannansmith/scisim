@@ -53,6 +53,7 @@ void GRRFriction::solve( const unsigned iteration, const scalar& dt, const Flowa
   {
     // Quadratic term in LCP QP
     const SparseMatrixsc QN{ N.transpose() * Minv * N };
+    assert( ( Eigen::Map<const ArrayXs>{QN.valuePtr(), QN.nonZeros()} != 0.0 ).any() );
 
     alpha.setZero();
     m_impact_operator->flow( active_set, M, Minv, q0, v0, v0, N, QN, nrel, CoR, alpha );
@@ -62,6 +63,7 @@ void GRRFriction::solve( const unsigned iteration, const scalar& dt, const Flowa
   {
     // Quadratic term in MDP QP
     const SparseMatrixsc QD{ D.transpose() * Minv * D };
+    assert( ( Eigen::Map<const ArrayXs>{QD.valuePtr(), QD.nonZeros()} != 0.0 ).any() );
 
     vout = v0 + Minv * N * alpha;
     beta.setZero();

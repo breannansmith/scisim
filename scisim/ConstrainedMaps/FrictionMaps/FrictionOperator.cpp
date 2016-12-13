@@ -51,7 +51,8 @@ void FrictionOperator::formGeneralizedSmoothFrictionBasis( const unsigned ndofs,
   }
   assert( itr == K.cend() );
 
-  D.makeCompressed();
+  D.prune( []( const Eigen::Index& row, const Eigen::Index& col, const scalar& value ) { return value != 0.0; } );
+  assert( D.innerNonZeroPtr() == nullptr );
 }
 
 #include <iostream>
