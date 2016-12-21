@@ -26,6 +26,7 @@ set( Sources
   ConstrainedMaps/Sobogus.cpp
   ConstrainedMaps/FrictionSolver.cpp
   ConstrainedMaps/QPTerminationOperator.cpp
+  CollisionDetection/CollisionDetectionUtilities.cpp
   Math/MathUtilities.cpp
   Timer/TimeUtils.cpp
   ScriptingCallback.cpp
@@ -78,6 +79,7 @@ set( Headers
   ConstrainedMaps/Sobogus.h
   ConstrainedMaps/FrictionSolver.h
   ConstrainedMaps/QPTerminationOperator.h
+  CollisionDetection/CollisionDetectionUtilities.h
   Math/MathDefines.h
   Math/MathUtilities.h
   Math/Rational.h

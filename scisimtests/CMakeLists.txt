@@ -79,3 +79,22 @@ add_test( string_tokenize_05 string_utility_tests tokenize_05 )
 add_test( string_tokenize_06 string_utility_tests tokenize_06 )
 add_test( string_extract_from_string_00 string_utility_tests extract_from_string_00 )
 add_test( string_extract_from_string_01 string_utility_tests extract_from_string_01 )
+
+
+# Narrow phase tests
+add_executable( narrowphase_tests narrowphase_tests.cpp )
+if( ENABLE_IWYU )
+  set_property( TARGET narrowphase_tests PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path} )
+endif()
+
+target_link_libraries( narrowphase_tests scisim )
+
+add_test( narrowphase_00 narrowphase_tests ball_ball_ccd_00 )
+add_test( narrowphase_01 narrowphase_tests ball_ball_ccd_01 )
+add_test( narrowphase_02 narrowphase_tests ball_ball_ccd_02 )
+add_test( narrowphase_03 narrowphase_tests ball_ball_ccd_03 )
+add_test( narrowphase_04 narrowphase_tests ball_ball_ccd_04 )
+add_test( narrowphase_05 narrowphase_tests ball_ball_ccd_05 )
+add_test( narrowphase_06 narrowphase_tests ball_ball_ccd_06 )
+add_test( narrowphase_07 narrowphase_tests ball_ball_ccd_07 )
+add_test( narrowphase_08 narrowphase_tests ball_ball_ccd_08 )
