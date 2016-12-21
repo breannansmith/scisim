@@ -111,3 +111,8 @@ std::pair<bool,scalar> CollisionDetectionUtilities::ballBallCCDCollisionHappens(
   
   return collision;
 }
+
+std::pair<bool,scalar> CollisionDetectionUtilities::ballBallCCDCollisionHappens( const Vector2s& q0a, const Vector2s& q1a, const scalar& ra, const Vector2s& q0b, const Vector2s& q1b, const scalar& rb )
+{
+  return ballBallCCDCollisionHappens( computeCCDQuadraticCoeffs( q0a, q1a, ra, q0b, q1b, rb ) );
+}

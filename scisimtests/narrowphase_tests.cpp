@@ -404,6 +404,56 @@ static int executeCCDTest08()
   return EXIT_SUCCESS;
 }
 
+// Collision
+static int executeCCDTest09()
+{
+  const Vector2s q0a{ 0.0, 0.0 };
+  const Vector2s q1a{ 1.0, 1.0 };
+  constexpr scalar ra{ 0.5 };
+  const Vector2s q0b{ 2.0, 0.5 };
+  const Vector2s q1b{ 1.5, 0.5 };
+  constexpr scalar rb{ 0.5 };
+
+  constexpr scalar collision_time{ 0.677219 };
+
+  const std::pair<bool,scalar> collision_result{ CollisionDetectionUtilities::ballBallCCDCollisionHappens( q0a, q1a, ra, q0b, q1b, rb ) };
+
+  if( !collision_result.first )
+  {
+    std::cerr << "Collision incorrectly missed." << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  using std::fabs;
+  if( fabs( collision_result.second - collision_time ) > 1.0e-7 )
+  {
+    std::cerr << "Collision time computed incorrectly." << std::endl;
+  }
+
+  return EXIT_SUCCESS;
+}
+
+// No collision
+static int executeCCDTest10()
+{
+  const Vector2s q0a{ 0.0, 0.0 };
+  const Vector2s q1a{ 1.0, 1.0 };
+  constexpr scalar ra{ 0.5 };
+  const Vector2s q0b{ 2.0, 0.5 };
+  const Vector2s q1b{ 2.5, 0.5 };
+  constexpr scalar rb{ 0.5 };
+
+  const std::pair<bool,scalar> collision_result{ CollisionDetectionUtilities::ballBallCCDCollisionHappens( q0a, q1a, ra, q0b, q1b, rb ) };
+
+  if( collision_result.first )
+  {
+    std::cerr << "Collision incorrectly identified." << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
+}
+
 int main( int argc, char** argv )
 {
   if( argc != 2 )
@@ -449,6 +499,14 @@ int main( int argc, char** argv )
   else if( test_name == "ball_ball_ccd_08" )
   {
     return executeCCDTest08();
+  }
+  else if( test_name == "ball_ball_ccd_09" )
+  {
+    return executeCCDTest09();
+  }
+  else if( test_name == "ball_ball_ccd_10" )
+  {
+    return executeCCDTest10();
   }
 
   std::cerr << "Invalid test specified: " << argv[1] << std::endl;
