@@ -5,6 +5,7 @@
 
 #include "Ball2DSim.h"
 
+#include "scisim/CollisionDetection/CollisionDetectionUtilities.h"
 #include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
 #include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
@@ -143,7 +144,14 @@ void Ball2DSim::computeActiveSet( const VectorXs& q0, const VectorXs& qp, const 
   assert( active_set.empty() );
 
   // Detect ball-ball collisions
-  computeBallBallActiveSetSpatialGrid( q0, qp, active_set );
+  if( m_state.numPlanarPortals() == 0 )
+  {
+    computeBallBallActiveSetSpatialGrid( q0, qp, active_set );
+  }
+  else
+  {
+    computeBallBallActiveSetSpatialGridWithPortals( q0, qp, active_set );
+  }
 
   // Check all ball-drum pairs
   computeBallDrumActiveSetAllPairs( q0, qp, active_set );
@@ -345,7 +353,7 @@ void Ball2DSim::enforcePeriodicBoundaryConditions()
   }
 }
 
-void Ball2DSim::computeBallBallActiveSetSpatialGrid( const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const
+void Ball2DSim::computeBallBallActiveSetSpatialGridWithPortals( const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const
 {
   assert( q0.size() % 2 == 0 ); assert( q0.size() == q1.size() );
   assert( m_state.r().size() == q0.size() / 2 );
@@ -527,6 +535,60 @@ void Ball2DSim::computeBallBallActiveSetSpatialGrid( const VectorXs& q0, const V
     }
   }
   #endif
+}
+
+
+void Ball2DSim::computeBallBallActiveSetSpatialGrid( const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const
+{
+  assert( q0.size() % 2 == 0 ); assert( q0.size() == q1.size() );
+  assert( m_state.r().size() == q0.size() / 2 );
+
+  const unsigned nbodies{ m_state.nballs() };
+
+  // Candidate bodies that might overlap
+  std::set<std::pair<unsigned,unsigned>> possible_overlaps;
+  {
+    // Compute an AABB for each ball
+    std::vector<AABB> aabbs;
+    aabbs.reserve( nbodies );
+    for( unsigned bdy_idx = 0; bdy_idx < nbodies; ++bdy_idx )
+    {
+      const Array2s min{ q1.segment<2>( 2 * bdy_idx ).array().min( q0.segment<2>( 2 * bdy_idx ).array() ) };
+      const Array2s max{ q1.segment<2>( 2 * bdy_idx ).array().max( q0.segment<2>( 2 * bdy_idx ).array() ) };
+      assert( ( min <= max ).all() );
+      aabbs.emplace_back( min - m_state.r()( bdy_idx ), max + m_state.r()( bdy_idx ) );
+    }
+    assert( aabbs.size() == nbodies );
+
+    // Determine which bodies possibly overlap
+    SpatialGridDetector::getPotentialOverlaps( aabbs, possible_overlaps );
+  }
+
+  // Create constraints for balls that actually overlap
+  for( const auto& possible_overlap_pair : possible_overlaps )
+  {
+    assert( possible_overlap_pair.first < nbodies );
+    assert( possible_overlap_pair.second < nbodies );
+
+    const Vector2s q0a{ q0.segment<2>( 2 * possible_overlap_pair.first ) };
+    const Vector2s q1a{ q1.segment<2>( 2 * possible_overlap_pair.first ) };
+    const scalar ra{ m_state.r()( possible_overlap_pair.first ) };
+    const Vector2s q0b{ q0.segment<2>( 2 * possible_overlap_pair.second ) };
+    const Vector2s q1b{ q1.segment<2>( 2 * possible_overlap_pair.second ) };
+    const scalar rb{ m_state.r()( possible_overlap_pair.second ) };
+
+    const std::pair<bool,scalar> ccd_result{ CollisionDetectionUtilities::ballBallCCDCollisionHappens( q0a, q1a, ra, q0b, q1b, rb ) };
+
+    if( ccd_result.first )
+    {
+      assert( ccd_result.second >= 0.0 );
+      assert( ccd_result.second <= 1.0 );
+      const Vector2s x0{ ( 1.0 - ccd_result.second ) * q0a + ccd_result.second * q1a };
+      const Vector2s x1{ ( 1.0 - ccd_result.second ) * q0b + ccd_result.second * q1b };
+      assert( ( (x0 - x1).squaredNorm() - (ra + rb) * (ra + rb) ) <= 1.0e-9 );
+      active_set.emplace_back( new BallBallConstraint{ possible_overlap_pair.first, possible_overlap_pair.second, x0, x1, ra, rb, false } );
+    }
+  }
 }
 
 void Ball2DSim::getTeleportedBallBallCenters( const VectorXs& q, const TeleportedCollision& teleported_collision, Vector2s& x0, Vector2s& x1 ) const

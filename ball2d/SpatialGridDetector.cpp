@@ -5,11 +5,6 @@
 
 #include "SpatialGridDetector.h"
 
-AABB::AABB()
-: m_min()
-, m_max()
-{}
-
 AABB::AABB( const Array2s& min, const Array2s& max )
 : m_min( min )
 , m_max( max )

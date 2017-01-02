@@ -106,6 +106,7 @@ private:
   void generateTeleportedBallBallCollision( const VectorXs& q0, const VectorXs& q1, const VectorXs& r, const TeleportedCollision& teleported_collision, std::vector<std::unique_ptr<Constraint>>& active_set ) const;
 
   void computeBallBallActiveSetSpatialGrid( const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const;
+  void computeBallBallActiveSetSpatialGridWithPortals( const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const;
   void computeBallDrumActiveSetAllPairs( const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const;
   void computeBallPlaneActiveSetAllPairs( const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const;
 

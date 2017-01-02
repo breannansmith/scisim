@@ -16,7 +16,7 @@ class AABB final
 
 public:
 
-  AABB();
+  AABB() = default;
   AABB( const Array2s& min, const Array2s& max );
 
   bool overlaps( const AABB& other ) const;
