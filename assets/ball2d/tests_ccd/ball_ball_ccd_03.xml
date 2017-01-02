@@ -1,6 +1,6 @@
 <ball2d_scene>
 
-  <camera cx="1.93039" cy="2.88111" scale_factor="3.61422" fps="50" render_at_fps="1" locked="0"/>
+  <camera cx="1.93039" cy="2.88111" scale_factor="3.61422" fps="1" render_at_fps="1" locked="0"/>
 
   <integrator type="verlet" dt="1.0"/>
 

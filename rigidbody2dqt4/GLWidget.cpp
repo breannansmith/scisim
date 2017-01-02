@@ -1087,6 +1087,21 @@ void GLWidget::paintHUD()
 {
   static int text_width{ 0 };
 
+  // String to display in upper left corner
+  const QString time_string{ generateTimeString( m_iteration, m_dt, m_display_precision, m_end_time ) };
+  const QString delta_H{ generateNumericString( " dH: ", m_delta_H0 ) };
+  const QString delta_px{ generateNumericString( "dpx: ", m_delta_p0.x() ) };
+  const QString delta_py{ generateNumericString( "dpy: ", m_delta_p0.y() ) };
+  const QString delta_L{ generateNumericString( " dL: ", m_delta_L0 ) };
+  {
+    const QFontMetrics font_metrics{ QFont{ "Courier", 12 } };
+    text_width = std::max( text_width, font_metrics.boundingRect( time_string ).width() );
+    text_width = std::max( text_width, font_metrics.boundingRect( delta_H ).width() );
+    text_width = std::max( text_width, font_metrics.boundingRect( delta_px ).width() );
+    text_width = std::max( text_width, font_metrics.boundingRect( delta_py ).width() );
+    text_width = std::max( text_width, font_metrics.boundingRect( delta_L ).width() );
+  }
+
   glPushAttrib( GL_MATRIX_MODE );
   glMatrixMode( GL_PROJECTION );
   glPushMatrix();
@@ -1127,21 +1142,6 @@ void GLWidget::paintHUD()
   glMatrixMode( GL_PROJECTION );
   glPopMatrix();
   glPopAttrib();
-
-  // String to display in upper left corner
-  const QString time_string{ generateTimeString( m_iteration, m_dt, m_display_precision, m_end_time ) };
-  const QString delta_H{ generateNumericString( " dH: ", m_delta_H0 ) };
-  const QString delta_px{ generateNumericString( "dpx: ", m_delta_p0.x() ) };
-  const QString delta_py{ generateNumericString( "dpy: ", m_delta_p0.y() ) };
-  const QString delta_L{ generateNumericString( " dL: ", m_delta_L0 ) };
-  {
-    const QFontMetrics font_metrics{ QFont{ "Courier", 12 } };
-    text_width = std::max( text_width, font_metrics.boundingRect( time_string ).width() );
-    text_width = std::max( text_width, font_metrics.boundingRect( delta_H ).width() );
-    text_width = std::max( text_width, font_metrics.boundingRect( delta_px ).width() );
-    text_width = std::max( text_width, font_metrics.boundingRect( delta_py ).width() );
-    text_width = std::max( text_width, font_metrics.boundingRect( delta_L ).width() );
-  }
 
   qglColor( QColor{ 255, 255, 255 } );
   const QFont font{ "Courier", 12 };

@@ -583,10 +583,14 @@ void Ball2DSim::computeBallBallActiveSetSpatialGrid( const VectorXs& q0, const V
     {
       assert( ccd_result.second >= 0.0 );
       assert( ccd_result.second <= 1.0 );
-      const Vector2s x0{ ( 1.0 - ccd_result.second ) * q0a + ccd_result.second * q1a };
-      const Vector2s x1{ ( 1.0 - ccd_result.second ) * q0b + ccd_result.second * q1b };
-      assert( ( (x0 - x1).squaredNorm() - (ra + rb) * (ra + rb) ) <= 1.0e-9 );
-      active_set.emplace_back( new BallBallConstraint{ possible_overlap_pair.first, possible_overlap_pair.second, x0, x1, ra, rb, false } );
+      #ifndef NDEBUG
+      {
+        const Vector2s x0{ ( 1.0 - ccd_result.second ) * q0a + ccd_result.second * q1a };
+        const Vector2s x1{ ( 1.0 - ccd_result.second ) * q0b + ccd_result.second * q1b };
+        assert( ( (x0 - x1).squaredNorm() - (ra + rb) * (ra + rb) ) <= 1.0e-9 );
+      }
+      #endif
+      active_set.emplace_back( new BallBallConstraint{ possible_overlap_pair.first, possible_overlap_pair.second, q0a, q0b, ra, rb, false } );
     }
   }
 }
