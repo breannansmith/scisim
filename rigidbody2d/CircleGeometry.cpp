@@ -29,6 +29,13 @@ std::unique_ptr<RigidBody2DGeometry> CircleGeometry::clone() const
   return std::unique_ptr<RigidBody2DGeometry>{ new CircleGeometry{ m_r } };
 }
 
+void CircleGeometry::computeCollisionAABB( const Vector2s& x0, const scalar& theta0, const Vector2s& x1, const scalar& theta1, Array2s& min, Array2s& max ) const
+{
+  min = x0.array().min( x1.array() ) - m_r;
+  max = x0.array().max( x1.array() ) + m_r;
+  assert( ( min <= max ).all() );
+}
+
 void CircleGeometry::computeAABB( const Vector2s& x, const scalar& theta, Array2s& min, Array2s& max ) const
 {
   // Circles are invariant to rotations about the center of mass, so theta is unused here

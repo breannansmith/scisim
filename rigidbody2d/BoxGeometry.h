@@ -22,6 +22,8 @@ public:
 
   virtual std::unique_ptr<RigidBody2DGeometry> clone() const override;
 
+  virtual void computeCollisionAABB( const Vector2s& x0, const scalar& theta0, const Vector2s& x1, const scalar& theta1, Array2s& min, Array2s& max ) const override;
+
   virtual void computeAABB( const Vector2s& x, const scalar& theta, Array2s& min, Array2s& max ) const override;
 
   virtual void computeMassAndInertia( const scalar& density, scalar& m, scalar& I ) const override;

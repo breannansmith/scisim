@@ -30,6 +30,10 @@ public:
 
   virtual std::unique_ptr<RigidBody2DGeometry> clone() const = 0;
 
+  // If supported, computes a swept AABB for CCD. Otherwise, defaults to the AABB at the second provided configuration.
+  virtual void computeCollisionAABB( const Vector2s& x0, const scalar& theta0, const Vector2s& x1, const scalar& theta1, Array2s& min, Array2s& max ) const = 0;
+
+  // Computes an AABB for this geometry at the given position and orientation.
   virtual void computeAABB( const Vector2s& x, const scalar& theta, Array2s& min, Array2s& max ) const = 0;
 
   // density: (in) positive density of the rigid body

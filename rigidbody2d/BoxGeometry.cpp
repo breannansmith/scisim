@@ -29,6 +29,11 @@ std::unique_ptr<RigidBody2DGeometry> BoxGeometry::clone() const
   return std::unique_ptr<RigidBody2DGeometry>{ new BoxGeometry{ m_r } };
 }
 
+void BoxGeometry::computeCollisionAABB( const Vector2s& x0, const scalar& theta0, const Vector2s& x1, const scalar& theta1, Array2s& min, Array2s& max ) const
+{
+  this->computeAABB( x1, theta1, min, max );
+}
+
 void BoxGeometry::computeAABB( const Vector2s& x, const scalar& theta, Array2s& min, Array2s& max ) const
 {
   const Array2s extents{ Eigen::Rotation2D<scalar>( theta ).matrix().cwiseAbs() * m_r };

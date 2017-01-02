@@ -5,6 +5,7 @@
 
 #include "RigidBody2DSim.h"
 
+#include "scisim/CollisionDetection/CollisionDetectionUtilities.h"
 #include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
 #include "scisim/Math/MathUtilities.h"
 #include "scisim/Math/Rational.h"
@@ -267,22 +268,39 @@ void RigidBody2DSim::dispatchNarrowPhaseCollision( unsigned idx0, unsigned idx1,
         case RigidBody2DGeometryType::CIRCLE:
         {
           const CircleGeometry& circle_geo1{ static_cast<CircleGeometry&>( *geo1 ) };
-          if( CircleCircleConstraint::isActive( q1.segment<2>( 3 * idx0 ), q1.segment<2>( 3 * idx1 ), circle_geo0.r(), circle_geo1.r() ) )
+
+          const Vector2s q0a{ q0.segment<2>( 3 * idx0 ) };
+          const Vector2s q1a{ q1.segment<2>( 3 * idx0 ) };
+          const scalar ra{ circle_geo0.r() };
+          const Vector2s q0b{ q0.segment<2>( 3 * idx1 ) };
+          const Vector2s q1b{ q1.segment<2>( 3 * idx1 ) };
+          const scalar rb{ circle_geo1.r() };
+
+          const std::pair<bool,scalar> ccd_result{ CollisionDetectionUtilities::ballBallCCDCollisionHappens( q0a, q1a, ra, q0b, q1b, rb ) };
+
+          if( ccd_result.first )
           {
+            #ifndef NDEBUG
+            {
+              const Vector2s x0{ ( 1.0 - ccd_result.second ) * q0a + ccd_result.second * q1a };
+              const Vector2s x1{ ( 1.0 - ccd_result.second ) * q0b + ccd_result.second * q1b };
+              assert( ( (x0 - x1).squaredNorm() - (ra + rb) * (ra + rb) ) <= 1.0e-9 );
+            }
+            #endif
+
             // Creation of constraints at q0 to preserve angular momentum
-            const Vector2s n{ ( q0.segment<2>( 3 * idx0 ) - q0.segment<2>( 3 * idx1 ) ).normalized() };
+            const Vector2s n{ ( q0a - q0b ).normalized() };
             assert( !isKinematicallyScripted( idx0 ) );
             if( !isKinematicallyScripted( idx1 ) )
             {
-              const Vector2s p{ q0.segment<2>( 3 * idx0 ) + ( circle_geo0.r() / ( circle_geo0.r() + circle_geo1.r() ) ) * ( q0.segment<2>( 3 * idx1 ) - q0.segment<2>( 3 * idx0 ) ) };
-              active_set.emplace_back( new CircleCircleConstraint{ idx0, idx1, n, p, circle_geo0.r(), circle_geo1.r() } );
+              const Vector2s p{ q0a + ( ra / ( ra + rb ) ) * ( q0b - q0a ) };
+              active_set.emplace_back( new CircleCircleConstraint{ idx0, idx1, n, p, ra, rb } );
             }
             else
             {
-              const Vector2s x{ q0.segment<2>( 3 * idx1 ) };
               const Vector2s vel{ v.segment<2>( 3 * idx1 ) };
               const scalar omega{ v( 3 * idx1 + 2 ) };
-              active_set.emplace_back( new KinematicObjectCircleConstraint{ idx0, circle_geo0.r(), n, idx1, x, vel, omega } );
+              active_set.emplace_back( new KinematicObjectCircleConstraint{ idx0, ra, n, idx1, q0b, vel, omega } );
             }
           }
           break;
@@ -670,7 +688,14 @@ void RigidBody2DSim::computeActiveSet( const VectorXs& q0, const VectorXs& q1, c
   active_set.clear();
 
   // Detect body-body collisions
-  computeBodyBodyActiveSetSpatialGrid( q0, q1, v, active_set );
+  if( m_state.planarPortals().empty() )
+  {
+    computeBodyBodyActiveSetSpatialGrid( q0, q1, v, active_set );
+  }
+  else
+  {
+    computeBodyBodyActiveSetSpatialGridWithPortals( q0, q1, v, active_set );
+  }
 
   // Check all body-plane pairs
   computeBodyPlaneActiveSetAllPairs( q0, q1, active_set );
@@ -837,7 +862,7 @@ void RigidBody2DSim::enforcePeriodicBoundaryConditions( VectorXs& q, VectorXs& v
   }
 }
 
-void RigidBody2DSim::computeBodyBodyActiveSetSpatialGrid( const VectorXs& q0, const VectorXs& q1, const VectorXs& v, std::vector<std::unique_ptr<Constraint>>& active_set ) const
+void RigidBody2DSim::computeBodyBodyActiveSetSpatialGridWithPortals( const VectorXs& q0, const VectorXs& q1, const VectorXs& v, std::vector<std::unique_ptr<Constraint>>& active_set ) const
 {
   assert( q0.size() % 3 == 0 ); assert( q0.size() == q1.size() );
 
@@ -1024,6 +1049,42 @@ void RigidBody2DSim::computeBodyBodyActiveSetSpatialGrid( const VectorXs& q0, co
   //  }
   //}
   //#endif
+}
+
+void RigidBody2DSim::computeBodyBodyActiveSetSpatialGrid( const VectorXs& q0, const VectorXs& q1, const VectorXs& v, std::vector<std::unique_ptr<Constraint>>& active_set ) const
+{
+  assert( q0.size() % 3 == 0 ); assert( q0.size() == q1.size() );
+
+  const unsigned nbodies{ static_cast<unsigned>( q0.size() / 3 ) };
+
+  // Candidate bodies that might overlap
+  std::set<std::pair<unsigned,unsigned>> possible_overlaps;
+  {
+    // Compute an AABB for each body
+    std::vector<AABB> aabbs;
+    aabbs.reserve( nbodies );
+    for( unsigned bdy_idx = 0; bdy_idx < nbodies; ++bdy_idx )
+    {
+      Array2s min;
+      Array2s max;
+      m_state.bodyGeometry( bdy_idx )->computeCollisionAABB( q0.segment<2>( 3 * bdy_idx ), q0( 3 * bdy_idx + 2 ), q1.segment<2>( 3 * bdy_idx ), q1( 3 * bdy_idx + 2 ), min, max );
+      aabbs.emplace_back( min, max );
+    }
+    assert( aabbs.size() == nbodies );
+
+    // Determine which bodies possibly overlap
+    SpatialGrid::getPotentialOverlaps( aabbs, possible_overlaps );
+  }
+
+  // Create constraints for bodies that actually overlap
+  for( const auto& possible_overlap_pair : possible_overlaps )
+  {
+    assert( possible_overlap_pair.first < nbodies );
+    assert( possible_overlap_pair.second < nbodies );
+
+    // We can run standard narrow phase
+    dispatchNarrowPhaseCollision( possible_overlap_pair.first, possible_overlap_pair.second, q0, q1, v, active_set );
+  }
 }
 
 #ifdef USE_HDF5

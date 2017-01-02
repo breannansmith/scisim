@@ -110,6 +110,7 @@ private:
   bool teleportedCollisionIsActive( const TeleportedCollision& teleported_collision, const std::unique_ptr<RigidBody2DGeometry>& geo0, const std::unique_ptr<RigidBody2DGeometry>& geo1, const VectorXs& q ) const;
 
   void computeBodyBodyActiveSetSpatialGrid( const VectorXs& q0, const VectorXs& q1, const VectorXs& v, std::vector<std::unique_ptr<Constraint>>& active_set ) const;
+  void computeBodyBodyActiveSetSpatialGridWithPortals( const VectorXs& q0, const VectorXs& q1, const VectorXs& v, std::vector<std::unique_ptr<Constraint>>& active_set ) const;
   void computeBodyPlaneActiveSetAllPairs( const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const;
 
   void boxBoxNarrowPhaseCollision( const unsigned idx0, const unsigned idx1, const BoxGeometry& box0, const BoxGeometry& box1, const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const;
