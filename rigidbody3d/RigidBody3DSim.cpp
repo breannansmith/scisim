@@ -348,6 +348,49 @@ void RigidBody3DSim::computeNumberOfCollisions( std::map<std::string,unsigned>& 
   }
 }
 
+void RigidBody3DSim::runBoundaryExitTreatment() const
+{
+  for( unsigned body = 0; body < m_sim_state.nbodies(); ++body )
+  {
+    const Vector3s cm{ m_sim_state.q().segment<3>( 3 * body ) };
+    const Matrix33sr R{ Eigen::Map<const Matrix33sr>{ m_sim_state.q().segment<9>( 3 * m_sim_state.nbodies() + 9 * body ).data() } };
+    assert( ( R * R.transpose() - Matrix33sr::Identity() ).lpNorm<Eigen::Infinity>() <= 1.0e-6 );
+    assert( fabs( R.determinant() - 1.0 ) <= 1.0e-6 );
+    Array3s aabb_min;
+    Array3s aabb_max;
+    m_sim_state.getGeometryOfBody( body ).computeAABB( cm, R, aabb_min, aabb_max );
+    assert( ( aabb_min < aabb_max ).all() );
+
+    if( ( aabb_min < m_sim_state.boundaryMin().array() ).any() )
+    {
+      std::cerr << "Geometry moved below the simulation boundary minimum, exiting as requsted." << std::endl;
+      std::exit( EXIT_FAILURE );
+    }
+
+    if( ( aabb_max > m_sim_state.boundaryMax().array() ).any() )
+    {
+      std::cerr << "Geometry moved above the simulation boundary maximum, exiting as requsted." << std::endl;
+      std::exit( EXIT_FAILURE );
+    }
+  }
+}
+
+void RigidBody3DSim::treatSimulationBoundary()
+{
+  switch( m_sim_state.boundaryBehavior() )
+  {
+    case SimBoundaryBehavior::NONE:
+    {
+      break;
+    }
+    case SimBoundaryBehavior::EXIT:
+    {
+      runBoundaryExitTreatment();
+      break;
+    }
+  }
+}
+
 void RigidBody3DSim::flow( PythonScripting& call_back, const unsigned iteration, const Rational<std::intmax_t>& dt, UnconstrainedMap& umap )
 {
   call_back.setState( m_sim_state );
@@ -415,6 +458,8 @@ void RigidBody3DSim::flow( PythonScripting& call_back, const unsigned iteration,
   #endif
 
   enforcePeriodicBoundaryConditions();
+
+  treatSimulationBoundary();
 
   call_back.setState( m_sim_state );
   call_back.endOfStepCallback( iteration, dt );
@@ -489,6 +534,8 @@ void RigidBody3DSim::flow( PythonScripting& call_back, const unsigned iteration,
 
   enforcePeriodicBoundaryConditions();
 
+  treatSimulationBoundary();
+
   call_back.setState( m_sim_state );
   call_back.endOfStepCallback( iteration, dt );
   call_back.forgetState();
@@ -561,6 +608,8 @@ void RigidBody3DSim::flow( PythonScripting& call_back, const unsigned iteration,
   #endif
 
   enforcePeriodicBoundaryConditions();
+
+  treatSimulationBoundary();
 
   call_back.setState( m_sim_state );
   call_back.endOfStepCallback( iteration, dt );

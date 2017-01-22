@@ -2048,6 +2048,80 @@ static bool loadEndTime( const rapidxml::xml_node<>& node, scalar& end_time )
   return true;
 }
 
+static bool loadSimulationBoundary( const rapidxml::xml_node<>& node, RigidBody3DState& sim )
+{
+  // Attempt to read the type of boundary treatment
+  SimBoundaryBehavior boundary_behavior;
+  {
+    const rapidxml::xml_attribute<>* violation_behavior_attribute{ node.first_attribute( "violation_behavior" ) };
+    if( violation_behavior_attribute == nullptr )
+    {
+      std::cerr << "Failed to locate violation_behavior attribute for simulation_boundary." << std::endl;
+      return false;
+    }
+    const std::string violation_behavior_string{ violation_behavior_attribute->value() };
+    if( violation_behavior_string == "none" )
+    {
+      boundary_behavior = SimBoundaryBehavior::NONE;
+    }
+    else if( violation_behavior_string == "exit" )
+    {
+      boundary_behavior = SimBoundaryBehavior::EXIT;
+    }
+    else
+    {
+      std::cerr << "Invalid violation_behavior specified. Valid options are: none, exit." << std::endl;
+      return false;
+    }
+  }
+
+  // Attempt to read the simulation boundary lower bound
+  VectorXs min;
+  {
+    const rapidxml::xml_attribute<>* const min_attrib{ node.first_attribute( "min" ) };
+    if( min_attrib == nullptr )
+    {
+      std::cerr << "Failed to locate min attribute for simulation_boundary." << std::endl;
+      return false;
+    }
+    if( !StringUtilities::readScalarList( min_attrib->value(), 3, ' ', min ) )
+    {
+      std::cerr << "Failed to load min attribute for simulation_boundary, must provide 3 scalars." << std::endl;
+      return false;
+    }
+    assert( min.size() == 3 );
+  }
+
+  // Attempt to read the simulatoin boundary upper bound
+  VectorXs max;
+  {
+    const rapidxml::xml_attribute<>* const max_attrib{ node.first_attribute( "max" ) };
+    if( max_attrib == nullptr )
+    {
+      std::cerr << "Failed to locate max attribute for simulation_boundary." << std::endl;
+      return false;
+    }
+    if( !StringUtilities::readScalarList( max_attrib->value(), 3, ' ', max ) )
+    {
+      std::cerr << "Failed to load max attribute for simulation_boundary, must provide 3 scalars." << std::endl;
+      return false;
+    }
+    assert( max.size() == 3 );
+  }
+
+  if( ( min.array() >= max.array() ).any() )
+  {
+    std::cerr << "Failed to load simulation_boundary, all componments of min must be less than max." << std::endl;
+    return false;
+  }
+
+  sim.setBoundaryBehavior( boundary_behavior );
+  sim.setBoundaryMin( min );
+  sim.setBoundaryMax( max );
+
+  return true;
+}
+
 // TODO: Do some kind of boost-optional thing to grab const refs to nodes, but not have to do first_node twice
 
 bool RigidBody3DSceneParser::parseXMLSceneFile( const std::string& file_name, std::string& scripting_callback, RigidBody3DState& sim_state, std::unique_ptr<UnconstrainedMap>& unconstrained_map, std::string& dt_string, Rational<std::intmax_t>& dt, scalar& end_time, std::unique_ptr<ImpactOperator>& impact_operator, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, scalar& mu, std::unique_ptr<ImpactFrictionMap>& if_map, RenderingState& rendering_state )
@@ -2195,6 +2269,16 @@ bool RigidBody3DSceneParser::parseXMLSceneFile( const std::string& file_name, st
     if( !loadGRRFrictionSolver( *root_node.first_node( "grr_friction_solver" ), mu, CoR, friction_solver, if_map ) )
     {
       std::cerr << "Failed to load grr_friction_solver in xml scene file: " << file_name << std::endl;
+      return false;
+    }
+  }
+
+  // Load simulation bounds, if present
+  if( root_node.first_node( "simulation_boundary" ) != nullptr )
+  {
+    if( !loadSimulationBoundary( *root_node.first_node( "simulation_boundary" ), sim_state ) )
+    {
+      std::cerr << "Failed to load simulation_boundary in xml scene file: " << file_name << std::endl;
       return false;
     }
   }

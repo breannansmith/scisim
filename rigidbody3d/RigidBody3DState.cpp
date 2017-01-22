@@ -34,6 +34,9 @@ RigidBody3DState::RigidBody3DState()
 , m_static_planes()
 , m_static_cylinders()
 , m_planar_portals()
+, m_boundary_behavior( SimBoundaryBehavior::NONE )
+, m_boundary_min( Vector3s::Constant( std::numeric_limits<scalar>::min() ) )
+, m_boundary_max( Vector3s::Constant( std::numeric_limits<scalar>::max() ) )
 {}
 
 RigidBody3DState::RigidBody3DState( const RigidBody3DState& other )
@@ -51,6 +54,9 @@ RigidBody3DState::RigidBody3DState( const RigidBody3DState& other )
 , m_static_planes( other.m_static_planes )
 , m_static_cylinders( other.m_static_cylinders )
 , m_planar_portals( other.m_planar_portals )
+, m_boundary_behavior( other.m_boundary_behavior )
+, m_boundary_min( other.m_boundary_min )
+, m_boundary_max( other.m_boundary_max )
 {}
 
 RigidBody3DState& RigidBody3DState::operator=( const RigidBody3DState& other )
@@ -539,6 +545,36 @@ const PlanarPortal& RigidBody3DState::planarPortal( const std::vector<PlanarPort
   return m_planar_portals[portal_index];
 }
 
+void RigidBody3DState::setBoundaryBehavior(const SimBoundaryBehavior& behavior)
+{
+  m_boundary_behavior = behavior;
+}
+
+void RigidBody3DState::setBoundaryMin(const Vector3s& min)
+{
+  m_boundary_min = min;
+}
+
+void RigidBody3DState::setBoundaryMax(const Vector3s& max)
+{
+  m_boundary_max = max;
+}
+
+SimBoundaryBehavior RigidBody3DState::boundaryBehavior() const
+{
+  return m_boundary_behavior;
+}
+
+const Vector3s& RigidBody3DState::boundaryMin() const
+{
+  return m_boundary_min;
+}
+
+const Vector3s& RigidBody3DState::boundaryMax() const
+{
+  return m_boundary_max;
+}
+
 void RigidBody3DState::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
@@ -557,6 +593,9 @@ void RigidBody3DState::serialize( std::ostream& output_stream ) const
   Utilities::serialize( m_static_planes, output_stream );
   Utilities::serialize( m_static_cylinders, output_stream );
   Utilities::serialize( m_planar_portals, output_stream );
+  Utilities::serialize( m_boundary_behavior, output_stream );
+  MathUtilities::serialize( m_boundary_min, output_stream );
+  MathUtilities::serialize( m_boundary_max, output_stream );
 }
 
 static std::vector<std::unique_ptr<RigidBodyGeometry>> deserializeGeometry( std::istream& input_stream )
@@ -627,4 +666,7 @@ void RigidBody3DState::deserialize( std::istream& input_stream )
   m_static_planes = Utilities::deserialize<std::vector<StaticPlane>>( input_stream );
   m_static_cylinders = Utilities::deserialize<std::vector<StaticCylinder>>( input_stream );
   m_planar_portals = Utilities::deserialize<std::vector<PlanarPortal>>( input_stream );
+  m_boundary_behavior = Utilities::deserialize<SimBoundaryBehavior>( input_stream );
+  m_boundary_min = MathUtilities::deserialize<Vector3s>( input_stream );
+  m_boundary_max = MathUtilities::deserialize<Vector3s>( input_stream );
 }

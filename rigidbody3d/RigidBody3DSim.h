@@ -124,6 +124,8 @@ public:
 private:
 
   void enforcePeriodicBoundaryConditions();
+  void runBoundaryExitTreatment() const;
+  void treatSimulationBoundary();
 
   void boxBoxNarrowPhaseCollision( const unsigned first_body, const unsigned second_body, const RigidBodyBox& box0, const RigidBodyBox& box1, const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const;
   [[noreturn]] void boxSphereNarrowPhaseCollision( const unsigned first_body, const unsigned second_body, const RigidBodyBox& box, const RigidBodySphere& sphere, const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const;

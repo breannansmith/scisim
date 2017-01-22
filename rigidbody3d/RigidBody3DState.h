@@ -18,6 +18,12 @@
 
 class StaticPlane;
 
+enum class SimBoundaryBehavior
+{
+  NONE,
+  EXIT
+};
+
 class RigidBody3DState final
 {
 
@@ -97,6 +103,14 @@ public:
   std::vector<PlanarPortal>::size_type numPlanarPortals() const;
   const PlanarPortal& planarPortal( const std::vector<PlanarPortal>::size_type portal_index ) const;
 
+  void setBoundaryBehavior(const SimBoundaryBehavior& behavior);
+  void setBoundaryMin(const Vector3s& min);
+  void setBoundaryMax(const Vector3s& max);
+
+  SimBoundaryBehavior boundaryBehavior() const;
+  const Vector3s& boundaryMin() const;
+  const Vector3s& boundaryMax() const;
+
   void serialize( std::ostream& output_stream ) const;
   void deserialize( std::istream& input_stream );
 
@@ -116,6 +130,10 @@ private:
   std::vector<StaticPlane> m_static_planes;
   std::vector<StaticCylinder> m_static_cylinders;
   std::vector<PlanarPortal> m_planar_portals;
+
+  SimBoundaryBehavior m_boundary_behavior;
+  Vector3s m_boundary_min;
+  Vector3s m_boundary_max;
 
 };
 
