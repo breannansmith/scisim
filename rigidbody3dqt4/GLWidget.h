@@ -51,6 +51,7 @@ public:
   void centerCamera();
 
   void saveScreenshot( const QString& file_name );
+  void saveXML( const QString& file_name );
 
   void setMovieDir( const QString& dir_name );
 

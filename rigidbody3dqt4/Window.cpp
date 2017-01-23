@@ -47,6 +47,11 @@ Window::Window( const QString& scene_name, QWidget* parent )
   file->addAction( export_movie );
   connect( export_movie, SIGNAL( triggered() ), m_content_widget, SLOT( exportMovie() ) );
 
+  // Saves the state of the simulation to an XML file
+  QAction* export_xml{ new QAction{ tr( "Export XML..." ), this } };
+  file->addAction( export_xml );
+  connect( export_xml, SIGNAL( triggered() ), m_content_widget, SLOT( exportXML() ) );
+
   // Add a separator
   QAction* separator2{ new QAction( this ) };
   separator2->setSeparator( true );

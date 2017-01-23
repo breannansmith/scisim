@@ -255,6 +255,17 @@ void ContentWidget::exportImage()
   this->setFocus();
 }
 
+void ContentWidget::exportXML()
+{
+  assert( m_gl_widget != nullptr );
+  const QString file_name{ getSaveFileNameFromUser( tr( "Please Specify an XML File Name" ) ) };
+  if( file_name.size() != 0 )
+  {
+    m_gl_widget->saveXML( file_name );
+  }
+  this->setFocus();
+}
+
 void ContentWidget::exportMovie()
 {
   assert( m_export_movie_checkbox != nullptr );

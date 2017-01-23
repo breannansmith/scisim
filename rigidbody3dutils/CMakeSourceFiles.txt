@@ -1,9 +1,11 @@
 set( Sources
   RenderingState.cpp
   RigidBody3DSceneParser.cpp
+  XMLExporter.cpp
 )
 
 set( Headers
   RenderingState.h
   RigidBody3DSceneParser.h
+  XMLExporter.h
 )

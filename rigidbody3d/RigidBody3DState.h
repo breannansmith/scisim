@@ -72,6 +72,7 @@ public:
 
   unsigned getGeometryIndexOfBody( const unsigned bdy_idx ) const;
 
+  // Returns the total mass of the given body
   const scalar& getTotalMass( const unsigned body ) const;
 
   const Eigen::Map<const Matrix33sr> getInertia( const unsigned body ) const;

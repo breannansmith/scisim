@@ -9,6 +9,7 @@
 #include <iomanip>
 
 #include "rigidbody3dutils/RigidBody3DSceneParser.h"
+#include "rigidbody3dutils/XMLExporter.h"
 
 #include "scisim/Utilities.h"
 #include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
@@ -952,6 +953,15 @@ void GLWidget::saveScreenshot( const QString& file_name )
   std::cout << "Saving screenshot of time " << std::fixed << std::setprecision( m_display_precision ) << m_iteration * scalar( m_dt ) << " to " << file_name.toStdString() << std::endl;
   const QImage frame_buffer{ grabFrameBuffer() };
   frame_buffer.save( file_name );
+}
+
+void GLWidget::saveXML( const QString& file_name )
+{
+  std::cout << "Saving XML file at simulation time " << std::fixed << std::setprecision( m_display_precision ) << m_iteration * scalar( m_dt ) << " to " << file_name.toStdString() << std::endl;
+  if( !XMLExporter::saveToXMLFile( file_name.toStdString(), m_sim.state() ) )
+  {
+    std::cerr << "Error, failed export state to xml file." << std::endl;
+  }
 }
 
 void GLWidget::setMovieDir( const QString& dir_name )

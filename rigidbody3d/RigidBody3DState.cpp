@@ -408,6 +408,8 @@ unsigned RigidBody3DState::getGeometryIndexOfBody( const unsigned bdy_idx ) cons
 const scalar& RigidBody3DState::getTotalMass( const unsigned body ) const
 {
   assert( body < nbodies() );
+  assert( M().valuePtr()[ 3 * body ] == M().valuePtr()[ 3 * body + 1 ] );
+  assert( M().valuePtr()[ 3 * body ] == M().valuePtr()[ 3 * body + 2 ] );
   return M().valuePtr()[ 3 * body ];
 }
 

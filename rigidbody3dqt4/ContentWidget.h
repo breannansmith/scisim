@@ -41,6 +41,7 @@ public slots:
   void centerCamera();
 
   void exportImage();
+  void exportXML();
   void exportMovie();
   void movieFPSChanged( int fps );
 
