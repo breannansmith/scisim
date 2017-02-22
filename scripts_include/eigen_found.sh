@@ -10,7 +10,7 @@ if command -v md5 > /dev/null 2>&1 ; then
   export -f md5sum 
 fi
 
-installed_eigen_md5="75e59a6de167e5ef2b9a0da6a61adf24"
+installed_eigen_md5="5c35a1039f5b6bce6a76fb725b0ca678"
 
 computed_installed_eigen_md5=`find include/eigen -type f -name '*.h' -exec bash -c 'md5sum "$0" "$@"' {} + | awk '{print $2$1}' | sort -fd | md5sum | cut -c -32`
 
