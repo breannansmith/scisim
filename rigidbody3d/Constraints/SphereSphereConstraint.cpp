@@ -42,19 +42,18 @@ scalar SphereSphereConstraint::evalNdotV( const VectorXs& q, const VectorXs& v )
   return m_n.dot( v.segment<3>( 3 * m_idx0 ) - v.segment<3>( 3 * m_idx1 ) );
 }
 
-void SphereSphereConstraint::resolveImpact( const scalar& CoR, const SparseMatrixsc& M, const VectorXs& vin, const scalar& ndotv, VectorXs& vout, scalar& alpha ) const
+void SphereSphereConstraint::resolveImpact( const scalar& CoR, const SparseMatrixsc& M, const scalar& ndotv, VectorXs& vout, scalar& alpha ) const
 {
   assert( CoR >= 0.0 );
   assert( CoR <= 1.0 );
   assert( ndotv < 0.0 );
-  assert( vin.size() == vout.size() );
-  assert( vin.size() % 3 == 0 );
-  assert( 3 * m_idx0 + 2 < vin.size() );
-  assert( 3 * m_idx1 + 2 < vin.size() );
+  assert( vout.size() % 3 == 0 );
+  assert( 3 * m_idx0 + 2 < vout.size() );
+  assert( 3 * m_idx1 + 2 < vout.size() );
   assert( M.rows() == M.cols() );
-  assert( M.nonZeros() == 2 * vin.size() );
+  assert( M.nonZeros() == 2 * vout.size() );
 
-  const Eigen::Map<const VectorXs> m{ M.valuePtr(), vin.size() };
+  const Eigen::Map<const VectorXs> m{ M.valuePtr(), vout.size() };
   assert( m( 3 * m_idx1 ) == m( 3 * m_idx1 + 1 ) );
   assert( m( 3 * m_idx1 ) == m( 3 * m_idx1 + 2 ) );
   assert( m( 3 * m_idx0 ) == m( 3 * m_idx0 + 1 ) );

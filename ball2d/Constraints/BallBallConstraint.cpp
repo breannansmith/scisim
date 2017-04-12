@@ -36,33 +36,31 @@ BallBallConstraint::BallBallConstraint( const unsigned idx0, const unsigned idx1
   assert( m_r1 >= 0.0 );
 }
 
-BallBallConstraint::~BallBallConstraint()
-{}
-
 scalar BallBallConstraint::evalNdotV( const VectorXs& q, const VectorXs& v ) const
 {
   assert( v.size() % 2 == 0 ); assert( 2 * m_sphere_idx0 + 1 < v.size() ); assert( 2 * m_sphere_idx1 + 1 < v.size() );
   return m_n.dot( v.segment<2>( 2 * m_sphere_idx0 ) - v.segment<2>( 2 * m_sphere_idx1 ) );
 }
 
-//void BallBallConstraint::resolveImpact( const scalar& CoR, const SparseMatrixsc& M, const VectorXs& vin, VectorXs& vout ) const
-//{
-//  std::cerr << "BallBallConstraint::resolveImpact temporarily disabled" << std::endl;
-//  std::exit( EXIT_FAILURE );
-////  assert( vin.size() == vout.size() ); assert( vin.size() % 2 == 0 ); assert( 2*m_sphere_idx0+1 < vin.size() ); assert( 2*m_sphere_idx1+1 < vin.size() );
-////  assert( M.rows() == M.cols() ); assert( M.nonZeros() == M.rows() ); assert( M.rows() == vin.size() );
-////
-////  const Eigen::Map<const VectorXs> m( M.valuePtr(), vin.size() );
-////  assert( m[2*m_sphere_idx1] == m[2*m_sphere_idx1+1] ); assert( m[2*m_sphere_idx0] == m[2*m_sphere_idx0+1] );
-////  const scalar& mj = m[2*m_sphere_idx1];
-////  const scalar& mi = m[2*m_sphere_idx0];
-////
-////  // Apply impulse along the constraint gradient
-////  assert( evalNdotV( vin ) < 0.0 );
-////  const scalar amnt = -(1+CoR)*evalNdotV(vin)/(mi+mj);
-////  vout.segment<2>(2*m_sphere_idx1) += m_n*amnt*mi;
-////  vout.segment<2>(2*m_sphere_idx0) -= m_n*amnt*mj;
-//}
+void BallBallConstraint::resolveImpact( const scalar& CoR, const SparseMatrixsc& M, const scalar& ndotv, VectorXs& vout, scalar& alpha ) const
+{
+  assert( vout.size() % 2 == 0 );
+  assert( 2 * m_sphere_idx0 + 1 < vout.size() );
+  assert( 2 * m_sphere_idx1 + 1 < vout.size() );
+  assert( M.rows() == M.cols() );
+  assert( M.nonZeros() == M.rows() );
+  assert( M.rows() == vout.size() );
+  assert( M.valuePtr()[ 2 * m_sphere_idx0 ] == M.valuePtr()[ 2 * m_sphere_idx0 + 1 ] );
+  assert( M.valuePtr()[ 2 * m_sphere_idx1 ] == M.valuePtr()[ 2 * m_sphere_idx1 + 1 ] );
+  assert( ndotv < 0.0 );
+
+  const scalar& m0{ M.valuePtr()[ 2 * m_sphere_idx0 ] };
+  const scalar& m1{ M.valuePtr()[ 2 * m_sphere_idx1 ] };
+
+  alpha = - ( 1.0 + CoR ) * ndotv / ( ( 1.0 / m0 ) + ( 1.0 / m1 ) );
+  vout.segment<2>( 2 * m_sphere_idx0 ) += m_n * ( alpha / m0 );
+  vout.segment<2>( 2 * m_sphere_idx1 ) -= m_n * ( alpha / m1 );
+}
 
 //void BallBallConstraint::exertImpulse( const VectorXs& q, const scalar& lambda, const SparseMatrixsc& Minv, VectorXs& vout ) const
 //{

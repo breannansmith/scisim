@@ -44,7 +44,7 @@ void GaussSeidelOperator::flow( const std::vector<std::unique_ptr<Constraint>>& 
       {
         // Reflect about this constraint
         scalar local_alpha;
-        cons[current_idx]->resolveImpact( CoR( current_idx ), M, v0, ndotv, v1, local_alpha );
+        cons[current_idx]->resolveImpact( CoR( current_idx ), M, ndotv, v1, local_alpha );
         assert( local_alpha >= 0.0 ); assert( cons[current_idx]->evalNdotV( q0, v1 ) >= 0.0 );
         alpha( current_idx ) += local_alpha;
         // And remember that a collision happend

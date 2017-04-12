@@ -39,18 +39,17 @@ scalar StaticPlaneSphereConstraint::evalNdotV( const VectorXs& q, const VectorXs
   return m_plane.n().dot( v.segment<3>( 3 * m_sphere_idx ) - computePlaneCollisionPointVelocity( q ) );
 }
 
-void StaticPlaneSphereConstraint::resolveImpact( const scalar& CoR, const SparseMatrixsc& M, const VectorXs& vin, const scalar& ndotv, VectorXs& vout, scalar& alpha ) const
+void StaticPlaneSphereConstraint::resolveImpact( const scalar& CoR, const SparseMatrixsc& M, const scalar& ndotv, VectorXs& vout, scalar& alpha ) const
 {
   assert( CoR >= 0.0 );
   assert( CoR <= 1.0 );
   assert( ndotv < 0.0 );
-  assert( vin.size() == vout.size() );
-  assert( vin.size() % 3 == 0 );
+  assert( vout.size() % 3 == 0 );
   assert( M.rows() == M.cols() );
-  assert( M.nonZeros() == 2 * vin.size() );
-  assert( 3 * m_sphere_idx + 2 < vin.size() );
+  assert( M.nonZeros() == 2 * vout.size() );
+  assert( 3 * m_sphere_idx + 2 < vout.size() );
 
-  const Eigen::Map<const VectorXs> m{ M.valuePtr(), vin.size() };
+  const Eigen::Map<const VectorXs> m{ M.valuePtr(), vout.size() };
   assert( m( 3 * m_sphere_idx ) == m( 3 * m_sphere_idx + 1 ) );
   assert( m( 3 * m_sphere_idx ) == m( 3 * m_sphere_idx + 2 ) );
 

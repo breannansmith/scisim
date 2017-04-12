@@ -32,6 +32,9 @@ if( USE_HDF5 )
   add_test( ball2d_serialization_11 assets/shell_scripts/execute_serialization_test.sh assets/lees_edwards/portal_collision_00.xml 4.0 40 25 10 )
   add_test( ball2d_serialization_12 assets/shell_scripts/execute_serialization_test.sh assets/lees_edwards/portal_collision_01.xml 2.0 20 10 10 )
   add_test( ball2d_serialization_13 assets/shell_scripts/execute_serialization_test.sh assets/lees_edwards/portal_lots_of_collisions.xml 10.0 100 050 10 )
+  # Gauss-Seidel tests
+  add_test( ball2d_serialization_14 assets/shell_scripts/execute_serialization_test.sh assets/examples_gr/bernoullis_problem_gauss_seidel.xml 1.25 125 048 100 )
+  add_test( ball2d_serialization_15 assets/shell_scripts/execute_serialization_test.sh assets/examples_gr/bernoullis_problem_gauss_seidel_multi_mass.xml 1.25 125 048 100 )
   # Warm-start tests
   add_test( ball2d_serialization_ws_00 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/balls_falling_on_wedge.xml 4.0 40 20 10 )
 

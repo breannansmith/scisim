@@ -128,7 +128,7 @@ void Constraint::evalKinematicRelVelGivenBases( const VectorXs& q, const VectorX
 Constraint::~Constraint()
 {}
 
-void Constraint::resolveImpact( const scalar& CoR, const SparseMatrixsc& M, const VectorXs& vin, const scalar& ndotv, VectorXs& vout, scalar& alpha ) const
+void Constraint::resolveImpact( const scalar& CoR, const SparseMatrixsc& M, const scalar& ndotv, VectorXs& vout, scalar& alpha ) const
 {
   std::cerr << "Constraint::resolveImpact not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );

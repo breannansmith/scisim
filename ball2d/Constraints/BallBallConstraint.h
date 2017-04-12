@@ -21,11 +21,11 @@ public:
   BallBallConstraint( const unsigned idx0, const unsigned idx1, const VectorXs& q, const scalar& r0, const scalar& r1, const bool teleported );
   BallBallConstraint( const unsigned idx0, const unsigned idx1, const Vector2s& x0, const Vector2s& x1, const scalar& r0, const scalar& r1, const bool teleported );
 
-  virtual ~BallBallConstraint() override;
+  virtual ~BallBallConstraint() override = default;
 
   // Inherited from Constraint
   virtual scalar evalNdotV( const VectorXs& q, const VectorXs& v ) const override;
-  //virtual void resolveImpact( const scalar& CoR, const SparseMatrixsc& M, const VectorXs& vin, VectorXs& vout ) const override;
+  virtual void resolveImpact( const scalar& CoR, const SparseMatrixsc& M, const scalar& ndotv, VectorXs& vout, scalar& alpha ) const override;
   virtual void evalgradg( const VectorXs& q, const int col, SparseMatrixsc& G, const FlowableSystem& fsys ) const override;
   virtual void computeGeneralizedFrictionGivenTangentSample( const VectorXs& q, const VectorXs& t, const unsigned column, SparseMatrixsc& D ) const override;
   virtual int impactStencilSize() const override;
