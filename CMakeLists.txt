@@ -166,7 +166,7 @@ add_subdirectory( ball2dcli )
 
 # Qt4 interface for two dimensional ball simulation
 if( USE_QT5 )
-  add_subdirectory( ball2dqt4 )
+  add_subdirectory( ball2dqt5 )
 endif()
 
 
