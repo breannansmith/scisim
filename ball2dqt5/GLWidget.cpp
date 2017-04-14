@@ -332,7 +332,7 @@ void GLWidget::stepSystem()
     std::exit( EXIT_FAILURE );
   }
 
-  ++m_iteration;
+  m_iteration++;
 
   {
     const Ball2DState& state{ m_sim.state() };
@@ -1065,8 +1065,10 @@ void GLWidget::paintHUD()
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
   // Draw a semi-transparent overlay so text is visible regardless of background color
-  const Eigen::Matrix<GLdouble,2,1> overlay_start{ 0, height - 5 * 12 - 2 };
-  const Eigen::Matrix<GLdouble,2,1> overlay_extnt{ text_width + 2 + 2, height };
+  const int pixelRatio = devicePixelRatio();
+  const Eigen::Matrix<GLdouble,2,1> overlay_start{ 0, (height + (- 5 * 12 - 4) * pixelRatio ) };
+  const Eigen::Matrix<GLdouble,2,1> overlay_extnt{ (text_width + 2 + 4) * pixelRatio, height * pixelRatio };
+
   glColor4d( 0.0, 0.0, 0.0, 0.5 );
   glBegin( GL_QUADS );
   glVertex2d( GLdouble( overlay_start.x() ), GLdouble( overlay_start.y() ) );
