@@ -7,13 +7,14 @@
 #include <GL/gl.h>
 #endif
 
-class DisplayController2D
+class DisplayController2D final
 {
   
 public:
 
   DisplayController2D();
 
+  void reshape();
   void reshape( const unsigned w, const unsigned h );
 
   void translateView( const GLdouble& dx, const GLdouble& dy );

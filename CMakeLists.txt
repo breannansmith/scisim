@@ -95,7 +95,7 @@ option( STRICT_BUILD "Enable aggressive warnings and treat warnings as errors" O
 
 option( ENABLE_IWYU "Enables builds with 'include-what-you-use' (http://include-what-you-use.org/)" )
 
-option( USE_QT4 "Build Qt4 front ends" OFF )
+option( USE_QT5 "Build Qt5 front ends" OFF )
 
 option( USE_IPOPT "Use the Ipopt solver (Fortran required)" OFF )
 
@@ -165,39 +165,39 @@ add_subdirectory( ball2dutils )
 add_subdirectory( ball2dcli )
 
 # Qt4 interface for two dimensional ball simulation
-if( USE_QT4 )
+if( USE_QT5 )
   add_subdirectory( ball2dqt4 )
 endif()
 
 
 # Core two dimensional rigid body library
-add_subdirectory( rigidbody2d )
+# add_subdirectory( rigidbody2d )
 
 # Utilities shared by the command-line and Qt4 interface
-add_subdirectory( rigidbody2dutils )
+# add_subdirectory( rigidbody2dutils )
 
 # Command line interface for two dimensional rigid body simulations
-add_subdirectory( rigidbody2dcli )
+# add_subdirectory( rigidbody2dcli )
 
 # Qt4 interface for two dimensional rigid body simulations
-if( USE_QT4 )
-  add_subdirectory( rigidbody2dqt4 )
-endif()
+# if( USE_QT5 )
+#   add_subdirectory( rigidbody2dqt4 )
+# endif()
 
 
 # Core three dimensional rigid body simulation library
-add_subdirectory( rigidbody3d )
+# add_subdirectory( rigidbody3d )
 
 # Tets for the three dimensional rigid body simulation
-add_subdirectory( rigidbody3dtests )
+# add_subdirectory( rigidbody3dtests )
 
 # Utilities shared by the command-line and Qt4 interface
-add_subdirectory( rigidbody3dutils )
+# add_subdirectory( rigidbody3dutils )
 
 # Command line interface for three dimensional rigid body simulation
-add_subdirectory( rigidbody3dcli )
+# add_subdirectory( rigidbody3dcli )
 
 # Qt4 interface for the three dimensional rigid body simulation
-if( USE_QT4 )
-  add_subdirectory( rigidbody3dqt4 )
-endif()
+# if( USE_QT5 )
+#   add_subdirectory( rigidbody3dqt4 )
+# endif()

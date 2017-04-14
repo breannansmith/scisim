@@ -21,7 +21,6 @@
 
 #include "ball2dutils/Ball2DSceneParser.h"
 
-#ifndef NDEBUG
 static std::string glErrorToString( const GLenum error_code )
 {
   switch( error_code )
@@ -47,20 +46,22 @@ static std::string glErrorToString( const GLenum error_code )
   }
 }
 
-static bool checkGLErrors()
+static bool checkGLErrors( const bool print_error = true )
 {
   const GLenum error_code{ glGetError() };
   if( error_code != GL_NO_ERROR )
   {
-    std::cerr << "OpenGL error: " << glErrorToString( error_code ) << std::endl;
+    if( print_error )
+    {
+      std::cerr << "OpenGL error: " << glErrorToString( error_code ) << std::endl;
+    }
     return false;
   }
   return true;
 }
-#endif
 
 GLWidget::GLWidget( QWidget* parent )
-: QGLWidget( QGLFormat( QGL::SampleBuffers ), parent )
+: QOpenGLWidget( parent )
 , m_camera_controller()
 , m_render_at_fps( false )
 , m_lock_camera( false )
@@ -81,6 +82,7 @@ GLWidget::GLWidget( QWidget* parent )
 , m_impact_operator( nullptr )
 , m_friction_solver( nullptr )
 , m_if_map( nullptr )
+, m_imap( nullptr )
 , m_scripting()
 , m_iteration( 0 )
 , m_dt( 0, 1 )
@@ -89,16 +91,15 @@ GLWidget::GLWidget( QWidget* parent )
 , m_mu( SCALAR_NAN )
 , m_sim0()
 , m_sim()
-, m_H0()
-, m_p0()
-, m_L0()
+, m_H0( 0.0 )
+, m_p0( Vector2s::Zero() )
+, m_L0( 0.0 )
 , m_delta_H0( 0.0 )
 , m_delta_p0( Vector2s::Zero() )
 , m_delta_L0( 0.0 )
 {}
 
-GLWidget::~GLWidget()
-{}
+GLWidget::~GLWidget() = default;
 
 QSize GLWidget::minimumSizeHint() const
 {
@@ -264,6 +265,8 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   const bool lock_backup{ m_lock_camera };
   m_lock_camera = false;
 
+  makeCurrent();
+
   if( !camera_set )
   {
     centerCamera( false );
@@ -272,6 +275,10 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   {
     m_camera_controller.setCenter( camera_center.x(), camera_center.y() );
     m_camera_controller.setScaleFactor( camera_scale_factor );
+    if( render_on_load )
+    {
+      m_camera_controller.reshape();
+    }
   }
 
   m_lock_camera = lock_backup;
@@ -283,7 +290,7 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
 
   if( render_on_load )
   {
-    updateGL();
+    update();
   }
 
   return true;
@@ -366,7 +373,7 @@ void GLWidget::stepSystem()
 
   if( !m_render_at_fps || m_iteration % m_steps_per_frame == 0 )
   {
-    updateGL();
+    update();
   }
 
   if( m_movie_dir_name.size() != 0 )
@@ -429,18 +436,20 @@ void GLWidget::resetSystem()
   m_scripting.startOfSimCallback();
   m_scripting.forgetState();
 
-  updateGL();
+  update();
 }
 
 void GLWidget::initializeGL()
 {
-  qglClearColor( QColor{ 255, 255, 255, 255 } );
+  initializeOpenGLFunctions();
+  glClearColor(1.0, 1.0, 1.0, 1.0);
   assert( checkGLErrors() );
 }
 
 void GLWidget::resizeGL( int width, int height )
 {
-  assert( width >= 0 ); assert( height >= 0 );
+  assert( width >= 0 );
+  assert( height >= 0 );
 
   m_camera_controller.reshape( width, height ); 
 
@@ -449,9 +458,11 @@ void GLWidget::resizeGL( int width, int height )
 
 void GLWidget::paintGL()
 {
-  glMatrixMode( GL_MODELVIEW );
+  assert( glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE );
 
   glClear( GL_COLOR_BUFFER_BIT );
+
+  glMatrixMode( GL_MODELVIEW );
 
   if( axesDrawingIsEnabled() )
   {
@@ -465,8 +476,6 @@ void GLWidget::paintGL()
     paintHUD();
   }
 
-  assert( autoBufferSwap() );
-
   assert( checkGLErrors() );
 }
 
@@ -475,10 +484,10 @@ bool GLWidget::axesDrawingIsEnabled() const
   return m_left_mouse_button_pressed;
 }
 
-void GLWidget::paintAxes() const
+void GLWidget::paintAxes()
 {
   // Draw the positive x axis
-  qglColor( QColor{ 255, 0, 0 } );
+  glColor3d( 1.0, 0.0, 0.0 );
   glLineWidth( 2.0 );
   glBegin( GL_LINES );
   glVertex4f( 0.0, 0.0, 0.0, 1.0 );
@@ -486,7 +495,7 @@ void GLWidget::paintAxes() const
   glEnd();
 
   // Draw the negative x axis
-  qglColor( QColor{ 255, 0, 0 } );
+  glColor3d( 1.0, 0.0, 0.0 );
   glLineWidth( 2.0 );
   glLineStipple( 8, 0xAAAA );
   glEnable( GL_LINE_STIPPLE );
@@ -497,7 +506,7 @@ void GLWidget::paintAxes() const
   glDisable( GL_LINE_STIPPLE );
 
   // Draw the positive y axis
-  qglColor( QColor{ 0, 255, 0 } );
+  glColor3d( 0, 1.0, 0 );
   glLineWidth( 2.0 );
   glBegin( GL_LINES );
   glVertex4f( 0.0, 0.0, 0.0, 1.0 );
@@ -505,7 +514,7 @@ void GLWidget::paintAxes() const
   glEnd();
 
   // Draw the negative y axis
-  qglColor( QColor{ 0, 255, 0 } );
+  glColor3d( 0, 1.0, 0 );
   glLineWidth( 2.0 );
   glLineStipple( 8, 0xAAAA );
   glEnable( GL_LINE_STIPPLE );
@@ -516,7 +525,7 @@ void GLWidget::paintAxes() const
   glDisable( GL_LINE_STIPPLE );
 }
 
-void GLWidget::getViewportDimensions( GLint& width, GLint& height ) const
+void GLWidget::getViewportDimensions( GLint& width, GLint& height )
 {
   GLint viewport[4];
   glGetIntegerv( GL_VIEWPORT, viewport );
@@ -538,7 +547,7 @@ void GLWidget::toggleHUD()
 {
   m_display_HUD = !m_display_HUD;
 
-  updateGL();
+  update();
 }
 
 void GLWidget::centerCamera( const bool update_gl )
@@ -578,14 +587,14 @@ void GLWidget::centerCamera( const bool update_gl )
   if( update_gl )
   {
     m_camera_controller.reshape( width, height );
-    updateGL();
+    update();
   }
 }
 
 void GLWidget::saveScreenshot( const QString& file_name )
 {
   std::cout << "Saving screenshot of time " << std::fixed << std::setprecision( m_display_precision ) << m_iteration * scalar( m_dt ) << " to " << file_name.toStdString() << std::endl;
-  const QImage frame_buffer{ grabFrameBuffer() };
+  const QImage frame_buffer{ grabFramebuffer() };
   frame_buffer.save( file_name );
 }
 
@@ -602,7 +611,7 @@ void GLWidget::setMovieDir( const QString& dir_name )
 
     const QString output_image_name{ QString{ tr( "frame%1.png" ) }.arg( m_output_frame, 10, 10, QLatin1Char{ '0' } ) };
     saveScreenshot( m_movie_dir.filePath( output_image_name ) );
-    ++m_output_frame;
+    m_output_frame++;
   }
 }
 
@@ -897,7 +906,7 @@ static void paintPlanarPortal( const PlanarPortal& planar_portal )
   }
 }
 
-void GLWidget::paintSystem() const
+void GLWidget::paintSystem()
 {
   const Ball2DState& state{ m_sim.state() };
 
@@ -908,7 +917,7 @@ void GLWidget::paintSystem() const
     const VectorXs& r{ state.r() };
     assert( q.size() == 2 * r.size() );
     assert( m_ball_colors.size() == 3 * r.size() );
-    for( int i = 0; i < r.size(); ++i )
+    for( int i = 0; i < r.size(); i++ )
     {
       glColor3d( m_ball_colors( 3 * i + 0 ), m_ball_colors( 3 * i + 1 ), m_ball_colors( 3 * i + 2 ) );
       m_circle_renderer.renderSolidCircle( q.segment<2>( 2 * i ), r( i ) );
@@ -928,7 +937,7 @@ void GLWidget::paintSystem() const
     for( const PlanarPortal& planar_portal : planar_portals )
     {
       // For each ball
-      for( unsigned ball_idx = 0; ball_idx < r.size(); ++ball_idx )
+      for( unsigned ball_idx = 0; ball_idx < r.size(); ball_idx++ )
       {
         const Vector2s pos{ q.segment<2>( 2 * ball_idx ) };
         const scalar rad{ r( ball_idx ) };
@@ -948,10 +957,10 @@ void GLWidget::paintSystem() const
 
   // Draw each static drum
   glPushAttrib( GL_COLOR );
-  qglColor( QColor{ 0, 0, 0 } );
+  glColor3d( 0.0, 0.0, 0.0 );
   {
     const std::vector<StaticDrum>& drums = state.staticDrums();
-    for( std::vector<StaticDrum>::size_type i = 0; i < drums.size(); ++i )
+    for( std::vector<StaticDrum>::size_type i = 0; i < drums.size(); i++ )
     {
       m_circle_renderer.renderSolidCircle( drums[i].x(), drums[i].r() );
     }
@@ -972,7 +981,7 @@ void GLWidget::paintSystem() const
       const int r = color_gen( mt );
       const int g = color_gen( mt );
       const int b = color_gen( mt );
-      qglColor( QColor( r, g, b ) );
+      glColor3d( GLdouble(r) / 255.0, GLdouble(g) / 255.0, GLdouble(b) / 255.0 );
       paintPlanarPortal( planar_portal );
     }
   }
@@ -981,7 +990,7 @@ void GLWidget::paintSystem() const
 
   // Draw each static plane
   glPushAttrib( GL_COLOR );
-  qglColor( QColor{ 0, 0, 0 } );
+  glColor3d( 0.0, 0.0, 0.0 );
   {
     const std::vector<StaticPlane>& planes = state.staticPlanes();
     for( const StaticPlane& plane : planes )
@@ -1019,8 +1028,12 @@ void GLWidget::paintHUD()
   const QString delta_px{ generateNumericString( "dpx: ", m_delta_p0.x() ) };
   const QString delta_py{ generateNumericString( "dpy: ", m_delta_p0.y() ) };
   const QString delta_L{ generateNumericString( " dL: ", m_delta_L0 ) };
+
+  QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+  fixedFont.setPointSize(12);
+
   {
-    const QFontMetrics font_metrics{ QFont{ "Courier", 12 } };
+    const QFontMetrics font_metrics{ fixedFont };
     text_width = std::max( text_width, font_metrics.boundingRect( time_string ).width() );
     text_width = std::max( text_width, font_metrics.boundingRect( delta_H ).width() );
     text_width = std::max( text_width, font_metrics.boundingRect( delta_px ).width() );
@@ -1040,10 +1053,12 @@ void GLWidget::paintHUD()
   GLint width;
   GLint height;
   getViewportDimensions( width, height );
+  assert( width > 0 );
+  assert( height > 0 );
   glOrtho( 0, width, 0, height, -1, 1 );
   glMatrixMode( GL_MODELVIEW );
   glLoadIdentity();
-  
+
   // Enable blending for transparent HUD elements
   glPushAttrib( GL_BLEND );
   glEnable( GL_BLEND );
@@ -1062,20 +1077,33 @@ void GLWidget::paintHUD()
 
   glDisable( GL_BLEND );
   glPopAttrib();
-  
+
 	glMatrixMode( GL_MODELVIEW );
   glPopMatrix();
   glMatrixMode( GL_PROJECTION );
   glPopMatrix();
   glPopAttrib();
 
-  qglColor( QColor{ 255, 255, 255 } );
-  const QFont font{ "Courier", 12 };
-  renderText( 2, font.pointSize(), time_string, font );
-  renderText( 2, 2 * font.pointSize(), delta_H, font );
-  renderText( 2, 3 * font.pointSize(), delta_px, font );
-  renderText( 2, 4 * font.pointSize(), delta_py, font );
-  renderText( 2, 5 * font.pointSize(), delta_L, font );
+  {
+    assert( checkGLErrors() );
+
+    QPainter painter( this );
+    painter.setPen( QColor( 255, 255, 255 ) );
+    painter.setFont( fixedFont );
+    painter.drawText( 2, fixedFont.pointSize(), time_string );
+    painter.drawText( 2, 2 * fixedFont.pointSize(), delta_H );
+    painter.drawText( 2, 3 * fixedFont.pointSize(), delta_px );
+    painter.drawText( 2, 4 * fixedFont.pointSize(), delta_py );
+    painter.drawText( 2, 5 * fixedFont.pointSize(), delta_L );
+  }
+
+  // TODO: Remove this workaround later...
+  // Silently consume the error as a workaround for a bug in Qt 5.8 on OS X
+  while( !checkGLErrors( false ) )
+  {}
+
+  // TODO: This is to work around the fact that beginNativePainting seems bugged...
+  glEnable(GL_MULTISAMPLE);
 
   assert( checkGLErrors() );
 }
@@ -1101,7 +1129,7 @@ void GLWidget::mousePressEvent( QMouseEvent* event )
 
   if( repaint_needed )
   {
-    updateGL();
+    update();
   }
 
   m_last_pos = event->pos();
@@ -1128,7 +1156,7 @@ void GLWidget::mouseReleaseEvent( QMouseEvent* event )
 
   if( repaint_needed )
   {
-    updateGL();
+    update();
   }
 }
 
@@ -1148,6 +1176,7 @@ void GLWidget::mouseMoveEvent( QMouseEvent* event )
   if( event->buttons() & Qt::LeftButton )
   {
     assert( m_left_mouse_button_pressed );
+    makeCurrent();
     m_camera_controller.translateView( dx, dy );
     repaint_needed = true;
   }
@@ -1155,13 +1184,14 @@ void GLWidget::mouseMoveEvent( QMouseEvent* event )
   if( event->buttons() & Qt::RightButton )
   {
     assert( m_right_mouse_button_pressed );
+    makeCurrent();
     m_camera_controller.zoomView( 0.02 * m_camera_controller.scaleFactor() * dy );
     repaint_needed = true;
   }
 
   if( repaint_needed )
   {
-    updateGL();
+    update();
   }
 
   assert( checkGLErrors() );
@@ -1174,7 +1204,8 @@ void GLWidget::wheelEvent( QWheelEvent* event )
     return;
   }
 
+  makeCurrent();
   m_camera_controller.zoomView( -0.002 * m_camera_controller.scaleFactor() * event->delta() );
-  updateGL();
+  update();
   assert( checkGLErrors() );
 }

@@ -10,6 +10,11 @@ DisplayController2D::DisplayController2D()
 , m_center_y( 0.0 )
 {}
 
+void DisplayController2D::reshape()
+{
+  reshape( m_window_width, m_window_height );
+}
+
 void DisplayController2D::reshape( const unsigned w, const unsigned h )
 {
   // Record the new width and height

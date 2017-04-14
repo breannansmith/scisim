@@ -7,7 +7,7 @@ class QCheckBox;
 class QSpinBox;
 class GLWidget;
 
-class ContentWidget : public QWidget
+class ContentWidget final : public QWidget
 {
 
   Q_OBJECT
@@ -15,6 +15,7 @@ class ContentWidget : public QWidget
 public:
 
   ContentWidget( const QString& scene_name, QWidget* parent = nullptr );
+  virtual ~ContentWidget() override = default;
 
   void toggleSimulationCheckbox();
   void disableMovieExport();

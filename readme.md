@@ -26,7 +26,7 @@ Recommended Dependencies
 
 We recommend a few dependencies for full featured builds:
 
-* [Qt4](http://qt.digia.com/): A user interface library to provide graphical front ends. Available through most standard package managers.
+* [Qt5](https://www.qt.io/): A user interface library to provide graphical front ends. Available through most standard package managers.
 
 * [HDF5](https://www.hdfgroup.org/HDF5/): A binary file format for configuration and force output. Available through most standard package managers.
 
@@ -49,7 +49,7 @@ Quickstart Guide
 
 To obtain a minimal demo build that simulates colliding triangle meshes:
 
-1. Install Qt4, HDF5, and CMake. These packages are available from most standard package managers.
+1. Install Qt5, HDF5, and CMake. These packages are available from most standard package managers.
 
 2. Clone this repository and change into the project root:
 
@@ -65,9 +65,10 @@ To obtain a minimal demo build that simulates colliding triangle meshes:
         mkdir build
         cd build
 
-5. Run CMake to create the build system with Qt4 and HDF5 enabled:
+5. Run CMake to create the build system with Qt5 and HDF5 enabled (todo: simplify the path settings, break into OS X and Linux):
 
-        cmake -DUSE_QT4=ON -DUSE_HDF5=ON ..
+        export PATH="/usr/local/opt/qt/bin:$PATH"
+        cmake -DUSE_QT5=ON -DUSE_HDF5=ON ..
 
 6. Build SCISim:
 
@@ -77,13 +78,13 @@ To obtain a minimal demo build that simulates colliding triangle meshes:
 
     1. With *nix:
 
-            cd rigidbody3dqt4
-            ./rigidbody3d_qt4 assets/tests_serialization/two_dragon_drop.xml
+            cd rigidbody3dqt5
+            ./rigidbody3d_qt5 assets/tests_serialization/two_dragon_drop.xml
 
     2. With OS X:
 
-            cd rigidbody3dqt4
-            ./rigidbody3d_qt4.app/Contents/MacOS/rigidbody3d_qt4 assets/tests_serialization/two_dragon_drop.xml
+            cd rigidbody3dqt5
+            ./rigidbody3d_qt5.app/Contents/MacOS/rigidbody3d_qt5 assets/tests_serialization/two_dragon_drop.xml
 
 8. Press space to run the simulation!
 
@@ -115,7 +116,7 @@ Options of note include:
 
 * USE_OPENMP: Enables OpenMP support. Highly recommend for the [So-bogus](https://bitbucket.org/gdaviet/so-bogus) solver.
 
-* USE_QT4: Enables support for graphical front ends using [Qt4](http://qt.digia.com/).
+* USE_QT5: Enables support for graphical front ends using [Qt5](https://www.qt.io/).
 
 * USE_PYTHON: Enables support for embedded Python language scripting. Required for kinematic scripting.
 
@@ -130,7 +131,7 @@ Platform Specific Issues
 
 * OS X
   * There are performance regressions with GCC and So-bogus when building with the GCC toolchain provided by MacPorts.
-  * There are a number of strange behaviors with the Qt4 frontend when building against the version from MacPorts. I intend to upgrade to Qt5, which should remedy these issues.
+  * There are a number of strange behaviors with the Qt5 frontend when building against the version from MacPorts. I intend to upgrade to Qt5, which should remedy these issues.
   * Building Ipopt with GCC is incompatible with building SCISim with Clang.
   * CMake will often pull in different versions of the Python interpreter and the Python library, requiring the user to explicitly pass the location of the Python library to CMake. For example, to build with MacPorts' Python 2.7:
 

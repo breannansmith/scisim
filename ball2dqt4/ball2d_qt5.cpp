@@ -1,5 +1,7 @@
+#include <cassert>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QSurfaceFormat>
 #include <iostream>
 
 #include "Window.h"
@@ -13,6 +15,7 @@
 static void centerWindow( Window& window )
 {
   const QDesktopWidget* const desktop{ QApplication::desktop() };
+  assert( desktop != nullptr );
 
   const int screen_width{ desktop->screenGeometry().width() };
   const int screen_height{ desktop->screenGeometry().height() };
@@ -55,6 +58,13 @@ int main( int argc, char** argv )
   PythonScripting::initializeCallbacks();
   #endif
 
+  // Enable anti-aliasing
+  {
+    QSurfaceFormat format;
+    format.setSamples( 4 );
+    QSurfaceFormat::setDefaultFormat( format );
+  }
+
   QApplication app{ argc, argv };
   const QStringList arguments{ app.arguments() };
   if( arguments.count() > 2 )
@@ -62,9 +72,10 @@ int main( int argc, char** argv )
     std::cerr << "Error, must provide a valid configuration file name or no argument. Exiting." << std::endl;
     return EXIT_FAILURE;
   }
+
   Window window{ arguments.count() == 2 ? arguments[1] : "" };
   window.resize( window.sizeHint() );
-  window.setWindowTitle( "2D Ball Simulation" );
+  window.setWindowTitle( QObject::tr("2D Ball Simulation") );
   centerWindow( window );
   window.show();
   window.raise();

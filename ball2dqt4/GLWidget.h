@@ -1,24 +1,26 @@
 #ifndef GLWIDGET_H
 #define GLWIDGET_H
 
-#include <QGLWidget>
+#include <QOpenGLWidget>
+#include <QOpenGLFunctions>
 #include <QDir>
+
 #include <cstdint>
+#include <random>
+
+#include "scisim/Math/Rational.h"
 
 #include "ball2d/Ball2DSim.h"
-#include "scisim/Math/Rational.h"
 #include "ball2d/PythonScripting.h"
 
 #include "DisplayController2D.h"
 #include "GLCircleRenderer2D.h"
 
-#include <random>
-
 class ImpactMap;
 class FrictionSolver;
 class ImpactFrictionMap;
 
-class GLWidget : public QGLWidget
+class GLWidget final : public QOpenGLWidget, protected QOpenGLFunctions
 {
 
   Q_OBJECT
@@ -26,16 +28,15 @@ class GLWidget : public QGLWidget
 public:
 
   explicit GLWidget( QWidget* parent = nullptr );
-  ~GLWidget();
+  virtual ~GLWidget() override;
 
-  QSize minimumSizeHint() const;
-  QSize sizeHint() const;
+  virtual QSize minimumSizeHint() const override;
+  virtual QSize sizeHint() const override;
 
   bool openScene( const QString& xml_scene_file_name, const bool& render_on_load, unsigned& fps, bool& render_at_fps, bool& lock_camera );
 
   // Methods to control the solver
   void stepSystem();
-  void minimizeSystemsEnergy();
   void resetSystem();
 
   void renderAtFPS( const bool render_at_fps );
@@ -55,23 +56,23 @@ public:
 
 protected:
 
-  void initializeGL();
-  void resizeGL( int width, int height );
-  void paintGL();
+  virtual void initializeGL() override;
+  virtual void resizeGL( int width, int height ) override;
+  virtual void paintGL() override;
 
-  void mousePressEvent( QMouseEvent* event );
-  void mouseReleaseEvent( QMouseEvent* event );
-  void mouseMoveEvent( QMouseEvent* event );
-  void wheelEvent( QWheelEvent* event );
+  virtual void mousePressEvent( QMouseEvent* event ) override;
+  virtual void mouseReleaseEvent( QMouseEvent* event ) override;
+  virtual void mouseMoveEvent( QMouseEvent* event ) override;
+  virtual void wheelEvent( QWheelEvent* event ) override;
 
 private:
 
   bool axesDrawingIsEnabled() const;
-  void paintAxes() const;
+  void paintAxes();
 
-  void getViewportDimensions( GLint& width, GLint& height ) const;
+  void getViewportDimensions( GLint& width, GLint& height );
 
-  void paintSystem() const;
+  void paintSystem();
 
   void paintHUD();
 

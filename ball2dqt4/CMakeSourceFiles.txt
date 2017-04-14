@@ -4,7 +4,7 @@ set( Sources
   GLWidget.cpp
   DisplayController2D.cpp
   Window.cpp
-  ball2d_qt4.cpp
+  ball2d_qt5.cpp
 )
 
 set( Headers
