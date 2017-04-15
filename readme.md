@@ -65,7 +65,7 @@ To obtain a minimal demo build that simulates colliding triangle meshes:
         mkdir build
         cd build
 
-5. Run CMake to create the build system with Qt5 and HDF5 enabled. Note that you might need to append the Qt5 installation directory to your path (for example, with Bash and MacPorts, run 'export PATH="/usr/local/opt/qt/bin:$PATH' before executing cmake):
+5. Run CMake to create the build system with Qt5 and HDF5 enabled. Note that you might need to append the Qt5 installation directory to your path (for example, with Bash and MacPorts, run 'export PATH="/usr/local/opt/qt/bin:$PATH"' before executing cmake):
 
         cmake -DUSE_QT5=ON -DUSE_HDF5=ON ..
 
