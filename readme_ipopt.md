@@ -47,11 +47,11 @@ Building Ipopt (Optional)
 
 Some example configurations for Ipopt include
 
-* Homebrew GCC toolchain, OS X Accelerate framework, single threaded
+* Homebrew GCC toolchain, macOS Accelerate framework, single threaded
 
         ../configure CXX=g++-6 CC=gcc-6 F77=gfortran-6 --with-blas="-framework accelerate" --prefix=$IPOPT_DIR
 
-* MacPort GCC toolchain, OS X Accelerate framework, single threaded
+* MacPort GCC toolchain, macOS Accelerate framework, single threaded
 
         ../configure CXX=g++-mp-6 CC=gcc-mp-6 F77=gfortran-mp-6 --with-blas="-framework accelerate" --prefix=$IPOPT_DIR
 

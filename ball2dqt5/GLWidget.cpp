@@ -1062,7 +1062,7 @@ void GLWidget::paintHUD()
   // Enable blending for transparent HUD elements
   glPushAttrib( GL_BLEND );
   glEnable( GL_BLEND );
-	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
   // Draw a semi-transparent overlay so text is visible regardless of background color
   const int pixelRatio = devicePixelRatio();
@@ -1104,7 +1104,7 @@ void GLWidget::paintHUD()
   while( !checkGLErrors( false ) )
   {}
 
-  // TODO: This is to work around the fact that beginNativePainting seems bugged...
+  // QPainter disables multi-sampling, so turn it back on
   glEnable(GL_MULTISAMPLE);
 
   assert( checkGLErrors() );

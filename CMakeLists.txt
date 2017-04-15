@@ -158,13 +158,13 @@ add_subdirectory( ball2d )
 # Tests for the two dimensional ball simulation library
 add_subdirectory( ball2dtests )
 
-# Utilities shared by the command-line and Qt4 interface
+# Utilities shared by the command-line and Qt5 interface
 add_subdirectory( ball2dutils )
 
 # Command line interface for two dimensional ball simulation
 add_subdirectory( ball2dcli )
 
-# Qt4 interface for two dimensional ball simulation
+# Qt5 interface for two dimensional ball simulation
 if( USE_QT5 )
   add_subdirectory( ball2dqt5 )
 endif()
@@ -173,13 +173,13 @@ endif()
 # Core two dimensional rigid body library
 # add_subdirectory( rigidbody2d )
 
-# Utilities shared by the command-line and Qt4 interface
+# Utilities shared by the command-line and Qt5 interface
 # add_subdirectory( rigidbody2dutils )
 
 # Command line interface for two dimensional rigid body simulations
 # add_subdirectory( rigidbody2dcli )
 
-# Qt4 interface for two dimensional rigid body simulations
+# Qt5 interface for two dimensional rigid body simulations
 # if( USE_QT5 )
 #   add_subdirectory( rigidbody2dqt4 )
 # endif()
@@ -191,13 +191,13 @@ endif()
 # Tets for the three dimensional rigid body simulation
 # add_subdirectory( rigidbody3dtests )
 
-# Utilities shared by the command-line and Qt4 interface
+# Utilities shared by the command-line and Qt5 interface
 # add_subdirectory( rigidbody3dutils )
 
 # Command line interface for three dimensional rigid body simulation
 # add_subdirectory( rigidbody3dcli )
 
-# Qt4 interface for the three dimensional rigid body simulation
+# Qt5 interface for the three dimensional rigid body simulation
 # if( USE_QT5 )
 #   add_subdirectory( rigidbody3dqt4 )
 # endif()

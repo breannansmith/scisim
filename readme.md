@@ -65,9 +65,8 @@ To obtain a minimal demo build that simulates colliding triangle meshes:
         mkdir build
         cd build
 
-5. Run CMake to create the build system with Qt5 and HDF5 enabled (todo: simplify the path settings, break into OS X and Linux):
+5. Run CMake to create the build system with Qt5 and HDF5 enabled. Note that you might need to append the Qt5 installation directory to your path (for example, with Bash and MacPorts, run 'export PATH="/usr/local/opt/qt/bin:$PATH' before executing cmake):
 
-        export PATH="/usr/local/opt/qt/bin:$PATH"
         cmake -DUSE_QT5=ON -DUSE_HDF5=ON ..
 
 6. Build SCISim:
@@ -81,7 +80,7 @@ To obtain a minimal demo build that simulates colliding triangle meshes:
             cd rigidbody3dqt5
             ./rigidbody3d_qt5 assets/tests_serialization/two_dragon_drop.xml
 
-    2. With OS X:
+    2. With macOS:
 
             cd rigidbody3dqt5
             ./rigidbody3d_qt5.app/Contents/MacOS/rigidbody3d_qt5 assets/tests_serialization/two_dragon_drop.xml
@@ -92,7 +91,7 @@ To obtain a minimal demo build that simulates colliding triangle meshes:
 Building SCISim
 ---------------
 
-SCISim uses the CMake build system. SCISim is tested regularly against recent versions of the GCC, LLVM, and Intel compiler toolchains on both Linux and OS X. A minimal SCISim build requires only a C and C++ compiler. The optional QL and Ipopt dependencies require an additional Fortran compiler.
+SCISim uses the CMake build system. SCISim is tested regularly against recent versions of the GCC, LLVM, and Intel compiler toolchains on both Linux and macOS. A minimal SCISim build requires only a C and C++ compiler. The optional QL and Ipopt dependencies require an additional Fortran compiler.
 
 As an example, to build SCISim with an optional Fortran compiler using the Intel toolchain, from a build directory, run:
 
@@ -129,7 +128,7 @@ To enable the build system to find Ipopt, prefix the cmake command with CMAKE_PR
 Platform Specific Issues
 ------------------------
 
-* OS X
+* macOS
   * There are performance regressions with GCC and So-bogus when building with the GCC toolchain provided by MacPorts.
   * There are a number of strange behaviors with the Qt5 frontend when building against the version from MacPorts. I intend to upgrade to Qt5, which should remedy these issues.
   * Building Ipopt with GCC is incompatible with building SCISim with Clang.
