@@ -369,6 +369,7 @@ static bool collisionIsActive( const Vector2s& x0, const scalar& theta0, const s
           std::exit( EXIT_FAILURE );
         }
       }
+      break;
     }
     case RigidBody2DGeometryType::BOX:
     {
@@ -384,6 +385,11 @@ static bool collisionIsActive( const Vector2s& x0, const scalar& theta0, const s
     }
     #endif
   }
+  // GCC thinks this branch is reachable
+  #ifndef CMAKE_DETECTED_CLANG_COMPILER
+  std::cerr << "This code is unreachable, this is a bug." << std::endl;
+  std::exit( EXIT_FAILURE );
+  #endif
 }
 
 static bool collisionIsActive( const unsigned idx0, const unsigned idx1, const std::unique_ptr<RigidBody2DGeometry>& geo0, const std::unique_ptr<RigidBody2DGeometry>& geo1, const VectorXs& q )
