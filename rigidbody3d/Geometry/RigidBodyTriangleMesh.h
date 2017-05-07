@@ -20,9 +20,8 @@ public:
   #endif
   explicit RigidBodyTriangleMesh( const std::string& input_file_name );
 
-  RigidBodyTriangleMesh( const RigidBodyTriangleMesh& other );
   explicit RigidBodyTriangleMesh( std::istream& input_stream );
-  virtual ~RigidBodyTriangleMesh() override;
+  virtual ~RigidBodyTriangleMesh() override = default;
 
   virtual RigidBodyGeometryType getType() const override;
 
@@ -58,7 +57,9 @@ private:
 
   const scalar& v( const unsigned i, const unsigned j, const unsigned k ) const;
 
-  const std::string m_input_file_name;
+  RigidBodyTriangleMesh() = default;
+
+  std::string m_input_file_name;
 
   // Note: These are not const because I don't have return value version of matrix reading from HDF5, yet
   Matrix3Xsc m_verts;

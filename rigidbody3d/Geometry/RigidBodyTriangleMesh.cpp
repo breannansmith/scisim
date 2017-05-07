@@ -19,24 +19,6 @@
 #include <iostream>
 #endif
 
-
-RigidBodyTriangleMesh::RigidBodyTriangleMesh( const RigidBodyTriangleMesh& other )
-: m_input_file_name( other.m_input_file_name )
-, m_verts( other.m_verts )
-, m_faces( other.m_faces )
-, m_volume( other.m_volume )
-, m_I_on_rho( other.m_I_on_rho )
-, m_center_of_mass( other.m_center_of_mass )
-, m_R( other.m_R )
-, m_samples( other.m_samples )
-, m_convex_hull_samples( other.m_convex_hull_samples )
-, m_cell_delta( other.m_cell_delta )
-, m_grid_dimensions( other.m_grid_dimensions )
-, m_grid_origin( other.m_grid_origin )
-, m_signed_distance( other.m_signed_distance )
-, m_grid_end( other.m_grid_end )
-{}
-
 // TODO: Make value return versions of HDF5 readMatrix
 // TODO: Call the HDF5 version from the thing below
 
@@ -177,9 +159,6 @@ RigidBodyTriangleMesh::RigidBodyTriangleMesh( std::istream& input_stream )
   assert( ( m_grid_dimensions.array() >= 1 ).all() );
 }
 
-RigidBodyTriangleMesh::~RigidBodyTriangleMesh()
-{}
-
 RigidBodyGeometryType RigidBodyTriangleMesh::getType() const
 {
   return RigidBodyGeometryType::TRIANGLE_MESH;
@@ -187,7 +166,22 @@ RigidBodyGeometryType RigidBodyTriangleMesh::getType() const
 
 std::unique_ptr<RigidBodyGeometry> RigidBodyTriangleMesh::clone() const
 {
-  return std::unique_ptr<RigidBodyGeometry>{ new RigidBodyTriangleMesh{ *this } };
+  RigidBodyTriangleMesh* otherMesh = new RigidBodyTriangleMesh;
+  otherMesh->m_input_file_name = m_input_file_name;
+  otherMesh->m_verts = m_verts;
+  otherMesh->m_faces = m_faces;
+  otherMesh->m_volume = m_volume;
+  otherMesh->m_I_on_rho = m_I_on_rho;
+  otherMesh->m_center_of_mass = m_center_of_mass;
+  otherMesh->m_R = m_R;
+  otherMesh->m_samples = m_samples;
+  otherMesh->m_convex_hull_samples = m_convex_hull_samples;
+  otherMesh->m_cell_delta = m_cell_delta;
+  otherMesh->m_grid_dimensions = m_grid_dimensions;
+  otherMesh->m_grid_origin = m_grid_origin;
+  otherMesh->m_signed_distance = m_signed_distance;
+  otherMesh->m_grid_end = m_grid_end;
+  return std::unique_ptr<RigidBodyGeometry>{ otherMesh };
 }
 
 void RigidBodyTriangleMesh::computeAABB( const Vector3s& cm, const Matrix33sr& R, Array3s& min, Array3s& max ) const

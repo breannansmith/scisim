@@ -23,6 +23,11 @@ class RigidBodyGeometry
 
 public:
 
+  RigidBodyGeometry( const RigidBodyGeometry& ) = delete;
+  RigidBodyGeometry( RigidBodyGeometry&& ) = delete;
+  RigidBodyGeometry& operator=( const RigidBodyGeometry& ) = delete;
+  RigidBodyGeometry& operator=( RigidBodyGeometry&& ) = delete;
+
   virtual ~RigidBodyGeometry();
 
   virtual RigidBodyGeometryType getType() const = 0;
@@ -43,6 +48,10 @@ public:
   virtual void serialize( std::ostream& output_stream ) const = 0;
 
   virtual scalar volume() const = 0;
+
+protected:
+
+  RigidBodyGeometry() = default;
 
 };
 

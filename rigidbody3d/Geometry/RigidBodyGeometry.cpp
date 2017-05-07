@@ -5,5 +5,4 @@
 
 #include "RigidBodyGeometry.h"
 
-RigidBodyGeometry::~RigidBodyGeometry()
-{}
+RigidBodyGeometry::~RigidBodyGeometry() = default;

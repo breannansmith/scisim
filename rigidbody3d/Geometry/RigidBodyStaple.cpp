@@ -78,16 +78,6 @@ RigidBodyStaple::RigidBodyStaple( const scalar& w, const scalar& l, const scalar
   m_p[3] <<  0.5 * m_w, m_l - ycm, 0.0;
 }
 
-RigidBodyStaple::RigidBodyStaple( const RigidBodyStaple& other )
-: m_w( other.m_w )
-, m_l( other.m_l )
-, m_r( other.m_r )
-, m_p( other.m_p )
-{}
-
-RigidBodyStaple::~RigidBodyStaple()
-{}
-
 RigidBodyGeometryType RigidBodyStaple::getType() const
 {
   return RigidBodyGeometryType::STAPLE;
@@ -95,7 +85,14 @@ RigidBodyGeometryType RigidBodyStaple::getType() const
 
 std::unique_ptr<RigidBodyGeometry> RigidBodyStaple::clone() const
 {
-  return std::unique_ptr<RigidBodyGeometry>{ new RigidBodyStaple{ *this } };
+  RigidBodyStaple* newStaple = new RigidBodyStaple;
+
+  newStaple->m_w = m_w;
+  newStaple->m_l = m_l;
+  newStaple->m_r = m_r;
+  newStaple->m_p = m_p;
+
+  return std::unique_ptr<RigidBodyGeometry>{ newStaple };
 }
 
 void RigidBodyStaple::computeAABB( const Vector3s& cm, const Matrix33sr& R, Array3s& min, Array3s& max ) const

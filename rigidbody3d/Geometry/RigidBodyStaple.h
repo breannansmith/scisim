@@ -19,8 +19,8 @@ public:
   // l: length along y axis
   // D: diameter of staple
   RigidBodyStaple( const scalar& w, const scalar& l, const scalar& D );
-  RigidBodyStaple( const RigidBodyStaple& other );
-  virtual ~RigidBodyStaple() override;
+
+  virtual ~RigidBodyStaple() override = default;
 
   virtual RigidBodyGeometryType getType() const override;
 
@@ -40,12 +40,14 @@ public:
 
 private:
 
+  RigidBodyStaple() = default;
+
   // Extent of the *skeleton* along the x axis
-  const scalar m_w;
+  scalar m_w;
   // Extent of the *skeleton* along the y axis
-  const scalar m_l;
+  scalar m_l;
   // Radius of the staple
-  const scalar m_r;
+  scalar m_r;
 
   // Four corners of the staple
   std::vector<Vector3s> m_p;
