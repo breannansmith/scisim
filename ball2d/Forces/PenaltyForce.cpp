@@ -15,22 +15,12 @@ PenaltyForce::PenaltyForce( const scalar& k, const scalar& power )
   assert( m_k > 0.0 );
 }
 
-PenaltyForce::PenaltyForce( const PenaltyForce& other )
-: m_k( other.m_k )
-, m_power( other.m_power )
-{
-  assert( m_k > 0.0 );
-}
-
 PenaltyForce::PenaltyForce( std::istream& input_stream )
 : m_k( Utilities::deserialize<scalar>( input_stream ) )
 , m_power( Utilities::deserialize<scalar>( input_stream ) )
 {
   assert( m_k > 0.0 );
 }
-
-PenaltyForce::~PenaltyForce()
-{}
 
 scalar PenaltyForce::computePotential( const VectorXs& q, const SparseMatrixsc& M, const VectorXs& r ) const
 {
@@ -104,7 +94,7 @@ void PenaltyForce::computeForce( const VectorXs& q, const VectorXs& v, const Spa
 
 std::unique_ptr<Ball2DForce> PenaltyForce::clone() const
 {
-  return std::unique_ptr<Ball2DForce>{ new PenaltyForce{ *this } };
+  return std::unique_ptr<Ball2DForce>{ new PenaltyForce{ m_k, m_power } };
 }
 
 void PenaltyForce::serialize( std::ostream& output_stream ) const

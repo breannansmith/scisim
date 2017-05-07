@@ -5,5 +5,4 @@
 
 #include "Ball2DForce.h"
 
-Ball2DForce::~Ball2DForce()
-{}
+Ball2DForce::~Ball2DForce() = default;

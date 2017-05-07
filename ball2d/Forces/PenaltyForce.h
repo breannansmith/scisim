@@ -13,11 +13,10 @@ class PenaltyForce final : public Ball2DForce
 
 public:
 
-  explicit PenaltyForce( const scalar& k, const scalar& power );
-  explicit PenaltyForce( const PenaltyForce& other );
+  PenaltyForce( const scalar& k, const scalar& power );
   explicit PenaltyForce( std::istream& input_stream );
 
-  virtual ~PenaltyForce() override;
+  virtual ~PenaltyForce() override = default;
 
   virtual scalar computePotential( const VectorXs& q, const SparseMatrixsc& M, const VectorXs& r ) const override;
 
