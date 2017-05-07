@@ -40,8 +40,8 @@ matrix:
     - os: osx
       osx_image: xcode8
       env:
-        - CC_COMPILER=gcc-6
-        - CXX_COMPILER=g++-6
+        - CC_COMPILER=gcc-7
+        - CXX_COMPILER=g++-7
         - TEST_NAME="OSX_GCC"
 
 before_install:
