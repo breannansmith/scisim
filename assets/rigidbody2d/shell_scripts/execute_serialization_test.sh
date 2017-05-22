@@ -12,6 +12,9 @@ isnumber() { test "$1" && printf '%f' "$1" >/dev/null; }
 isnonnegative() { [ "1" = `echo "$1"'>='0 | bc -l` ]; }
 integerregexp='^[0-9]+$'
 
+# Check that the h5diff binary exists
+command -v h5diff >/dev/null 2>&1 || die "Error, the test framework requires the h5diff executable. Exiting."
+
 # Ensure that the user provided the correct number of arguments
 if [ "$#" -ne 5 ]; then
   echo "Invalid number of arguments."
