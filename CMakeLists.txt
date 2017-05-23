@@ -112,6 +112,11 @@ execute_process( COMMAND python -c "import h5py" RESULT_VARIABLE H5PY_MISSING ER
 execute_process( COMMAND python -c "import numpy" RESULT_VARIABLE NUMPY_MISSING ERROR_QUIET )
 
 ###############################################################################
+### Check for support programs
+
+find_program(H5DIFF_FOUND h5diff)
+
+###############################################################################
 ### Add libraries, plugins
 
 if( ENABLE_IWYU )

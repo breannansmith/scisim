@@ -14,7 +14,7 @@ target_link_libraries( rigidbody2d_cli rigidbody2dutils rigidbody2d )
 execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_SOURCE_DIR}/assets/rigidbody2d ${CMAKE_CURRENT_BINARY_DIR}/assets )
 
 # Serialization and resume tests
-if( USE_HDF5 )
+if( USE_HDF5 AND H5DIFF_FOUND )
   add_test( rb2d_serialization_00 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/rotating_circles.xml 3.0 300 177 100 )
   add_test( rb2d_serialization_01 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/rotating_translating_circles.xml 1.0 100 037 100 )
   add_test( rb2d_serialization_02 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/ball_rolling_down_hill.xml 3.0 300 121 100 )
@@ -85,11 +85,11 @@ if( USE_HDF5 )
   # Warm-start tests
   add_test( rb2d_serialization_ws_00 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/circles_falling_on_wedge.xml 4.0 40 20 10 )
 else()
-  message( STATUS "Skipping RigidBody2D tests that require HDF5 (USE_HDF5 is disabled)." )
+  message( STATUS "Skipping RigidBody2D tests that require HDF5 (USE_HDF5 is disabled or h5diff not found)." )
 endif()
 
 # Serialization tests for simulations that use Python callbacks
-if( USE_HDF5 AND USE_PYTHON )
+if( USE_HDF5 AND H5DIFF_FOUND AND USE_PYTHON )
   add_test( rb2d_python_serialization_00 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/circles_falling_on_wedge_wall_delete.xml 4.0 40 17 10 )
   add_test( rb2d_python_serialization_01 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/kinematic_tests/rotating_plane.xml 2.0 20 09 10 )
   add_test( rb2d_python_serialization_02 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/kinematic_tests/translating_plane.xml 15.0 150 056 10 )
@@ -97,7 +97,7 @@ if( USE_HDF5 AND USE_PYTHON )
   # add_test( rb2d_python_serialization_03 assets/shell_scripts/execute_serialization_test.sh assets/tests_python_serialization/insertion_test.xml 20.0 20 07 1 )
   add_test( rb2d_python_serialization_04 assets/shell_scripts/execute_serialization_test.sh assets/tests_python_serialization/insertion_deletion_test.xml 24.0 24 11 1 )
 else()
-  message( STATUS "Skipping RigidBody2D tests that require HDF5 and Python (USE_HDF5 is disabled or USE_PYTHON is disabled)." )
+  message( STATUS "Skipping RigidBody2D tests that require HDF5 and Python (USE_HDF5 is disabled or USE_PYTHON is disabled or h5diff not found)." )
 endif()
 
 # Tests that require HDF5 support in the executable and the h5py Python module and the numpy Python module
@@ -112,7 +112,7 @@ else()
 endif()
 
 # Serialization tests for simulations that use Ipopt
-if( USE_HDF5 AND USE_IPOPT )
+if( USE_HDF5 AND H5DIFF_FOUND AND USE_IPOPT )
   add_test( rb2d_ipopt_serialization_00 assets/shell_scripts/execute_serialization_test.sh assets/tests_ipopt_serialization/balls_in_box.xml 10.0 1000 0547 100 )
   add_test( rb2d_ipopt_serialization_01 assets/shell_scripts/execute_serialization_test.sh assets/tests_ipopt_serialization/horizontal_plane_collision.xml 2.5 250 097 100 )
   add_test( rb2d_ipopt_serialization_02 assets/shell_scripts/execute_serialization_test.sh assets/tests_ipopt_serialization/circle_circle_0.xml 1.5 150 077 100 )
@@ -121,5 +121,5 @@ if( USE_HDF5 AND USE_IPOPT )
   add_test( rb2d_ipopt_serialization_05 assets/shell_scripts/execute_serialization_test.sh assets/tests_ipopt_serialization/circle_circle_3.xml 1.5 150 092 100 )
   add_test( rb2d_ipopt_serialization_06 assets/shell_scripts/execute_serialization_test.sh assets/tests_ipopt_serialization/vertical_plane_collision.xml 2.5 250 097 100 )
 else()
-  message( STATUS "Skipping RigidBody2D tests that require Ipopt and HDF5 (USE_IPOPT or USE_HDF5 is disabled)." )
+  message( STATUS "Skipping RigidBody2D tests that require Ipopt and HDF5 (USE_IPOPT or USE_HDF5 is disabled or h5diff not found)." )
 endif()

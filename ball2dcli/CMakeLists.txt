@@ -15,7 +15,7 @@ execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_SOURCE_DIR}/
 
 
 # Serialization and resume tests
-if( USE_HDF5 )
+if( USE_HDF5 AND H5DIFF_FOUND )
   add_test( ball2d_serialization_00 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/ball_slide_at_threshold_big_dt.xml 0.5 50 27 100 )
   add_test( ball2d_serialization_01 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/everything_no_friction.xml 10.0 0999 0287 )
   add_test( ball2d_serialization_02 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/everything_friction.xml 10.0 0999 0287 )
@@ -42,26 +42,26 @@ if( USE_HDF5 )
   #add_test( twod_balls_serialization_test_02 assets/shell_scripts/execute_serialization_test.sh assets/ColumnCollapse01.xml 0.04 2 4 120 )
   #add_test( twod_balls_serialization_test_04 assets/shell_scripts/execute_serialization_test.sh assets/ColumnCollapse07_frictionless_grr.xml 0.05 3 6 120 )
 else()
-  message( STATUS "Skipping Ball2D tests that require HDF5 (USE_HDF5 is disabled)." )
+  message( STATUS "Skipping Ball2D tests that require HDF5 and h5diff (USE_HDF5 is disabled or h5diff not found)." )
 endif()
 
 # Serialization tests for simulations that use Python callbacks
-if( USE_HDF5 AND USE_PYTHON )
+if( USE_HDF5 AND H5DIFF_FOUND AND USE_PYTHON )
   add_test( ball2d_python_serialization_00 assets/shell_scripts/execute_serialization_test.sh assets/tests_python_serialization/oscillating_box.xml 20.0 2000 1113 100 )
   add_test( ball2d_python_serialization_01 assets/shell_scripts/execute_serialization_test.sh assets/tests_python_serialization/different_friction.xml 0.07 706 423 )
   add_test( ball2d_python_serialization_02 assets/shell_scripts/execute_serialization_test.sh assets/tests_python_serialization/wall_delete.xml 7.0 700 166 )
   add_test( ball2d_python_serialization_03 assets/shell_scripts/execute_serialization_test.sh assets/tests_python_serialization/different_restitution.xml 3.0 300 172 )
   add_test( ball2d_python_serialization_04 assets/shell_scripts/execute_serialization_test.sh assets/tests_python_serialization/insertion_test.xml 20.0 200 121 10 )
 else()
-  message( STATUS "Skipping Ball2D tests that require Python and HDF5 (USE_PYTHON or USE_HDF5 is disabled)." )
+  message( STATUS "Skipping Ball2D tests that require Python and HDF5 and h5diff (USE_PYTHON or USE_HDF5 is disabled or h5diff not found)." )
 endif()
 
 # Serialization tests for simulations that use Ipopt
-if( USE_HDF5 AND USE_IPOPT )
+if( USE_HDF5 AND H5DIFF_FOUND AND USE_IPOPT )
   add_test( ball2d_ipopt_serialization_00 assets/shell_scripts/execute_serialization_test.sh assets/examples_gr/nine_ball_break_symmetric.xml 5.0 50 10 10 )
   add_test( ball2d_ipopt_serialization_01 assets/shell_scripts/execute_serialization_test.sh assets/examples_gr/butterfly.xml 30.0 300 100 10 )
 else()
-  message( STATUS "Skipping Ball2D tests that require Ipopt and HDF5 (USE_IPOPT or USE_HDF5 is disabled)." )
+  message( STATUS "Skipping Ball2D tests that require Ipopt and HDF5 and h5diff (USE_IPOPT or USE_HDF5 is disabled or h5diff not found)." )
 endif()
 
 # Tests that require HDF5 support in the executable and the h5py python module
