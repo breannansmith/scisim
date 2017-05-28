@@ -8,6 +8,7 @@
 #include <QSpinBox>
 #include <QFileDialog>
 
+#include <cassert>
 #include <iostream>
 
 #include "GLWidget.h"

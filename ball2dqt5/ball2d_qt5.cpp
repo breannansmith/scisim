@@ -58,10 +58,11 @@ int main( int argc, char** argv )
   PythonScripting::initializeCallbacks();
   #endif
 
-  // Enable anti-aliasing
   {
     QSurfaceFormat format;
     format.setSamples( 4 );
+    format.setVersion( 3, 3 );
+    format.setProfile( QSurfaceFormat::CoreProfile );
     QSurfaceFormat::setDefaultFormat( format );
   }
 

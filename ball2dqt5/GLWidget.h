@@ -2,25 +2,29 @@
 #define GLWIDGET_H
 
 #include <QOpenGLWidget>
-#include <QOpenGLFunctions>
-#include <QDir>
+// #include <QDir>
 
-#include <cstdint>
-#include <random>
+// #include <cstdint>
+// #include <random>
 
-#include "scisim/Math/Rational.h"
+// #include "scisim/Math/Rational.h"
 
-#include "ball2d/Ball2DSim.h"
-#include "ball2d/PythonScripting.h"
+// #include "ball2d/Ball2DSim.h"
+// #include "ball2d/PythonScripting.h"
 
-#include "DisplayController2D.h"
-#include "GLCircleRenderer2D.h"
+// #include "DisplayController2D.h"
+// #include "GLCircleRenderer2D.h"
 
-class ImpactMap;
-class FrictionSolver;
-class ImpactFrictionMap;
+#include "BallShader.h"
 
-class GLWidget final : public QOpenGLWidget, protected QOpenGLFunctions
+class QWheelEvent;
+class QOpenGLFunctions_3_3_Core;
+
+// class ImpactMap;
+// class FrictionSolver;
+// class ImpactFrictionMap;
+
+class GLWidget final : public QOpenGLWidget
 {
 
   Q_OBJECT
@@ -33,26 +37,42 @@ public:
   virtual QSize minimumSizeHint() const override;
   virtual QSize sizeHint() const override;
 
-  bool openScene( const QString& xml_scene_file_name, const bool& render_on_load, unsigned& fps, bool& render_at_fps, bool& lock_camera );
 
-  // Methods to control the solver
-  void stepSystem();
-  void resetSystem();
 
-  void renderAtFPS( const bool render_at_fps );
+  bool openScene( const QString& xml_scene_file_name, const bool& render_on_load, unsigned& fps, bool& render_at_fps, bool& lock_camera )
+  {
+    return true;
+  }
 
-  void lockCamera( const bool lock_camera );
+  void stepSystem()
+  {}
 
-  void toggleHUD();
-  void centerCamera( const bool update_gl = true );
+  void resetSystem()
+  {}
 
-  void saveScreenshot( const QString& file_name );
+  void renderAtFPS( const bool render_at_fps )
+  {}
 
-  void setMovieDir( const QString& dir_name );
+  void lockCamera( const bool lock_camera )
+  {}
 
-  void setMovieFPS( const unsigned fps );
+  void toggleHUD()
+  {}
 
-  void exportCameraSettings();
+  void centerCamera( const bool update_gl = true )
+  {}
+
+  void saveScreenshot( const QString& file_name )
+  {}
+
+  void setMovieDir( const QString& dir_name )
+  {}
+
+  void setMovieFPS( const unsigned fps )
+  {}
+
+  void exportCameraSettings()
+  {}
 
 protected:
 
@@ -67,75 +87,89 @@ protected:
 
 private:
 
-  bool axesDrawingIsEnabled() const;
-  void paintAxes();
+  bool checkGLErrors() const;
 
-  void getViewportDimensions( GLint& width, GLint& height );
+  // bool axesDrawingIsEnabled() const;
+  // void paintAxes();
 
-  void paintSystem();
+  // void getViewportDimensions( GLint& width, GLint& height );
 
-  void paintHUD();
+  // void paintSystem();
 
-  DisplayController2D m_camera_controller;
-  bool m_render_at_fps;
+  // void paintHUD();
+
+  QOpenGLFunctions_3_3_Core* m_f;
+
+  BallShader m_ball_shader;
+
+  // TODO: Pull these into a separate class
+  int m_w;
+  int m_h;
+  float m_display_scale;
+  float m_center_x;
+  float m_center_y;
+
+
+  // DisplayController2D m_camera_controller;
+  // bool m_render_at_fps;
   bool m_lock_camera;
   QPoint m_last_pos;
   bool m_left_mouse_button_pressed;
   bool m_right_mouse_button_pressed;
 
-  GLCircleRenderer2D m_circle_renderer;
+  // GLCircleRenderer2D m_circle_renderer;
 
   // Colors to render balls in the scene
-  VectorXs m_ball_colors;
-  std::mt19937_64 m_ball_color_gen;
+  // VectorXs m_ball_colors;
+  // std::mt19937_64 m_ball_color_gen;
 
   // Number of decimal places to display in time display
-  int m_display_precision;
+  // int m_display_precision;
 
-  bool m_display_HUD;
+  // bool m_display_HUD;
 
   // Directory to save periodic screenshots of the simulation into
-  QString m_movie_dir_name;
-  QDir m_movie_dir; 
+  // QString m_movie_dir_name;
+  // QDir m_movie_dir;
   // Number of frames that have been saved in the movie directory
-  unsigned m_output_frame;
+  // unsigned m_output_frame;
   // Rate at which to output movie frames
-  unsigned m_output_fps;
+  // unsigned m_output_fps;
   // Number of timesteps between frame outputs
-  unsigned m_steps_per_frame;
+  // unsigned m_steps_per_frame;
 
   // Integrator state
-  std::unique_ptr<UnconstrainedMap> m_unconstrained_map;
-  std::unique_ptr<ImpactOperator> m_impact_operator;
-  std::unique_ptr<FrictionSolver> m_friction_solver;
-  std::unique_ptr<ImpactFrictionMap> m_if_map;
-  std::unique_ptr<ImpactMap> m_imap;
-  PythonScripting m_scripting;
+  // std::unique_ptr<UnconstrainedMap> m_unconstrained_map;
+  // std::unique_ptr<ImpactOperator> m_impact_operator;
+  // std::unique_ptr<FrictionSolver> m_friction_solver;
+  // std::unique_ptr<ImpactFrictionMap> m_if_map;
+  // std::unique_ptr<ImpactMap> m_imap;
+  // PythonScripting m_scripting;
 
   // Current iteration of the solver
-  unsigned m_iteration;
+  // unsigned m_iteration;
   // Current timestep
-  Rational<std::intmax_t> m_dt;
+  // Rational<std::intmax_t> m_dt;
   // End time of the simulation
-  scalar m_end_time;
+  // scalar m_end_time;
 
-  scalar m_CoR;
-  scalar m_mu;
+  // scalar m_CoR;
+  // scalar m_mu;
 
   // Initial state of the simulation
-  Ball2DSim m_sim0;
+  // Ball2DSim m_sim0;
   // Current state of the simulation
-  Ball2DSim m_sim;
+  // Ball2DSim m_sim;
 
   // Initial energy, momentum, and angular momentum of the simulation
-  scalar m_H0;
-  Vector2s m_p0;
-  scalar m_L0;
+  // scalar m_H0;
+  // Vector2s m_p0;
+  // scalar m_L0;
 
   // Max change in energy, momentum, and angular momentum
-  scalar m_delta_H0;
-  Vector2s m_delta_p0;
-  scalar m_delta_L0;
+  // scalar m_delta_H0;
+  // Vector2s m_delta_p0;
+  // scalar m_delta_L0;
 
 };
 

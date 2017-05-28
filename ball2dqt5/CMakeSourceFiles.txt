@@ -4,6 +4,8 @@ set( Sources
   GLWidget.cpp
   DisplayController2D.cpp
   Window.cpp
+
+  BallShader.cpp
   ball2d_qt5.cpp
 )
 
@@ -12,5 +14,7 @@ set( Headers
   GLCircleRenderer2D.h
   GLWidget.h
   DisplayController2D.h
+
+  BallShader.h
   Window.h
 )
