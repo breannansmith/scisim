@@ -146,7 +146,7 @@ void BallShader::initialize( QOpenGLFunctions_3_3_Core* f )
 
   std::vector<GLfloat> vertices;
   {
-    constexpr int num_divs = 64;
+    constexpr int num_divs = 32;
     constexpr GLfloat dtheta{ GLfloat( 2.0 ) * PI<GLfloat> / GLfloat( num_divs ) };
     vertices.resize( 6 * num_divs );
     for( int div_num = 0; div_num < num_divs; div_num++ )
