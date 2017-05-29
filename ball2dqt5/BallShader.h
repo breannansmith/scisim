@@ -24,8 +24,6 @@ public:
 
   void setTransform( const QMatrix4x4& pv );
 
-  // pmv: projection * modelview
-  // void draw( const QMatrix4x4& pmv, const QMatrix4x4& world );
   void draw();
 
   Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& circleData();
@@ -34,21 +32,22 @@ private:
 
   QOpenGLFunctions_3_3_Core* m_f;
 
-  GLuint m_VBO;
   GLuint m_VAO;
+  GLuint m_VBO;
+  GLuint m_instance_VBO;
   GLuint m_program;
 
   GLint m_pv_mat_loc;
-  GLint m_trans_vec_loc;
-  GLint m_radius_float_loc;
-  GLint m_color_vec_loc;
 
   // The number of verts in the circle template
   GLsizei m_num_circle_verts;
 
   // Storage for the circles to render
-  // size is: 6 * num_circles
+  // Size is: 6 * num_circles
+  // center_of_mass radius color ...
   Eigen::Matrix<GLfloat,Eigen::Dynamic,1> m_circle_data;
+
+  bool m_data_buffered;
 
 };
 

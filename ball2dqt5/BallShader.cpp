@@ -4,18 +4,17 @@
 
 #include <cassert>
 
-
 static const char* const vertex_shader_source = {
   "#version 330 core\n"
-  "layout (location = 0) in vec2 position;\n"   // This is a vertex attrib
+  "layout (location = 0) in vec2 position;\n"
+  "layout (location = 1) in vec2 center_of_mass;\n"
+  "layout (location = 2) in float radius;\n"
+  "layout (location = 3) in vec3 circle_color;\n"
   "uniform mat4 projection_view;\n"
-  "uniform vec2 center_of_mass;\n"
-  "uniform float radius;\n"
-  "uniform vec3 circle_color;\n"
   "out vec3 render_color;\n"
   "void main()\n"
   "{\n"
-  "  gl_Position = projection_view * vec4(radius * position.x + center_of_mass.x, radius * position.y + center_of_mass.y, 0.0, 1.0);\n"
+  "  gl_Position = projection_view * vec4(radius * position.x + center_of_mass.x, radius * position.y + center_of_mass.y, 0.0f, 1.0f);\n"
   "  render_color = circle_color;\n"
   "}\n"
 };
@@ -32,13 +31,14 @@ static const char* const fragment_shader_source = {
 
 BallShader::BallShader()
 : m_f( nullptr )
-, m_VBO( 0 )
 , m_VAO( 0 )
+, m_VBO( 0 )
+, m_instance_VBO( 0 )
 , m_program( 0 )
 , m_pv_mat_loc( -1 )
-, m_trans_vec_loc( -1 )
 , m_num_circle_verts( 0 )
 , m_circle_data()
+, m_data_buffered( false )
 {}
 
 // TODO: Make this movable
@@ -140,7 +140,7 @@ void BallShader::initialize( QOpenGLFunctions_3_3_Core* f )
   }
   assert( m_program > 0 );
 
-  // Create a buffer for the vertex information
+  // Create a buffer for the circle geometry
   assert( m_VBO == 0 );
   m_f->glGenBuffers( 1, &m_VBO );
 
@@ -164,35 +164,39 @@ void BallShader::initialize( QOpenGLFunctions_3_3_Core* f )
   assert( vertices.size() % 2 == 0 );
   m_num_circle_verts = vertices.size() / 2;
 
+  // Create a buffer for each body's center of mass, radius, and color
+  m_f->glGenBuffers( 1, &m_instance_VBO );
+
   // Toss the buffer and binding commands into a VAO
   m_f->glGenVertexArrays( 1, &m_VAO );
   m_f->glBindVertexArray( m_VAO );
+    // The circle geometry
+    m_f->glEnableVertexAttribArray( 0 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, m_VBO );
     m_f->glBufferData( GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW );
     m_f->glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), static_cast<GLvoid*>(0) );
-    m_f->glEnableVertexAttribArray( 0 );
-  // m_f->glBindVertexArray( 0 );
+    // The circle centers of mass
+    m_f->glEnableVertexAttribArray( 1 );
+    m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
+    m_f->glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), static_cast<GLvoid*>(0) );
+    m_f->glVertexAttribDivisor( 1, 1 );
+    // The circle radii
+    m_f->glEnableVertexAttribArray( 2 );
+    m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
+    m_f->glVertexAttribPointer( 2, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)( 2 * sizeof(GLfloat) ) );
+    m_f->glVertexAttribDivisor( 2, 1 );
+    // The circle colors
+    m_f->glEnableVertexAttribArray( 3 );
+    m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
+    m_f->glVertexAttribPointer( 3, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)( 3 * sizeof(GLfloat) ) );
+    m_f->glVertexAttribDivisor( 3, 1 );
+  m_f->glBindVertexArray( 0 );
 
   // Cache the uniform locations
   m_pv_mat_loc = m_f->glGetUniformLocation( m_program, "projection_view" );
   if( m_pv_mat_loc < 0 )
   {
     qFatal( "Error, failed to get unfirom location for 'projection_view'." );
-  }
-  m_trans_vec_loc = m_f->glGetUniformLocation( m_program, "center_of_mass" );
-  if( m_trans_vec_loc < 0 )
-  {
-    qFatal( "Error, failed to get unfirom location for 'center_of_mass'." );
-  }
-  m_radius_float_loc = m_f->glGetUniformLocation( m_program, "radius" );
-  if( m_radius_float_loc < 0 )
-  {
-    qFatal( "Error, failed to get unfirom location for 'radius'." );
-  }
-  m_color_vec_loc = m_f->glGetUniformLocation( m_program, "circle_color" );
-  if( m_color_vec_loc < 0 )
-  {
-    qFatal( "Error, failed to get unfirom location for 'circle_color'." );
   }
 }
 
@@ -201,6 +205,7 @@ void BallShader::cleanup()
   assert( m_f != nullptr );
   m_f->glDeleteVertexArrays( 1, &m_VAO );
   m_f->glDeleteBuffers( 1, &m_VBO );
+  m_f->glDeleteBuffers( 1, &m_instance_VBO );
   m_f->glDeleteProgram( m_program );
   m_f = nullptr;
 }
@@ -221,23 +226,28 @@ void BallShader::draw()
   assert( m_program > 0 );
   assert( m_VAO > 0 );
 
-  m_f->glUseProgram( m_program );
-  m_f->glBindVertexArray( m_VAO );
-
   assert( m_circle_data.size() % 6 == 0 );
   const long num_balls{ m_circle_data.size() / 6 };
-  for( long ball_idx = 0; ball_idx < num_balls; ball_idx++ )
+
+  if( !m_data_buffered )
   {
-    m_f->glUniform2f( m_trans_vec_loc, m_circle_data( 6 * ball_idx + 0 ), m_circle_data( 6 * ball_idx + 1 ) );
-    m_f->glUniform1f( m_radius_float_loc, m_circle_data( 6 * ball_idx + 2 ) );
-    m_f->glUniform3f( m_color_vec_loc, m_circle_data( 6 * ball_idx + 3 ), m_circle_data( 6 * ball_idx + 4 ), m_circle_data( 6 * ball_idx + 5 ) );
-    m_f->glDrawArrays( GL_TRIANGLES, 0, m_num_circle_verts );
+    if( m_circle_data.size() != 0 )
+    {
+      m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
+      m_f->glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * m_circle_data.size(), m_circle_data.data(), GL_DYNAMIC_DRAW );
+      m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
+    }
+    m_data_buffered = true;
   }
 
-  // m_f->glBindVertexArray( 0 );
+  m_f->glUseProgram( m_program );
+  m_f->glBindVertexArray( m_VAO );
+  m_f->glDrawArraysInstanced( GL_TRIANGLES, 0, m_num_circle_verts, num_balls );
+  m_f->glBindVertexArray( 0 );
 }
 
 Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& BallShader::circleData()
 {
+  m_data_buffered = false;
   return m_circle_data;
 }
