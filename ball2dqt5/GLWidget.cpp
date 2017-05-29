@@ -3,6 +3,7 @@
 #include <QOpenGLFunctions>
 #include <QMatrix4x4>
 
+// #include <QDir>
 // #include <QtGui>
 // #include <QtOpenGL>
 
@@ -11,105 +12,70 @@
 
 #include <cassert>
 // #include <cmath>
-// #include <iostream>
+#include <iostream>
 // #include <fstream>
 // #include <iomanip>
 
-// #include "scisim/StringUtilities.h"
-// #include "scisim/ConstrainedMaps/FrictionSolver.h"
-// #include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
-// #include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
-// #include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
-// #include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
+#include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
+#include "scisim/ConstrainedMaps/FrictionSolver.h"
+#include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
 
+// #include "scisim/StringUtilities.h"
+// #include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
+
+#include "ball2d/Ball2DState.h"
 // #include "ball2d/StaticGeometry/StaticPlane.h"
 // #include "ball2d/StaticGeometry/StaticDrum.h"
 // #include "ball2d/Portals/PlanarPortal.h"
 
-// #include "ball2dutils/Ball2DSceneParser.h"
+#include "ball2dutils/Ball2DSceneParser.h"
 
-// static std::string glErrorToString( const GLenum error_code )
-// {
-//   switch( error_code )
-//   {
-//     case GL_NO_ERROR:
-//       return "GL_NO_ERROR";
-//     case GL_INVALID_ENUM:
-//       return "GL_INVALID_ENUM";
-//     case GL_INVALID_VALUE:
-//       return "GL_INVALID_VALUE";
-//     case GL_INVALID_OPERATION:
-//       return "GL_INVALID_OPERATION";
-//     case GL_INVALID_FRAMEBUFFER_OPERATION:
-//       return "GL_INVALID_FRAMEBUFFER_OPERATION";
-//     case GL_OUT_OF_MEMORY:
-//       return "GL_OUT_OF_MEMORY";
-//     case GL_STACK_UNDERFLOW:
-//       return "GL_STACK_UNDERFLOW";
-//     case GL_STACK_OVERFLOW:
-//       return "GL_STACK_OVERFLOW";
-//     default:
-//       return "Unknown error. Please contact the maintainer of this code.";
-//   }
-// }
-
-// static bool checkGLErrors( const bool print_error = true )
-// {
-//   const GLenum error_code{ glGetError() };
-//   if( error_code != GL_NO_ERROR )
-//   {
-//     if( print_error )
-//     {
-//       std::cerr << "OpenGL error: " << glErrorToString( error_code ) << std::endl;
-//     }
-//     return false;
-//   }
-//   return true;
-// }
 
 GLWidget::GLWidget( QWidget* parent )
 : QOpenGLWidget( parent )
 , m_f( nullptr )
 , m_ball_shader()
+, m_w( 512 )
+, m_h( 512 )
 , m_display_scale( 1.0 )
 , m_center_x( 0.0 )
 , m_center_y( 0.0 )
-, m_lock_camera( false )
 // , m_camera_controller()
-// , m_render_at_fps( false )
-// , m_lock_camera( false )
+, m_render_at_fps( false )
+, m_lock_camera( false )
 , m_last_pos()
 , m_left_mouse_button_pressed( false )
 , m_right_mouse_button_pressed( false )
-// , m_circle_renderer( 64 )
-// , m_ball_colors()
-// , m_ball_color_gen( 1337 )
-// , m_display_precision( 0 )
+, m_ball_colors()
+, m_ball_color_gen( 1337 )
+, m_display_precision( 0 )
 // , m_display_HUD( true )
-// , m_movie_dir_name()
-// , m_movie_dir()
-// , m_output_frame( 0 )
-// , m_output_fps()
-// , m_steps_per_frame()
-// , m_unconstrained_map( nullptr )
-// , m_impact_operator( nullptr )
-// , m_friction_solver( nullptr )
-// , m_if_map( nullptr )
-// , m_imap( nullptr )
-// , m_scripting()
-// , m_iteration( 0 )
-// , m_dt( 0, 1 )
-// , m_end_time( SCALAR_INFINITY )
-// , m_CoR( SCALAR_NAN )
-// , m_mu( SCALAR_NAN )
-// , m_sim0()
-// , m_sim()
-// , m_H0( 0.0 )
-// , m_p0( Vector2s::Zero() )
-// , m_L0( 0.0 )
-// , m_delta_H0( 0.0 )
-// , m_delta_p0( Vector2s::Zero() )
-// , m_delta_L0( 0.0 )
+, m_movie_dir_name()
+, m_movie_dir()
+, m_output_frame( 0 )
+, m_output_fps()
+, m_steps_per_frame()
+, m_unconstrained_map( nullptr )
+, m_impact_operator( nullptr )
+, m_friction_solver( nullptr )
+, m_if_map( nullptr )
+, m_imap( nullptr )
+, m_scripting()
+, m_iteration( 0 )
+, m_dt( 0, 1 )
+, m_end_time( SCALAR_INFINITY )
+, m_CoR( SCALAR_NAN )
+, m_mu( SCALAR_NAN )
+, m_sim0()
+, m_sim()
+, m_H0( 0.0 )
+, m_p0( Vector2s::Zero() )
+, m_L0( 0.0 )
+, m_delta_H0( 0.0 )
+, m_delta_p0( Vector2s::Zero() )
+, m_delta_L0( 0.0 )
 {}
 
 GLWidget::~GLWidget()
@@ -127,244 +93,254 @@ QSize GLWidget::minimumSizeHint() const
 
 QSize GLWidget::sizeHint() const
 {
-  return QSize{ 512, 512 };
+  return QSize{ m_w, m_h };
 }
 
-// static int computeTimestepDisplayPrecision( const Rational<std::intmax_t>& dt, const std::string& dt_string )
-// {
-//   if( dt_string.find( '.' ) != std::string::npos )
-//   {
-//     return int( StringUtilities::computeNumCharactersToRight( dt_string, '.' ) );
-//   }
-//   else
-//   {
-//     std::string converted_dt_string;
-//     std::stringstream ss;
-//     ss << std::fixed << scalar( dt );
-//     ss >> converted_dt_string;
-//     return int( StringUtilities::computeNumCharactersToRight( converted_dt_string, '.' ) );
-//   }
-// }
+static int computeTimestepDisplayPrecision( const Rational<std::intmax_t>& dt, const std::string& dt_string )
+{
+  if( dt_string.find( '.' ) != std::string::npos )
+  {
+    return int( StringUtilities::computeNumCharactersToRight( dt_string, '.' ) );
+  }
+  else
+  {
+    std::string converted_dt_string;
+    std::stringstream ss;
+    ss << std::fixed << scalar( dt );
+    ss >> converted_dt_string;
+    return int( StringUtilities::computeNumCharactersToRight( converted_dt_string, '.' ) );
+  }
+}
 
-// static std::string xmlFilePath( const std::string& xml_file_name )
-// {
-//   std::string path;
-//   std::string file_name;
-//   StringUtilities::splitAtLastCharacterOccurence( xml_file_name, path, file_name, '/' );
-//   if( file_name.empty() )
-//   {
-//     using std::swap;
-//     swap( path, file_name );
-//   }
-//   return path;
-// }
+static std::string xmlFilePath( const std::string& xml_file_name )
+{
+  std::string path;
+  std::string file_name;
+  StringUtilities::splitAtLastCharacterOccurence( xml_file_name, path, file_name, '/' );
+  if( file_name.empty() )
+  {
+    using std::swap;
+    swap( path, file_name );
+  }
+  return path;
+}
 
-// bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render_on_load, unsigned& fps, bool& render_at_fps, bool& lock_camera )
-// {
-//   // State provided by config files
-//   std::string new_scripting_callback_name;
-//   Ball2DState new_simulation_state;
-//   std::string new_dt_string;
-//   Rational<std::intmax_t> new_dt;
-//   scalar new_end_time = SCALAR_NAN;
-//   std::unique_ptr<UnconstrainedMap> new_unconstrained_map{ nullptr };
-//   std::unique_ptr<ImpactOperator> new_impact_operator{ nullptr };
-//   scalar new_CoR = SCALAR_NAN;
-//   std::unique_ptr<ImpactMap> new_imap{ nullptr };
-//   std::unique_ptr<FrictionSolver> new_friction_solver{ nullptr };
-//   scalar new_mu = SCALAR_NAN;
-//   std::unique_ptr<ImpactFrictionMap> new_if_map{ nullptr };
-//   bool camera_set{ false };
-//   Eigen::Vector2d camera_center{ Eigen::Vector2d::Constant( std::numeric_limits<double>::signaling_NaN() ) };
-//   double camera_scale_factor{ std::numeric_limits<double>::signaling_NaN() };
-//   unsigned new_fps;
-//   bool new_render_at_fps;
-//   bool new_lock_camera;
+bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render_on_load, unsigned& fps, bool& render_at_fps, bool& lock_camera )
+{
+  // State provided by config files
+  std::string new_scripting_callback_name;
+  Ball2DState new_simulation_state;
+  std::string new_dt_string;
+  Rational<std::intmax_t> new_dt;
+  scalar new_end_time = SCALAR_NAN;
+  std::unique_ptr<UnconstrainedMap> new_unconstrained_map{ nullptr };
+  std::unique_ptr<ImpactOperator> new_impact_operator{ nullptr };
+  scalar new_CoR = SCALAR_NAN;
+  std::unique_ptr<ImpactMap> new_imap{ nullptr };
+  std::unique_ptr<FrictionSolver> new_friction_solver{ nullptr };
+  scalar new_mu = SCALAR_NAN;
+  std::unique_ptr<ImpactFrictionMap> new_if_map{ nullptr };
+  bool camera_set{ false };
+  Eigen::Vector2d camera_center{ Eigen::Vector2d::Constant( std::numeric_limits<double>::signaling_NaN() ) };
+  double camera_scale_factor{ std::numeric_limits<double>::signaling_NaN() };
+  unsigned new_fps;
+  bool new_render_at_fps;
+  bool new_lock_camera;
 
-//   // TODO: Instead of std::string as input, just take PythonScripting directly
-//   const bool loaded_successfully{ Ball2DSceneParser::parseXMLSceneFile( xml_scene_file_name.toStdString(), new_scripting_callback_name, new_simulation_state, new_unconstrained_map, new_dt_string, new_dt, new_end_time, new_impact_operator, new_imap, new_CoR, new_friction_solver, new_mu, new_if_map, camera_set, camera_center, camera_scale_factor, new_fps, new_render_at_fps, new_lock_camera ) };
+  // TODO: Instead of std::string as input, just take PythonScripting directly
+  const bool loaded_successfully{ Ball2DSceneParser::parseXMLSceneFile( xml_scene_file_name.toStdString(), new_scripting_callback_name, new_simulation_state, new_unconstrained_map, new_dt_string, new_dt, new_end_time, new_impact_operator, new_imap, new_CoR, new_friction_solver, new_mu, new_if_map, camera_set, camera_center, camera_scale_factor, new_fps, new_render_at_fps, new_lock_camera ) };
 
-//   if( !loaded_successfully )
-//   {
-//     std::cerr << "Failed to load file: " << xml_scene_file_name.toStdString() << std::endl;
-//     return false;
-//   }
+  if( !loaded_successfully )
+  {
+    qWarning() << "Failed to load file: " << xml_scene_file_name;
+    return false;
+  }
 
-//   // Ensure we have a correct combination of maps.
-//   assert( ( new_unconstrained_map != nullptr && new_impact_operator == nullptr && new_friction_solver == nullptr && new_if_map == nullptr && new_imap == nullptr ) ||
-//           ( new_unconstrained_map != nullptr && new_impact_operator != nullptr && new_friction_solver == nullptr && new_if_map == nullptr && new_imap != nullptr ) ||
-//           ( new_unconstrained_map != nullptr && new_impact_operator == nullptr && new_friction_solver != nullptr && new_if_map != nullptr && new_imap == nullptr ) );
+  // Ensure we have a correct combination of maps.
+  assert( ( new_unconstrained_map != nullptr && new_impact_operator == nullptr && new_friction_solver == nullptr && new_if_map == nullptr && new_imap == nullptr ) ||
+          ( new_unconstrained_map != nullptr && new_impact_operator != nullptr && new_friction_solver == nullptr && new_if_map == nullptr && new_imap != nullptr ) ||
+          ( new_unconstrained_map != nullptr && new_impact_operator == nullptr && new_friction_solver != nullptr && new_if_map != nullptr && new_imap == nullptr ) );
 
-//   // TODO: Why are the swaps member functions?
-//   // Set the new maps
-//   m_unconstrained_map.swap( new_unconstrained_map );
-//   m_impact_operator.swap( new_impact_operator );
-//   m_friction_solver.swap( new_friction_solver );
-//   m_if_map.swap( new_if_map );
-//   m_imap.swap( new_imap );
+  // Set the new maps
+  m_unconstrained_map.swap( new_unconstrained_map );
+  m_impact_operator.swap( new_impact_operator );
+  m_friction_solver.swap( new_friction_solver );
+  m_if_map.swap( new_if_map );
+  m_imap.swap( new_imap );
 
-//   // Initialize the scripting callback
-//   {
-//     PythonScripting new_scripting{ xmlFilePath( xml_scene_file_name.toStdString() ), new_scripting_callback_name };
-//     swap( m_scripting, new_scripting );
-//   }
+  // Initialize the scripting callback
+  {
+    PythonScripting new_scripting{ xmlFilePath( xml_scene_file_name.toStdString() ), new_scripting_callback_name };
+    swap( m_scripting, new_scripting );
+  }
 
-//   // Save the coefficient of restitution and the coefficient of friction
-//   m_CoR = new_CoR;
-//   m_mu = new_mu;
+  // Save the coefficient of restitution and the coefficient of friction
+  m_CoR = new_CoR;
+  m_mu = new_mu;
 
-//   // Push the new state to the simulation
-//   using std::swap;
-//   swap( new_simulation_state, m_sim.state() );
-//   m_sim.clearConstraintCache();
+  // Push the new state to the simulation
+  using std::swap;
+  swap( new_simulation_state, m_sim.state() );
+  m_sim.clearConstraintCache();
 
-//   // Cache the new state locally to allow one to reset a simulation
-//   m_sim0 = m_sim;
+  // Cache the new state locally to allow one to reset a simulation
+  m_sim0 = m_sim;
 
-//   // Save the timestep and compute related quantities
-//   m_dt = new_dt;
-//   assert( m_dt.positive() );
-//   m_iteration = 0;
-//   m_end_time = new_end_time;
-//   assert( m_end_time > 0.0 );
+  // Save the timestep and compute related quantities
+  m_dt = new_dt;
+  assert( m_dt.positive() );
+  m_iteration = 0;
+  m_end_time = new_end_time;
+  assert( m_end_time > 0.0 );
 
-//   // Update the FPS setting
-//   if( camera_set )
-//   {
-//     m_render_at_fps = new_render_at_fps;
-//     m_output_fps = new_fps;
-//     m_lock_camera = new_lock_camera;
-//   }
-//   assert( m_output_fps > 0 );
-//   setMovieFPS( m_output_fps );
+  // Update the FPS setting
+  if( camera_set )
+  {
+    m_render_at_fps = new_render_at_fps;
+    m_output_fps = new_fps;
+    m_lock_camera = new_lock_camera;
+  }
+  assert( m_output_fps > 0 );
+  setMovieFPS( m_output_fps );
 
-//   // For the parent to update the UI
-//   fps = m_output_fps;
-//   render_at_fps = m_render_at_fps;
-//   lock_camera = m_lock_camera;
+  // For the parent to update the UI
+  fps = m_output_fps;
+  render_at_fps = m_render_at_fps;
+  lock_camera = m_lock_camera;
 
-//   // Compute the initial energy, momentum, and angular momentum
-//   m_H0 = m_sim.state().computeTotalEnergy();
-//   m_p0 = m_sim.state().computeMomentum();
-//   m_L0 = m_sim.state().computeAngularMomentum();
-//   // Trivially there is no change in energy, momentum, and angular momentum until we take a timestep
-//   m_delta_H0 = 0.0;
-//   m_delta_p0 = Vector2s::Zero();
-//   m_delta_L0 = 0.0;
+  // Compute the initial energy, momentum, and angular momentum
+  m_H0 = m_sim.state().computeTotalEnergy();
+  m_p0 = m_sim.state().computeMomentum();
+  m_L0 = m_sim.state().computeAngularMomentum();
+  // Trivially there is no change in energy, momentum, and angular momentum until we take a timestep
+  m_delta_H0 = 0.0;
+  m_delta_p0 = Vector2s::Zero();
+  m_delta_L0 = 0.0;
 
-//   // Compute the number of characters after the decimal point in the timestep string
-//   m_display_precision = computeTimestepDisplayPrecision( m_dt, new_dt_string );
+  // Compute the number of characters after the decimal point in the timestep string
+  m_display_precision = computeTimestepDisplayPrecision( m_dt, new_dt_string );
 
-//   // Generate a random color for each ball
-//   // TODO: Initialize these directly in HSV of CMYK and save as QColor objects
-//   m_ball_colors.resize( 3 * m_sim.state().nballs() );
-//   {
-//     m_ball_color_gen = std::mt19937_64( 1337 );
-//     std::uniform_real_distribution<scalar> color_gen( 0.0, 1.0 );
-//     for( int i = 0; i < m_ball_colors.size(); i += 3 )
-//     {
-//       scalar r = 1.0;
-//       scalar g = 1.0;
-//       scalar b = 1.0;
-//       // Generate colors until we get one with a luminance within [0.1,0.9]
-//       while( ( 0.2126 * r + 0.7152 * g + 0.0722 * b ) > 0.9 || ( 0.2126 * r + 0.7152 * g + 0.0722 * b ) < 0.1 )
-//       {
-//         r = color_gen( m_ball_color_gen );
-//         g = color_gen( m_ball_color_gen );
-//         b = color_gen( m_ball_color_gen );
-//       }
-//       m_ball_colors.segment<3>( i ) << r, g, b;
-//     }
-//   }
+  // Generate a random color for each ball
+  // TODO: Initialize these directly in HSV of CMYK and save as QColor objects
+  m_ball_colors.resize( 3 * m_sim.state().nballs() );
+  {
+    m_ball_color_gen = std::mt19937_64( 1337 );
+    std::uniform_real_distribution<scalar> color_gen( 0.0, 1.0 );
+    for( int i = 0; i < m_ball_colors.size(); i += 3 )
+    {
+      scalar r = 1.0;
+      scalar g = 1.0;
+      scalar b = 1.0;
+      // Generate colors until we get one with a luminance within [0.1,0.9]
+      while( ( 0.2126 * r + 0.7152 * g + 0.0722 * b ) > 0.9 || ( 0.2126 * r + 0.7152 * g + 0.0722 * b ) < 0.1 )
+      {
+        r = color_gen( m_ball_color_gen );
+        g = color_gen( m_ball_color_gen );
+        b = color_gen( m_ball_color_gen );
+      }
+      m_ball_colors.segment<3>( i ) << r, g, b;
+    }
+  }
 
-//   // Reset the output movie option
-//   m_movie_dir_name = QString{};
-//   m_movie_dir = QDir{};
+  // Reset the output movie option
+  m_movie_dir_name = QString{};
+  m_movie_dir = QDir{};
 
-//   const bool lock_backup{ m_lock_camera };
-//   m_lock_camera = false;
+  const bool lock_backup{ m_lock_camera };
+  m_lock_camera = false;
 
-//   makeCurrent();
+  if( !camera_set )
+  {
+    centerCamera( false );
+  }
+  else
+  {
+    m_center_x = camera_center.x();
+    m_center_y = camera_center.y();
+    m_display_scale = camera_scale_factor;
+  }
 
-//   if( !camera_set )
-//   {
-//     centerCamera( false );
-//   }
-//   else
-//   {
-//     m_camera_controller.setCenter( camera_center.x(), camera_center.y() );
-//     m_camera_controller.setScaleFactor( camera_scale_factor );
-//     if( render_on_load )
-//     {
-//       m_camera_controller.reshape();
-//     }
-//   }
+  m_lock_camera = lock_backup;
 
-//   m_lock_camera = lock_backup;
+  // User-provided start of simulation python callback
+  m_scripting.setState( m_sim.state() );
+  m_scripting.startOfSimCallback();
+  m_scripting.forgetState();
 
-//   // User-provided start of simulation python callback
-//   m_scripting.setState( m_sim.state() );
-//   m_scripting.startOfSimCallback();
-//   m_scripting.forgetState();
+  if( render_on_load )
+  {
+    resizeGL( m_w, m_h );
+    update();
+  }
 
-//   if( render_on_load )
-//   {
-//     update();
-//   }
+  copyBallRenderState();
 
-//   return true;
-// }
+  return true;
+}
 
-// void GLWidget::stepSystem()
-// {
-//   if( m_iteration * scalar( m_dt ) >= m_end_time )
-//   {
-//     // User-provided end of simulation python callback
-//     m_scripting.setState( m_sim.state() );
-//     m_scripting.endOfSimCallback();
-//     m_scripting.forgetState();
-//     std::cout << "Simulation complete. Exiting." << std::endl;
-//     std::exit( EXIT_SUCCESS );
-//   }
+void GLWidget::copyBallRenderState()
+{
+  Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& circle_data{ m_ball_shader.circleData() };
+  circle_data.resize( 6 * m_sim.state().nballs() );
+  for( unsigned ball_idx = 0; ball_idx < m_sim.state().nballs(); ball_idx++ )
+  {
+    // Center of mass, radius, and color
+    circle_data.segment<2>( 6 * ball_idx ) = m_sim.state().q().segment<2>( 2 * ball_idx ).cast<GLfloat>();
+    circle_data( 6 * ball_idx + 2 ) = GLfloat(m_sim.state().r()( ball_idx ));
+    circle_data.segment<3>( 6 * ball_idx + 3 ) = m_ball_colors.segment<3>( 3 * ball_idx ).cast<GLfloat>();
+  }
+}
 
-//   const unsigned next_iter = m_iteration + 1;
+void GLWidget::stepSystem()
+{
+  if( m_iteration * scalar( m_dt ) >= m_end_time )
+  {
+    // User-provided end of simulation python callback
+    m_scripting.setState( m_sim.state() );
+    m_scripting.endOfSimCallback();
+    m_scripting.forgetState();
+    // TODO: Display a message! std::cout << "Simulation complete. Exiting." << std::endl;
+    std::exit( EXIT_SUCCESS );
+  }
 
-//   if( m_unconstrained_map == nullptr && m_impact_operator == nullptr && m_imap == nullptr && m_friction_solver == nullptr && m_if_map == nullptr )
-//   {
-//     return;
-//   }
-//   else if( m_unconstrained_map != nullptr && m_impact_operator == nullptr && m_imap == nullptr && m_friction_solver == nullptr && m_if_map == nullptr )
-//   {
-//     m_sim.flow( m_scripting, next_iter, m_dt, *m_unconstrained_map );
-//   }
-//   else if( m_unconstrained_map != nullptr && m_impact_operator != nullptr && m_imap != nullptr && m_friction_solver == nullptr && m_if_map == nullptr )
-//   {
-//     m_sim.flow( m_scripting, next_iter, m_dt, *m_unconstrained_map, *m_impact_operator, m_CoR, *m_imap );
-//   }
-//   else if( m_unconstrained_map != nullptr && m_impact_operator == nullptr && m_imap == nullptr && m_friction_solver != nullptr && m_if_map != nullptr )
-//   {
-//     m_sim.flow( m_scripting, next_iter, m_dt, *m_unconstrained_map, m_CoR, m_mu, *m_friction_solver, *m_if_map );
-//   }
-//   else
-//   {
-//     std::cerr << "Impossible code path hit. Exiting." << std::endl;
-//     std::exit( EXIT_FAILURE );
-//   }
+  const unsigned next_iter{ m_iteration + 1 };
 
-//   m_iteration++;
+  if( m_unconstrained_map == nullptr && m_impact_operator == nullptr && m_imap == nullptr && m_friction_solver == nullptr && m_if_map == nullptr )
+  {
+    return;
+  }
+  else if( m_unconstrained_map != nullptr && m_impact_operator == nullptr && m_imap == nullptr && m_friction_solver == nullptr && m_if_map == nullptr )
+  {
+    m_sim.flow( m_scripting, next_iter, m_dt, *m_unconstrained_map );
+  }
+  else if( m_unconstrained_map != nullptr && m_impact_operator != nullptr && m_imap != nullptr && m_friction_solver == nullptr && m_if_map == nullptr )
+  {
+    m_sim.flow( m_scripting, next_iter, m_dt, *m_unconstrained_map, *m_impact_operator, m_CoR, *m_imap );
+  }
+  else if( m_unconstrained_map != nullptr && m_impact_operator == nullptr && m_imap == nullptr && m_friction_solver != nullptr && m_if_map != nullptr )
+  {
+    m_sim.flow( m_scripting, next_iter, m_dt, *m_unconstrained_map, m_CoR, m_mu, *m_friction_solver, *m_if_map );
+  }
+  else
+  {
+    qFatal( "Impossible code path hit. Exiting." );
+  }
 
-//   {
-//     const Ball2DState& state{ m_sim.state() };
-//     m_delta_H0 = std::max( m_delta_H0, fabs( m_H0 - state.computeTotalEnergy() ) );
-//     const Vector2s p{ state.computeMomentum() };
-//     m_delta_p0.x() = std::max( m_delta_p0.x(), fabs( m_p0.x() - p.x() ) );
-//     m_delta_p0.y() = std::max( m_delta_p0.y(), fabs( m_p0.y() - p.y() ) );
-//     m_delta_L0 = std::max( m_delta_L0, fabs( m_L0 - state.computeAngularMomentum() ) );
-//   }
+  m_iteration++;
 
-//   // If the number of particles changed
-//   if( m_ball_colors.size() != 3 * m_sim.state().r().size() )
-//   {
+  {
+    const Ball2DState& state{ m_sim.state() };
+    m_delta_H0 = std::max( m_delta_H0, fabs( m_H0 - state.computeTotalEnergy() ) );
+    const Vector2s p{ state.computeMomentum() };
+    m_delta_p0.x() = std::max( m_delta_p0.x(), fabs( m_p0.x() - p.x() ) );
+    m_delta_p0.y() = std::max( m_delta_p0.y(), fabs( m_p0.y() - p.y() ) );
+    m_delta_L0 = std::max( m_delta_L0, fabs( m_L0 - state.computeAngularMomentum() ) );
+  }
+
+  // If the number of particles changed
+  if( m_ball_colors.size() != 3 * m_sim.state().r().size() )
+  {
+    qFatal( "Error, changing ball count not supported in the new front-end, yet!" );
 //     const unsigned original_size{ static_cast<unsigned>( m_ball_colors.size() ) };
 //     m_ball_colors.conservativeResize( 3 * m_sim.state().r().size() );
 //     // If the size grew
@@ -388,75 +364,78 @@ QSize GLWidget::sizeHint() const
 //         m_ball_colors.segment<3>( original_size + 3 * new_ball_num ) << r, g, b;
 //       }
 //     }
-//   }
+  }
 
-//   if( !m_render_at_fps || m_iteration % m_steps_per_frame == 0 )
-//   {
-//     update();
-//   }
+  copyBallRenderState();
 
-//   if( m_movie_dir_name.size() != 0 )
-//   {
-//     assert( m_steps_per_frame > 0 );
-//     if( m_iteration % m_steps_per_frame == 0 )
-//     {
-//       // Save a screenshot of the current state
-//       QString output_image_name{ QString{ tr( "frame%1.png" ) }.arg( m_output_frame, 10, 10, QLatin1Char('0') ) };
-//       saveScreenshot( m_movie_dir.filePath( output_image_name ) );
-//       ++m_output_frame;
-//     }
-//   }
-// }
+  if( !m_render_at_fps || m_iteration % m_steps_per_frame == 0 )
+  {
+    update();
+  }
 
-// void GLWidget::resetSystem()
-// {
-//   if( m_if_map != nullptr )
-//   {
-//     m_if_map->resetCachedData();
-//   }
+  if( m_movie_dir_name.size() != 0 )
+  {
+    assert( m_steps_per_frame > 0 );
+    if( m_iteration % m_steps_per_frame == 0 )
+    {
+      // Save a screenshot of the current state
+      QString output_image_name{ QString{ tr( "frame%1.png" ) }.arg( m_output_frame, 10, 10, QLatin1Char('0') ) };
+      saveScreenshot( m_movie_dir.filePath( output_image_name ) );
+      ++m_output_frame;
+    }
+  }
+}
 
-//   m_sim = m_sim0;
+void GLWidget::resetSystem()
+{
+  if( m_if_map != nullptr )
+  {
+    m_if_map->resetCachedData();
+  }
 
-//   m_iteration = 0;
+  m_sim = m_sim0;
 
-//   m_H0 = m_sim.state().computeTotalEnergy();
-//   m_p0 = m_sim.state().computeMomentum();
-//   m_L0 = m_sim.state().computeAngularMomentum();
-//   m_delta_H0 = 0.0;
-//   m_delta_p0.setZero();
-//   m_delta_L0 = 0.0;
+  m_iteration = 0;
 
-//   // Reset the output movie option
-//   m_movie_dir_name = QString{};
-//   m_movie_dir = QDir{};
-//   m_output_frame = 0;
+  m_H0 = m_sim.state().computeTotalEnergy();
+  m_p0 = m_sim.state().computeMomentum();
+  m_L0 = m_sim.state().computeAngularMomentum();
+  m_delta_H0 = 0.0;
+  m_delta_p0.setZero();
+  m_delta_L0 = 0.0;
 
-//   // Reset ball colors, in case the number of balls changed
-//   m_ball_colors.resize( 3 * m_sim.state().nballs() );
-//   {
-//     m_ball_color_gen = std::mt19937_64( 1337 );
-//     std::uniform_real_distribution<scalar> color_gen( 0.0, 1.0 );
-//     for( int i = 0; i < m_ball_colors.size(); i += 3 )
-//     {
-//       scalar r = 1.0; scalar g = 1.0; scalar b = 1.0;
-//       // Generate colors until we get one with a luminance within [0.1,0.9]
-//       while( ( 0.2126 * r + 0.7152 * g + 0.0722 * b ) > 0.9 || ( 0.2126 * r + 0.7152 * g + 0.0722 * b ) < 0.1 )
-//       {
-//         r = color_gen( m_ball_color_gen );
-//         g = color_gen( m_ball_color_gen );
-//         b = color_gen( m_ball_color_gen );
-//       }
-//       m_ball_colors.segment<3>( i ) << r, g, b;
-//     }
-//   }
+  // Reset the output movie option
+  m_movie_dir_name = QString{};
+  m_movie_dir = QDir{};
+  m_output_frame = 0;
 
-//   // User-provided start of simulation python callback
-//   m_scripting.setState( m_sim.state() );
-//   m_scripting.startOfSimCallback();
-//   m_scripting.forgetState();
+  // Reset ball colors, in case the number of balls changed
+  m_ball_colors.resize( 3 * m_sim.state().nballs() );
+  {
+    m_ball_color_gen = std::mt19937_64( 1337 );
+    std::uniform_real_distribution<scalar> color_gen( 0.0, 1.0 );
+    for( int i = 0; i < m_ball_colors.size(); i += 3 )
+    {
+      scalar r = 1.0; scalar g = 1.0; scalar b = 1.0;
+      // Generate colors until we get one with a luminance within [0.1,0.9]
+      while( ( 0.2126 * r + 0.7152 * g + 0.0722 * b ) > 0.9 || ( 0.2126 * r + 0.7152 * g + 0.0722 * b ) < 0.1 )
+      {
+        r = color_gen( m_ball_color_gen );
+        g = color_gen( m_ball_color_gen );
+        b = color_gen( m_ball_color_gen );
+      }
+      m_ball_colors.segment<3>( i ) << r, g, b;
+    }
+  }
 
-//   update();
-// }
+  // User-provided start of simulation python callback
+  m_scripting.setState( m_sim.state() );
+  m_scripting.startOfSimCallback();
+  m_scripting.forgetState();
+
+  copyBallRenderState();
+  update();
+}
 
 void GLWidget::initializeGL()
 {
@@ -507,15 +486,6 @@ void GLWidget::paintGL()
   assert( m_f != nullptr );
 
   m_f->glClear( GL_COLOR_BUFFER_BIT );
-  // f->glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-  // f->glEnable( GL_DEPTH_TEST );
-  // f->glEnable( GL_CULL_FACE );
-
-  // m_world.setToIdentity();
-  // m_world.rotate( 180.0f - (m_xRot / 16.0f), 1, 0, 0 );
-  // m_world.rotate( m_yRot / 16.0f, 0, 1, 0 );
-  // m_world.rotate( m_zRot / 16.0f, 0, 0, 1 );
-  // m_mesh_shader.draw( m_perspective_camera.projectionModelView(), m_world );
 
   m_ball_shader.draw();
 
@@ -589,23 +559,15 @@ void GLWidget::paintGL()
 //   glDisable( GL_LINE_STIPPLE );
 // }
 
-// void GLWidget::getViewportDimensions( GLint& width, GLint& height )
-// {
-//   GLint viewport[4];
-//   glGetIntegerv( GL_VIEWPORT, viewport );
-//   width = viewport[2];
-//   height = viewport[3];
-// }
+void GLWidget::renderAtFPS( const bool render_at_fps )
+{
+  m_render_at_fps = render_at_fps;
+}
 
-// void GLWidget::renderAtFPS( const bool render_at_fps )
-// {
-//   m_render_at_fps = render_at_fps;
-// }
-
-// void GLWidget::lockCamera( const bool lock_camera )
-// {
-//   m_lock_camera = lock_camera;
-// }
+void GLWidget::lockCamera( const bool lock_camera )
+{
+  m_lock_camera = lock_camera;
+}
 
 // void GLWidget::toggleHUD()
 // {
@@ -614,103 +576,102 @@ void GLWidget::paintGL()
 //   update();
 // }
 
-// void GLWidget::centerCamera( const bool update_gl )
-// {
-//   if( m_lock_camera )
-//   {
-//     return;
-//   }
+void GLWidget::centerCamera( const bool update_gl )
+{
+  if( m_lock_camera )
+  {
+    return;
+  }
 
-//   if( m_sim.empty() )
-//   {
-//     m_camera_controller.reset();
-//     return;
-//   }
+  if( m_sim.empty() )
+  {
+    m_display_scale = 1.0;
+    m_center_x = 0.0;
+    m_center_y = 0.0;
+    return;
+  }
 
-//   const Vector4s bbox{ m_sim.state().computeBoundingBox() };
-//   const scalar& minx{ bbox( 0 ) };
-//   const scalar& maxx{ bbox( 1 ) };
-//   const scalar& miny{ bbox( 2 ) };
-//   const scalar& maxy{ bbox( 3 ) };
+  const Vector4s bbox{ m_sim.state().computeBoundingBox() };
+  const scalar& minx{ bbox( 0 ) };
+  const scalar& maxx{ bbox( 1 ) };
+  const scalar& miny{ bbox( 2 ) };
+  const scalar& maxy{ bbox( 3 ) };
 
-//   const scalar cx{ minx + 0.5 * ( maxx - minx ) };
-//   const scalar rx{ maxx - cx };
-//   const scalar cy{ miny + 0.5 * ( maxy - miny ) };
-//   const scalar ry{ maxy - cy };
+  const scalar cx{ minx + 0.5 * ( maxx - minx ) };
+  const scalar rx{ maxx - cx };
+  const scalar cy{ miny + 0.5 * ( maxy - miny ) };
+  const scalar ry{ maxy - cy };
 
-//   GLint width;
-//   GLint height;
-//   getViewportDimensions( width, height );
+  const scalar ratio{ scalar( m_h ) / scalar( m_w ) };
+  const scalar size{ 1.2 * std::max( ratio * rx, ry ) };
 
-//   const scalar ratio{ scalar( height ) / scalar( width ) };
-//   const scalar size{ 1.2 * std::max( ratio * rx, ry ) };
+  m_center_x = cx;
+  m_center_y = cy;
+  m_display_scale = size;
 
-//   m_camera_controller.setCenter( cx, cy );
-//   m_camera_controller.setScaleFactor( size );
+  if( update_gl )
+  {
+    resizeGL( m_w, m_h );
+    update();
+  }
+}
 
-//   if( update_gl )
-//   {
-//     m_camera_controller.reshape( width, height );
-//     update();
-//   }
-// }
+void GLWidget::saveScreenshot( const QString& file_name )
+{
+  // std::cout << "Saving screenshot of time " << std::fixed << std::setprecision( m_display_precision ) << m_iteration * scalar( m_dt ) << " to " << file_name.toStdString() << std::endl;
+  const QImage frame_buffer{ grabFramebuffer() };
+  frame_buffer.save( file_name );
+}
 
-// void GLWidget::saveScreenshot( const QString& file_name )
-// {
-//   std::cout << "Saving screenshot of time " << std::fixed << std::setprecision( m_display_precision ) << m_iteration * scalar( m_dt ) << " to " << file_name.toStdString() << std::endl;
-//   const QImage frame_buffer{ grabFramebuffer() };
-//   frame_buffer.save( file_name );
-// }
+void GLWidget::setMovieDir( const QString& dir_name )
+{
+  m_movie_dir_name = dir_name;
+  m_output_frame = 0;
 
-// void GLWidget::setMovieDir( const QString& dir_name )
-// {
-//   m_movie_dir_name = dir_name;
-//   m_output_frame = 0;
+  // Save a screenshot of the current state
+  if( m_movie_dir_name.size() != 0 )
+  {
+    m_movie_dir.setPath( m_movie_dir_name );
+    assert( m_movie_dir.exists() );
 
-//   // Save a screenshot of the current state
-//   if( m_movie_dir_name.size() != 0 )
-//   {
-//     m_movie_dir.setPath( m_movie_dir_name );
-//     assert( m_movie_dir.exists() );
+    const QString output_image_name{ QString{ tr( "frame%1.png" ) }.arg( m_output_frame, 10, 10, QLatin1Char{ '0' } ) };
+    saveScreenshot( m_movie_dir.filePath( output_image_name ) );
+    m_output_frame++;
+  }
+}
 
-//     const QString output_image_name{ QString{ tr( "frame%1.png" ) }.arg( m_output_frame, 10, 10, QLatin1Char{ '0' } ) };
-//     saveScreenshot( m_movie_dir.filePath( output_image_name ) );
-//     m_output_frame++;
-//   }
-// }
+void GLWidget::setMovieFPS( const unsigned fps )
+{
+  assert( fps > 0 );
+  m_output_fps = fps;
+  m_output_frame = 0;
+  if( 1.0 < scalar( m_dt * std::intmax_t( m_output_fps ) ) )
+  {
+    qWarning() << "Warning, requested movie frame rate faster than timestep. Dumping at timestep rate.";
+    m_steps_per_frame = 1;
+  }
+  else
+  {
+    const Rational<std::intmax_t> potential_steps_per_frame{ std::intmax_t( 1 ) / ( m_dt * std::intmax_t( m_output_fps ) ) };
+    if( !potential_steps_per_frame.isInteger() )
+    {
+      if( m_dt != Rational<std::intmax_t>{ 0 } )
+      {
+        qWarning() << "Warning, timestep and output frequency do not yield an integer number of timesteps for data output. Dumping at timestep rate.";
+      }
+      m_steps_per_frame = 1;
+    }
+    else
+    {
+      m_steps_per_frame = unsigned( potential_steps_per_frame.numerator() );
+    }
+  }
+}
 
-// void GLWidget::setMovieFPS( const unsigned fps )
-// {
-//   assert( fps > 0 );
-//   m_output_fps = fps;
-//   m_output_frame = 0;
-//   if( 1.0 < scalar( m_dt * std::intmax_t( m_output_fps ) ) )
-//   {
-//     std::cerr << "Warning, requested movie frame rate faster than timestep. Dumping at timestep rate." << std::endl;
-//     m_steps_per_frame = 1;
-//   }
-//   else
-//   {
-//     const Rational<std::intmax_t> potential_steps_per_frame{ std::intmax_t( 1 ) / ( m_dt * std::intmax_t( m_output_fps ) ) };
-//     if( !potential_steps_per_frame.isInteger() )
-//     {
-//       if( m_dt != Rational<std::intmax_t>{ 0 } )
-//       {
-//         std::cerr << "Warning, timestep and output frequency do not yield an integer number of timesteps for data output. Dumping at timestep rate." << std::endl;
-//       }
-//       m_steps_per_frame = 1;
-//     }
-//     else
-//     {
-//       m_steps_per_frame = unsigned( potential_steps_per_frame.numerator() );
-//     }
-//   }
-// }
-
-// void GLWidget::exportCameraSettings()
-// {
-//   std::cout << "<camera cx=\"" << m_camera_controller.centerX() << "\" cy=\"" << m_camera_controller.centerY() << "\" scale_factor=\"" << m_camera_controller.scaleFactor() << "\" fps=\"" << m_output_fps << "\" render_at_fps=\"" << m_render_at_fps << "\" locked=\"" << m_lock_camera << "\"/>" << std::endl;
-// }
+void GLWidget::exportCameraSettings()
+{
+  std::cout << "<camera cx=\"" << m_center_x << "\" cy=\"" << m_center_y << "\" scale_factor=\"" << m_display_scale << "\" fps=\"" << m_output_fps << "\" render_at_fps=\"" << m_render_at_fps << "\" locked=\"" << m_lock_camera << "\"/>" << std::endl;
+}
 
 // static void paintInfiniteLine( const Vector2s& x, const Vector2s& n )
 // {
@@ -1180,7 +1141,7 @@ void GLWidget::mousePressEvent( QMouseEvent* event )
   {
     return;
   }
-  
+
 //   bool repaint_needed{ false };
 
   if( event->buttons() & Qt::LeftButton )

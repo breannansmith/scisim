@@ -1,6 +1,8 @@
 #ifndef BALL_SHADER_H
 #define BALL_SHADER_H
 
+#include "scisim/Math/MathDefines.h"
+
 #include <QOpenGLFunctions_3_3_Core>
 
 class QMatrix4x4;
@@ -26,6 +28,8 @@ public:
   // void draw( const QMatrix4x4& pmv, const QMatrix4x4& world );
   void draw();
 
+  Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& circleData();
+
 private:
 
   QOpenGLFunctions_3_3_Core* m_f;
@@ -35,9 +39,16 @@ private:
   GLuint m_program;
 
   GLint m_pv_mat_loc;
+  GLint m_trans_vec_loc;
+  GLint m_radius_float_loc;
+  GLint m_color_vec_loc;
 
-  // TODO: allocate storage for circle centers of mass, radii, and colors
-  // size is: 2 + 1 + 3 == 6
+  // The number of verts in the circle template
+  GLsizei m_num_circle_verts;
+
+  // Storage for the circles to render
+  // size is: 6 * num_circles
+  Eigen::Matrix<GLfloat,Eigen::Dynamic,1> m_circle_data;
 
 };
 
