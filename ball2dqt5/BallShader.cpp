@@ -4,6 +4,8 @@
 
 #include <cassert>
 
+// TODO: Try a version that uses an EBO
+
 static const char* const vertex_shader_source = {
   "#version 330 core\n"
   "layout (location = 0) in vec2 position;\n"
@@ -32,7 +34,6 @@ static const char* const fragment_shader_source = {
 BallShader::BallShader()
 : m_f( nullptr )
 , m_VAO( 0 )
-, m_VBO( 0 )
 , m_instance_VBO( 0 )
 , m_program( 0 )
 , m_pv_mat_loc( -1 )
@@ -98,6 +99,23 @@ private:
 
 };
 
+static std::vector<GLfloat> tesselateCircle(const int num_divs)
+{
+  std::vector<GLfloat> vertices( 6 * num_divs );
+  const GLfloat dtheta{ GLfloat( 2.0 ) * PI<GLfloat> / GLfloat( num_divs ) };
+  for( int div_num = 0; div_num < num_divs; div_num++ )
+  {
+    const int base_idx = 6 * div_num;
+    vertices[base_idx + 0] = 0.0;
+    vertices[base_idx + 1] = 0.0;
+    vertices[base_idx + 2] = std::cos( div_num * dtheta );
+    vertices[base_idx + 3] = std::sin( div_num * dtheta );
+    vertices[base_idx + 4] = std::cos( ((div_num + 1) % num_divs) * dtheta );
+    vertices[base_idx + 5] = std::sin( ((div_num + 1) % num_divs) * dtheta );
+  }
+  return vertices;
+}
+
 void BallShader::initialize( QOpenGLFunctions_3_3_Core* f )
 {
   assert( f != nullptr );
@@ -141,28 +159,19 @@ void BallShader::initialize( QOpenGLFunctions_3_3_Core* f )
   assert( m_program > 0 );
 
   // Create a buffer for the circle geometry
-  assert( m_VBO == 0 );
-  m_f->glGenBuffers( 1, &m_VBO );
-
-  std::vector<GLfloat> vertices;
+  GLuint circle_vbo = 0;
+  m_f->glGenBuffers( 1, &circle_vbo );
   {
-    constexpr int num_divs = 32;
-    constexpr GLfloat dtheta{ GLfloat( 2.0 ) * PI<GLfloat> / GLfloat( num_divs ) };
-    vertices.resize( 6 * num_divs );
-    for( int div_num = 0; div_num < num_divs; div_num++ )
-    {
-      const int base_idx = 6 * div_num;
-      vertices[base_idx + 0] = 0.0;
-      vertices[base_idx + 1] = 0.0;
-      vertices[base_idx + 2] = std::cos( div_num * dtheta );
-      vertices[base_idx + 3] = std::sin( div_num * dtheta );
-      vertices[base_idx + 4] = std::cos( ((div_num + 1) % num_divs) * dtheta );
-      vertices[base_idx + 5] = std::sin( ((div_num + 1) % num_divs) * dtheta );
-    }
-  }
+    // TODO: Pull the circle generation code into a separate support function
+    const std::vector<GLfloat> vertices = tesselateCircle( 32 );
 
-  assert( vertices.size() % 2 == 0 );
-  m_num_circle_verts = vertices.size() / 2;
+    assert( vertices.size() % 2 == 0 );
+    m_num_circle_verts = vertices.size() / 2;
+
+    m_f->glBindBuffer( GL_ARRAY_BUFFER, circle_vbo );
+    m_f->glBufferData( GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW );
+    m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
+  }
 
   // Create a buffer for each body's center of mass, radius, and color
   m_f->glGenBuffers( 1, &m_instance_VBO );
@@ -172,25 +181,31 @@ void BallShader::initialize( QOpenGLFunctions_3_3_Core* f )
   m_f->glBindVertexArray( m_VAO );
     // The circle geometry
     m_f->glEnableVertexAttribArray( 0 );
-    m_f->glBindBuffer( GL_ARRAY_BUFFER, m_VBO );
-    m_f->glBufferData( GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW );
+    m_f->glBindBuffer( GL_ARRAY_BUFFER, circle_vbo );
     m_f->glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), static_cast<GLvoid*>(0) );
+    m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
     // The circle centers of mass
     m_f->glEnableVertexAttribArray( 1 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
     m_f->glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), static_cast<GLvoid*>(0) );
     m_f->glVertexAttribDivisor( 1, 1 );
+    m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
     // The circle radii
     m_f->glEnableVertexAttribArray( 2 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
     m_f->glVertexAttribPointer( 2, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)( 2 * sizeof(GLfloat) ) );
     m_f->glVertexAttribDivisor( 2, 1 );
+    m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
     // The circle colors
     m_f->glEnableVertexAttribArray( 3 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
     m_f->glVertexAttribPointer( 3, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)( 3 * sizeof(GLfloat) ) );
     m_f->glVertexAttribDivisor( 3, 1 );
+    m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
   m_f->glBindVertexArray( 0 );
+
+  // Circle vbo is no longer needed
+  m_f->glDeleteBuffers( 1, &circle_vbo );
 
   // Cache the uniform locations
   m_pv_mat_loc = m_f->glGetUniformLocation( m_program, "projection_view" );
@@ -204,7 +219,6 @@ void BallShader::cleanup()
 {
   assert( m_f != nullptr );
   m_f->glDeleteVertexArrays( 1, &m_VAO );
-  m_f->glDeleteBuffers( 1, &m_VBO );
   m_f->glDeleteBuffers( 1, &m_instance_VBO );
   m_f->glDeleteProgram( m_program );
   m_f = nullptr;

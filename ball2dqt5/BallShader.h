@@ -33,7 +33,6 @@ private:
   QOpenGLFunctions_3_3_Core* m_f;
 
   GLuint m_VAO;
-  GLuint m_VBO;
   GLuint m_instance_VBO;
   GLuint m_program;
 
