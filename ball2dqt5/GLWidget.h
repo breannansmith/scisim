@@ -48,8 +48,7 @@ public:
 
   void lockCamera( const bool lock_camera );
 
-  void toggleHUD()
-  {}
+  void toggleHUD();
 
   void centerCamera( const bool update_gl = true );
 
@@ -84,7 +83,7 @@ private:
 
   // void paintSystem();
 
-  // void paintHUD();
+  void paintHUD();
 
   QOpenGLFunctions_3_3_Core* m_f;
 
@@ -111,7 +110,7 @@ private:
   // Number of decimal places to display in time display
   int m_display_precision;
 
-  // bool m_display_HUD;
+  bool m_display_HUD;
 
   // Directory to save periodic screenshots of the simulation into
   QString m_movie_dir_name;

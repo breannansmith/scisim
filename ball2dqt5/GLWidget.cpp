@@ -7,7 +7,9 @@
 // #include <QtGui>
 // #include <QtOpenGL>
 
+#include <QPainter>
 #include <QWheelEvent>
+#include <QFontDatabase>
 #include <QOpenGLFunctions_3_3_Core>
 
 #include <cassert>
@@ -51,7 +53,7 @@ GLWidget::GLWidget( QWidget* parent )
 , m_ball_colors()
 , m_ball_color_gen( 1337 )
 , m_display_precision( 0 )
-// , m_display_HUD( true )
+, m_display_HUD( true )
 , m_movie_dir_name()
 , m_movie_dir()
 , m_output_frame( 0 )
@@ -489,6 +491,11 @@ void GLWidget::paintGL()
 
   m_ball_shader.draw();
 
+  if( m_display_HUD )
+  {
+    paintHUD();
+  }
+
   assert( checkGLErrors() );
 }
 // {
@@ -569,12 +576,11 @@ void GLWidget::lockCamera( const bool lock_camera )
   m_lock_camera = lock_camera;
 }
 
-// void GLWidget::toggleHUD()
-// {
-//   m_display_HUD = !m_display_HUD;
-
-//   update();
-// }
+void GLWidget::toggleHUD()
+{
+  m_display_HUD = !m_display_HUD;
+  update();
+}
 
 void GLWidget::centerCamera( const bool update_gl )
 {
@@ -1026,114 +1032,67 @@ void GLWidget::exportCameraSettings()
 //   glPopAttrib();
 // }
 
-// static QString generateTimeString( const unsigned iteration, const Rational<std::intmax_t>& dt, const int display_precision, const scalar& end_time )
-// {
-//   QString time_string{ QObject::tr( "  t: " ) };
-//   time_string += QString::number( iteration * scalar( dt ), 'f', display_precision );
-//   if( end_time != SCALAR_INFINITY )
-//   {
-//     time_string += QString{ QObject::tr( " / " ) };
-//     time_string += QString::number( end_time );
-//   }
-//   return time_string;
-// }
+static QString generateTimeString( const unsigned iteration, const Rational<std::intmax_t>& dt, const int display_precision, const scalar& end_time )
+{
+  QString time_string{ QObject::tr( "  t: " ) };
+  time_string += QString::number( iteration * scalar( dt ), 'f', display_precision );
+  if( end_time != SCALAR_INFINITY )
+  {
+    time_string += QString{ QObject::tr( " / " ) };
+    time_string += QString::number( end_time );
+  }
+  return time_string;
+}
 
-// static QString generateNumericString( const std::string& label, const scalar& number )
-// {
-//   return QString{ label.c_str() } + QString::number( number );
-// }
+static QString generateNumericString( const std::string& label, const scalar& number )
+{
+  return QString{ label.c_str() } + QString::number( number );
+}
 
-// void GLWidget::paintHUD()
-// {
-//   static int text_width{ 0 };
+void GLWidget::paintHUD()
+{
+  const QString time_string{ generateTimeString( m_iteration, m_dt, m_display_precision, m_end_time ) };
+  const QString delta_H{ generateNumericString( " dH: ", m_delta_H0 ) };
+  const QString delta_px{ generateNumericString( "dpx: ", m_delta_p0.x() ) };
+  const QString delta_py{ generateNumericString( "dpy: ", m_delta_p0.y() ) };
+  const QString delta_L{ generateNumericString( " dL: ", m_delta_L0 ) };
 
-//   // String to display in upper left corner
-//   const QString time_string{ generateTimeString( m_iteration, m_dt, m_display_precision, m_end_time ) };
-//   const QString delta_H{ generateNumericString( " dH: ", m_delta_H0 ) };
-//   const QString delta_px{ generateNumericString( "dpx: ", m_delta_p0.x() ) };
-//   const QString delta_py{ generateNumericString( "dpy: ", m_delta_p0.y() ) };
-//   const QString delta_L{ generateNumericString( " dL: ", m_delta_L0 ) };
+  QFont fixedFont{ QFontDatabase::systemFont(QFontDatabase::FixedFont) };
+  fixedFont.setPointSize( 12 );
 
-//   QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-//   fixedFont.setPointSize(12);
+  int text_width{ 0 };
+  {
+    const QFontMetrics font_metrics{ fixedFont };
+    text_width = std::max( text_width, font_metrics.boundingRect( time_string ).width() );
+    text_width = std::max( text_width, font_metrics.boundingRect( delta_H ).width() );
+    text_width = std::max( text_width, font_metrics.boundingRect( delta_px ).width() );
+    text_width = std::max( text_width, font_metrics.boundingRect( delta_py ).width() );
+    text_width = std::max( text_width, font_metrics.boundingRect( delta_L ).width() );
+  }
 
-//   {
-//     const QFontMetrics font_metrics{ fixedFont };
-//     text_width = std::max( text_width, font_metrics.boundingRect( time_string ).width() );
-//     text_width = std::max( text_width, font_metrics.boundingRect( delta_H ).width() );
-//     text_width = std::max( text_width, font_metrics.boundingRect( delta_px ).width() );
-//     text_width = std::max( text_width, font_metrics.boundingRect( delta_py ).width() );
-//     text_width = std::max( text_width, font_metrics.boundingRect( delta_L ).width() );
-//   }
+  const int pixelRatio{ devicePixelRatio() }; // TODO: Cache the pixel ratio?
+  const int xextent{ (text_width + 2 + 4) * pixelRatio };
+  const int yextent{ (5 * 12 + 4) * pixelRatio };
 
-//   glPushAttrib( GL_MATRIX_MODE );
-//   glMatrixMode( GL_PROJECTION );
-//   glPushMatrix();
-//   glMatrixMode( GL_MODELVIEW );
-//   glPushMatrix();
+  {
+    QPainter painter{ this };
+    painter.setPen( QColor{ 0, 0, 0, 125 } );
+    {
+      const QRect rect{ 0, 0, xextent, yextent };
+      painter.fillRect( rect, QBrush{ QColor{ 0, 0, 0, 128 } } );
+    }
+    painter.setPen( QColor{ 255, 255, 255 } );
+    painter.setFont( fixedFont );
+    painter.drawText( 2, fixedFont.pointSize(), time_string );
+    painter.drawText( 2, 2 * fixedFont.pointSize(), delta_H );
+    painter.drawText( 2, 3 * fixedFont.pointSize(), delta_px );
+    painter.drawText( 2, 4 * fixedFont.pointSize(), delta_py );
+    painter.drawText( 2, 5 * fixedFont.pointSize(), delta_L );
+  }
 
-//   // Set an orthographic projection with height and width equal to window height and width
-//   glMatrixMode( GL_PROJECTION );
-//   glLoadIdentity();
-//   GLint width;
-//   GLint height;
-//   getViewportDimensions( width, height );
-//   assert( width > 0 );
-//   assert( height > 0 );
-//   glOrtho( 0, width, 0, height, -1, 1 );
-//   glMatrixMode( GL_MODELVIEW );
-//   glLoadIdentity();
-
-//   // Enable blending for transparent HUD elements
-//   glPushAttrib( GL_BLEND );
-//   glEnable( GL_BLEND );
-//   glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-
-//   // Draw a semi-transparent overlay so text is visible regardless of background color
-//   const int pixelRatio = devicePixelRatio();
-//   const Eigen::Matrix<GLdouble,2,1> overlay_start{ 0, (height + (- 5 * 12 - 4) * pixelRatio ) };
-//   const Eigen::Matrix<GLdouble,2,1> overlay_extnt{ (text_width + 2 + 4) * pixelRatio, height * pixelRatio };
-
-//   glColor4d( 0.0, 0.0, 0.0, 0.5 );
-//   glBegin( GL_QUADS );
-//   glVertex2d( GLdouble( overlay_start.x() ), GLdouble( overlay_start.y() ) );
-//   glVertex2d( GLdouble( overlay_start.x() + overlay_extnt.x() ), GLdouble( overlay_start.y() ) );
-//   glVertex2d( GLdouble( overlay_start.x() + overlay_extnt.x() ), GLdouble( overlay_start.y() + overlay_extnt.y() ) );
-//   glVertex2d( GLdouble( overlay_start.x() ), GLdouble( overlay_start.y() + overlay_extnt.y() ) );
-//   glEnd();
-
-//   glDisable( GL_BLEND );
-//   glPopAttrib();
-
-// 	glMatrixMode( GL_MODELVIEW );
-//   glPopMatrix();
-//   glMatrixMode( GL_PROJECTION );
-//   glPopMatrix();
-//   glPopAttrib();
-
-//   {
-//     assert( checkGLErrors() );
-
-//     QPainter painter( this );
-//     painter.setPen( QColor( 255, 255, 255 ) );
-//     painter.setFont( fixedFont );
-//     painter.drawText( 2, fixedFont.pointSize(), time_string );
-//     painter.drawText( 2, 2 * fixedFont.pointSize(), delta_H );
-//     painter.drawText( 2, 3 * fixedFont.pointSize(), delta_px );
-//     painter.drawText( 2, 4 * fixedFont.pointSize(), delta_py );
-//     painter.drawText( 2, 5 * fixedFont.pointSize(), delta_L );
-//   }
-
-//   // TODO: Remove this workaround later...
-//   // Silently consume the error as a workaround for a bug in Qt 5.8 on OS X
-//   while( !checkGLErrors( false ) )
-//   {}
-
-//   // QPainter disables multi-sampling, so turn it back on
-//   glEnable(GL_MULTISAMPLE);
-
-//   assert( checkGLErrors() );
-// }
+  // QPainter disables multi-sampling, so turn it back on
+  glEnable( GL_MULTISAMPLE );
+}
 
 void GLWidget::mousePressEvent( QMouseEvent* event )
 {
