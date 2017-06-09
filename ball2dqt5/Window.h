@@ -3,9 +3,6 @@
 
 #include <QMainWindow>
 
-class QKeyEvent;
-class ContentWidget;
-
 class Window final : public QMainWindow
 {
 

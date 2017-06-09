@@ -1,8 +1,8 @@
-#include <cassert>
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QSurfaceFormat>
-#include <iostream>
+
+#include <cassert>
 
 #include "Window.h"
 
@@ -72,8 +72,7 @@ int main( int argc, char** argv )
   const QStringList arguments{ app.arguments() };
   if( arguments.count() > 2 )
   {
-    std::cerr << "Error, must provide a valid configuration file name or no argument. Exiting." << std::endl;
-    return EXIT_FAILURE;
+    qFatal( "Error, must provide a valid configuration file name or no argument. Exiting." );
   }
 
   Window window{ arguments.count() == 2 ? arguments[1] : "" };

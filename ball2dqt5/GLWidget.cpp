@@ -1,22 +1,14 @@
 #include "GLWidget.h"
 
-#include <QOpenGLFunctions>
 #include <QMatrix4x4>
-
-// #include <QDir>
-// #include <QtGui>
-// #include <QtOpenGL>
-
 #include <QPainter>
 #include <QWheelEvent>
 #include <QFontDatabase>
 #include <QOpenGLFunctions_3_3_Core>
+#include <QApplication>
 
+#include <iomanip>
 #include <cassert>
-// #include <cmath>
-#include <iostream>
-// #include <fstream>
-// #include <iomanip>
 
 #include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
@@ -24,13 +16,7 @@
 #include "scisim/ConstrainedMaps/FrictionSolver.h"
 #include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
 
-// #include "scisim/StringUtilities.h"
-// #include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
-
 #include "ball2d/Ball2DState.h"
-// #include "ball2d/StaticGeometry/StaticPlane.h"
-// #include "ball2d/StaticGeometry/StaticDrum.h"
-// #include "ball2d/Portals/PlanarPortal.h"
 
 #include "ball2dutils/Ball2DSceneParser.h"
 
@@ -301,8 +287,8 @@ void GLWidget::stepSystem()
     m_scripting.setState( m_sim.state() );
     m_scripting.endOfSimCallback();
     m_scripting.forgetState();
-    // TODO: Display a message! std::cout << "Simulation complete. Exiting." << std::endl;
-    std::exit( EXIT_SUCCESS );
+    qInfo( "Simulation complete. Exiting." );
+    QApplication::quit();
   }
 
   const unsigned next_iter{ m_iteration + 1 };
@@ -375,7 +361,7 @@ void GLWidget::stepSystem()
     update();
   }
 
-  if( m_movie_dir_name.size() != 0 )
+  if( !m_movie_dir_name.isEmpty() )
   {
     assert( m_steps_per_frame > 0 );
     if( m_iteration % m_steps_per_frame == 0 )
@@ -624,7 +610,9 @@ void GLWidget::centerCamera( const bool update_gl )
 
 void GLWidget::saveScreenshot( const QString& file_name )
 {
-  // std::cout << "Saving screenshot of time " << std::fixed << std::setprecision( m_display_precision ) << m_iteration * scalar( m_dt ) << " to " << file_name.toStdString() << std::endl;
+  std::stringstream ss;
+  ss << "Saving screenshot of time " << std::fixed << std::setprecision( m_display_precision ) << m_iteration * scalar( m_dt ) << " to " << file_name.toStdString();
+  qInfo( "%s", ss.str().c_str() );
   const QImage frame_buffer{ grabFramebuffer() };
   frame_buffer.save( file_name );
 }
@@ -635,7 +623,7 @@ void GLWidget::setMovieDir( const QString& dir_name )
   m_output_frame = 0;
 
   // Save a screenshot of the current state
-  if( m_movie_dir_name.size() != 0 )
+  if( !m_movie_dir_name.isEmpty() )
   {
     m_movie_dir.setPath( m_movie_dir_name );
     assert( m_movie_dir.exists() );
@@ -676,7 +664,9 @@ void GLWidget::setMovieFPS( const unsigned fps )
 
 void GLWidget::exportCameraSettings()
 {
-  std::cout << "<camera cx=\"" << m_center_x << "\" cy=\"" << m_center_y << "\" scale_factor=\"" << m_display_scale << "\" fps=\"" << m_output_fps << "\" render_at_fps=\"" << m_render_at_fps << "\" locked=\"" << m_lock_camera << "\"/>" << std::endl;
+  std::stringstream ss;
+  ss << "<camera cx=\"" << m_center_x << "\" cy=\"" << m_center_y << "\" scale_factor=\"" << m_display_scale << "\" fps=\"" << m_output_fps << "\" render_at_fps=\"" << m_render_at_fps << "\" locked=\"" << m_lock_camera << "\"/>";
+  qInfo( "%s", ss.str().c_str() );
 }
 
 // static void paintInfiniteLine( const Vector2s& x, const Vector2s& n )
@@ -1071,7 +1061,7 @@ void GLWidget::paintHUD()
   }
 
   const int xextent{ text_width + 2 + 4 };
-  const int yextent{ 5 * 12 + 4 };
+  constexpr int yextent{ 5 * 12 + 4 };
 
   {
     QPainter painter{ this };

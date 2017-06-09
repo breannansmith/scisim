@@ -4,94 +4,34 @@
 
 #include <QMenu>
 #include <QMenuBar>
-#include <QKeyEvent>
 
 #include "ContentWidget.h"
 
 Window::Window( const QString& scene_name, QWidget* parent )
 : QMainWindow( parent )
 {
-  ContentWidget* content_widget = new ContentWidget{ scene_name, this };
+  ContentWidget* content_widget{ new ContentWidget{ scene_name, this } };
+  setCentralWidget( content_widget );
 
   // File menu actions
   {
     QMenu* file{ menuBar()->addMenu( tr( "File" ) ) };
-
-    // Load the input xml file
-    {
-      QAction* open_scene{ new QAction{ tr( "Open..." ), this } };
-      open_scene->setShortcut( tr( "Ctrl+o" ) );
-      file->addAction( open_scene );
-      connect( open_scene, SIGNAL( triggered() ), content_widget, SLOT( openScene() ) );
-    }
-
-    // Reload the current xml file
-    {
-      QAction* reload_scene{ new QAction{ tr( "Reload" ), this } };
-      reload_scene->setShortcut( tr( "Ctrl+r" ) );
-      file->addAction( reload_scene );
-      connect( reload_scene, SIGNAL( triggered() ), content_widget, SLOT( reloadScene() ) );
-    }
-
-    // Add a separator
-    {
-      QAction* separator{ new QAction{ this } };
-      separator->setSeparator( true );
-      file->addAction( separator );
-    }
-
-    // Export an image of the scene
-    {
-      QAction* export_image{ new QAction{ tr( "Export Image..." ), this } };
-      export_image->setShortcut( tr( "Ctrl+i" ) );
-      file->addAction( export_image );
-      connect( export_image, SIGNAL( triggered() ), content_widget, SLOT( exportImage() ) );
-    }
-
-    // Export a movie of the scene
-    {
-      QAction* export_movie{ new QAction{ tr( "Export Movie..." ), this } };
-      export_movie->setShortcut( tr( "Ctrl+m" ) );
-      file->addAction( export_movie );
-      connect( export_movie, SIGNAL( triggered() ), content_widget, SLOT( exportMovie() ) );
-    }
-
-    // Add a separator
-    {
-      QAction* separator{ new QAction{ this } };
-      separator->setSeparator( true );
-      file->addAction( separator );
-    }
-
-    // Export the current camera settings
-    {
-      QAction* export_camera_settings{ new QAction{ tr( "Export Camera..." ), this } };
-      file->addAction( export_camera_settings );
-      connect( export_camera_settings, SIGNAL( triggered() ), content_widget, SLOT( exportCameraSettings() ) );
-    }
+    assert( file != nullptr );
+    file->addAction( tr( "Open..." ), content_widget, SLOT( openScene() ), tr( "Ctrl+o" ) );
+    file->addAction( tr( "Reload" ), content_widget, SLOT( reloadScene() ), tr( "Ctrl+r" ) );
+    file->addSeparator();
+    file->addAction( tr( "Export Image..." ), content_widget, SLOT( exportImage() ), tr( "Ctrl+i" ) );
+    file->addAction( tr( "Export Movie..." ), content_widget, SLOT( exportMovie() ), tr( "Ctrl+m" ) );
+    file->addSeparator();
+    file->addAction( tr( "Export Camera..." ), content_widget, SLOT( exportCameraSettings() ) );
   }
 
   // View menu actions
   {
     QMenu* view{ menuBar()->addMenu( tr( "View" ) ) };
-
-    // Toggle the heads up display
-    QAction* toggle_hud{ new QAction{ tr( "Togge HUD" ), this } };
-    toggle_hud->setShortcut( tr( "h" ) );
-    view->addAction( toggle_hud );
-    connect( toggle_hud, SIGNAL( triggered() ), content_widget, SLOT( toggleHUD() ) );
-
-    // Add a separator
-    QAction* separator{ new QAction{ this } };
-    separator->setSeparator( true );
-    view->addAction( separator );
-
-    // Center the camera
-    QAction* center_camera{ new QAction( tr( "Center Camera" ), this ) };
-    center_camera->setShortcut( tr( "c" ) );
-    view->addAction( center_camera );
-    connect( center_camera, SIGNAL( triggered() ), content_widget, SLOT( centerCamera() ) );
+    assert( view != nullptr );
+    view->addAction( tr( "Togge HUD" ), content_widget, SLOT( toggleHUD() ), tr( "h" ) );
+    view->addSeparator();
+    view->addAction( tr( "Center Camera" ), content_widget, SLOT( centerCamera() ), tr( "c" ) );
   }
-
-  setCentralWidget( content_widget );
 }

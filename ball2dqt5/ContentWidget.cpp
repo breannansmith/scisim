@@ -9,7 +9,6 @@
 #include <QFileDialog>
 
 #include <cassert>
-#include <iostream>
 
 #include "GLWidget.h"
 
@@ -20,6 +19,7 @@ ContentWidget::ContentWidget( const QString& scene_name, QWidget* parent )
 , m_xml_file_name()
 {
   QVBoxLayout* mainLayout{ new QVBoxLayout };
+  setLayout( mainLayout );
 
   // Add the OpenGL display
   mainLayout->addWidget( m_gl_widget );
@@ -27,11 +27,12 @@ ContentWidget::ContentWidget( const QString& scene_name, QWidget* parent )
   // Add the layout for controls
   {
     QGridLayout* controls_layout{ new QGridLayout };
+    mainLayout->addLayout( controls_layout );
 
     // Solver buttons
     m_simulate_checkbox = new QCheckBox{ tr( "Simulate" ) };
-    m_simulate_checkbox->setChecked( false );
     controls_layout->addWidget( m_simulate_checkbox, 0, 0 );
+    m_simulate_checkbox->setChecked( false );
     connect( m_simulate_checkbox, SIGNAL( toggled( bool ) ), this, SLOT( simulateToggled( bool ) ) );
 
     // Button for taking a single time step
@@ -60,32 +61,28 @@ ContentWidget::ContentWidget( const QString& scene_name, QWidget* parent )
 
     // Movie export controls
     m_export_movie_checkbox = new QCheckBox{ tr( "Export Movie" ) };
-    m_export_movie_checkbox->setChecked( false );
     controls_layout->addWidget( m_export_movie_checkbox, 1, 2 );
+    m_export_movie_checkbox->setChecked( false );
     connect( m_export_movie_checkbox, SIGNAL( toggled( bool ) ), this, SLOT( exportMovieToggled( bool ) ) );
 
     // Label for movie output FPS
     {
       QLabel* fps_label{ new QLabel{ this } };
+      controls_layout->addWidget( fps_label, 1, 3 );
       fps_label->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
       fps_label->setText( tr( "FPS:" ) );
-      controls_layout->addWidget( fps_label, 1, 3 );
     }
 
     // Input for movie output FPS
     m_fps_spin_box = new QSpinBox{ this };
+    controls_layout->addWidget( m_fps_spin_box, 1, 4 );
     m_fps_spin_box->setRange( 1, 1000 );
     m_fps_spin_box->setValue( 50 );
-    controls_layout->addWidget( m_fps_spin_box, 1, 4 );
     connect( m_fps_spin_box, SIGNAL( valueChanged( int ) ), this, SLOT( movieFPSChanged( int ) ) );
     m_gl_widget->setMovieFPS( m_fps_spin_box->value() );
-
-    mainLayout->addLayout( controls_layout );
   }
 
-  setLayout( mainLayout );
-
-  // Create a timer that triggers simulation steps when Qt4 is idle
+  // Create a timer that triggers simulation steps when Qt is idle
   m_idle_timer = new QTimer{ this };
   connect( m_idle_timer, SIGNAL( timeout() ), this, SLOT( takeStep() ) );
 
@@ -155,21 +152,18 @@ void ContentWidget::openScene()
 
 void ContentWidget::openScene( const QString& scene_file_name, const bool render_on_load )
 {
-  // Determine whether the requested file exists
-  const bool file_exists{ QFile::exists( scene_file_name ) };
-
   // If the user provided a valid file
-  if( file_exists )
+  if( QFile::exists( scene_file_name ) )
   {
     // Attempt to load the file
     assert( m_gl_widget != nullptr );
     unsigned fps;
     bool render_at_fps;
     bool lock_camera;
-    const bool successfully_loaded{ m_gl_widget->openScene( scene_file_name, render_on_load, fps, render_at_fps, lock_camera ) };
+    const bool loaded{ m_gl_widget->openScene( scene_file_name, render_on_load, fps, render_at_fps, lock_camera ) };
 
     // If the load was successful
-    if( successfully_loaded )
+    if( loaded )
     {
       // Make sure the simulation isn't running when we start
       assert( m_simulate_checkbox != nullptr );
@@ -193,7 +187,9 @@ void ContentWidget::openScene( const QString& scene_file_name, const bool render
   }
   else
   {
-    std::cerr << "Error, requested file " << scene_file_name.toStdString() << " does not exist." << std::endl;
+    using str = std::string;
+    str msg{ str{"Warning, requested file '"} + scene_file_name.toStdString() + str{"' does not exist."} };
+    qWarning( "%s", msg.c_str() );
   }
 }
 
@@ -241,7 +237,7 @@ void ContentWidget::exportMovieToggled( const bool checked )
   {
     // Attempt to get a directory name
     const QString dir_name{ getDirectoryNameFromUser( tr( "Please Specify an Image Directory" ) ) };
-    if( dir_name.size() != 0 )
+    if( !dir_name.isEmpty() )
     {
       m_gl_widget->setMovieDir( dir_name );
     }
@@ -274,7 +270,7 @@ void ContentWidget::exportImage()
 {
   assert( m_gl_widget != nullptr );
   const QString file_name{ getSaveFileNameFromUser( tr( "Please Specify an Image Name" ) ) };
-  if( file_name.size() != 0 )
+  if( !file_name.isEmpty() )
   {
     m_gl_widget->saveScreenshot( file_name );
   }
