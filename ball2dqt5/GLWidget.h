@@ -33,6 +33,10 @@ public:
 
   explicit GLWidget( QWidget* parent = nullptr );
   virtual ~GLWidget() override;
+  GLWidget( GLWidget& ) = delete;
+  GLWidget( GLWidget&& ) = delete;
+  GLWidget& operator=( const GLWidget& ) = delete;
+  GLWidget& operator=( GLWidget&& ) = delete;
 
   virtual QSize minimumSizeHint() const override;
   virtual QSize sizeHint() const override;

@@ -98,6 +98,24 @@ ContentWidget::ContentWidget( const QString& scene_name, QWidget* parent )
   this->setFocus();
 }
 
+void ContentWidget::keyPressEvent( QKeyEvent* event )
+{
+  assert( event != nullptr );
+
+  if( event->key() == Qt::Key_Space )
+  {
+    toggleSimulationCheckbox();
+  }
+  else if( event->key() == Qt::Key_R )
+  {
+    resetSystem();
+  }
+  else if( event->key() == Qt::Key_S )
+  {
+    takeStep();
+  }
+}
+
 void ContentWidget::toggleSimulationCheckbox()
 {
   assert( m_simulate_checkbox != nullptr );

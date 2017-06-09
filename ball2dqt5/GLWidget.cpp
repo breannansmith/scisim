@@ -1070,9 +1070,8 @@ void GLWidget::paintHUD()
     text_width = std::max( text_width, font_metrics.boundingRect( delta_L ).width() );
   }
 
-  const int pixelRatio{ devicePixelRatio() }; // TODO: Cache the pixel ratio?
-  const int xextent{ (text_width + 2 + 4) * pixelRatio };
-  const int yextent{ (5 * 12 + 4) * pixelRatio };
+  const int xextent{ text_width + 2 + 4 };
+  const int yextent{ 5 * 12 + 4 };
 
   {
     QPainter painter{ this };

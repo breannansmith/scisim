@@ -13,16 +13,10 @@ public:
 
   Window( const QString& scene_name = "", QWidget* parent = nullptr );
   virtual ~Window() override = default;
-
-  virtual void keyPressEvent( QKeyEvent* event ) override;
-
-protected:
-
-  virtual void closeEvent( QCloseEvent* event ) override;
-
-private:
-
-  ContentWidget* m_content_widget;
+  Window( Window& ) = delete;
+  Window( Window&& ) = delete;
+  Window& operator=( const Window& ) = delete;
+  Window& operator=( Window&& ) = delete;
 
 };
 

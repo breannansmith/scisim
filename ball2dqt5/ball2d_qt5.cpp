@@ -39,6 +39,8 @@ static void exitCleanup()
 
 int main( int argc, char** argv )
 {
+  // TODO: Load the simulation file here
+
   #ifdef USE_PYTHON
   // Initialize the Python interpreter
   Py_SetProgramName( argv[0] );

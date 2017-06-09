@@ -16,9 +16,15 @@ public:
 
   ContentWidget( const QString& scene_name, QWidget* parent = nullptr );
   virtual ~ContentWidget() override = default;
+  ContentWidget( ContentWidget& ) = delete;
+  ContentWidget( ContentWidget&& ) = delete;
+  ContentWidget& operator=( const ContentWidget& ) = delete;
+  ContentWidget& operator=( ContentWidget&& ) = delete;
 
   void toggleSimulationCheckbox();
   void disableMovieExport();
+
+  virtual void keyPressEvent( QKeyEvent* event ) override;
 
 public slots:
 
