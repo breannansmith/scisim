@@ -27,8 +27,6 @@ class ImpactFrictionMap;
 class GLWidget final : public QOpenGLWidget
 {
 
-  Q_OBJECT
-
 public:
 
   explicit GLWidget( QWidget* parent = nullptr );

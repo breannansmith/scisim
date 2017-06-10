@@ -33,37 +33,37 @@ ContentWidget::ContentWidget( const QString& scene_name, QWidget* parent )
     m_simulate_checkbox = new QCheckBox{ tr( "Simulate" ) };
     controls_layout->addWidget( m_simulate_checkbox, 0, 0 );
     m_simulate_checkbox->setChecked( false );
-    connect( m_simulate_checkbox, SIGNAL( toggled( bool ) ), this, SLOT( simulateToggled( bool ) ) );
+    connect( m_simulate_checkbox, &QCheckBox::toggled, this, &ContentWidget::simulateToggled );
 
     // Button for taking a single time step
     {
       QPushButton* step_button{ new QPushButton{ tr( "Step" ), this } };
       controls_layout->addWidget( step_button, 0, 1 );
-      connect( step_button, SIGNAL( clicked() ), this, SLOT( takeStep() ) );
+      connect( step_button, &QPushButton::clicked, this, &ContentWidget::takeStep );
     }
 
     // Button for resetting the simulation
     {
       QPushButton* reset_button{ new QPushButton{ tr( "Reset" ), this } };
       controls_layout->addWidget( reset_button, 0, 2 );
-      connect( reset_button, SIGNAL( clicked() ), this, SLOT( resetSystem() ) );
+      connect( reset_button, &QPushButton::clicked, this, &ContentWidget::resetSystem );
     }
 
     // Button for rendering at the specified FPS
     m_render_at_fps_checkbox = new QCheckBox{ tr( "Render FPS" ) };
     controls_layout->addWidget( m_render_at_fps_checkbox, 0, 3 );
-    connect( m_render_at_fps_checkbox, SIGNAL( toggled( bool ) ), this, SLOT( renderAtFPSToggled( bool ) ) );
+    connect( m_render_at_fps_checkbox, &QCheckBox::toggled, this, &ContentWidget::renderAtFPSToggled );
 
     // Buttons for locking the camera controls
     m_lock_camera_button = new QCheckBox{ tr( "Lock Camera" ) };
     controls_layout->addWidget( m_lock_camera_button, 1, 0 );
-    connect( m_lock_camera_button, SIGNAL( toggled( bool ) ), this, SLOT( lockCameraToggled( bool ) ) );
+    connect( m_lock_camera_button, &QCheckBox::toggled, this, &ContentWidget::lockCameraToggled );
 
     // Movie export controls
     m_export_movie_checkbox = new QCheckBox{ tr( "Export Movie" ) };
     controls_layout->addWidget( m_export_movie_checkbox, 1, 2 );
     m_export_movie_checkbox->setChecked( false );
-    connect( m_export_movie_checkbox, SIGNAL( toggled( bool ) ), this, SLOT( exportMovieToggled( bool ) ) );
+    connect( m_export_movie_checkbox, &QCheckBox::toggled, this, &ContentWidget::exportMovieToggled );
 
     // Label for movie output FPS
     {
@@ -78,13 +78,13 @@ ContentWidget::ContentWidget( const QString& scene_name, QWidget* parent )
     controls_layout->addWidget( m_fps_spin_box, 1, 4 );
     m_fps_spin_box->setRange( 1, 1000 );
     m_fps_spin_box->setValue( 50 );
-    connect( m_fps_spin_box, SIGNAL( valueChanged( int ) ), this, SLOT( movieFPSChanged( int ) ) );
+    connect( m_fps_spin_box, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &ContentWidget::movieFPSChanged );
     m_gl_widget->setMovieFPS( m_fps_spin_box->value() );
   }
 
   // Create a timer that triggers simulation steps when Qt is idle
   m_idle_timer = new QTimer{ this };
-  connect( m_idle_timer, SIGNAL( timeout() ), this, SLOT( takeStep() ) );
+  connect( m_idle_timer, &QTimer::timeout, this, &ContentWidget::takeStep );
 
   if( !scene_name.isEmpty() )
   {
