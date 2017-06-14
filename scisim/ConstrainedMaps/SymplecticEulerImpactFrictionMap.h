@@ -1,5 +1,5 @@
-#ifndef STEWART_AND_TRINKLE_IMPACT_FRICTION_MAP_H
-#define STEWART_AND_TRINKLE_IMPACT_FRICTION_MAP_H
+#ifndef SYMPLECTIC_EULER_IMPACT_FRICTION_MAP_H
+#define SYMPLECTIC_EULER_IMPACT_FRICTION_MAP_H
 
 #include "ImpactFrictionMap.h"
 
@@ -12,20 +12,20 @@ class FrictionSolver;
 class HDF5File;
 #endif
 
-class StewartAndTrinkleImpactFrictionMap final : public ImpactFrictionMap
+class SymplecticEulerImpactFrictionMap final : public ImpactFrictionMap
 {
 
 public:
 
-  StewartAndTrinkleImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters, const ImpulsesToCache impulses_to_cache );
-  explicit StewartAndTrinkleImpactFrictionMap( std::istream& input_stream );
+  SymplecticEulerImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters, const ImpulsesToCache impulses_to_cache );
+  explicit SymplecticEulerImpactFrictionMap( std::istream& input_stream );
 
-  StewartAndTrinkleImpactFrictionMap( const StewartAndTrinkleImpactFrictionMap& ) = delete;
-  StewartAndTrinkleImpactFrictionMap( StewartAndTrinkleImpactFrictionMap&& ) = delete;
-  StewartAndTrinkleImpactFrictionMap& operator=( const StewartAndTrinkleImpactFrictionMap& ) = delete;
-  StewartAndTrinkleImpactFrictionMap& operator=( StewartAndTrinkleImpactFrictionMap&& ) = delete;
+  SymplecticEulerImpactFrictionMap( const SymplecticEulerImpactFrictionMap& ) = delete;
+  SymplecticEulerImpactFrictionMap( SymplecticEulerImpactFrictionMap&& ) = delete;
+  SymplecticEulerImpactFrictionMap& operator=( const SymplecticEulerImpactFrictionMap& ) = delete;
+  SymplecticEulerImpactFrictionMap& operator=( SymplecticEulerImpactFrictionMap&& ) = delete;
 
-  virtual ~StewartAndTrinkleImpactFrictionMap() override = default;
+  virtual ~SymplecticEulerImpactFrictionMap() override = default;
 
   virtual void flow( ScriptingCallback& call_back, FlowableSystem& fsys, ConstrainedSystem& csys, UnconstrainedMap& umap, FrictionSolver& friction_solver, const unsigned iteration, const scalar& dt, const scalar& CoR_default, const scalar& mu_default, const VectorXs& q0, const VectorXs& v0, VectorXs& q1, VectorXs& v1 ) override;
 

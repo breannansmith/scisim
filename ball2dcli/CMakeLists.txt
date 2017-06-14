@@ -101,7 +101,7 @@ if( USE_HDF5 AND NOT H5PY_MISSING )
   add_test( ball2d_st_static_friction_posx_00 assets/shell_scripts/static_particle_test.sh assets/tests_st/ball_plane/mu_0p5/slope_test_posx/ball_slide_at_threshold.xml 3.0 1 0.0 1.0e-19 0.0 1.0e-19 )
   add_test( ball2d_st_static_friction_posx_01 assets/shell_scripts/static_particle_test.sh assets/tests_st/ball_plane/mu_0p5/slope_test_posx/ball_slide_below_threshold_05_degree.xml 3.0 1 1.0e-19 1.0e-19 1.0e-20 1.0e-19 )
   add_test( ball2d_st_static_friction_posx_02 assets/shell_scripts/static_particle_test.sh assets/tests_st/ball_plane/mu_0p5/slope_test_posx/ball_slide_below_threshold_10_degree.xml 3.0 1 1.0e-19 0.0 1.0e-20 0.0 )
-  add_test( ball2d_st_static_friction_posx_03 assets/shell_scripts/static_particle_test.sh assets/tests_st/ball_plane/mu_0p5/slope_test_posx/ball_slide_below_threshold_15_degree.xml 3.0 1 1.0e-19 6.0e-20 1.0e-20 3.0e-20 )
+  add_test( ball2d_st_static_friction_posx_03 assets/shell_scripts/static_particle_test.sh assets/tests_st/ball_plane/mu_0p5/slope_test_posx/ball_slide_below_threshold_15_degree.xml 3.0 1 1.0e-19 9.0e-20 1.0e-20 3.0e-20 )
   add_test( ball2d_st_static_friction_posx_04 assets/shell_scripts/static_particle_test.sh assets/tests_st/ball_plane/mu_0p5/slope_test_posx/ball_slide_below_threshold_20_degree.xml 3.0 1 0.0 1.0e-19 0.0 0.0 )
   # Static friction tests, plane pointing negative x
   add_test( ball2d_st_static_friction_negx_00 assets/shell_scripts/static_particle_test.sh assets/tests_st/ball_plane/mu_0p5/slope_test_negx/ball_slide_at_threshold.xml 3.0 1 0.0 1.0e-19 0.0 1.0e-19 )

@@ -18,7 +18,7 @@ set( Sources
   ConstrainedMaps/ConstrainedMapUtilities.cpp
   ConstrainedMaps/ImpactFrictionMap.cpp
   ConstrainedMaps/GeometricImpactFrictionMap.cpp
-  ConstrainedMaps/StewartAndTrinkleImpactFrictionMap.cpp
+  ConstrainedMaps/SymplecticEulerImpactFrictionMap.cpp
   ConstrainedMaps/StabilizedImpactFrictionMap.cpp
   ConstrainedMaps/StaggeredProjections.cpp
   ConstrainedMaps/GRRFriction.cpp
@@ -72,7 +72,7 @@ set( Headers
   ConstrainedMaps/ConstrainedMapUtilities.h
   ConstrainedMaps/ImpactFrictionMap.h
   ConstrainedMaps/GeometricImpactFrictionMap.h
-  ConstrainedMaps/StewartAndTrinkleImpactFrictionMap.h
+  ConstrainedMaps/SymplecticEulerImpactFrictionMap.h
   ConstrainedMaps/StabilizedImpactFrictionMap.h
   ConstrainedMaps/StaggeredProjections.h
   ConstrainedMaps/GRRFriction.h

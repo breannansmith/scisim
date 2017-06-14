@@ -26,7 +26,7 @@
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
 #include "scisim/ConstrainedMaps/GeometricImpactFrictionMap.h"
 #include "scisim/ConstrainedMaps/StabilizedImpactFrictionMap.h"
-#include "scisim/ConstrainedMaps/StewartAndTrinkleImpactFrictionMap.h"
+#include "scisim/ConstrainedMaps/SymplecticEulerImpactFrictionMap.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/GaussSeidelOperator.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/JacobiOperator.h"
@@ -1331,7 +1331,7 @@ static bool loadSobogusFrictionSolver( const rapidxml::xml_node<>& node, std::un
   }
   else if( staggering_type == "stewart_and_trinkle" )
   {
-    if_map.reset( new StewartAndTrinkleImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ), cache_impulses } );
+    if_map.reset( new SymplecticEulerImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ), cache_impulses } );
   }
   else if( staggering_type == "stabilized" )
   {

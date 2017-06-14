@@ -1,4 +1,4 @@
-#include "StewartAndTrinkleImpactFrictionMap.h"
+#include "SymplecticEulerImpactFrictionMap.h"
 
 #include <iostream>
 
@@ -13,7 +13,7 @@
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h"
 #include "scisim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
 
-StewartAndTrinkleImpactFrictionMap::StewartAndTrinkleImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters, const ImpulsesToCache impulses_to_cache )
+SymplecticEulerImpactFrictionMap::SymplecticEulerImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters, const ImpulsesToCache impulses_to_cache )
 : m_f( VectorXs::Zero( 0 ) )
 , m_abs_tol( abs_tol )
 , m_max_iters( max_iters )
@@ -26,7 +26,7 @@ StewartAndTrinkleImpactFrictionMap::StewartAndTrinkleImpactFrictionMap( const sc
   assert( m_abs_tol >= 0.0 );
 }
 
-StewartAndTrinkleImpactFrictionMap::StewartAndTrinkleImpactFrictionMap( std::istream& input_stream )
+SymplecticEulerImpactFrictionMap::SymplecticEulerImpactFrictionMap( std::istream& input_stream )
 : m_f( MathUtilities::deserialize<VectorXs>( input_stream ) )
 , m_abs_tol( Utilities::deserialize<scalar>( input_stream ) )
 , m_max_iters( Utilities::deserialize<unsigned>( input_stream ) )
@@ -138,7 +138,7 @@ static void cacheImpulses( const ImpulsesToCache cache_mode, const unsigned ambi
 }
 
 // TODO: Ignore the unconstrained map, somehow?
-void StewartAndTrinkleImpactFrictionMap::flow( ScriptingCallback& call_back, FlowableSystem& fsys, ConstrainedSystem& csys, UnconstrainedMap& umap, FrictionSolver& friction_solver, const unsigned iteration, const scalar& dt, const scalar& CoR_default, const scalar& mu_default, const VectorXs& q0, const VectorXs& v0, VectorXs& q1, VectorXs& v1 )
+void SymplecticEulerImpactFrictionMap::flow( ScriptingCallback& call_back, FlowableSystem& fsys, ConstrainedSystem& csys, UnconstrainedMap& umap, FrictionSolver& friction_solver, const unsigned iteration, const scalar& dt, const scalar& CoR_default, const scalar& mu_default, const VectorXs& q0, const VectorXs& v0, VectorXs& q1, VectorXs& v1 )
 {
   assert( dt > 0.0 );
   assert( CoR_default >= 0.0 );
@@ -485,13 +485,13 @@ void StewartAndTrinkleImpactFrictionMap::flow( ScriptingCallback& call_back, Flo
 //   umap.flow( q0, v2, fsys, iteration, dt, q1, v1 );
 }
 
-void StewartAndTrinkleImpactFrictionMap::resetCachedData()
+void SymplecticEulerImpactFrictionMap::resetCachedData()
 {
   m_f = VectorXs::Zero( 0 );
 }
 
 #ifdef USE_HDF5
-void StewartAndTrinkleImpactFrictionMap::exportConstraintForcesToBinary( const VectorXs& q, const std::vector<std::unique_ptr<Constraint>>& constraints, const MatrixXXsc& contact_bases, const VectorXs& alpha, const VectorXs& beta, const scalar& dt )
+void SymplecticEulerImpactFrictionMap::exportConstraintForcesToBinary( const VectorXs& q, const std::vector<std::unique_ptr<Constraint>>& constraints, const MatrixXXsc& contact_bases, const VectorXs& alpha, const VectorXs& beta, const scalar& dt )
 {
   assert( m_write_constraint_forces );
   assert( m_constraint_force_stream != nullptr );
@@ -499,7 +499,7 @@ void StewartAndTrinkleImpactFrictionMap::exportConstraintForcesToBinary( const V
 }
 #endif
 
-void StewartAndTrinkleImpactFrictionMap::serialize( std::ostream& output_stream ) const
+void SymplecticEulerImpactFrictionMap::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
   MathUtilities::serialize( m_f, output_stream );
@@ -512,13 +512,13 @@ void StewartAndTrinkleImpactFrictionMap::serialize( std::ostream& output_stream 
   #endif
 }
 
-std::string StewartAndTrinkleImpactFrictionMap::name() const
+std::string SymplecticEulerImpactFrictionMap::name() const
 {
-  return "stewart_and_trinkle_impact_friction_map";
+  return "symplectic_euler_impact_friction_map";
 }
 
 #ifdef USE_HDF5
-void StewartAndTrinkleImpactFrictionMap::exportForcesNextStep( HDF5File& output_file )
+void SymplecticEulerImpactFrictionMap::exportForcesNextStep( HDF5File& output_file )
 {
   m_write_constraint_forces = true;
   m_constraint_force_stream = &output_file;
