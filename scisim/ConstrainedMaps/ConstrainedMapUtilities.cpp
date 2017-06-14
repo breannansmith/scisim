@@ -13,6 +13,7 @@
 #include "scisim/ConstrainedMaps/ImpactMaps/GaussSeidelOperator.h"
 #include "scisim/ConstrainedMaps/GeometricImpactFrictionMap.h"
 #include "scisim/ConstrainedMaps/StabilizedImpactFrictionMap.h"
+#include "scisim/ConstrainedMaps/StewartAndTrinkleImpactFrictionMap.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
 #include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
 #include "scisim/ConstrainedMaps/StaggeredProjections.h"
@@ -263,6 +264,10 @@ std::unique_ptr<ImpactFrictionMap> ConstrainedMapUtilities::deserializeImpactFri
   else if( "stabilized_impact_friction_map" == impact_friction_name )
   {
     impact_friction_map.reset( new StabilizedImpactFrictionMap{ input_stream } );
+  }
+  else if( "stewart_and_trinkle_impact_friction_map" == impact_friction_name )
+  {
+    impact_friction_map.reset( new StewartAndTrinkleImpactFrictionMap{ input_stream } );
   }
   else if( "NULL" == impact_friction_name )
   {

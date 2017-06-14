@@ -11,9 +11,9 @@ isnumber() { test "$1" && printf '%f' "$1" >/dev/null; }
 integerregexp='^[0-9]+$'
 
 # Ensure that the user provided the correct number of arguments
-if [ "$#" -ne 3 ]; then
+if [ "$#" -ne 7 ]; then
   echo "Invalid number of arguments."
-  echo "Usage:" $0 "xml_file_name end_time output_frequency"
+  echo "Usage:" $0 "xml_file_name end_time output_frequency x_tol y_tol vx_tol vy_tol"
   exit 1
 fi
 
@@ -23,10 +23,22 @@ isnumber "$2"
 [ $? -eq 0 ] || die "Error, second argument must be a scalar. Exiting." # TODO: Check if this argument is positive
 isnumber "$3"
 [ $? -eq 0 ] || die "Error, third argument must be a scalar. Exiting." # TODO: Check if this argument is positive
+isnumber "$4"
+[ $? -eq 0 ] || die "Error, fourth argument must be a scalar. Exiting." # TODO: Check if this argument is positive
+isnumber "$5"
+[ $? -eq 0 ] || die "Error, fifth argument must be a scalar. Exiting." # TODO: Check if this argument is positive
+isnumber "$6"
+[ $? -eq 0 ] || die "Error, sixth argument must be a scalar. Exiting." # TODO: Check if this argument is positive
+isnumber "$7"
+[ $? -eq 0 ] || die "Error, seventh argument must be a scalar. Exiting." # TODO: Check if this argument is positive
 
 xml_file_name=$1
 end_time=$2
 output_frequency=$3
+x_tol=$4
+y_tol=$5
+vx_tol=$6
+vy_tol=$7
 
 output_directory=$(uuidgen)
 
@@ -61,9 +73,9 @@ fi
 # For each output file
 for output_state_file in $output_directory/*.h5
 do
-  python assets/shell_scripts/static_particle_test.py -i $output_state_file
+  python assets/shell_scripts/static_particle_test.py -i $output_state_file -t $x_tol $y_tol $vx_tol $vy_tol
   if [ $? -ne 0 ] ; then
-    echo "State of file $output_state_file appears incorrect"
+    echo "State of file $output_state_file appears incorrect or verification script failed to execute."
     rm -rf $output_directory
     exit 1
   fi

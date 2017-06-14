@@ -1,0 +1,13 @@
+<ball2d_scene>
+
+  <camera cx="0.775488" cy="0.0" scale_factor="3.69532" fps="50" render_at_fps="1" locked="0"/>
+
+  <integrator type="verlet" dt="0.01"/>
+
+  <sobogus_friction_solver mu="0.0" CoR="1.0" max_iters="5000" tol="1.0e-12" eval_every="1" staggering="stewart_and_trinkle" cache_impulses="normal_and_friction"/>
+
+  <ball x="-2.0" y="+0.0" vx="+2.0" vy="+0.0" m="1.0" r="0.5" fixed="0"/>
+  <ball x="+0.0" y="+0.5" vx="+0.0" vy="+0.0" m="1.0" r="0.5" fixed="0"/>
+  <ball x="+0.0" y="-0.5" vx="+0.0" vy="+0.0" m="1.0" r="0.5" fixed="0"/>
+
+</ball2d_scene>

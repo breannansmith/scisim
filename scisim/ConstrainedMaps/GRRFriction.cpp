@@ -5,6 +5,8 @@
 
 #include "GRRFriction.h"
 
+#include <iostream>
+
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
 #include "scisim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
 #include "scisim/ConstrainedMaps/ConstrainedMapUtilities.h"
@@ -24,8 +26,19 @@ GRRFriction::GRRFriction( std::istream& input_stream )
 GRRFriction::~GRRFriction()
 {}
 
-void GRRFriction::solve( const unsigned iteration, const scalar& dt, const FlowableSystem& fsys, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& CoR, const VectorXs& mu, const VectorXs& q0, const VectorXs& v0, std::vector<std::unique_ptr<Constraint>>& active_set, const MatrixXXsc& contact_bases, const unsigned max_iters, const scalar& tol, VectorXs& f, VectorXs& alpha, VectorXs& beta, VectorXs& vout, bool& solve_succeeded, scalar& error )
+void GRRFriction::solve( const unsigned iteration, const scalar& dt, const FlowableSystem& fsys, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& CoR, const VectorXs& mu, const VectorXs& q0, const VectorXs& v0, std::vector<std::unique_ptr<Constraint>>& active_set, const MatrixXXsc& contact_bases, const VectorXs& nrel_extra, const VectorXs& drel_extra, const unsigned max_iters, const scalar& tol, VectorXs& f, VectorXs& alpha, VectorXs& beta, VectorXs& vout, bool& solve_succeeded, scalar& error )
 {
+  if( nrel_extra.size() != 0 )
+  {
+    std::cerr << "Extra nrel option not supported for GRRFriction::solve yet." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+  if( drel_extra.size() != 0 )
+  {
+    std::cerr << "Extra drel option not supported for GRRFriction::solve yet." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+
   // Impact basis
   SparseMatrixsc N{ static_cast<SparseMatrixsc::Index>( v0.size() ), static_cast<SparseMatrixsc::Index>( alpha.size() ) };
   ImpactOperatorUtilities::computeN( fsys, active_set, q0, N );

@@ -145,7 +145,7 @@ static scalar computeSobogusError( const VectorXs& alpha, const VectorXs& beta, 
 // TODO: Unify interfces for formGeneralizedSmoothFrictionBasis and computeN
 // TODO: Use the improved matrix-vector routines
 // NOTE: Can't precompute linear terms as they change during the solve
-void StaggeredProjections::solve( const unsigned iteration, const scalar& dt, const FlowableSystem& fsys, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& CoR, const VectorXs& mu, const VectorXs& q0, const VectorXs& v0, std::vector<std::unique_ptr<Constraint>>& active_set, const MatrixXXsc& contact_bases, const unsigned max_iters, const scalar& tol, VectorXs& f, VectorXs& alpha, VectorXs& beta, VectorXs& vout, bool& solve_succeeded, scalar& error )
+void StaggeredProjections::solve( const unsigned iteration, const scalar& dt, const FlowableSystem& fsys, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& CoR, const VectorXs& mu, const VectorXs& q0, const VectorXs& v0, std::vector<std::unique_ptr<Constraint>>& active_set, const MatrixXXsc& contact_bases, const VectorXs& nrel_extra, const VectorXs& drel_extra, const unsigned max_iters, const scalar& tol, VectorXs& f, VectorXs& alpha, VectorXs& beta, VectorXs& vout, bool& solve_succeeded, scalar& error )
 {
   assert( MathUtilities::isSquare( M ) );
   assert( MathUtilities::isSquare( Minv ) );
@@ -158,6 +158,17 @@ void StaggeredProjections::solve( const unsigned iteration, const scalar& dt, co
   assert( contact_bases.cols() % contact_bases.rows() == 0 );
   assert( active_set.size() == unsigned( contact_bases.cols() / contact_bases.rows() ) );
   assert( beta.size() == contact_bases.cols() - alpha.size() );
+
+  if( nrel_extra.size() != 0 )
+  {
+    std::cerr << "Extra nrel option not supported for StaggeredProjections::solve yet." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
+  if( drel_extra.size() != 0 )
+  {
+    std::cerr << "Extra drel option not supported for StaggeredProjections::solve yet." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
 
   // Friction basis
   SparseMatrixsc D;

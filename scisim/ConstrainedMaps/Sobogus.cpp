@@ -850,8 +850,9 @@ static void extractv3D( const unsigned nlocalbodies, const unsigned nglobalbodie
   }
 }
 
-void Sobogus::solve( const unsigned iteration, const scalar& dt, const FlowableSystem& fsys, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& CoR, const VectorXs& mu, const VectorXs& q0, const VectorXs& v0, std::vector<std::unique_ptr<Constraint>>& active_set, const MatrixXXsc& contact_bases, const unsigned max_iters, const scalar& tol, VectorXs& f, VectorXs& alpha, VectorXs& beta, VectorXs& vout, bool& solve_succeeded, scalar& error )
+void Sobogus::solve( const unsigned iteration, const scalar& dt, const FlowableSystem& fsys, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& CoR, const VectorXs& mu, const VectorXs& q0, const VectorXs& v0, std::vector<std::unique_ptr<Constraint>>& active_set, const MatrixXXsc& contact_bases, const VectorXs& nrel_extra, const VectorXs& drel_extra, const unsigned max_iters, const scalar& tol, VectorXs& f, VectorXs& alpha, VectorXs& beta, VectorXs& vout, bool& solve_succeeded, scalar& error )
 {
+  assert(nrel_extra.size() == drel_extra.size());
   const unsigned nglobalbodies{ fsys.numBodies() };
 
   // Given local index i in [0,nlocalbodies), gives the global index ltg[i] [0,nglobalbodies)
@@ -865,6 +866,16 @@ void Sobogus::solve( const unsigned iteration, const scalar& dt, const FlowableS
   VectorXs nrel{ alpha.size() };
   VectorXs drel{ beta.size() };
   Constraint::evalKinematicRelVelGivenBases( q0, v0, active_set, contact_bases, nrel, drel );
+  if( nrel_extra.size() != 0 )
+  {
+    assert( nrel.size() == nrel_extra.size() );
+    nrel += nrel_extra;
+  }
+  if( drel_extra.size() != 0 )
+  {
+    assert( drel.size() == drel_extra.size() );
+    drel += drel_extra;
+  }
 
   // TODO: Instead of remapping directly in the constraints, just have a 2 x ncon array that stores in the indices
   // Remap the body indices in each constraint

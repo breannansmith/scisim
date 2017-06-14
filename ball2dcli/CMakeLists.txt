@@ -37,6 +37,12 @@ if( USE_HDF5 AND H5DIFF_FOUND )
   add_test( ball2d_serialization_15 assets/shell_scripts/execute_serialization_test.sh assets/examples_gr/bernoullis_problem_gauss_seidel_multi_mass.xml 1.25 125 048 100 )
   # Warm-start tests
   add_test( ball2d_serialization_ws_00 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/balls_falling_on_wedge.xml 4.0 40 20 10 )
+  # Stewart and Trinkle tests
+  add_test( ball2d_st_00 assets/shell_scripts/execute_serialization_test.sh assets/tests_st/three_ball_collision_cor_0_0.xml 2.0 100 023 50 )
+  add_test( ball2d_st_01 assets/shell_scripts/execute_serialization_test.sh assets/tests_st/three_ball_collision_cor_0_5.xml 2.0 100 023 50 )
+  add_test( ball2d_st_02 assets/shell_scripts/execute_serialization_test.sh assets/tests_st/three_ball_collision_cor_1_0.xml 2.0 100 023 50 )
+  add_test( ball2d_st_03 assets/shell_scripts/execute_serialization_test.sh assets/tests_st/ball_on_plane.xml 2.0 100 066 50 )
+  add_test( ball2d_st_04 assets/shell_scripts/execute_serialization_test.sh assets/tests_st/ball_on_frictional_plane.xml 2.0 100 033 50 )
 
   # These tests are slow
   #add_test( twod_balls_serialization_test_02 assets/shell_scripts/execute_serialization_test.sh assets/ColumnCollapse01.xml 0.04 2 4 120 )
@@ -66,31 +72,53 @@ endif()
 
 # Tests that require HDF5 support in the executable and the h5py python module
 if( USE_HDF5 AND NOT H5PY_MISSING )
+  # TODO: Tighten the tolerances on this first set of tests
   # Static friction tests, plane pointing positive x
-  add_test( ball2d_static_friction_posx_00 assets/shell_scripts/static_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_posx/ball_slide_at_threshold.xml 3.0 1 )
-  add_test( ball2d_static_friction_posx_01 assets/shell_scripts/static_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_posx/ball_slide_below_threshold_05_degree.xml 3.0 1 )
-  add_test( ball2d_static_friction_posx_02 assets/shell_scripts/static_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_posx/ball_slide_below_threshold_10_degree.xml 3.0 1 )
-  add_test( ball2d_static_friction_posx_03 assets/shell_scripts/static_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_posx/ball_slide_below_threshold_15_degree.xml 3.0 1 )
-  add_test( ball2d_static_friction_posx_04 assets/shell_scripts/static_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_posx/ball_slide_below_threshold_20_degree.xml 3.0 1 )
-
+  add_test( ball2d_static_friction_posx_00 assets/shell_scripts/static_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_posx/ball_slide_at_threshold.xml 3.0 1 2.0e-6 3.0e-4 4.0e-7 2.0e-4 )
+  add_test( ball2d_static_friction_posx_01 assets/shell_scripts/static_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_posx/ball_slide_below_threshold_05_degree.xml 3.0 1 2.0e-6 3.0e-4 4.0e-7 2.0e-4 )
+  add_test( ball2d_static_friction_posx_02 assets/shell_scripts/static_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_posx/ball_slide_below_threshold_10_degree.xml 3.0 1 2.0e-6 3.0e-4 4.0e-7 2.0e-4 )
+  add_test( ball2d_static_friction_posx_03 assets/shell_scripts/static_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_posx/ball_slide_below_threshold_15_degree.xml 3.0 1 2.0e-6 3.0e-4 4.0e-7 2.0e-4 )
+  add_test( ball2d_static_friction_posx_04 assets/shell_scripts/static_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_posx/ball_slide_below_threshold_20_degree.xml 3.0 1 2.0e-6 3.0e-4 4.0e-7 2.0e-4 )
   # Static friction tests, plane pointing negative x
-  add_test( ball2d_static_friction_negx_00 assets/shell_scripts/static_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_negx/ball_slide_at_threshold.xml 3.0 1 )
-  add_test( ball2d_static_friction_negx_01 assets/shell_scripts/static_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_negx/ball_slide_below_threshold_05_degree.xml 3.0 1 )
-  add_test( ball2d_static_friction_negx_02 assets/shell_scripts/static_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_negx/ball_slide_below_threshold_10_degree.xml 3.0 1 )
-  add_test( ball2d_static_friction_negx_03 assets/shell_scripts/static_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_negx/ball_slide_below_threshold_15_degree.xml 3.0 1 )
-  add_test( ball2d_static_friction_negx_03 assets/shell_scripts/static_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_negx/ball_slide_below_threshold_20_degree.xml 3.0 1 )
-
+  add_test( ball2d_static_friction_negx_00 assets/shell_scripts/static_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_negx/ball_slide_at_threshold.xml 3.0 1 2.0e-6 3.0e-4 4.0e-7 2.0e-4 )
+  add_test( ball2d_static_friction_negx_01 assets/shell_scripts/static_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_negx/ball_slide_below_threshold_05_degree.xml 3.0 1 2.0e-6 3.0e-4 4.0e-7 2.0e-4 )
+  add_test( ball2d_static_friction_negx_02 assets/shell_scripts/static_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_negx/ball_slide_below_threshold_10_degree.xml 3.0 1 2.0e-6 3.0e-4 4.0e-7 2.0e-4 )
+  add_test( ball2d_static_friction_negx_03 assets/shell_scripts/static_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_negx/ball_slide_below_threshold_15_degree.xml 3.0 1 2.0e-6 3.0e-4 4.0e-7 2.0e-4 )
+  add_test( ball2d_static_friction_negx_04 assets/shell_scripts/static_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_negx/ball_slide_below_threshold_20_degree.xml 3.0 1 2.0e-6 3.0e-4 4.0e-7 2.0e-4 )
   # Sliding friction tests, plane pointing positive x
-  add_test( ball2d_sliding_friction_posx_00 assets/shell_scripts/sliding_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_posx/ball_slide_above_threshold_05_degree.xml 3.0 1 )
-  add_test( ball2d_sliding_friction_posx_01 assets/shell_scripts/sliding_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_posx/ball_slide_above_threshold_10_degree.xml 3.0 1 )
-  add_test( ball2d_sliding_friction_posx_02 assets/shell_scripts/sliding_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_posx/ball_slide_above_threshold_15_degree.xml 3.0 1 )
-  add_test( ball2d_sliding_friction_posx_03 assets/shell_scripts/sliding_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_posx/ball_slide_above_threshold_20_degree.xml 3.0 1 )
-
+  add_test( ball2d_sliding_friction_posx_00 assets/shell_scripts/sliding_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_posx/ball_slide_above_threshold_05_degree.xml 3.0 1 5.1e-5 0.00025 2.03e-05 9.62e-05 )
+  add_test( ball2d_sliding_friction_posx_01 assets/shell_scripts/sliding_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_posx/ball_slide_above_threshold_10_degree.xml 3.0 1 5.1e-5 0.00025 2.03e-05 9.62e-05 )
+  add_test( ball2d_sliding_friction_posx_02 assets/shell_scripts/sliding_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_posx/ball_slide_above_threshold_15_degree.xml 3.0 1 5.1e-5 0.00025 2.03e-05 9.62e-05 )
+  add_test( ball2d_sliding_friction_posx_03 assets/shell_scripts/sliding_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_posx/ball_slide_above_threshold_20_degree.xml 3.0 1 5.1e-5 0.00025 2.03e-05 9.62e-05 )
   # Friction and sliding tests, plane pointing negative x
-  add_test( ball2d_sliding_friction_negx_00 assets/shell_scripts/sliding_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_negx/ball_slide_above_threshold_05_degree.xml 3.0 1 )
-  add_test( ball2d_sliding_friction_negx_01 assets/shell_scripts/sliding_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_negx/ball_slide_above_threshold_10_degree.xml 3.0 1 )
-  add_test( ball2d_sliding_friction_negx_02 assets/shell_scripts/sliding_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_negx/ball_slide_above_threshold_15_degree.xml 3.0 1 )
-  add_test( ball2d_sliding_friction_negx_03 assets/shell_scripts/sliding_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_negx/ball_slide_above_threshold_20_degree.xml 3.0 1 )
+  add_test( ball2d_sliding_friction_negx_00 assets/shell_scripts/sliding_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_negx/ball_slide_above_threshold_05_degree.xml 3.0 1 5.1e-5 0.00025 2.03e-05 9.62e-05 )
+  add_test( ball2d_sliding_friction_negx_01 assets/shell_scripts/sliding_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_negx/ball_slide_above_threshold_10_degree.xml 3.0 1 5.1e-5 0.00025 2.03e-05 9.62e-05 )
+  add_test( ball2d_sliding_friction_negx_02 assets/shell_scripts/sliding_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_negx/ball_slide_above_threshold_15_degree.xml 3.0 1 5.1e-5 0.00025 2.03e-05 9.62e-05 )
+  add_test( ball2d_sliding_friction_negx_03 assets/shell_scripts/sliding_particle_test.sh assets/tests_friction/ball_plane/mu_0p5/slope_test_negx/ball_slide_above_threshold_20_degree.xml 3.0 1 5.1e-5 0.00025 2.03e-05 9.62e-05 )
+
+  # The static tests from above, but with the Stewart and Trinkle strategy
+  # Static friction tests, plane pointing positive x
+  add_test( ball2d_st_static_friction_posx_00 assets/shell_scripts/static_particle_test.sh assets/tests_st/ball_plane/mu_0p5/slope_test_posx/ball_slide_at_threshold.xml 3.0 1 0.0 1.0e-19 0.0 1.0e-19 )
+  add_test( ball2d_st_static_friction_posx_01 assets/shell_scripts/static_particle_test.sh assets/tests_st/ball_plane/mu_0p5/slope_test_posx/ball_slide_below_threshold_05_degree.xml 3.0 1 1.0e-19 1.0e-19 1.0e-20 1.0e-19 )
+  add_test( ball2d_st_static_friction_posx_02 assets/shell_scripts/static_particle_test.sh assets/tests_st/ball_plane/mu_0p5/slope_test_posx/ball_slide_below_threshold_10_degree.xml 3.0 1 1.0e-19 0.0 1.0e-20 0.0 )
+  add_test( ball2d_st_static_friction_posx_03 assets/shell_scripts/static_particle_test.sh assets/tests_st/ball_plane/mu_0p5/slope_test_posx/ball_slide_below_threshold_15_degree.xml 3.0 1 1.0e-19 6.0e-20 1.0e-20 3.0e-20 )
+  add_test( ball2d_st_static_friction_posx_04 assets/shell_scripts/static_particle_test.sh assets/tests_st/ball_plane/mu_0p5/slope_test_posx/ball_slide_below_threshold_20_degree.xml 3.0 1 0.0 1.0e-19 0.0 0.0 )
+  # Static friction tests, plane pointing negative x
+  add_test( ball2d_st_static_friction_negx_00 assets/shell_scripts/static_particle_test.sh assets/tests_st/ball_plane/mu_0p5/slope_test_negx/ball_slide_at_threshold.xml 3.0 1 0.0 1.0e-19 0.0 1.0e-19 )
+  add_test( ball2d_st_static_friction_negx_01 assets/shell_scripts/static_particle_test.sh assets/tests_st/ball_plane/mu_0p5/slope_test_negx/ball_slide_below_threshold_05_degree.xml 3.0 1 1.0e-19 1.0e-19 1.0e-20 1.0e-19 )
+  add_test( ball2d_st_static_friction_negx_02 assets/shell_scripts/static_particle_test.sh assets/tests_st/ball_plane/mu_0p5/slope_test_negx/ball_slide_below_threshold_10_degree.xml 3.0 1 1.0e-19 0.0 1.0e-20 0.0 )
+  add_test( ball2d_st_static_friction_negx_03 assets/shell_scripts/static_particle_test.sh assets/tests_st/ball_plane/mu_0p5/slope_test_negx/ball_slide_below_threshold_15_degree.xml 3.0 1 1.0e-19 0.0 1.0e-20 0.0 )
+  add_test( ball2d_st_static_friction_negx_03 assets/shell_scripts/static_particle_test.sh assets/tests_st/ball_plane/mu_0p5/slope_test_negx/ball_slide_below_threshold_20_degree.xml 3.0 1 0.0 1.0e-19 0.0 0.0 )
+  # Sliding friction tests, plane pointing positive x
+  add_test( ball2d_st_sliding_friction_posx_00 assets/shell_scripts/sliding_particle_test.sh assets/tests_st/ball_plane/mu_0p5/slope_test_posx/ball_slide_above_threshold_05_degree.xml 3.0 1 1.0e-5 6.0e-6 9.0e-11 5.0e-12 )
+  add_test( ball2d_st_sliding_friction_posx_01 assets/shell_scripts/sliding_particle_test.sh assets/tests_st/ball_plane/mu_0p5/slope_test_posx/ball_slide_above_threshold_10_degree.xml 3.0 1 2.0e-5 2.0e-5 2.0e-11 2.0e-11 )
+  add_test( ball2d_st_sliding_friction_posx_02 assets/shell_scripts/sliding_particle_test.sh assets/tests_st/ball_plane/mu_0p5/slope_test_posx/ball_slide_above_threshold_15_degree.xml 3.0 1 3.0e-5 2.0e-5 3.0e-11 2.0e-11 )
+  add_test( ball2d_st_sliding_friction_posx_03 assets/shell_scripts/sliding_particle_test.sh assets/tests_st/ball_plane/mu_0p5/slope_test_posx/ball_slide_above_threshold_20_degree.xml 3.0 1 4.0e-5 3.0e-5 3.0e-11 3.0e-11 )
+  # Friction and sliding tests, plane pointing negative x
+  add_test( ball2d_st_sliding_friction_negx_00 assets/shell_scripts/sliding_particle_test.sh assets/tests_st/ball_plane/mu_0p5/slope_test_negx/ball_slide_above_threshold_05_degree.xml 3.0 1 1.0e-5 6.0e-6 9.0e-12 5.0e-12 )
+  add_test( ball2d_st_sliding_friction_negx_01 assets/shell_scripts/sliding_particle_test.sh assets/tests_st/ball_plane/mu_0p5/slope_test_negx/ball_slide_above_threshold_10_degree.xml 3.0 1 2.0e-5 2.0e-5 2.0e-11 2.0e-11 )
+  add_test( ball2d_st_sliding_friction_negx_02 assets/shell_scripts/sliding_particle_test.sh assets/tests_st/ball_plane/mu_0p5/slope_test_negx/ball_slide_above_threshold_15_degree.xml 3.0 1 3.0e-5 2.0e-5 3.0e-11 2.0e-11 )
+  add_test( ball2d_st_sliding_friction_negx_03 assets/shell_scripts/sliding_particle_test.sh assets/tests_st/ball_plane/mu_0p5/slope_test_negx/ball_slide_above_threshold_20_degree.xml 3.0 1 4.0e-5 3.0e-5 3.0e-11 3.0e-11 )
 else()
   message( STATUS "Skipping Ball2D tests that require HDF5 (USE_HDF5 is disabled) and the h5py Python module." )
 endif()

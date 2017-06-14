@@ -339,7 +339,9 @@ void GeometricImpactFrictionMap::flow( ScriptingCallback& call_back, FlowableSys
   {
     scalar error;
     bool solve_succeeded;
-    friction_solver.solve( iteration, dt, fsys, fsys.M(), fsys.Minv(), CoR, mu, q0, v0, active_set, contact_bases, m_max_iters, m_abs_tol, m_f, alpha, beta, v2, solve_succeeded, error );
+    VectorXs nrel_extra;
+    VectorXs drel_extra;
+    friction_solver.solve( iteration, dt, fsys, fsys.M(), fsys.Minv(), CoR, mu, q0, v0, active_set, contact_bases, nrel_extra, drel_extra, m_max_iters, m_abs_tol, m_f, alpha, beta, v2, solve_succeeded, error );
     assert( error >= 0.0 );
     if( !solve_succeeded )
     {

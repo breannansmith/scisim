@@ -122,7 +122,9 @@ void StabilizedImpactFrictionMap::flow( ScriptingCallback& call_back, FlowableSy
     scalar error;
     bool solve_succeeded;
     VectorXs v2{ v1.size() };
-    friction_solver.solve( iteration, dt, fsys, fsys.M(), fsys.Minv(), CoR, mu, q0, v1, active_set, contact_bases, m_max_iters, m_abs_tol, m_f, alpha, beta, v2, solve_succeeded, error );
+    VectorXs nrel_extra;
+    VectorXs drel_extra;
+    friction_solver.solve( iteration, dt, fsys, fsys.M(), fsys.Minv(), CoR, mu, q0, v1, active_set, contact_bases, nrel_extra, drel_extra, m_max_iters, m_abs_tol, m_f, alpha, beta, v2, solve_succeeded, error );
     //std::cout << "alpha: " << alpha.transpose() << std::endl;
     //std::cout << "beta: " << beta.transpose() << std::endl;
     assert( error >= 0.0 );

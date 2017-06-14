@@ -23,6 +23,11 @@ public:
   StabilizedImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters, const bool external_warm_start_alpha, const bool external_warm_start_beta );
   explicit StabilizedImpactFrictionMap( std::istream& input_stream );
 
+  StabilizedImpactFrictionMap( const StabilizedImpactFrictionMap& ) = delete;
+  StabilizedImpactFrictionMap( StabilizedImpactFrictionMap&& ) = delete;
+  StabilizedImpactFrictionMap& operator=( const StabilizedImpactFrictionMap& ) = delete;
+  StabilizedImpactFrictionMap& operator=( StabilizedImpactFrictionMap&& ) = delete;
+
   virtual ~StabilizedImpactFrictionMap() override = default;
 
   virtual void flow( ScriptingCallback& call_back, FlowableSystem& fsys, ConstrainedSystem& csys, UnconstrainedMap& umap, FrictionSolver& friction_solver, const unsigned iteration, const scalar& dt, const scalar& CoR_default, const scalar& mu_default, const VectorXs& q0, const VectorXs& v0, VectorXs& q1, VectorXs& v1 ) override;
@@ -50,7 +55,7 @@ private:
   scalar m_abs_tol;
   unsigned m_max_iters;
 
-  // TODO: Update warm starting to be consistent with GeometricImpactFrictionMap
+  // TODO: Update warm starting to be consistent with StabilizedImpactFrictionMap
   // If true, initialize solve with alpha/beta from last time step, otherwise initialize alpha/beta to zero
   bool m_external_warm_start_alpha;
   bool m_external_warm_start_beta;

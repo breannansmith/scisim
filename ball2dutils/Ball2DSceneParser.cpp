@@ -26,6 +26,7 @@
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
 #include "scisim/ConstrainedMaps/GeometricImpactFrictionMap.h"
 #include "scisim/ConstrainedMaps/StabilizedImpactFrictionMap.h"
+#include "scisim/ConstrainedMaps/StewartAndTrinkleImpactFrictionMap.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/GaussSeidelOperator.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/JacobiOperator.h"
@@ -1141,6 +1142,10 @@ static bool loadStaggeredProjectionsFrictionSolver( const rapidxml::xml_node<>& 
     {
       if_map.reset( new GeometricImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ), ImpulsesToCache::NONE } );
     }
+    // else if( staggering_type == "stewart_and_trinkle" )
+    // {
+    //   if_map.reset( new StewartAndTrinkleImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ), STImpulsesToCache::NONE } );
+    // }
     else if( staggering_type == "stabilized" )
     {
       if_map.reset( new StabilizedImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ), false, false } );
@@ -1323,6 +1328,10 @@ static bool loadSobogusFrictionSolver( const rapidxml::xml_node<>& node, std::un
   if( staggering_type == "geometric" )
   {
     if_map.reset( new GeometricImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ), cache_impulses } );
+  }
+  else if( staggering_type == "stewart_and_trinkle" )
+  {
+    if_map.reset( new StewartAndTrinkleImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ), cache_impulses } );
   }
   else if( staggering_type == "stabilized" )
   {
