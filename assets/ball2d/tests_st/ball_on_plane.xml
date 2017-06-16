@@ -8,7 +8,7 @@
 
   <static_plane x="0 0" n="0 1"/>
 
-  <sobogus_friction_solver mu="0.0" CoR="0.0" max_iters="5000" tol="1.0e-12" eval_every="1" staggering="stewart_and_trinkle" cache_impulses="normal_and_friction"/>
+  <sobogus_friction_solver mu="0.0" CoR="0.0" max_iters="5000" tol="1.0e-12" eval_every="1" staggering="symplectic_euler" cache_impulses="normal_and_friction" stabilization="0"/>
 
   <ball x="0.0" y="3.0" vx="0.0" vy="0.0" m="1.0" r="0.5" fixed="0"/>
   <!--<ball x="0.0" y="0.45" vx="0.0" vy="0.1" m="1.0" r="0.5" fixed="0"/>-->

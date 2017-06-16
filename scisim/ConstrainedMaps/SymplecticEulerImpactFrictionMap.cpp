@@ -13,10 +13,11 @@
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h"
 #include "scisim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
 
-SymplecticEulerImpactFrictionMap::SymplecticEulerImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters, const ImpulsesToCache impulses_to_cache )
+SymplecticEulerImpactFrictionMap::SymplecticEulerImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters, const ImpulsesToCache impulses_to_cache, const bool stabilize )
 : m_f( VectorXs::Zero( 0 ) )
 , m_abs_tol( abs_tol )
 , m_max_iters( max_iters )
+, m_stabilize( stabilize )
 , m_impulses_to_cache( impulses_to_cache )
 #ifdef USE_HDF5
 , m_write_constraint_forces( false )
@@ -30,6 +31,7 @@ SymplecticEulerImpactFrictionMap::SymplecticEulerImpactFrictionMap( std::istream
 : m_f( MathUtilities::deserialize<VectorXs>( input_stream ) )
 , m_abs_tol( Utilities::deserialize<scalar>( input_stream ) )
 , m_max_iters( Utilities::deserialize<unsigned>( input_stream ) )
+, m_stabilize( Utilities::deserialize<bool>( input_stream ) )
 , m_impulses_to_cache( Utilities::deserialize<ImpulsesToCache>( input_stream ) )
 #ifdef USE_HDF5
 , m_write_constraint_forces( false )
@@ -244,6 +246,12 @@ void SymplecticEulerImpactFrictionMap::flow( ScriptingCallback& call_back, Flowa
       SparseMatrixsc D;
       FrictionOperator::formGeneralizedSmoothFrictionBasis( unsigned( v0.size() ), unsigned( alpha.size() ), q0, active_set, contact_bases, D );
       drel = D.transpose() * vdelta;
+    }
+
+    if (m_stabilize)
+    {
+      std::cerr << "Stabilization not coded up for SymplecticEulerImpactFrictionMap, yet." << std::endl;
+      std::exit( EXIT_FAILURE );
     }
 
     friction_solver.solve( iteration, dt, fsys, fsys.M(), fsys.Minv(), CoR, mu, q0, v0, active_set, contact_bases, nrel, drel, m_max_iters, m_abs_tol, m_f, alpha, beta, v1, solve_succeeded, error );
@@ -505,6 +513,7 @@ void SymplecticEulerImpactFrictionMap::serialize( std::ostream& output_stream ) 
   MathUtilities::serialize( m_f, output_stream );
   Utilities::serialize( m_abs_tol, output_stream );
   Utilities::serialize( m_max_iters, output_stream );
+  Utilities::serialize( m_stabilize, output_stream );
   Utilities::serialize( m_impulses_to_cache, output_stream );
   #ifdef USE_HDF5
   assert( m_write_constraint_forces == false );

@@ -1142,7 +1142,7 @@ static bool loadStaggeredProjectionsFrictionSolver( const rapidxml::xml_node<>& 
     {
       if_map.reset( new GeometricImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ), ImpulsesToCache::NONE } );
     }
-    // else if( staggering_type == "stewart_and_trinkle" )
+    // else if( staggering_type == "symplectic_euler" )
     // {
     //   if_map.reset( new StewartAndTrinkleImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ), STImpulsesToCache::NONE } );
     // }
@@ -1329,9 +1329,24 @@ static bool loadSobogusFrictionSolver( const rapidxml::xml_node<>& node, std::un
   {
     if_map.reset( new GeometricImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ), cache_impulses } );
   }
-  else if( staggering_type == "stewart_and_trinkle" )
+  else if( staggering_type == "symplectic_euler" )
   {
-    if_map.reset( new SymplecticEulerImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ), cache_impulses } );
+    bool enable_pose_stab;
+    {
+      const rapidxml::xml_attribute<>* const attrib_nd{ node.first_attribute( "stabilization" ) };
+      if( attrib_nd == nullptr )
+      {
+        std::cerr << "Could not locate stabilization for sobogus_friction_solver with symplectic_euler" << std::endl;
+        return false;
+      }
+      if( !StringUtilities::extractFromString( attrib_nd->value(), enable_pose_stab ) )
+      {
+        std::cerr << "Could not load stabilization value for sobogus_friction_solver with symplectic_euler, value of stabilization must be a boolean" << std::endl;
+        return false;
+      }
+    }
+
+    if_map.reset( new SymplecticEulerImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ), cache_impulses, enable_pose_stab } );
   }
   else if( staggering_type == "stabilized" )
   {
