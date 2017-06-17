@@ -26,11 +26,15 @@ static scalar firstRootOfQuadratic( const scalar& a, const scalar& b, const scal
   scalar root;
   if( b >= 0.0 )
   {
+    assert( a != 0.0 );
     root = ( -b - dscr_sqrt ) / ( 2.0 * a );
+    assert(root == root);
   }
   else
   {
+    assert( -b + dscr_sqrt != 0.0 );
     root = ( 2.0 * c ) / ( -b + dscr_sqrt );
+    assert(root == root);
   }
   return root;
 }
@@ -38,13 +42,17 @@ static scalar firstRootOfQuadratic( const scalar& a, const scalar& b, const scal
 static scalar secondRootOfQuadratic( const scalar& a, const scalar& b, const scalar& c, const scalar& dscr_sqrt )
 {
   scalar root;
-  if( b >= 0.0 )
+  if( b > 0.0 )
   {
+    assert( ( -b - dscr_sqrt ) != 0.0 );
     root = ( 2.0 * c ) / ( -b - dscr_sqrt );
+    assert(root == root);
   }
   else
   {
+    assert( a != 0.0 );
     root = ( -b + dscr_sqrt ) / ( 2.0 * a );
+    assert(root == root);
   }
   return root;
 }
