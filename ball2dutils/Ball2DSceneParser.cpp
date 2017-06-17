@@ -1346,7 +1346,27 @@ static bool loadSobogusFrictionSolver( const rapidxml::xml_node<>& node, std::un
       }
     }
 
-    if_map.reset( new SymplecticEulerImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ), cache_impulses, enable_pose_stab } );
+    scalar penetration_threshold;
+    {
+      const rapidxml::xml_attribute<>* const attrib_nd{ node.first_attribute( "penetration_threshold" ) };
+      if( attrib_nd == nullptr )
+      {
+        std::cerr << "Could not locate penetration_threshold for sobogus_friction_solver with symplectic_euler" << std::endl;
+        return false;
+      }
+      if( !StringUtilities::extractFromString( attrib_nd->value(), penetration_threshold ) )
+      {
+        std::cerr << "Could not load penetration_threshold value for sobogus_friction_solver with symplectic_euler, value of stabilization must be a non-negative scalar" << std::endl;
+        return false;
+      }
+      if( penetration_threshold < 0.0 )
+      {
+        std::cerr << "Could not load penetration_threshold value for sobogus_friction_solver with symplectic_euler, value of stabilization must be a non-negative scalar" << std::endl;
+        return false;
+      }
+    }
+
+    if_map.reset( new SymplecticEulerImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ), cache_impulses, enable_pose_stab, penetration_threshold } );
   }
   else if( staggering_type == "stabilized" )
   {

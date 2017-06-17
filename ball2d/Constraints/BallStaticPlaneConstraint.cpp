@@ -55,6 +55,13 @@ scalar StaticPlaneConstraint::evalNdotV( const VectorXs& q, const VectorXs& v ) 
 //  vout.segment<2>( 2 * m_ball_idx ) += Minv.valuePtr()[ 2 * m_ball_idx ] * lambda * m_static_plane.n();
 //}
 
+scalar StaticPlaneConstraint::evaluateGapFunction( const VectorXs& q ) const
+{
+  assert( q.size() % 2 == 0 );
+  assert( 2 * m_ball_idx + 1 < q.size() );
+  return m_static_plane.n().dot( q.segment<2>( 2 * m_ball_idx ) - m_static_plane.x() ) - m_r;
+}
+
 void StaticPlaneConstraint::evalgradg( const VectorXs& q, const int col, SparseMatrixsc& G, const FlowableSystem& fsys ) const
 {
   assert( col >= 0 ); assert( col < G.cols() ); assert( fabs( m_static_plane.n().norm() - 1.0 ) <= 1.0e-6 );

@@ -73,6 +73,18 @@ void BallBallConstraint::resolveImpact( const scalar& CoR, const SparseMatrixsc&
 //  vout.segment<2>( 2 * m_sphere_idx0 ) -= Minv.valuePtr()[ 2 * m_sphere_idx0 ] * lambda * m_n;
 //}
 
+scalar BallBallConstraint::evaluateGapFunction( const VectorXs& q ) const
+{
+  if( m_teleported )
+  {
+    return SCALAR_NAN;
+  }
+  else
+  {
+    return ( q.segment<2>( 2 * m_sphere_idx0 ) - q.segment<2>( 2 * m_sphere_idx1 ) ).norm() - ( m_r0 + m_r1 );
+  }
+}
+
 void BallBallConstraint::evalgradg( const VectorXs& q, const int col, SparseMatrixsc& G, const FlowableSystem& fsys ) const
 {
   assert( col >= 0 ); assert( col < G.cols() );

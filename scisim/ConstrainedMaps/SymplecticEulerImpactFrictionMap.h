@@ -17,7 +17,7 @@ class SymplecticEulerImpactFrictionMap final : public ImpactFrictionMap
 
 public:
 
-  SymplecticEulerImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters, const ImpulsesToCache impulses_to_cache, const bool stabilize );
+  SymplecticEulerImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters, const ImpulsesToCache impulses_to_cache, const bool stabilize, const scalar& penetration_threshold );
   explicit SymplecticEulerImpactFrictionMap( std::istream& input_stream );
 
   SymplecticEulerImpactFrictionMap( const SymplecticEulerImpactFrictionMap& ) = delete;
@@ -53,6 +53,7 @@ private:
   scalar m_abs_tol;
   unsigned m_max_iters;
   bool m_stabilize;
+  scalar m_penetration_threshold;
 
   // Controls which portion of the impulse to cache and warm start with
   ImpulsesToCache m_impulses_to_cache;

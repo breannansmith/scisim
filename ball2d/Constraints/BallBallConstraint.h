@@ -26,6 +26,7 @@ public:
   // Inherited from Constraint
   virtual scalar evalNdotV( const VectorXs& q, const VectorXs& v ) const override;
   virtual void resolveImpact( const scalar& CoR, const SparseMatrixsc& M, const scalar& ndotv, VectorXs& vout, scalar& alpha ) const override;
+  virtual scalar evaluateGapFunction( const VectorXs& q ) const override;
   virtual void evalgradg( const VectorXs& q, const int col, SparseMatrixsc& G, const FlowableSystem& fsys ) const override;
   virtual void computeGeneralizedFrictionGivenTangentSample( const VectorXs& q, const VectorXs& t, const unsigned column, SparseMatrixsc& D ) const override;
   virtual int impactStencilSize() const override;

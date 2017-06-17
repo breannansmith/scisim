@@ -52,6 +52,9 @@ public:
   // Performs a pairwise response and adds response into alpha; used by pairwise response methods (e.g. Gauss-Seidel, Jacobi)
   virtual void resolveImpact( const scalar& CoR, const SparseMatrixsc& M, const scalar& ndotv, VectorXs& vout, scalar& alpha ) const;
 
+  // NB: Negative indicates penetration, positive indicates separation
+  virtual scalar evaluateGapFunction( const VectorXs& q ) const;
+
   // Adds this constraint to a column of a sparse matrix. Used when forming: N^T M^-1 N
   virtual void evalgradg( const VectorXs& q, const int col, SparseMatrixsc& G, const FlowableSystem& fsys ) const;
 

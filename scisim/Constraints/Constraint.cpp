@@ -134,6 +134,12 @@ void Constraint::resolveImpact( const scalar& CoR, const SparseMatrixsc& M, cons
   std::exit( EXIT_FAILURE );
 }
 
+scalar Constraint::evaluateGapFunction( const VectorXs& q ) const
+{
+  std::cerr << "Constraint::evaluateGapFunction not implemented for: " << name() << std::endl;
+  std::exit( EXIT_FAILURE );
+}
+
 void Constraint::evalgradg( const VectorXs& q, const int col, SparseMatrixsc& G, const FlowableSystem& fsys ) const
 {
   std::cerr << "Constraint::evalgradg not implemented for: " << name() << std::endl;
