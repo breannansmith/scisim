@@ -1,8 +1,3 @@
-// StaticPlaneSphereConstraint.cpp
-//
-// Breannan Smith
-// Last updated: 09/24/2015
-
 #include "StaticPlaneSphereConstraint.h"
 
 #include "FrictionUtilities.h"
@@ -32,6 +27,12 @@ StaticPlaneSphereConstraint::StaticPlaneSphereConstraint( const unsigned sphere_
 
 StaticPlaneSphereConstraint::~StaticPlaneSphereConstraint()
 {}
+
+scalar StaticPlaneSphereConstraint::evaluateGapFunction( const VectorXs& q ) const
+{
+  assert( 3 * m_sphere_idx + 2 < q.size() );
+  return m_plane.n().dot( q.segment<3>( 3 * m_sphere_idx ) - m_plane.x() ) - m_r;
+}
 
 scalar StaticPlaneSphereConstraint::evalNdotV( const VectorXs& q, const VectorXs& v ) const
 {

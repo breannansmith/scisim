@@ -1,8 +1,3 @@
-// RigidBody2DSim.cpp
-//
-// Breannan Smith
-// Last updated: 12/07/2015
-
 #include "RigidBody2DSim.h"
 
 #include "scisim/CollisionDetection/CollisionDetectionUtilities.h"
@@ -117,6 +112,12 @@ void RigidBody2DSim::computeForce( const VectorXs& q, const VectorXs& v, const s
   }
 }
 
+void RigidBody2DSim::zeroOutForcesOnFixedBodies( VectorXs& F ) const
+{
+  std::cerr << "RigidBody2DSim::zeroOutForcesOnFixedBodies not implemented, yet (but it is easy to do so!)." << std::endl;
+  std::exit( EXIT_FAILURE );
+}
+
 void RigidBody2DSim::linearInertialConfigurationUpdate( const VectorXs& q0, const VectorXs& v0, const scalar& dt, VectorXs& q1 ) const
 {
   assert( q0.size() == v0.size() );
@@ -173,6 +174,11 @@ void RigidBody2DSim::computeAngularMomentum( const VectorXs& v, VectorXs& L ) co
   {
     L(0) += m_state.I( bdy_idx ) * v( 3 * bdy_idx + 2 );
   }
+}
+
+std::string RigidBody2DSim::name() const
+{
+  return "rigid_body_2d";
 }
 
 void RigidBody2DSim::boxBoxNarrowPhaseCollision( const unsigned idx0, const unsigned idx1, const BoxGeometry& box0, const BoxGeometry& box1, const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const

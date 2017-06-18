@@ -1,14 +1,9 @@
-// KinematicObjectSphereConstraint.h
-//
-// Breannan Smith
-// Last updated: 09/16/2015
-
 #ifndef KINEMATIC_OBJECT_SPHERE_CONSTRAINT_H
 #define KINEMATIC_OBJECT_SPHERE_CONSTRAINT_H
 
 #include "scisim/Constraints/Constraint.h"
 
-class KinematicObjectSphereConstraint final : public Constraint
+class KinematicObjectSphereConstraint : public Constraint
 {
 
 public:
@@ -21,7 +16,7 @@ public:
   // V: velocity of kinematic object
   // omega: angular velocity of kinematic object
   KinematicObjectSphereConstraint( const unsigned sphere_idx, const scalar& r, const Vector3s& n, const unsigned kinematic_index, const Vector3s& X, const Vector3s& V, const Vector3s& omega );
-  virtual ~KinematicObjectSphereConstraint() override;
+  virtual ~KinematicObjectSphereConstraint() override = default;
 
   // Inherited from Constraint
   virtual scalar evalNdotV( const VectorXs& q, const VectorXs& v ) const override;
@@ -43,8 +38,9 @@ public:
   virtual void getWorldSpaceContactNormal( const VectorXs& q, VectorXs& contact_normal ) const override;
 
   unsigned sphereIdx() const;
+  unsigned kinematicIdx() const;
 
-private:
+protected:
 
   virtual void computeContactBasis( const VectorXs& q, const VectorXs& v, MatrixXXsc& basis ) const override;
   virtual VectorXs computeRelativeVelocity( const VectorXs& q, const VectorXs& v ) const override;
@@ -75,6 +71,35 @@ private:
 
   // Rotational velocity of the kinematic object
   const Vector3s m_omega;
+
+};
+
+// TODO: Move this into a separate file
+class KinematicSphereSphereConstraint final : public KinematicObjectSphereConstraint
+{
+
+public:
+
+  // sphere_idx: index of sphere
+  // r: radius of sphere
+  // n: collision normal
+  // kinematic_index: index of the kinematic body
+  // X: center of mass of kinematic object
+  // V: velocity of kinematic object
+  // omega: angular velocity of kinematic object
+  // r_kinematic: radius of the kinematic sphere
+  KinematicSphereSphereConstraint( const unsigned sphere_idx, const scalar& r, const Vector3s& n, const unsigned kinematic_index, const Vector3s& X, const Vector3s& V, const Vector3s& omega, const scalar& r_kinematic );
+  virtual ~KinematicSphereSphereConstraint() override = default;
+
+  virtual scalar evaluateGapFunction( const VectorXs& q ) const override;
+
+  virtual std::string name() const override;
+
+private:
+
+  virtual scalar computePenetrationDepth( const VectorXs& q ) const override;
+
+  const scalar m_r_kinematic;
 
 };
 

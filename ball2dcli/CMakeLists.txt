@@ -37,7 +37,7 @@ if( USE_HDF5 AND H5DIFF_FOUND )
   add_test( ball2d_serialization_15 assets/shell_scripts/execute_serialization_test.sh assets/examples_gr/bernoullis_problem_gauss_seidel_multi_mass.xml 1.25 125 048 100 )
   # Warm-start tests
   add_test( ball2d_serialization_ws_00 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/balls_falling_on_wedge.xml 4.0 40 20 10 )
-  # Stewart and Trinkle tests
+  # Symplectic Euler tests
   add_test( ball2d_st_00 assets/shell_scripts/execute_serialization_test.sh assets/tests_st/three_ball_collision_cor_0_0.xml 2.0 100 023 50 )
   add_test( ball2d_st_01 assets/shell_scripts/execute_serialization_test.sh assets/tests_st/three_ball_collision_cor_0_5.xml 2.0 100 023 50 )
   add_test( ball2d_st_02 assets/shell_scripts/execute_serialization_test.sh assets/tests_st/three_ball_collision_cor_1_0.xml 2.0 100 023 50 )

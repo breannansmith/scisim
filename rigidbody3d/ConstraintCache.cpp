@@ -1,8 +1,3 @@
-// ConstraintCache.cpp
-//
-// Breannan Smith
-// Last updated: 09/14/2015
-
 #include "ConstraintCache.h"
 
 #include <iostream>
@@ -14,6 +9,7 @@
 #include "Constraints/SphereSphereConstraint.h"
 #include "Constraints/StaticPlaneSphereConstraint.h"
 #include "Constraints/StaticCylinderSphereConstraint.h"
+#include "Constraints/KinematicObjectSphereConstraint.h"
 
 void ConstraintCache::cacheConstraint( const Constraint& constraint, const VectorXs& r )
 {
@@ -47,6 +43,26 @@ void ConstraintCache::cacheConstraint( const Constraint& constraint, const Vecto
     m_static_cylinder_sphere_constraint_cache.insert( std::make_pair( std::make_pair( cylinder_sphere.cylinderIdx(), cylinder_sphere.sphereIdx() ), r ) );
     assert( insert_return.second ); // Should not re-encounter constraints
   }
+  else if( constraint.name() == "kinematic_sphere_sphere" )
+  {
+    const KinematicSphereSphereConstraint& kinematic_sphere_sphere{ static_cast<const KinematicSphereSphereConstraint&>( constraint ) };
+    // Insert this constraint into the cache
+    #ifndef NDEBUG
+    const auto insert_return =
+    #endif
+    m_kinematic_sphere_sphere_constraint_cache.insert( std::make_pair( std::make_pair( kinematic_sphere_sphere.kinematicIdx(), kinematic_sphere_sphere.sphereIdx() ), r ) );
+    assert( insert_return.second ); // Should not re-encounter constraints
+  }
+  // else if( constraint.name() == "kinematic_object_sphere" )
+  // {
+  //   const KinematicObjectSphereConstraint& kinematic_vs_sphere{ static_cast<const KinematicObjectSphereConstraint&>( constraint ) };
+  //   // Insert this constraint into the cache
+  //   #ifndef NDEBUG
+  //   const auto insert_return =
+  //   #endif
+  //   m_kinematic_object_sphere_constraint_cache.insert( std::make_pair( std::make_pair( kinematic_vs_sphere.kinematicIdx(), kinematic_vs_sphere.sphereIdx() ), r ) );
+  //   assert( insert_return.second ); // Should not re-encounter constraints
+  // }
   else
   {
     // Unhandled constraint, warn the user!
@@ -58,14 +74,15 @@ void ConstraintCache::cacheConstraint( const Constraint& constraint, const Vecto
 void ConstraintCache::clear()
 {
   m_sphere_sphere_constraint_cache.clear();
-  m_box_sphere_constraint_cache.clear();
   m_static_plane_sphere_constraint_cache.clear();
   m_static_cylinder_sphere_constraint_cache.clear();
+  m_kinematic_sphere_sphere_constraint_cache.clear();
 }
 
 bool ConstraintCache::empty() const
 {
-  return m_sphere_sphere_constraint_cache.empty() && m_box_sphere_constraint_cache.empty() && m_static_plane_sphere_constraint_cache.empty() && m_static_cylinder_sphere_constraint_cache.empty();
+  return m_sphere_sphere_constraint_cache.empty() && m_static_plane_sphere_constraint_cache.empty() &&
+         m_static_cylinder_sphere_constraint_cache.empty() && m_kinematic_sphere_sphere_constraint_cache.empty();
 }
 
 void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorXs& r ) const
@@ -112,6 +129,34 @@ void ConstraintCache::getCachedConstraint( const Constraint& constraint, VectorX
       return;
     }
   }
+  else if( constraint.name() == "kinematic_sphere_sphere" )
+  {
+    const KinematicSphereSphereConstraint& kinematic_sphere_sphere{ static_cast<const KinematicSphereSphereConstraint&>( constraint ) };
+    // Try to retrieve this constraint from the cache
+    using itr_type = std::map<std::pair<unsigned,unsigned>,VectorXs>::const_iterator;
+    const itr_type map_iterator{ m_kinematic_sphere_sphere_constraint_cache.find( std::make_pair( kinematic_sphere_sphere.kinematicIdx(), kinematic_sphere_sphere.sphereIdx() ) ) };
+    // If object is in the cache, return the force
+    if( map_iterator != m_kinematic_sphere_sphere_constraint_cache.cend() )
+    {
+      assert( r.size() == map_iterator->second.size() );
+      r = map_iterator->second;
+      return;
+    }
+  }
+  // else if( constraint.name() == "kinematic_object_sphere" )
+  // {
+  //   const KinematicObjectSphereConstraint& kinematic_vs_sphere{ static_cast<const KinematicObjectSphereConstraint&>( constraint ) };
+  //   // Try to retrieve this constraint from the cache
+  //   using itr_type = std::map<std::pair<unsigned,unsigned>,VectorXs>::const_iterator;
+  //   const itr_type map_iterator{ m_kinematic_object_sphere_constraint_cache.find( std::make_pair( kinematic_vs_sphere.kinematicIdx(), kinematic_vs_sphere.sphereIdx() ) ) };
+  //   // If object is in the cache, return the force
+  //   if( map_iterator != m_kinematic_object_sphere_constraint_cache.cend() )
+  //   {
+  //     assert( r.size() == map_iterator->second.size() );
+  //     r = map_iterator->second;
+  //     return;
+  //   }
+  // }
   else
   {
     std::cerr << constraint.name() << " not supported in ConstraintCache::getCachedConstraint, exiting." << std::endl;
@@ -139,9 +184,9 @@ void ConstraintCache::serialize( std::ostream& output_stream ) const
 {
   assert( output_stream.good() );
   serializeCache( m_sphere_sphere_constraint_cache, output_stream );
-  serializeCache( m_box_sphere_constraint_cache, output_stream );
   serializeCache( m_static_plane_sphere_constraint_cache, output_stream );
   serializeCache( m_static_cylinder_sphere_constraint_cache, output_stream );
+  serializeCache( m_kinematic_sphere_sphere_constraint_cache, output_stream );
 }
 
 static void deserializeCache( std::map<std::pair<unsigned,unsigned>,VectorXs>& constraint_cache, std::istream& input_stream )
@@ -166,10 +211,10 @@ void ConstraintCache::deserialize( std::istream& input_stream )
   assert( input_stream.good() );
   m_sphere_sphere_constraint_cache.clear();
   deserializeCache( m_sphere_sphere_constraint_cache, input_stream );
-  m_box_sphere_constraint_cache.clear();
-  deserializeCache( m_box_sphere_constraint_cache, input_stream );
   m_static_plane_sphere_constraint_cache.clear();
   deserializeCache( m_static_plane_sphere_constraint_cache, input_stream );
   m_static_cylinder_sphere_constraint_cache.clear();
   deserializeCache( m_static_cylinder_sphere_constraint_cache, input_stream );
+  m_kinematic_sphere_sphere_constraint_cache.clear();
+  deserializeCache( m_kinematic_sphere_sphere_constraint_cache, input_stream );
 }

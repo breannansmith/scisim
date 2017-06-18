@@ -1,0 +1,27 @@
+<rigidbody3d_scene>
+
+  <camera_perspective theta="1.1072" phi="0.135398" rho="16.6938" lookat="1.64312 -0.646959 -0.132046" up="0 1 0" fps="100" render_at_fps="1" locked="0"/>
+
+  <integrator type="dmv" dt="0.001"/>
+
+  <sobogus_friction_solver mu="0.3" CoR="0.0" max_iters="5000" tol="1.0e-12" eval_every="1" staggering="symplectic_euler" cache_impulses="normal_and_friction" stabilization="1" penetration_threshold="1.0e-3"/>
+
+  <near_earth_gravity f="0.0 -981.0 0.0"/>
+
+  <static_plane x="0.0 0.0 0.0" n="0.5 1.0 0.0"/>
+  <static_plane_renderer plane="0" r="5.0 5.0"/>
+
+  <static_plane x="4.0 0.0 0.0" n="-0.5 1.0 0.0"/>
+  <static_plane_renderer plane="1" r="5.0 5.0"/>
+
+  <geometry type="sphere" r="1.2"/>
+  <rigid_body_with_density x="-2.0 2.7 0.3" v="0.0 0.0 0.0" omega="0.0 0.0 0.0" rho="1.0" fixed="0" geo_idx="0"/>
+  <rigid_body_with_density x="2.0 2.7 0.0" v="0.0 0.0 0.0" omega="0.0 0.0 0.0" rho="1.0" fixed="0" geo_idx="0"/>
+  <geometry type="sphere" r="1.0"/>
+  <rigid_body_with_density x="5.0 4.0 -0.2" v="0.0 0.0 0.0" omega="0.0 0.0 0.0" rho="1.0" fixed="0" geo_idx="1"/>
+  <rigid_body_with_density x="-3.0 6.0 -0.2" v="0.0 0.0 0.0" omega="0.0 0.0 0.0" rho="1.0" fixed="0" geo_idx="1"/>
+  <geometry type="sphere" r="1.5"/>
+  <rigid_body_with_density x="1.5 0.0 -8.0" v="0.0 0.0 0.0" omega="0.0 0.0 0.0" rho="1.0" fixed="1" geo_idx="2"/>
+  <rigid_body_with_density x="1.5 0.0 8.0" v="0.0 0.0 0.0" omega="0.0 0.0 0.0" rho="1.0" fixed="1" geo_idx="2"/>
+
+</rigidbody3d_scene>

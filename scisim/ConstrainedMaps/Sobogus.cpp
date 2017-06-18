@@ -487,11 +487,38 @@ void SobogusFrictionProblem::solve3D( const std::vector<std::unique_ptr<Constrai
 {
   assert( tol >= 0.0 );
 
-  assert( alpha.size() == m_num_collisions ); assert( beta.size() == 2 * m_num_collisions );
-  // TODO: Warm starting goes here. Scale the basis by alpha, beta
-  assert( ( alpha.array() == 0.0 ).all() );
-  assert( ( beta.array() == 0.0 ).all() );
-  VectorXs r{ VectorXs::Zero( 3 * m_num_collisions ) };
+  assert( alpha.size() == m_num_collisions );
+  assert( ( alpha.array() == alpha.array() ).all() );
+  assert( beta.size() == 2 * m_num_collisions );
+  assert( ( beta.array() == beta.array() ).all() );
+  VectorXs r{ 3 * m_num_collisions };
+  for( unsigned clsn_idx = 0; clsn_idx < m_num_collisions; clsn_idx++ )
+  {
+    #ifndef NDEBUG
+    // Collision basis should be ortho-normal and orientation preserving
+    {
+      const Matrix33sr basis{ m_H_0_store.block<3,3>( 3 * clsn_idx, 0 ) };
+      assert( fabs( basis.determinant() - 1.0 ) <= 1.0e-9 );
+      assert( ( basis * basis.transpose() - Matrix33sr::Identity() ).lpNorm<Eigen::Infinity>() <= 1.0e-9 );
+    }
+    // The basis should be the same for each body in a collision
+    {
+      std::pair<int,int> bodies;
+      active_set[clsn_idx]->getSimulatedBodyIndices( bodies );
+      if( bodies.second >= 0 )
+      {
+        assert( ( m_H_0_store.block<3,3>( 3 * clsn_idx, 0 ).array() == m_H_1_store.block<3,3>( 3 * clsn_idx, 0 ).array() ).all() );
+      }
+    }
+    #endif
+    const Vector3s n{ m_H_0_store.block<1,3>( 3 * clsn_idx + 0, 0 ) };
+    const Vector3s s{ m_H_0_store.block<1,3>( 3 * clsn_idx + 1, 0 ) };
+    const Vector3s t{ m_H_0_store.block<1,3>( 3 * clsn_idx + 2, 0 ) };
+
+    r.segment<3>( 3 * clsn_idx ) = alpha(clsn_idx) * n + beta(2 * clsn_idx + 0) * s + beta(2 * clsn_idx + 1) * t;
+  }
+  assert( ( r.array() == r.array() ).all() );
+
   error = m_mfp.solve( r, vout, num_iterations, 0, tol, max_iters, eval_every, true );
   succeeded = error < tol;
 
@@ -852,7 +879,6 @@ static void extractv3D( const unsigned nlocalbodies, const unsigned nglobalbodie
 
 void Sobogus::solve( const unsigned iteration, const scalar& dt, const FlowableSystem& fsys, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& CoR, const VectorXs& mu, const VectorXs& q0, const VectorXs& v0, std::vector<std::unique_ptr<Constraint>>& active_set, const MatrixXXsc& contact_bases, const VectorXs& nrel_extra, const VectorXs& drel_extra, const unsigned max_iters, const scalar& tol, VectorXs& f, VectorXs& alpha, VectorXs& beta, VectorXs& vout, bool& solve_succeeded, scalar& error )
 {
-  assert(nrel_extra.size() == drel_extra.size());
   const unsigned nglobalbodies{ fsys.numBodies() };
 
   // Given local index i in [0,nlocalbodies), gives the global index ltg[i] [0,nglobalbodies)

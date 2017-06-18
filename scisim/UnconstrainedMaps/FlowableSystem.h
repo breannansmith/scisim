@@ -1,8 +1,3 @@
-// FlowableSystem.h
-//
-// Breannan Smith
-// Last updated: 12/07/2015
-
 #ifndef FLOWABLE_SYSTEM_H
 #define FLOWABLE_SYSTEM_H
 
@@ -28,6 +23,9 @@ public:
   // Given positions and velocities, computes the force acting on the DoFs, overwriting the contents of F
   virtual void computeForce( const VectorXs& q, const VectorXs& v, const scalar& t, VectorXs& F ) = 0;
 
+  // Sets forces on fixed degrees of freedom to 0
+  virtual void zeroOutForcesOnFixedBodies( VectorXs& F ) const = 0;
+
   // Updates the configuration at q0 to q1 using v0 and dt with a linear update.
   virtual void linearInertialConfigurationUpdate( const VectorXs& q0, const VectorXs& v0, const scalar& dt, VectorXs& q1 ) const = 0;
 
@@ -45,6 +43,8 @@ public:
   virtual void computeMomentum( const VectorXs& v, VectorXs& p ) const = 0;
   // For the given velocity and the system's current configuration and mass, computes the angular momentum
   virtual void computeAngularMomentum( const VectorXs& v, VectorXs& L ) const = 0;
+
+  virtual std::string name() const = 0;
 
 protected:
 

@@ -45,7 +45,7 @@ SymplecticEulerImpactFrictionMap::SymplecticEulerImpactFrictionMap( std::istream
   assert( m_penetration_threshold >= 0.0 );
 }
 
-static void initializeImpulses( const ImpulsesToCache cache_mode, const unsigned ambient_dims, const std::vector<std::unique_ptr<Constraint>>& active_set, ConstrainedSystem& csys, VectorXs& alpha, VectorXs& beta )
+static void initializeImpulses( const ImpulsesToCache cache_mode, const unsigned ambient_dims, const std::vector<std::unique_ptr<Constraint>>& active_set, ConstrainedSystem& csys, VectorXs& alpha, VectorXs& beta, const VectorXs& q, const VectorXs& v )
 {
   switch( cache_mode )
   {
@@ -86,8 +86,43 @@ static void initializeImpulses( const ImpulsesToCache cache_mode, const unsigned
       }
       else
       {
-        std::cerr << "Decaching in " << ambient_dims << " space not yet supported." << std::endl;
-        std::exit( EXIT_FAILURE );
+        assert( ambient_dims == 3 );
+        unsigned col_num{ 0 };
+        for( const std::unique_ptr<Constraint>& constraint : active_set )
+        {
+          VectorXs cached_impulse{ 6 };
+          csys.getCachedConstraintImpulse( *constraint, cached_impulse );
+
+          if( ( cached_impulse.array() == 0.0 ).all() )
+          {
+            alpha( col_num ) = 0.0;
+            beta.segment<2>( 2 * col_num ).setZero();
+          }
+          else
+          {
+            // Grab the collision basis
+            MatrixXXsc basis{3, 3};
+            constraint->computeBasis( q, v, basis );
+            assert( fabs( basis.determinant() - 1.0 ) <= 1.0e-9 );
+            assert( ( basis * basis.transpose() - Matrix33sr::Identity() ).lpNorm<Eigen::Infinity>() <= 1.0e-9 );
+
+            // Compute a rotation from the old normal to the currenet normal
+            assert( fabs( basis.col(0).norm() - 1.0 ) <= 1.0e-9 );
+            const Quaternions R{ Quaternions::FromTwoVectors( cached_impulse.segment<3>(0), basis.col(0) ) };
+            assert( fabs( R.norm() - 1.0 ) <= 1.0e-9 );
+
+            // Transform the previous force by the rotation of the normal
+            const Vector3s f{ R * cached_impulse.segment<3>(3) };
+
+            // Project the force onto the current basis
+            alpha( col_num ) = f.dot( basis.col(0) );
+            beta( 2 * col_num + 0 ) = f.dot( basis.col(1) );
+            beta( 2 * col_num + 1 ) = f.dot( basis.col(2) );
+          }
+
+          col_num++;
+        }
+        assert( col_num == active_set.size() );
       }
       csys.clearConstraintCache();
       break;
@@ -95,7 +130,7 @@ static void initializeImpulses( const ImpulsesToCache cache_mode, const unsigned
   }
 }
 
-static void cacheImpulses( const ImpulsesToCache cache_mode, const unsigned ambient_dims, const std::vector<std::unique_ptr<Constraint>>& active_set, ConstrainedSystem& csys, const VectorXs& alpha, const VectorXs& beta )
+static void cacheImpulses( const ImpulsesToCache cache_mode, const unsigned ambient_dims, const std::vector<std::unique_ptr<Constraint>>& active_set, ConstrainedSystem& csys, const VectorXs& alpha, const VectorXs& beta, const VectorXs& q, const VectorXs& v )
 {
   switch( cache_mode )
   {
@@ -135,8 +170,27 @@ static void cacheImpulses( const ImpulsesToCache cache_mode, const unsigned ambi
       }
       else
       {
-        std::cerr << "Caching in " << ambient_dims << " space not yet supported." << std::endl;
-        std::exit( EXIT_FAILURE );
+        assert( ambient_dims == 3 );
+        assert( 2 * alpha.size() == beta.size() );
+        unsigned col_num = 0;
+        for( const std::unique_ptr<Constraint>& constraint : active_set )
+        {
+          // Compute the contact basis
+          MatrixXXsc basis(3, 3);
+          constraint->computeBasis( q, v, basis );
+          assert( fabs( basis.determinant() - 1.0 ) <= 1.0e-9 );
+          assert( ( basis * basis.transpose() - Matrix33sr::Identity() ).lpNorm<Eigen::Infinity>() <= 1.0e-9 );
+
+          VectorXs cached_impulse{ 6 };
+          // Cache the contact normal
+          cached_impulse.segment<3>(0) = basis.col(0);
+          // Compute the force in 3D cartesian space
+          cached_impulse.segment<3>(3) = alpha( col_num ) * basis.col(0) + beta( 2 * col_num + 0 ) * basis.col(1) + beta( 2 * col_num + 1 ) * basis.col(2);
+          csys.cacheConstraint( *constraint, cached_impulse );
+
+          col_num++;
+        }
+        assert( col_num == active_set.size() );
       }
       break;
     }
@@ -165,8 +219,9 @@ void SymplecticEulerImpactFrictionMap::flow( ScriptingCallback& call_back, Flowa
   // Compute the force at the start of step and the corresponding change in velocity
   VectorXs vdelta( q0.size() );
   {
-    VectorXs F( q0.size() );
+    VectorXs F( fsys.Minv().cols() );
     fsys.computeForce( q0, v0, dt, F );
+    fsys.zeroOutForcesOnFixedBodies( F );
     vdelta = dt * ( fsys.Minv() * F );
   }
 
@@ -212,7 +267,7 @@ void SymplecticEulerImpactFrictionMap::flow( ScriptingCallback& call_back, Flowa
   // Friction impulses magnitudes
   VectorXs beta{ friction_solver.numFrictionImpulsesPerNormal( fsys.ambientSpaceDimensions() ) * ncollisions };
 
-  initializeImpulses( m_impulses_to_cache, fsys.ambientSpaceDimensions(), active_set, csys, alpha, beta );
+  initializeImpulses( m_impulses_to_cache, fsys.ambientSpaceDimensions(), active_set, csys, alpha, beta, q0, v0 );
   // std::cout << "alpha0: " << alpha.transpose() << std::endl;
   // std::cout << "beta0:  " << beta.transpose() << std::endl;
 
@@ -254,17 +309,19 @@ void SymplecticEulerImpactFrictionMap::flow( ScriptingCallback& call_back, Flowa
     if( m_stabilize )
     {
       VectorXs g0( ncollisions );
+      // std::cout << "g0: ";
       for( unsigned col_idx = 0; col_idx < ncollisions; col_idx++ )
       {
         g0( col_idx ) = std::min( 0.0, active_set[col_idx]->evaluateGapFunction( q0 ) );
+        // std::cout << g0( col_idx ) << " ";
         using std::fabs;
         if( fabs( g0( col_idx ) ) < m_penetration_threshold )
         {
           g0( col_idx ) = 0.0;
         }
       }
+      // std::cout << std::endl;
       assert( ( g0.array() <= 0.0 ).all() );
-      // std::cout << "g0: " << g0.transpose() << std::endl;
       nrel += g0 / dt;
     }
 
@@ -333,7 +390,7 @@ void SymplecticEulerImpactFrictionMap::flow( ScriptingCallback& call_back, Flowa
   #endif
 
   // Cache the constraints for warm starting
-  cacheImpulses( m_impulses_to_cache, fsys.ambientSpaceDimensions(), active_set, csys, alpha, beta );
+  cacheImpulses( m_impulses_to_cache, fsys.ambientSpaceDimensions(), active_set, csys, alpha, beta, q0, v0 );
 
   #ifdef USE_HDF5
   // Export constraint forces, if requested

@@ -1,8 +1,3 @@
-// ConstraintCache.h
-//
-// Breannan Smith
-// Last updated: 09/14/2015
-
 #ifndef CONSTRAINT_CACHE_H
 #define CONSTRAINT_CACHE_H
 
@@ -26,9 +21,9 @@ public:
 private:
 
   std::map<std::pair<unsigned,unsigned>,VectorXs> m_sphere_sphere_constraint_cache;
-  std::map<std::pair<unsigned,unsigned>,VectorXs> m_box_sphere_constraint_cache;
   std::map<std::pair<unsigned,unsigned>,VectorXs> m_static_plane_sphere_constraint_cache;
   std::map<std::pair<unsigned,unsigned>,VectorXs> m_static_cylinder_sphere_constraint_cache;
+  std::map<std::pair<unsigned,unsigned>,VectorXs> m_kinematic_sphere_sphere_constraint_cache;
 
 };
 

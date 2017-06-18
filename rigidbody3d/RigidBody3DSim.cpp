@@ -1,8 +1,3 @@
-// RigidBody3DSim.cpp
-//
-// Breannan Smith
-// Last updated: 10/01/2015
-
 #include "RigidBody3DSim.h"
 
 #include <iostream>
@@ -185,9 +180,22 @@ void RigidBody3DSim::computeForce( const VectorXs& q, const VectorXs& v, const s
   }
 }
 
+void RigidBody3DSim::zeroOutForcesOnFixedBodies( VectorXs& F ) const
+{
+  assert( F.size() == 6 * m_sim_state.nbodies() );
+  for( unsigned bdy_num = 0; bdy_num < m_sim_state.nbodies(); bdy_num++ )
+  {
+    if( isKinematicallyScripted( bdy_num ) )
+    {
+      F.segment<3>( 3 * bdy_num ).setZero();
+      F.segment<3>( 3 * m_sim_state.nbodies() + 3 * bdy_num ).setZero();
+    }
+  }
+}
+
 void RigidBody3DSim::linearInertialConfigurationUpdate( const VectorXs& q0, const VectorXs& v0, const scalar& dt, VectorXs& q1 ) const
 {
-  IntegrationTools::exponentialEuler( q0, v0, dt, q1 );
+  IntegrationTools::exponentialEuler( q0, v0, m_sim_state.fixed(), dt, q1 );
 }
 
 const SparseMatrixsc& RigidBody3DSim::M() const
@@ -232,6 +240,11 @@ void RigidBody3DSim::computeAngularMomentum( const VectorXs& v, VectorXs& L ) co
   {
     L += m_sim_state.getInertia( bdy_idx ) * v.segment<3>( 3 * m_sim_state.nbodies() + 3 * bdy_idx );
   }
+}
+
+std::string RigidBody3DSim::name() const
+{
+  return "rigid_body_3d";
 }
 
 void RigidBody3DSim::computeActiveSet( const VectorXs& q0, const VectorXs& qp, const VectorXs& v, std::vector<std::unique_ptr<Constraint>>& active_set )
@@ -779,6 +792,8 @@ void RigidBody3DSim::boxSphereNarrowPhaseCollision( const unsigned first_body, c
 void RigidBody3DSim::sphereSphereNarrowPhaseCollision( const unsigned first_body, const unsigned second_body, const RigidBodySphere& sphere0, const RigidBodySphere& sphere1, const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const
 {
   assert( !isKinematicallyScripted( first_body ) ); // Kinematic rigid body should be listed second
+  assert( q0.size() % 12 == 0 );
+  assert( q0.size() == q1.size() );
 
   // Evaluation of active set at q1
   if( SphereSphereConstraint::isActive( q1.segment<3>( 3 * first_body ), q1.segment<3>( 3 * second_body ), sphere0.r(), sphere1.r() ) )
@@ -795,8 +810,9 @@ void RigidBody3DSim::sphereSphereNarrowPhaseCollision( const unsigned first_body
     }
     else
     {
-      // TODO: When velocity is passed in, assert zero if keeping zero assumption
-      active_set.emplace_back( new KinematicObjectSphereConstraint{ first_body, sphere0.r(), n, second_body, q0.segment<3>( 3 * second_body ), Vector3s::Zero(), Vector3s::Zero() } );
+      assert( ( q0.segment<3>( 3 * second_body ).array() == q1.segment<3>( 3 * second_body ).array() ).all() );
+      assert( ( q0.segment<9>( q0.size() / 4 + 9 * second_body ).array() == q1.segment<9>( q0.size() / 4 + 9 * second_body ).array() ).all() );
+      active_set.emplace_back( new KinematicSphereSphereConstraint{ first_body, sphere0.r(), n, second_body, q0.segment<3>( 3 * second_body ), Vector3s::Zero(), Vector3s::Zero(), sphere1.r() } );
     }
   }
 }

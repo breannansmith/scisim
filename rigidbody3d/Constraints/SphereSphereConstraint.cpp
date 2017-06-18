@@ -1,8 +1,3 @@
-// SphereSphereConstraint.cpp
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
 #include "SphereSphereConstraint.h"
 
 #include "FrictionUtilities.h"
@@ -30,8 +25,10 @@ SphereSphereConstraint::SphereSphereConstraint( const unsigned sphere_idx0, cons
   assert( m_r1 >= 0.0 );
 }
 
-SphereSphereConstraint::~SphereSphereConstraint()
-{}
+scalar SphereSphereConstraint::evaluateGapFunction( const VectorXs& q ) const
+{
+  return ( q.segment<3>( 3 * m_idx0 ) - q.segment<3>( 3 * m_idx1 ) ).norm() - m_r0 - m_r1;
+}
 
 scalar SphereSphereConstraint::evalNdotV( const VectorXs& q, const VectorXs& v ) const
 {
@@ -400,4 +397,14 @@ void SphereSphereConstraint::getWorldSpaceContactPoint( const VectorXs& q, Vecto
 void SphereSphereConstraint::getWorldSpaceContactNormal( const VectorXs& q, VectorXs& contact_normal ) const
 {
   contact_normal = m_n;
+}
+
+unsigned SphereSphereConstraint::idx0() const
+{
+  return m_idx0;
+}
+
+unsigned SphereSphereConstraint::idx1() const
+{
+  return m_idx1;
 }

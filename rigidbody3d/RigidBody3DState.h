@@ -1,10 +1,3 @@
-// RigidBody3DState.h
-//
-// Breannan Smith
-// Last updated: 09/15/2015
-
-// TODO: Implement copy and swap and move semantics
-
 #ifndef RIGID_BODY_3D_STATE_H
 #define RIGID_BODY_3D_STATE_H
 
@@ -61,6 +54,8 @@ public:
 
   SparseMatrixsc& Minv();
   const SparseMatrixsc& Minv() const;
+
+  const std::vector<bool>& fixed() const;
 
   bool isKinematicallyScripted( const unsigned bdy_idx ) const;
 

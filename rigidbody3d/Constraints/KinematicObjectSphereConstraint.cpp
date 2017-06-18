@@ -1,8 +1,3 @@
-// KinematicObjectSphereConstraint.cpp
-//
-// Breannan Smith
-// Last updated: 09/16/2015
-
 #include "KinematicObjectSphereConstraint.h"
 
 #include "FrictionUtilities.h"
@@ -22,9 +17,6 @@ KinematicObjectSphereConstraint::KinematicObjectSphereConstraint( const unsigned
   assert( m_r > 0.0 );
   assert( fabs( m_n.norm() - 1.0 ) <= 1.0e-6 );
 }
-
-KinematicObjectSphereConstraint::~KinematicObjectSphereConstraint()
-{}
 
 scalar KinematicObjectSphereConstraint::evalNdotV( const VectorXs& q, const VectorXs& v ) const
 {
@@ -244,4 +236,29 @@ VectorXs KinematicObjectSphereConstraint::computeKinematicRelativeVelocity( cons
 unsigned KinematicObjectSphereConstraint::sphereIdx() const
 {
   return m_sphere_idx;
+}
+
+unsigned KinematicObjectSphereConstraint::kinematicIdx() const
+{
+  return m_kinematic_index;
+}
+
+KinematicSphereSphereConstraint::KinematicSphereSphereConstraint( const unsigned sphere_idx, const scalar& r, const Vector3s& n, const unsigned kinematic_index, const Vector3s& X, const Vector3s& V, const Vector3s& omega, const scalar& r_kinematic )
+: KinematicObjectSphereConstraint( sphere_idx, r, n, kinematic_index, X, V, omega )
+, m_r_kinematic( r_kinematic )
+{}
+
+std::string KinematicSphereSphereConstraint::name() const
+{
+  return "kinematic_sphere_sphere";
+}
+
+scalar KinematicSphereSphereConstraint::computePenetrationDepth( const VectorXs& q ) const
+{
+  return std::min( 0.0, ( q.segment<3>( 3 * m_sphere_idx ) - q.segment<3>( 3 * m_kinematic_index ) ).norm() - m_r - m_r_kinematic );
+}
+
+scalar KinematicSphereSphereConstraint::evaluateGapFunction( const VectorXs& q ) const
+{
+  return ( q.segment<3>( 3 * m_sphere_idx ) - q.segment<3>( 3 * m_kinematic_index ) ).norm() - m_r - m_r_kinematic;
 }

@@ -377,6 +377,11 @@ const SparseMatrixsc& RigidBody3DState::Minv() const
   return m_Minv;
 }
 
+const std::vector<bool>& RigidBody3DState::fixed() const
+{
+  return m_fixed;
+}
+
 bool RigidBody3DState::isKinematicallyScripted( const unsigned bdy_idx ) const
 {
   assert( bdy_idx < m_fixed.size() );

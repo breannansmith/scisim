@@ -1,8 +1,3 @@
-// SphereSphereConstraint.h
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
 #ifndef SPHERE_SPHERE_CONSTRAINT_H
 #define SPHERE_SPHERE_CONSTRAINT_H
 
@@ -16,9 +11,10 @@ public:
   static bool isActive( const Vector3s& x0, const Vector3s& x1, const scalar& r0, const scalar& r1 );
 
   SphereSphereConstraint( const unsigned sphere_idx0, const unsigned sphere_idx1, const Vector3s& n, const Vector3s& p, const scalar& r0, const scalar& r1 );
-  virtual ~SphereSphereConstraint() override;
+  virtual ~SphereSphereConstraint() override = default;
 
   // Inherited from Constraint
+  virtual scalar evaluateGapFunction( const VectorXs& q ) const override;
   virtual scalar evalNdotV( const VectorXs& q, const VectorXs& v ) const override;
   virtual void resolveImpact( const scalar& CoR, const SparseMatrixsc& M, const scalar& ndotv, VectorXs& vout, scalar& alpha ) const override;
   virtual void evalgradg( const VectorXs& q, const int col, SparseMatrixsc& G, const FlowableSystem& fsys ) const override;
@@ -39,15 +35,8 @@ public:
   virtual void getWorldSpaceContactPoint( const VectorXs& q, VectorXs& contact_point ) const override;
   virtual void getWorldSpaceContactNormal( const VectorXs& q, VectorXs& contact_normal ) const override;
 
-  inline unsigned idx0() const
-  {
-    return m_idx0;
-  }
-
-  inline unsigned idx1() const
-  {
-    return m_idx1;
-  }
+  unsigned idx0() const;
+  unsigned idx1() const;
 
 private:
 

@@ -18,6 +18,7 @@
 #include "scisim/ConstrainedMaps/ImpactMaps/GRROperator.h"
 #include "scisim/ConstrainedMaps/GeometricImpactFrictionMap.h"
 #include "scisim/ConstrainedMaps/StabilizedImpactFrictionMap.h"
+#include "scisim/ConstrainedMaps/SymplecticEulerImpactFrictionMap.h"
 #include "scisim/ConstrainedMaps/StaggeredProjections.h"
 #include "scisim/ConstrainedMaps/Sobogus.h"
 #include "scisim/ConstrainedMaps/GRRFriction.h"
@@ -1876,6 +1877,74 @@ static bool loadSobogusFrictionSolver( const rapidxml::xml_node<>& node, std::un
   if( staggering_type == "geometric" )
   {
     if_map.reset( new GeometricImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ), ImpulsesToCache::NONE } );
+  }
+  else if( staggering_type == "symplectic_euler" )
+  {
+    bool enable_pose_stab;
+    {
+      const rapidxml::xml_attribute<>* const attrib_nd{ node.first_attribute( "stabilization" ) };
+      if( attrib_nd == nullptr )
+      {
+        std::cerr << "Could not locate stabilization for sobogus_friction_solver with symplectic_euler" << std::endl;
+        return false;
+      }
+      if( !StringUtilities::extractFromString( attrib_nd->value(), enable_pose_stab ) )
+      {
+        std::cerr << "Could not load stabilization value for sobogus_friction_solver with symplectic_euler, value of stabilization must be a boolean" << std::endl;
+        return false;
+      }
+    }
+
+    scalar penetration_threshold;
+    {
+      const rapidxml::xml_attribute<>* const attrib_nd{ node.first_attribute( "penetration_threshold" ) };
+      if( attrib_nd == nullptr )
+      {
+        std::cerr << "Could not locate penetration_threshold for sobogus_friction_solver with symplectic_euler" << std::endl;
+        return false;
+      }
+      if( !StringUtilities::extractFromString( attrib_nd->value(), penetration_threshold ) )
+      {
+        std::cerr << "Could not load penetration_threshold value for sobogus_friction_solver with symplectic_euler, value of stabilization must be a non-negative scalar" << std::endl;
+        return false;
+      }
+      if( penetration_threshold < 0.0 )
+      {
+        std::cerr << "Could not load penetration_threshold value for sobogus_friction_solver with symplectic_euler, value of stabilization must be a non-negative scalar" << std::endl;
+        return false;
+      }
+    }
+
+    // Attempt to load the cache_impulses option
+    ImpulsesToCache cache_impulses;
+    {
+      const rapidxml::xml_attribute<>* const attrib_nd{ node.first_attribute( "cache_impulses" ) };
+      if( attrib_nd == nullptr )
+      {
+        std::cerr << "Could not locate cache_impulses attribute for sobogus_friction_solver with symplectic_euler" << std::endl;
+        return false;
+      }
+      const std::string impulses_to_cache{ attrib_nd->value() };
+      if( "none" == impulses_to_cache )
+      {
+        cache_impulses = ImpulsesToCache::NONE;
+      }
+      else if( "normal" == impulses_to_cache )
+      {
+        cache_impulses = ImpulsesToCache::NORMAL;
+      }
+      else if( "normal_and_friction" == impulses_to_cache )
+      {
+        cache_impulses = ImpulsesToCache::NORMAL_AND_FRICTION;
+      }
+      else
+      {
+        std::cerr << "Invalid option specified for cache_impulses. Valid options are: none, normal, normal_and_friction" << std::endl;
+        std::exit( EXIT_FAILURE );
+      }
+    }
+
+    if_map.reset( new SymplecticEulerImpactFrictionMap{ tol, static_cast<unsigned>( max_iters ), cache_impulses, enable_pose_stab, penetration_threshold } );
   }
   else if( staggering_type == "stabilized" )
   {

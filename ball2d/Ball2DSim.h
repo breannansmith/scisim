@@ -1,8 +1,3 @@
-// Ball2DSim.h
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
 #ifndef BALL_2D_SIM_H
 #define BALL_2D_SIM_H
 
@@ -55,6 +50,7 @@ public:
   virtual bool isKinematicallyScripted( const int i ) const override;
 
   virtual void computeForce( const VectorXs& q, const VectorXs& v, const scalar& t, VectorXs& F ) override;
+  virtual void zeroOutForcesOnFixedBodies( VectorXs& F ) const override;
 
   virtual void linearInertialConfigurationUpdate( const VectorXs& q0, const VectorXs& v0, const scalar& dt, VectorXs& q1 ) const override;
 
@@ -65,6 +61,8 @@ public:
 
   virtual void computeMomentum( const VectorXs& v, VectorXs& p ) const override;
   virtual void computeAngularMomentum( const VectorXs& v, VectorXs& L ) const override;
+
+  virtual std::string name() const override;
 
   // Inherited from ConstrainedSystem
   virtual void computeActiveSet( const VectorXs& q0, const VectorXs& qp, const VectorXs& v, std::vector<std::unique_ptr<Constraint>>& active_set ) override;

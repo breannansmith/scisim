@@ -1,19 +1,13 @@
-// IntegrationTools.cpp
-//
-// Breannan Smith
-// Last updated: 11/15/2015
-
 #include "IntegrationTools.h"
 
 // TODO: Could probably make this faster by explicitly using Rodrigues' rotation formula
-static void updateOrientation( const unsigned bdy_num, const VectorXs& q0, const VectorXs& v0, const scalar& dt, VectorXs& q1 )
+static void updateOrientation( const int nbodies, const int bdy_num, const VectorXs& q0, const VectorXs& v0, const scalar& dt, VectorXs& q1 )
 {
   assert( q0.size() == q1.size() );
   assert( q0.size() % 12 == 0 );
   assert( v0.size() * 2 == q0.size() );
   assert( 12 * bdy_num < q0.size() );
-
-  const unsigned nbodies{ static_cast<unsigned>( q0.size() / 12 ) };
+  assert( 12 * nbodies == q0.size() );
 
   // Extract the axis and amount of rotation
   Eigen::AngleAxis<scalar> rotation;
@@ -39,20 +33,38 @@ static void updateOrientation( const unsigned bdy_num, const VectorXs& q0, const
   Q1 = rotation * Q0;
 }
 
-void IntegrationTools::exponentialEuler( const VectorXs& q0, const VectorXs& v0, const scalar& dt, VectorXs& q1 )
+void IntegrationTools::exponentialEuler( const VectorXs& q0, const VectorXs& v0, const std::vector<bool>& fixed, const scalar& dt, VectorXs& q1 )
 {
   assert( q0.size() == q1.size() );
   assert( q0.size() % 12 == 0 );
   assert( v0.size() * 2 == q0.size() );
+  assert( 12 * fixed.size() == static_cast<unsigned long>(q0.size()) );
 
-  const unsigned nbodies{ static_cast<unsigned>( q0.size() / 12 ) };
+  const int nbodies{ static_cast<int>( fixed.size() ) };
 
   // Center of mass update
-  q1.segment( 0, 3 * nbodies ) = q0.segment( 0, 3 * nbodies ) + dt * v0.segment( 0, 3 * nbodies );
+  for( int bdy_num = 0; bdy_num < nbodies; bdy_num++ )
+  {
+    if( !fixed[bdy_num] )
+    {
+      q1.segment<3>( 3 * bdy_num ) = q0.segment<3>( 3 * bdy_num ) + dt * v0.segment<3>( 3 * bdy_num );
+    }
+    else
+    {
+      q1.segment<3>( 3 * bdy_num ) = q0.segment<3>( 3 * bdy_num );
+    }
+  }
 
   // Orientation update
-  for( unsigned bdy_num = 0; bdy_num < nbodies; ++bdy_num )
+  for( int bdy_num = 0; bdy_num < nbodies; bdy_num++ )
   {
-    updateOrientation( bdy_num, q0, v0, dt, q1 );
+    if( !fixed[bdy_num] )
+    {
+      updateOrientation( nbodies, bdy_num, q0, v0, dt, q1 );
+    }
+    else
+    {
+      q1.segment<9>( 3 * nbodies + 9 * bdy_num ) = q0.segment<9>( 3 * nbodies + 9 * bdy_num );
+    }
   }
 }

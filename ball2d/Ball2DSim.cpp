@@ -1,8 +1,3 @@
-// Ball2DSim.cpp
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
 #include "Ball2DSim.h"
 
 #include "scisim/CollisionDetection/CollisionDetectionUtilities.h"
@@ -82,6 +77,18 @@ void Ball2DSim::computeForce( const VectorXs& q, const VectorXs& v, const scalar
   m_state.accumulateForce( q, v, F );
 }
 
+void Ball2DSim::zeroOutForcesOnFixedBodies( VectorXs& F ) const
+{
+  assert( F.size() == 2 * m_state.nballs() );
+  for( unsigned bdy_num = 0; bdy_num < m_state.nballs(); bdy_num++ )
+  {
+    if( isKinematicallyScripted( bdy_num ) )
+    {
+      F.segment<2>( 2 * bdy_num ).setZero();
+    }
+  }
+}
+
 void Ball2DSim::linearInertialConfigurationUpdate( const VectorXs& q0, const VectorXs& v0, const scalar& dt, VectorXs& q1 ) const
 {
   assert( q0.size() == v0.size() );
@@ -134,6 +141,11 @@ void Ball2DSim::computeAngularMomentum( const VectorXs& v, VectorXs& L ) const
     assert( m_state.M().valuePtr()[ 2 * ball_idx ] == m_state.M().valuePtr()[ 2 * ball_idx + 1 ] );
     L(0) += m_state.M().valuePtr()[ 2 * ball_idx ] * MathUtilities::cross( m_state.q().segment<2>( 2 * ball_idx ), v.segment<2>( 2 * ball_idx ) );
   }
+}
+
+std::string Ball2DSim::name() const
+{
+  return "ball_2d";
 }
 
 void Ball2DSim::computeActiveSet( const VectorXs& q0, const VectorXs& qp, const VectorXs& v, std::vector<std::unique_ptr<Constraint>>& active_set )

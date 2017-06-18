@@ -1192,7 +1192,15 @@ void GLWidget::paintSystem() const
     gl_rot_mat(3,3) = 1.0;
     glMultMatrixd( gl_rot_mat.data() );
     // Draw the geometry
-    paintBody( state.getGeometryIndexOfBody( i ), state.getGeometryOfBody( i ), m_body_colors.segment<3>( 3 * i ) );
+    if( !state.isKinematicallyScripted(i) )
+    {
+      paintBody( state.getGeometryIndexOfBody( i ), state.getGeometryOfBody( i ), m_body_colors.segment<3>( 3 * i ) );
+    }
+    else
+    {
+      const Vector3s gray_color{ 0.2, 0.2, 0.2 };
+      paintBody( state.getGeometryIndexOfBody( i ), state.getGeometryOfBody( i ), gray_color );
+    }
     glPopMatrix();
   }
 

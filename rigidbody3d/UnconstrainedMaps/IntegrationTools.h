@@ -1,8 +1,3 @@
-// IntegrationTools.h
-//
-// Breannan Smith
-// Last updated: 11/15/2015
-
 #ifndef INTEGRATION_TOOLS_H
 #define INTEGRATION_TOOLS_H
 
@@ -11,7 +6,7 @@
 namespace IntegrationTools
 {
 
-  void exponentialEuler( const VectorXs& q0, const VectorXs& v0, const scalar& dt, VectorXs& q1 );
+  void exponentialEuler( const VectorXs& q0, const VectorXs& v0, const std::vector<bool>& fixed, const scalar& dt, VectorXs& q1 );
 
 }
 
