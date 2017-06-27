@@ -226,7 +226,7 @@ void SymplecticEulerImpactFrictionMap::flow( ScriptingCallback& call_back, Flowa
   }
 
   // Take a predictor step for collision detection
-  fsys.linearInertialConfigurationUpdate( q0, v0, dt, q1 );
+  fsys.linearInertialConfigurationUpdate( q0, v0 + vdelta, dt, q1 );
 
   // Compute the set of active collisions
   std::vector<std::unique_ptr<Constraint>> active_set;
