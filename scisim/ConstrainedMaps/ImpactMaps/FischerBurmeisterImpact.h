@@ -1,8 +1,3 @@
-// FischerBurmeisterImpact.h
-//
-// Breannan Smith
-// Last updated: 09/21/2015
-
 #ifndef FISCHER_BURMEISTER_IMPACT_H
 #define FISCHER_BURMEISTER_IMPACT_H
 

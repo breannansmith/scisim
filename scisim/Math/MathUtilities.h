@@ -1,8 +1,3 @@
-// MathUtilities.h
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
 // TODO: Break these utilities into separate dense and sparse utility collections
 
 #ifndef MATH_UTILITIES_H
@@ -35,6 +30,8 @@ namespace MathUtilities
   bool isSquare( const SparseMatrixsc& matrix );
 
   bool isIdentity( const SparseMatrixsc& A, const scalar& tol );
+
+  bool isSymmetric( const SparseMatrixsc& A, const scalar& tol );
 
   // Extracts columns in cols from A0, in order, and places them in A1
   void extractColumns( const SparseMatrixsc& A0, const std::vector<unsigned>& cols, SparseMatrixsc& A1 );

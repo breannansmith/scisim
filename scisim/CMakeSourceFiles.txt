@@ -11,6 +11,9 @@ set( Sources
   ConstrainedMaps/ImpactMaps/GRROperator.cpp
   ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.cpp
   ConstrainedMaps/ImpactMaps/FischerBurmeisterImpact.cpp
+  ConstrainedMaps/ImpactMaps/MinMapImpact.cpp
+  ConstrainedMaps/ImpactMaps/LCPOperatorAPGD.cpp
+  ConstrainedMaps/ImpactMaps/NonNegativeProjection.cpp
   ConstrainedMaps/FrictionMaps/FrictionOperator.cpp
   ConstrainedMaps/FrictionMaps/FrictionOperatorUtilities.cpp
   ConstrainedMaps/FrictionMaps/FischerBurmeisterBoundConstrained.cpp
@@ -29,6 +32,8 @@ set( Sources
   ConstrainedMaps/QPTerminationOperator.cpp
   CollisionDetection/CollisionDetectionUtilities.cpp
   Math/MathUtilities.cpp
+  Math/QPSolvers/ProjectionSolvers.cpp
+  Math/QPSolvers/SparseMatrixVectorOperators.cpp
   Timer/TimeUtils.cpp
   ScriptingCallback.cpp
   StringUtilities.cpp
@@ -65,6 +70,9 @@ set( Headers
   ConstrainedMaps/ImpactMaps/GRROperator.h
   ConstrainedMaps/ImpactMaps/ImpactOperatorUtilities.h
   ConstrainedMaps/ImpactMaps/FischerBurmeisterImpact.h
+  ConstrainedMaps/ImpactMaps/MinMapImpact.h
+  ConstrainedMaps/ImpactMaps/LCPOperatorAPGD.h
+  ConstrainedMaps/ImpactMaps/NonNegativeProjection.h
   ConstrainedMaps/FrictionMaps/FrictionOperator.h
   ConstrainedMaps/FrictionMaps/FrictionOperatorUtilities.h
   ConstrainedMaps/FrictionMaps/FischerBurmeisterBoundConstrained.h
@@ -86,6 +94,8 @@ set( Headers
   Math/MathDefines.h
   Math/MathUtilities.h
   Math/Rational.h
+  Math/QPSolvers/ProjectionSolvers.h
+  Math/QPSolvers/SparseMatrixVectorOperators.h
   Timer/TimeUtils.h
   ScriptingCallback.h
   StringUtilities.h

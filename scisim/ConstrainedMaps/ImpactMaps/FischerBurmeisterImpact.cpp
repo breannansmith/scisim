@@ -1,8 +1,3 @@
-// FischerBurmeisterImpact.cpp
-//
-// Breannan Smith
-// Last updated: 09/08/2015
-
 #include "FischerBurmeisterImpact.h"
 
 FischerBurmeisterImpact::FischerBurmeisterImpact( const scalar& tol )
@@ -15,6 +10,8 @@ static scalar fischerBurmeisterInfinityNorm( const VectorXs& x, const VectorXs& 
   scalar inf_norm{ 0.0 };
   for( int i = 0; i < x.size(); ++i )
   {
+    using std::fabs;
+    using std::sqrt;
     const scalar fb{ fabs( sqrt( x(i) * x(i) + y(i) * y(i) ) - x(i) - y(i) ) };
     if( fb > inf_norm )
     {

@@ -43,7 +43,8 @@ if( USE_HDF5 AND H5DIFF_FOUND )
   add_test( ball2d_st_02 assets/shell_scripts/execute_serialization_test.sh assets/tests_st/three_ball_collision_cor_1_0.xml 2.0 100 023 50 )
   add_test( ball2d_st_03 assets/shell_scripts/execute_serialization_test.sh assets/tests_st/ball_on_plane.xml 2.0 100 066 50 )
   add_test( ball2d_st_04 assets/shell_scripts/execute_serialization_test.sh assets/tests_st/ball_on_frictional_plane.xml 2.0 100 033 50 )
-
+  # APGD tests
+  add_test( ball2d_apgd_00 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/balls_bouncing_on_wedge_apgd.xml 4.0 40 19 10 )
   # These tests are slow
   #add_test( twod_balls_serialization_test_02 assets/shell_scripts/execute_serialization_test.sh assets/ColumnCollapse01.xml 0.04 2 4 120 )
   #add_test( twod_balls_serialization_test_04 assets/shell_scripts/execute_serialization_test.sh assets/ColumnCollapse07_frictionless_grr.xml 0.05 3 6 120 )

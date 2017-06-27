@@ -34,6 +34,7 @@
 #include "scisim/ConstrainedMaps/ImpactMaps/GRROperator.h"
 #include "scisim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
 #include "scisim/ConstrainedMaps/FrictionSolver.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorAPGD.h"
 #include "scisim/ConstrainedMaps/StaggeredProjections.h"
 #include "scisim/ConstrainedMaps/Sobogus.h"
 
@@ -649,8 +650,42 @@ static bool loadLCPSolver( const rapidxml::xml_node<>& node, std::unique_ptr<Imp
 
   const std::string solver_name = std::string{ nd->value() };
 
+  if( solver_name == "apgd" )
+  {
+    // Attempt to parse the solver tolerance
+    scalar tol;
+    {
+      const rapidxml::xml_attribute<>* const tol_nd{ node.first_attribute( "tol" ) };
+      if( tol_nd == nullptr )
+      {
+        std::cerr << "Could not locate tol for apgd solver" << std::endl;
+        return false;
+      }
+      if( !StringUtilities::extractFromString( std::string{ tol_nd->value() }, tol ) || tol <= 0.0 )
+      {
+        std::cerr << "Could not load tol for apgd solver, value must be a positive scalar" << std::endl;
+        return false;
+      }
+    }
+    // Attempt to parse the max number of iterations
+    unsigned max_iters;
+    {
+      const rapidxml::xml_attribute<>* const itr_nd{ node.first_attribute( "max_iters" ) };
+      if( itr_nd == nullptr )
+      {
+        std::cerr << "Could not locate max_iters for apgd solver" << std::endl;
+        return false;
+      }
+      if( !StringUtilities::extractFromString( std::string{ itr_nd->value() }, max_iters ) )
+      {
+        std::cerr << "Could not load max_iters for apgd solver, value must be an unsigned integer" << std::endl;
+        return false;
+      }
+    }
+    impact_operator.reset( new LCPOperatorAPGD{ tol, max_iters } );
+  }
   #ifdef QL_FOUND
-  if( solver_name == "ql_vp" )
+  else if( solver_name == "ql_vp" )
   {
     // Attempt to parse the solver tolerance
     const rapidxml::xml_attribute<>* const tol_nd{ node.first_attribute( "tol" ) };
@@ -684,10 +719,9 @@ static bool loadLCPSolver( const rapidxml::xml_node<>& node, std::unique_ptr<Imp
     }
     impact_operator.reset( new LCPOperatorQL{ tol } );
   }
-  else
   #endif
   #ifdef IPOPT_FOUND
-  if( solver_name == "ipopt" )
+  else if( solver_name == "ipopt" )
   {
     // Attempt to read the desired linear solvers
     std::vector<std::string> linear_solvers;
@@ -734,19 +768,14 @@ static bool loadLCPSolver( const rapidxml::xml_node<>& node, std::unique_ptr<Imp
     }
     impact_operator.reset( new LCPOperatorIpopt{ linear_solvers, con_tol } );
   }
-  else
   #endif
-  #if defined(QL_FOUND) || defined(IPOPT_FOUND)
+  else
   {
     std::cerr << "Invalid lcp solver name: " << solver_name << std::endl;
     return false;
   }
 
   return true;
-  #else
-  std::cerr << "Invalid lcp solver name: " << solver_name << std::endl;
-  return false;
-  #endif
 }
 
 // TODO: Clean this function up, pull into SCISim
@@ -887,12 +916,12 @@ static bool loadImpactOperator( const rapidxml::xml_node<>& node, std::unique_pt
     const rapidxml::xml_attribute<>* const cache_nd{ node.first_attribute( "cache_impulses" ) };
     if( cache_nd == nullptr )
     {
-      std::cerr << "Could not locate cache_impulses" << std::endl;
+      std::cerr << "Could not locate cache_impulses attribue." << std::endl;
       return false;
     }
     if( !StringUtilities::extractFromString( cache_nd->value(), cache_impulses ) )
     {
-      std::cerr << "Could not load cache_impulses" << std::endl;
+      std::cerr << "Could not load cache_impulses attribue. Value must be a boolean." << std::endl;
       return false;
     }
   }

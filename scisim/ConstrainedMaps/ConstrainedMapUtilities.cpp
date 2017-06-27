@@ -18,6 +18,7 @@
 #include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
 #include "scisim/ConstrainedMaps/StaggeredProjections.h"
 #include "scisim/ConstrainedMaps/Sobogus.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorAPGD.h"
 
 #ifdef IPOPT_FOUND
 #include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorIpopt.h"
@@ -147,6 +148,10 @@ std::unique_ptr<ImpactOperator> ConstrainedMapUtilities::deserializeImpactOperat
     impact_operator.reset( new LCPOperatorIpopt{ input_stream } );
   }
   #endif
+  else if( "lcp_apgd" == impact_operator_name )
+  {
+    impact_operator.reset( new LCPOperatorAPGD{ input_stream } );
+  }
   else if( "NULL" == impact_operator_name )
   {
     impact_operator.reset( nullptr );

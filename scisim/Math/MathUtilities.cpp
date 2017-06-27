@@ -69,6 +69,22 @@ bool MathUtilities::isIdentity( const SparseMatrixsc& A, const scalar& tol )
   return true;
 }
 
+bool MathUtilities::isSymmetric( const SparseMatrixsc& A, const scalar& tol )
+{
+  const SparseMatrixsc& B{ A - SparseMatrixsc{ A.transpose() } };
+  for( int outer_idx = 0; outer_idx < B.outerSize(); ++outer_idx )
+  {
+    for( SparseMatrixsc::InnerIterator it( B, outer_idx ); it; ++it )
+    {
+      if( fabs( it.value() ) > tol )
+      {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
 unsigned MathUtilities::computeNumDigits( unsigned n )
 {
   if( n == 0 ) { return 1; }
