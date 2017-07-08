@@ -27,6 +27,7 @@ if( USE_HDF5 AND H5DIFF_FOUND )
   add_test( rb3d_serialization_08 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/box_box_test_1.xml 2.0 200 033 )
   add_test( rb3d_serialization_09 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/box_box_test_2.xml 2.0 200 033 )
   add_test( rb3d_serialization_10 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/two_dragon_drop.xml 1.0 50 27 50 )
+  add_test( rb3d_serialization_20 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/sphere_in_off_center_cylinder.xml 4.0 40 23 10 )
   # Stabilized map tests
   add_test( rb3d_serialization_11 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/drift_safe_ball_on_plane.xml 2.0 20 05 10 )
   add_test( rb3d_serialization_12 assets/shell_scripts/execute_serialization_test.sh assets/tests_serialization/drift_safe_balls_on_planes_00.xml 2.5 25 08 10 )

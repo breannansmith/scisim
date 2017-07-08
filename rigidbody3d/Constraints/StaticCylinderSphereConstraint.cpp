@@ -254,7 +254,7 @@ Vector3s StaticCylinderSphereConstraint::computeCylinderCollisionPointVelocity( 
 
   // Closest point on axis to the particle
   const Vector3s p{ q.segment<3>( 3 * m_idx_sphere ) - m_cyl.x() - n.dot( q.segment<3>( 3 * m_idx_sphere ) - m_cyl.x() ) * n };
-  assert( ( ( p - m_cyl.x() ).cross( m_cyl.axis() ) ).norm() <= 1.0e-6  );
+  assert( ( p.cross( m_cyl.axis() ) ).norm() <= 1.0e-6  );
 
   // Closest point on cylinder to the particle
   const Vector3s r{ p + m_cyl.r() * n };
