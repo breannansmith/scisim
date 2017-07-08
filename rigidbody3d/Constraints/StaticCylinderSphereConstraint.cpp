@@ -1,11 +1,4 @@
-// StaticCylinderSphereConstraint.cpp
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
 #include "StaticCylinderSphereConstraint.h"
-
-#include <iostream>
 
 #include "FrictionUtilities.h"
 #include "rigidbody3d/StaticGeometry/StaticCylinder.h"
@@ -34,8 +27,13 @@ StaticCylinderSphereConstraint::StaticCylinderSphereConstraint( const unsigned s
   assert( m_r >= 0.0 );
 }
 
-StaticCylinderSphereConstraint::~StaticCylinderSphereConstraint()
-{}
+scalar StaticCylinderSphereConstraint::evaluateGapFunction( const VectorXs& q ) const
+{
+  assert( 3 * m_idx_sphere + 2 < q.size() );
+  assert( fabs( m_cyl.axis().norm() - 1.0 ) <= 1.0e-6 );
+  const Vector3s d{ q.segment<3>( 3 * m_idx_sphere ) - m_cyl.x() - m_cyl.axis().dot( q.segment<3>( 3 * m_idx_sphere ) - m_cyl.x() ) * m_cyl.axis() };
+  return m_cyl.r() - d.norm() - m_r;
+}
 
 scalar StaticCylinderSphereConstraint::evalNdotV( const VectorXs& q, const VectorXs& v ) const
 {

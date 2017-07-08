@@ -453,7 +453,7 @@ void RigidBody3DState::updateMandMinv()
       Eigen::Map<Matrix33sc> Iinv{ &m_Minv.data().value( 3 * m_nbodies + 9 * bdy_idx ) };
       const Eigen::Map<const Vector3s> Iinv0{ &m_Minv0.data().value( 3 * m_nbodies + 3 * bdy_idx ) };
       Iinv = R * Iinv0.asDiagonal() * R.transpose();
-      assert( ( Iinv - Iinv.transpose() ).lpNorm<Eigen::Infinity>() <= 1.0e-12 );
+      assert( ( Iinv - Iinv.transpose() ).lpNorm<Eigen::Infinity>() <= 1.0e-11 );
       assert( Iinv.determinant() > 0.0 );
     }
   }

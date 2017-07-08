@@ -1,8 +1,3 @@
-// StaticCylinderSphereConstraint.h
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
 #ifndef STATIC_CYLINDER_SPHERE_CONSTRAINT_H
 #define STATIC_CYLINDER_SPHERE_CONSTRAINT_H
 
@@ -18,9 +13,10 @@ public:
   static bool isActive( const Vector3s& center, const Vector3s& axis, const scalar& R, const Vector3s& x_sphere, const scalar& r );
 
   StaticCylinderSphereConstraint( const unsigned sphere_index, const scalar& r_sphere, const StaticCylinder& cyl, const unsigned cylinder_index );
-  virtual ~StaticCylinderSphereConstraint() override;
+  virtual ~StaticCylinderSphereConstraint() override = default;
 
   // Inherited from Constraint
+  virtual scalar evaluateGapFunction( const VectorXs& q ) const override;
   virtual scalar evalNdotV( const VectorXs& q, const VectorXs& v ) const override;
   virtual void evalgradg( const VectorXs& q, const int col, SparseMatrixsc& G, const FlowableSystem& fsys ) const override;
   virtual void computeGeneralizedFrictionDisk( const VectorXs& q, const VectorXs& v, const int start_column, const int num_samples, SparseMatrixsc& D, VectorXs& drel ) const override;
