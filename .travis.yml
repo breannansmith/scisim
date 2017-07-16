@@ -45,6 +45,8 @@ matrix:
         - TEST_NAME="OSX_GCC"
 
 before_install:
+  # Workaround for weird Python binary in the latest Travis CI update
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export PATH=/usr/bin/:$PATH ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update -qq ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -y libhdf5-dev hdf5-tools libpython-dev python-h5py python-numpy ninja-build ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo curl -L -O https://cmake.org/files/v3.6/cmake-3.6.1-Linux-x86_64.tar.gz ; fi
