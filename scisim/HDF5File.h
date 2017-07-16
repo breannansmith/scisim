@@ -147,6 +147,52 @@ public:
 
   template<typename Derived>
   typename std::enable_if<!HDF5SupportedTypes::isSupportedEigenType<Derived>()>::type
+  write( const std::string& full_name, const Eigen::Map<const Eigen::DenseBase<Derived>>& eigen_variable ) const
+  {
+    using HDFSID = HDFID<H5Sclose>;
+    using HDFGID = HDFID<H5Gclose>;
+    using HDFDID = HDFID<H5Dclose>;
+
+    using Scalar = typename Derived::Scalar;
+    static_assert( HDF5SupportedTypes::isSupportedEigenType<Scalar>(), "Error, scalar type of Eigen variable must be float, double, unsigned or integer" );
+
+    const auto split_name = splitFullName( full_name );
+
+    assert( eigen_variable.rows() >= 0 ); assert( eigen_variable.cols() >= 0 );
+    const hsize_t dims[2] = { hsize_t( eigen_variable.rows() ), hsize_t( eigen_variable.cols() ) };
+    const HDFSID dataspace_id{ H5Screate_simple( 2, dims, nullptr ) };
+    if( dataspace_id < 0 )
+    {
+      throw std::string{ "Failed to create HDF data space" };
+    }
+
+    // Open the requested group
+    const HDFGID grp_id{ findOrCreateGroup( split_name.first ) };
+
+    const HDFDID dataset_id{ H5Dcreate2( grp_id, split_name.second.c_str(), computeHDFType<Scalar>(), dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT ) };
+    if( dataset_id < 0 )
+    {
+      throw std::string{ "Failed to create HDF data set" };
+    }
+
+    // Convert to row major format, if needed
+    static_assert(!isColumnMajor<Derived>(), "Error, map output with HDF5 only supports column major, at the moment.");
+    // Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> col_major_output_data;
+    // if( isColumnMajor<Derived>() )
+    // {
+    //   col_major_output_data.resize( eigen_variable.rows(), eigen_variable.cols() );
+    //   col_major_output_data = eigen_variable.derived().matrix();
+    // }
+
+    const herr_t status_write{ H5Dwrite( dataset_id, computeHDFType<Scalar>(), H5S_ALL, H5S_ALL, H5P_DEFAULT, eigen_variable.derived().data() ) };
+    if( status_write < 0 )
+    {
+      throw std::string{ "Failed to write HDF data" };
+    }
+  }
+
+  template<typename Derived>
+  typename std::enable_if<!HDF5SupportedTypes::isSupportedEigenType<Derived>()>::type
   write( const std::string& full_name, const Eigen::DenseBase<Derived>& eigen_variable ) const
   {
     using HDFSID = HDFID<H5Sclose>;
