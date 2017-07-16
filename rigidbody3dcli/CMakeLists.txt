@@ -12,6 +12,7 @@ endif()
 target_link_libraries( rigidbody3d_cli rigidbody3dutils rigidbody3d )
 
 execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_SOURCE_DIR}/assets/rigidbody3d ${CMAKE_CURRENT_BINARY_DIR}/assets )
+execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_SOURCE_DIR}/post_processing ${CMAKE_CURRENT_BINARY_DIR}/post_processing )
 
 # Serialization and resume tests
 if( USE_HDF5 AND H5DIFF_FOUND )
