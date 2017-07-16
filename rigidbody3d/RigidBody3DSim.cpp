@@ -1564,7 +1564,10 @@ void RigidBody3DSim::writeBinaryState( HDF5File& output_file ) const
   // Write out the state of each body
   output_file.write( "state/q", m_sim_state.q() );
   output_file.write( "state/v", m_sim_state.v() );
-  output_file.write( "state/M0", m_sim_state.M0() );
+  {
+    const Eigen::Map<const VectorXs> M0(m_sim_state.M0().valuePtr(), m_sim_state.M0().nonZeros());
+    output_file.write( "state/M0", M0 );
+  }
   {
     VectorXu fixed{ m_sim_state.nbodies() };
     for( unsigned body_index = 0; body_index < m_sim_state.nbodies(); ++body_index )
