@@ -1,8 +1,3 @@
-// RigidBodyTriangleMesh.cpp
-//
-// Breannan Smith
-// Last updated: 09/28/2015
-
 #include "RigidBodyTriangleMesh.h"
 
 #include "scisim/Math/MathUtilities.h"
@@ -15,9 +10,9 @@
 
 #ifdef USE_HDF5
 #include "scisim/HDF5File.h"
-#else
-#include <iostream>
 #endif
+
+#include <iostream>
 
 // TODO: Make value return versions of HDF5 readMatrix
 // TODO: Call the HDF5 version from the thing below
@@ -97,6 +92,11 @@ RigidBodyTriangleMesh::RigidBodyTriangleMesh( const std::string& input_file_name
   assert( ( m_grid_dimensions.array() >= 1 ).all() );
   m_grid_origin = mesh_file.read<Vector3s>( "sdf/grid_origin" );
   m_signed_distance = mesh_file.read<VectorXs>( "sdf/signed_distance" );
+  if( !m_signed_distance.array().unaryExpr( []( const scalar& v ) { return std::isfinite( v ); } ).all() )
+  {
+    std::cerr << "Error, signed distance field for " << input_file_name << " is not finite. Please check the settings used to prcoess the mesh. Exiting." << std::endl;
+    std::exit( EXIT_FAILURE );
+  }
 
   // For convienience, cache the opposite corner of the grid to the origin
   m_grid_end = m_grid_origin + ( ( m_grid_dimensions.array() - 1 ).cast<scalar>() * m_cell_delta.array() ).matrix();
@@ -329,6 +329,7 @@ bool RigidBodyTriangleMesh::detectCollision( const Vector3s& x, Vector3s& n ) co
 
   n.array() /= m_cell_delta.array();
   n.normalize();
+  assert(std::fabs(n.norm() - 1.0) <= 1.0e-6);
 
   return true;
 }

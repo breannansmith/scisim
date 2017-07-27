@@ -1,8 +1,3 @@
-// RigidBodyTriangleMesh.h
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
 #ifndef RIGID_BODY_TRIANGLE_MESH
 #define RIGID_BODY_TRIANGLE_MESH
 
@@ -15,6 +10,7 @@ public:
 
   // TODO: Fix up constructors, custom copy not needed
 
+  // TODO: Move the reading of files to a support routine with sensible error checking
   #ifndef USE_HDF5
   [[noreturn]]
   #endif

@@ -664,7 +664,8 @@ void RigidBody3DSim::enforcePeriodicBoundaryConditions()
 
 void RigidBody3DSim::boxBoxNarrowPhaseCollision( const unsigned first_body, const unsigned second_body, const RigidBodyBox& box0, const RigidBodyBox& box1, const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const
 {
-  assert( !isKinematicallyScripted( first_body ) ); // Kinematic rigid body should be listed second
+  assert( !isKinematicallyScripted( first_body ) );
+  // The kinematic rigid body should be listed second
 
   const Matrix33sr R0{ Eigen::Map<const Matrix33sr>{ q1.segment<9>( 3 * m_sim_state.nbodies() + 9 * first_body ).data() } };
   const Matrix33sr R1{ Eigen::Map<const Matrix33sr>{ q1.segment<9>( 3 * m_sim_state.nbodies() + 9 * second_body ).data() } };
@@ -842,9 +843,8 @@ void RigidBody3DSim::stapleStapleNarrowPhaseCollision( const unsigned first_body
 
 void RigidBody3DSim::meshMeshNarrowPhaseCollision( const unsigned first_body, const unsigned second_body, const RigidBodyTriangleMesh& mesh0, const RigidBodyTriangleMesh& mesh1, const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const
 {
-  // TODO: Mesh-mesh kinematic collisions not currently supported
   assert( !isKinematicallyScripted( first_body ) );
-  assert( !isKinematicallyScripted( second_body) );
+  // The kinematic rigid body should be listed second
 
   const Matrix33sr R0{ Eigen::Map<const Matrix33sr>{ q1.segment<9>( 3 * m_sim_state.nbodies() + 9 * first_body ).data() } };
   const Matrix33sr R1{ Eigen::Map<const Matrix33sr>{ q1.segment<9>( 3 * m_sim_state.nbodies() + 9 * second_body ).data() } };
@@ -859,9 +859,19 @@ void RigidBody3DSim::meshMeshNarrowPhaseCollision( const unsigned first_body, co
   assert( p.size() == n.size() );
 
   // Save the collisions
-  for( std::vector<Vector3s>::size_type i = 0; i < p.size(); ++i )
+  if( !isKinematicallyScripted( second_body ) )
   {
-    active_set.emplace_back( new BodyBodyConstraint{ first_body, second_body, p[i], n[i], q0 } );
+    for( std::vector<Vector3s>::size_type i = 0; i < p.size(); i++ )
+    {
+      active_set.emplace_back( new BodyBodyConstraint{ first_body, second_body, p[i], n[i], q0 } );
+    }
+  }
+  else
+  {
+    for( std::vector<Vector3s>::size_type i = 0; i < p.size(); i++ )
+    {
+      active_set.emplace_back( new KinematicObjectBodyConstraint{ first_body, second_body, p[i], n[i], q0 } );
+    }
   }
 }
 
