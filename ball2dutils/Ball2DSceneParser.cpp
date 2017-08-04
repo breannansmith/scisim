@@ -1360,6 +1360,12 @@ static bool loadSobogusFrictionSolver( const rapidxml::xml_node<>& node, std::un
   }
   else if( staggering_type == "symplectic_euler" )
   {
+    if( CoR != 0.0 )
+    {
+      std::cerr << "Error, CoR must be set to 0 for the symplectic_euler staggering." << std::endl;
+      return false;
+    }
+
     bool enable_pose_stab;
     {
       const rapidxml::xml_attribute<>* const attrib_nd{ node.first_attribute( "stabilization" ) };

@@ -201,8 +201,9 @@ static void cacheImpulses( const ImpulsesToCache cache_mode, const unsigned ambi
 void SymplecticEulerImpactFrictionMap::flow( ScriptingCallback& call_back, FlowableSystem& fsys, ConstrainedSystem& csys, UnconstrainedMap& umap, FrictionSolver& friction_solver, const unsigned iteration, const scalar& dt, const scalar& CoR_default, const scalar& mu_default, const VectorXs& q0, const VectorXs& v0, VectorXs& q1, VectorXs& v1 )
 {
   assert( dt > 0.0 );
-  assert( CoR_default >= 0.0 );
-  assert( CoR_default <= 1.0 );
+  // assert( CoR_default >= 0.0 );
+  // assert( CoR_default <= 1.0 );
+  assert( CoR_default == 0.0 );
   assert( mu_default >= 0.0 );
   assert( q0.size() == fsys.nqdofs() );
   assert( q1.size() == fsys.nqdofs() );
