@@ -5,6 +5,7 @@ The Structured Contact Impact Simulator
 
 Welcome to **SCISim** (pronounced skiz-em), the Structured Contact Impact Simulator! **SCISim** is a C++14 software package designed to simulate systems of rigid bodies where the evolution is dominated by collisions. **SCISim** respects essential symmetries and structures from the continuous setting at coarse temporal discretizations through the use of geometric integrators for the unconstrained and constrained dynamics. In practice, this leads to stable and predictable behavior across timesteps. For a preview of the types of simulations that **SCISim** can perform, please see our demo reel. (Coming soon. Until then, please see videos from a [few](https://www.youtube.com/watch?v=AJAGUOhpnLc) [papers](https://www.youtube.com/watch?v=tFKLo0yNmFk) that use **SCISim**.)
 
+To resolve collisions between volumetric objects, SCISim employs precomputed implicit distance fields. We provide a tool to compute these distance fields from a triangle mesh in a [separate repository](https://github.com/breannansmith/implicittoolkit).
 
 Required Dependencies
 ---------------------
@@ -33,7 +34,7 @@ We recommend a few dependencies for full featured builds:
 
 * [HSL2013](http://www.hsl.rl.ac.uk/ipopt/): A collection of sparse linear solvers suggested for use with Ipopt.
 
-* [Python](https://www.python.org): An interpreted language used for extending SCISim's functionality with plugins. Available standard on most platforms. Note that full SCISim test suite requires the installation of the [numpy](http://www.numpy.org) and [h5py](http://www.h5py.org) Python packages.
+* [Python](https://www.python.org): An interpreted language used for extending SCISim's behavior with plugins. Python is primarily used to script the motion of kinematic bodies and to set custom parameters in the contact model. If these fall outside your intended use case, you can safely omit the Python dependency. Available standard on most platforms. Note that full SCISim test suite requires the installation of the [numpy](http://www.numpy.org) and [h5py](http://www.h5py.org) Python packages.
 
 Optional Dependencies
 ---------------------
