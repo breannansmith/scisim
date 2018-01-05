@@ -49,7 +49,7 @@ Quickstart Guide
 
 To obtain a minimal demo build that simulates colliding triangle meshes:
 
-1. Install Qt4 and CMake. These packages are available from most standard package managers.
+1. Install Qt4, HDF5, and CMake. These packages are available from most standard package managers.
 
 2. Clone this repository and change into the project root:
 
