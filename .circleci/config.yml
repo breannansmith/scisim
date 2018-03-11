@@ -14,8 +14,6 @@ jobs:
       - run: |
           curl -L -O https://cmake.org/files/v3.6/cmake-3.6.1-Linux-x86_64.tar.gz
           tar xf cmake-3.6.1-Linux-x86_64.tar.gz
-          ls -alh ~/project/cmake-3.6.1-Linux-x86_64/bin/
-          ~/project/cmake-3.6.1-Linux-x86_64/bin/cmake
           ./get_dependencies.sh
           sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
           sudo apt-get update
@@ -25,10 +23,10 @@ jobs:
           cd build_asan
           CC=gcc-6 CXX=g++-6 ~/project/cmake-3.6.1-Linux-x86_64/bin/cmake -DUSE_HDF5=ON -DUSE_PYTHON=OFF -DSTRICT_BUILD=ON -DCMAKE_BUILD_TYPE=Release -DSANITIZER=address .. -GNinja
           ninja -j 2 -v
-          ctest -j 2 --output-on-failure
+          ~/project/cmake-3.6.1-Linux-x86_64/bin/ctest -j 2 --output-on-failure
           cd ~/project
           mkdir build_ubsan
           cd build_ubsan 
           CC=gcc-6 CXX=g++-6 ~/project/cmake-3.6.1-Linux-x86_64/bin/cmake -DUSE_HDF5=ON -DUSE_PYTHON=OFF -DSTRICT_BUILD=ON -DCMAKE_BUILD_TYPE=Release -DSANITIZER=undefined .. -GNinja
           ninja -j 2 -v
-          ctest -j 2 --output-on-failure
+          ~/project/cmake-3.6.1-Linux-x86_64/bin/ctest -j 2 --output-on-failure
