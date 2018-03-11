@@ -58,7 +58,7 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update > /dev/null ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew outdated cmake || brew upgrade cmake ; fi
   - if [[ "$TEST_NAME" == "OSX_GCC" ]]; then brew reinstall gcc ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install md5sha1sum ninja homebrew/python/numpy homebrew/science/hdf5 ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install md5sha1sum ninja homebrew/core/numpy homebrew/core/hdf5 python@2 ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then pip install h5py ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then PY_INC=`python-config --includes | grep -o '\-I[^ ]*' | head -n 1 | cut -c 3-` ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then PY_LIB=`python-config --ldflags | grep -o '\-L[^ ]*' | head -n 1 | cut -c 3- | xargs -I % find % -name libpython*.dylib` ; fi
