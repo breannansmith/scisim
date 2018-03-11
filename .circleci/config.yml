@@ -12,10 +12,23 @@ jobs:
       - checkout
 
       - run: |
+          curl -L -O https://cmake.org/files/v3.6/cmake-3.6.1-Linux-x86_64.tar.gz
+          tar xf cmake-3.6.1-Linux-x86_64.tar.gz
+          ls -alh ~/project/cmake-3.6.1-Linux-x86_64/bin/
+          ~/project/cmake-3.6.1-Linux-x86_64/bin/cmake
+          ./get_dependencies.sh
           sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
           sudo apt-get update
           sudo apt-get install gcc-6 g++-6 libhdf5-dev hdf5-tools python-dev python-numpy python-h5py ninja-build
           rm -rf `pyenv root`
-          ./get_dependencies.sh
-          cd ~/project && mkdir build_asan && cd build_asan && curl -L -O https://cmake.org/files/v3.6/cmake-3.6.1-Linux-x86_64.tar.gz && tar xf cmake-3.6.1-Linux-x86_64.tar.gz && CC=gcc-6 CXX=g++-6 ./cmake-3.6.1-Linux-x86_64/bin/cmake -DUSE_HDF5=ON -DUSE_PYTHON=OFF -DSTRICT_BUILD=ON -DCMAKE_BUILD_TYPE=Release -DSANITIZER=address .. -GNinja && ninja -j 2 -v && ctest -j 2 --output-on-failure
-          cd ~/project && mkdir build_ubsan && cd build_ubsan && curl -L -O https://cmake.org/files/v3.6/cmake-3.6.1-Linux-x86_64.tar.gz && tar xf cmake-3.6.1-Linux-x86_64.tar.gz && CC=gcc-6 CXX=g++-6 ./cmake-3.6.1-Linux-x86_64/bin/cmake -DUSE_HDF5=ON -DUSE_PYTHON=OFF -DSTRICT_BUILD=ON -DCMAKE_BUILD_TYPE=Release -DSANITIZER=undefined .. -GNinja && ninja -j 2 -v && ctest -j 2 --output-on-failure
+          mkdir build_asan
+          cd build_asan
+          CC=gcc-6 CXX=g++-6 ~/project/cmake-3.6.1-Linux-x86_64/bin/cmake -DUSE_HDF5=ON -DUSE_PYTHON=OFF -DSTRICT_BUILD=ON -DCMAKE_BUILD_TYPE=Release -DSANITIZER=address .. -GNinja
+          ninja -j 2 -v
+          ctest -j 2 --output-on-failure
+          cd ~/project
+          mkdir build_ubsan
+          cd build_ubsan 
+          CC=gcc-6 CXX=g++-6 ~/project/cmake-3.6.1-Linux-x86_64/bin/cmake -DUSE_HDF5=ON -DUSE_PYTHON=OFF -DSTRICT_BUILD=ON -DCMAKE_BUILD_TYPE=Release -DSANITIZER=undefined .. -GNinja
+          ninja -j 2 -v
+          ctest -j 2 --output-on-failure
