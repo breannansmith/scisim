@@ -12,6 +12,7 @@
 #include "ball2d/PythonScripting.h"
 
 #include "BallShader.h"
+#include "PlaneShader.h"
 
 class QWheelEvent;
 class QOpenGLFunctions_3_3_Core;
@@ -90,6 +91,7 @@ private:
   QOpenGLFunctions_3_3_Core* m_f;
 
   BallShader m_ball_shader;
+  PlaneShader m_plane_shader;
 
   // TODO: Pull these into a separate class
   int m_w;
@@ -97,7 +99,6 @@ private:
   float m_display_scale;
   float m_center_x;
   float m_center_y;
-  // DisplayController2D m_camera_controller;
 
   bool m_render_at_fps;
   bool m_lock_camera;

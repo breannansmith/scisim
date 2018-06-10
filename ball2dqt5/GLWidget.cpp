@@ -25,12 +25,12 @@ GLWidget::GLWidget( QWidget* parent )
 : QOpenGLWidget( parent )
 , m_f( nullptr )
 , m_ball_shader()
+, m_plane_shader()
 , m_w( 512 )
 , m_h( 512 )
 , m_display_scale( 1.0 )
 , m_center_x( 0.0 )
 , m_center_y( 0.0 )
-// , m_camera_controller()
 , m_render_at_fps( false )
 , m_lock_camera( false )
 , m_last_pos()
@@ -70,6 +70,7 @@ GLWidget::~GLWidget()
 {
   // makeCurrent();
   m_ball_shader.cleanup();
+  m_plane_shader.cleanup();
   // doneCurrent();
   assert( checkGLErrors() );
 }
@@ -277,6 +278,18 @@ void GLWidget::copyBallRenderState()
     circle_data( 6 * ball_idx + 2 ) = GLfloat(m_sim.state().r()( ball_idx ));
     circle_data.segment<3>( 6 * ball_idx + 3 ) = m_ball_colors.segment<3>( 3 * ball_idx ).cast<GLfloat>();
   }
+
+  Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& plane_data{ m_plane_shader.planeData() };
+  plane_data.resize( 6 * m_sim.state().staticPlanes().size() );
+  for (int plane_idx = 0; plane_idx < int(m_sim.state().staticPlanes().size()); plane_idx++)
+  {
+    plane_data.segment<2>( 6 * plane_idx ) = m_sim.state().staticPlanes()[plane_idx].x().cast<GLfloat>();
+    plane_data.segment<2>( 6 * plane_idx + 2 ) = m_sim.state().staticPlanes()[plane_idx].n().cast<GLfloat>();
+    constexpr GLfloat depth = 0.25;
+    plane_data( 6 * plane_idx + 4 ) = GLfloat(depth);
+    constexpr GLfloat width = 8.0;
+    plane_data( 6 * plane_idx + 5 ) = GLfloat(width);
+  }
 }
 
 void GLWidget::stepSystem()
@@ -437,6 +450,7 @@ void GLWidget::initializeGL()
   m_f->glClearColor( 1.0, 1.0, 1.0, 1.0 );
 
   m_ball_shader.initialize( m_f );
+  m_plane_shader.initialize( m_f );
 }
 
 void GLWidget::resizeGL( int width, int height )
@@ -467,6 +481,7 @@ void GLWidget::resizeGL( int width, int height )
   // }
 
   m_ball_shader.setTransform( pv );
+  m_plane_shader.setTransform( pv );
 }
 
 void GLWidget::paintGL()
@@ -476,6 +491,7 @@ void GLWidget::paintGL()
   m_f->glClear( GL_COLOR_BUFFER_BIT );
 
   m_ball_shader.draw();
+  m_plane_shader.draw();
 
   if( m_display_HUD )
   {

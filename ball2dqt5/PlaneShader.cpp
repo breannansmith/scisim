@@ -1,4 +1,4 @@
-#include "BallShader.h"
+#include "PlaneShader.h"
 
 #include <QMatrix4x4>
 
@@ -6,62 +6,44 @@
 
 #include "OpenGLShader.h"
 
-// TODO: Try a version that uses an EBO
-
 static const char* const vertex_shader_source = {
   "#version 330 core\n"
   "layout (location = 0) in vec2 position;\n"
-  "layout (location = 1) in vec2 center_of_mass;\n"
-  "layout (location = 2) in float radius;\n"
-  "layout (location = 3) in vec3 circle_color;\n"
+  "layout (location = 1) in vec2 cm;\n"
+  "layout (location = 2) in vec2 n;\n"
+  "layout (location = 3) in float width;\n"
+  "layout (location = 4) in float depth;\n"
   "uniform mat4 projection_view;\n"
-  "out vec3 render_color;\n"
   "void main()\n"
   "{\n"
-  "  gl_Position = projection_view * vec4(radius * position.x + center_of_mass.x, radius * position.y + center_of_mass.y, 0.0f, 1.0f);\n"
-  "  render_color = circle_color;\n"
+  "  float sx = width * position.x;\n"
+  "  float sy = depth * position.y;\n"
+  "  float rx = n.x * sx - n.y * sy;\n"
+  "  float ry = n.y * sx + n.x * sy;\n"
+  "  gl_Position = projection_view * vec4(rx + cm.x, ry + cm.y, 0.0f, 1.0f);\n"
   "}\n"
 };
 
 static const char* const fragment_shader_source = {
   "#version 330 core\n"
-  "in vec3 render_color;\n"
   "out vec4 color;\n"
   "void main()\n"
   "{\n"
-  "  color = vec4(render_color.x, render_color.y, render_color.z, 1.0f);\n"
+  "  color = vec4(0.0f, 0.0f, 0.0f, 1.0f);\n"
   "}\n"
 };
 
-BallShader::BallShader()
+PlaneShader::PlaneShader()
 : m_f( nullptr )
 , m_VAO( 0 )
 , m_instance_VBO( 0 )
 , m_program( 0 )
 , m_pv_mat_loc( -1 )
-, m_num_circle_verts( 0 )
-, m_circle_data()
+, m_plane_data()
 , m_data_buffered( false )
 {}
 
-static std::vector<GLfloat> tesselateCircle(const int num_divs)
-{
-  std::vector<GLfloat> vertices( 6 * num_divs );
-  const GLfloat dtheta{ GLfloat( 2.0 ) * PI<GLfloat> / GLfloat( num_divs ) };
-  for( int div_num = 0; div_num < num_divs; div_num++ )
-  {
-    const int base_idx = 6 * div_num;
-    vertices[base_idx + 0] = 0.0;
-    vertices[base_idx + 1] = 0.0;
-    vertices[base_idx + 2] = std::cos( div_num * dtheta );
-    vertices[base_idx + 3] = std::sin( div_num * dtheta );
-    vertices[base_idx + 4] = std::cos( ((div_num + 1) % num_divs) * dtheta );
-    vertices[base_idx + 5] = std::sin( ((div_num + 1) % num_divs) * dtheta );
-  }
-  return vertices;
-}
-
-void BallShader::initialize( QOpenGLFunctions_3_3_Core* f )
+void PlaneShader::initialize( QOpenGLFunctions_3_3_Core* f )
 {
   assert( f != nullptr );
   assert( m_f == nullptr );
@@ -103,54 +85,61 @@ void BallShader::initialize( QOpenGLFunctions_3_3_Core* f )
   }
   assert( m_program > 0 );
 
-  // Create a buffer for the circle geometry
-  GLuint circle_vbo = 0;
-  m_f->glGenBuffers( 1, &circle_vbo );
+  // Create a buffer for the plane geometry
+  GLuint plane_vbo = 0;
+  m_f->glGenBuffers( 1, &plane_vbo );
   {
-    // TODO: Pull the circle generation code into a separate support function
-    const std::vector<GLfloat> vertices = tesselateCircle( 32 );
-
-    assert( vertices.size() % 2 == 0 );
-    m_num_circle_verts = vertices.size() / 2;
-
-    m_f->glBindBuffer( GL_ARRAY_BUFFER, circle_vbo );
-    m_f->glBufferData( GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW );
+    Eigen::Matrix<GLfloat,12,1> plane_data;
+    plane_data <<  0.0,  0.5,
+                  -1.0,  0.5,
+                   0.0, -0.5,
+                  -1.0,  0.5,
+                   0.0, -0.5,
+                  -1.0, -0.5;
+    m_f->glBindBuffer( GL_ARRAY_BUFFER, plane_vbo );
+    m_f->glBufferData( GL_ARRAY_BUFFER, plane_data.size() * sizeof(GLfloat), plane_data.data(), GL_STATIC_DRAW );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
   }
 
-  // Create a buffer for each body's center of mass, radius, and color
+  // Create a buffer for each plane's center, orientation, and render width
   m_f->glGenBuffers( 1, &m_instance_VBO );
 
   // Toss the buffer and binding commands into a VAO
   m_f->glGenVertexArrays( 1, &m_VAO );
   m_f->glBindVertexArray( m_VAO );
-    // The circle geometry
+    // The plane geometry
     m_f->glEnableVertexAttribArray( 0 );
-    m_f->glBindBuffer( GL_ARRAY_BUFFER, circle_vbo );
+    m_f->glBindBuffer( GL_ARRAY_BUFFER, plane_vbo );
     m_f->glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), static_cast<GLvoid*>(nullptr) );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
-    // The circle centers of mass
+    // The plane centers
     m_f->glEnableVertexAttribArray( 1 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
     m_f->glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), static_cast<GLvoid*>(nullptr) );
     m_f->glVertexAttribDivisor( 1, 1 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
-    // The circle radii
+    // The plane normals
     m_f->glEnableVertexAttribArray( 2 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
-    m_f->glVertexAttribPointer( 2, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)( 2 * sizeof(GLfloat) ) );
+    m_f->glVertexAttribPointer( 2, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)( 2 * sizeof(GLfloat) ) );
     m_f->glVertexAttribDivisor( 2, 1 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
-    // The circle colors
+    // The plane widths
     m_f->glEnableVertexAttribArray( 3 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
-    m_f->glVertexAttribPointer( 3, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)( 3 * sizeof(GLfloat) ) );
+    m_f->glVertexAttribPointer( 3, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)( 4 * sizeof(GLfloat) ) );
     m_f->glVertexAttribDivisor( 3, 1 );
+    m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
+    // The plane depths
+    m_f->glEnableVertexAttribArray( 4 );
+    m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
+    m_f->glVertexAttribPointer( 4, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)( 5 * sizeof(GLfloat) ) );
+    m_f->glVertexAttribDivisor( 4, 1 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
   m_f->glBindVertexArray( 0 );
 
   // Circle vbo is no longer needed
-  m_f->glDeleteBuffers( 1, &circle_vbo );
+  m_f->glDeleteBuffers( 1, &plane_vbo );
 
   // Cache the uniform locations
   m_pv_mat_loc = m_f->glGetUniformLocation( m_program, "projection_view" );
@@ -160,7 +149,7 @@ void BallShader::initialize( QOpenGLFunctions_3_3_Core* f )
   }
 }
 
-void BallShader::cleanup()
+void PlaneShader::cleanup()
 {
   assert( m_f != nullptr );
   m_f->glDeleteVertexArrays( 1, &m_VAO );
@@ -169,7 +158,7 @@ void BallShader::cleanup()
   m_f = nullptr;
 }
 
-void BallShader::setTransform( const QMatrix4x4& pv )
+void PlaneShader::setTransform( const QMatrix4x4& pv )
 {
   assert( m_f != nullptr );
   assert( m_program > 0 );
@@ -179,21 +168,30 @@ void BallShader::setTransform( const QMatrix4x4& pv )
   m_f->glUniformMatrix4fv( m_pv_mat_loc, 1, GL_FALSE, pv.data() );
 }
 
-void BallShader::draw()
+void PlaneShader::draw()
 {
   assert( m_f != nullptr );
   assert( m_program > 0 );
   assert( m_VAO > 0 );
 
-  assert( m_circle_data.size() % 6 == 0 );
-  const long num_balls{ m_circle_data.size() / 6 };
+  assert( m_plane_data.size() % 6 == 0 );
+  const long num_planes{ m_plane_data.size() / 6 };
+
+  // Check that normals are unit length
+  #ifndef NDEBUG
+  for (long plane_idx = 0; plane_idx < num_planes; plane_idx++)
+  {
+    const GLfloat norm = m_plane_data.segment<2>( 6 * plane_idx + 2 ).norm();
+    assert( std::fabs(norm - 1.0f) <= 1.0e-6f );
+  }
+  #endif
 
   if( !m_data_buffered )
   {
-    if( m_circle_data.size() != 0 )
+    if( m_plane_data.size() != 0 )
     {
       m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
-      m_f->glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * m_circle_data.size(), m_circle_data.data(), GL_DYNAMIC_DRAW );
+      m_f->glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * m_plane_data.size(), m_plane_data.data(), GL_DYNAMIC_DRAW );
       m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
     }
     m_data_buffered = true;
@@ -201,12 +199,13 @@ void BallShader::draw()
 
   m_f->glUseProgram( m_program );
   m_f->glBindVertexArray( m_VAO );
-  m_f->glDrawArraysInstanced( GL_TRIANGLES, 0, m_num_circle_verts, num_balls );
+  constexpr int num_plane_verts = 6;
+  m_f->glDrawArraysInstanced( GL_TRIANGLES, 0, num_plane_verts, num_planes );
   m_f->glBindVertexArray( 0 );
 }
 
-Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& BallShader::circleData()
+Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& PlaneShader::planeData()
 {
   m_data_buffered = false;
-  return m_circle_data;
+  return m_plane_data;
 }

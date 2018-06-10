@@ -1,20 +1,24 @@
 set( Sources
   ContentWidget.cpp
-  GLCircleRenderer2D.cpp
   GLWidget.cpp
-  DisplayController2D.cpp
+  OpenGLShader.cpp
   Window.cpp
-
   BallShader.cpp
+  PlaneShader.cpp
   ball2d_qt5.cpp
 )
 
 set( Headers
   ContentWidget.h
-  GLCircleRenderer2D.h
   GLWidget.h
-  DisplayController2D.h
-
+  OpenGLShader.h
   BallShader.h
+  PlaneShader.h
   Window.h
 )
+
+# TODO: Delete these from the repo
+#  DisplayController2D.h
+#  DisplayController2D.cpp
+#  GLCircleRenderer2D.h
+#  GLCircleRenderer2D.cpp

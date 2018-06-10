@@ -9,8 +9,8 @@ if( STRICT_BUILD )
   # Remove warnigns that cause issues with the Qt4 front-ends
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-over-aligned" )
 
-  # Warnings that cause issues with the FrictionProblem cpp file
-  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-documentation-unknown-command -Wno-old-style-cast -Wno-conversion -Wno-weak-vtables" )
+  # Warnings that cause issues with the FrictionProblem file from So-bogus
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-documentation-unknown-command -Wno-old-style-cast -Wno-conversion -Wno-weak-vtables -Wno-undefined-func-template" )
 endif()
 
 # Disable run time type information
