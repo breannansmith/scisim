@@ -26,6 +26,7 @@ GLWidget::GLWidget( QWidget* parent )
 , m_f( nullptr )
 , m_ball_shader()
 , m_plane_shader()
+, m_annulus_shader()
 , m_w( 512 )
 , m_h( 512 )
 , m_display_scale( 1.0 )
@@ -71,6 +72,7 @@ GLWidget::~GLWidget()
   // makeCurrent();
   m_ball_shader.cleanup();
   m_plane_shader.cleanup();
+  m_annulus_shader.cleanup();
   // doneCurrent();
   assert( checkGLErrors() );
 }
@@ -262,33 +264,49 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
     update();
   }
 
-  copyBallRenderState();
+  copyRenderState();
 
   return true;
 }
 
-void GLWidget::copyBallRenderState()
+void GLWidget::copyRenderState()
 {
-  Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& circle_data{ m_ball_shader.circleData() };
-  circle_data.resize( 6 * m_sim.state().nballs() );
-  for( unsigned ball_idx = 0; ball_idx < m_sim.state().nballs(); ball_idx++ )
   {
-    // Center of mass, radius, and color
-    circle_data.segment<2>( 6 * ball_idx ) = m_sim.state().q().segment<2>( 2 * ball_idx ).cast<GLfloat>();
-    circle_data( 6 * ball_idx + 2 ) = GLfloat(m_sim.state().r()( ball_idx ));
-    circle_data.segment<3>( 6 * ball_idx + 3 ) = m_ball_colors.segment<3>( 3 * ball_idx ).cast<GLfloat>();
+    Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& circle_data{ m_ball_shader.circleData() };
+    circle_data.resize( 6 * m_sim.state().nballs() );
+    for( unsigned ball_idx = 0; ball_idx < m_sim.state().nballs(); ball_idx++ )
+    {
+      // Center of mass, radius, and color
+      circle_data.segment<2>( 6 * ball_idx ) = m_sim.state().q().segment<2>( 2 * ball_idx ).cast<GLfloat>();
+      circle_data( 6 * ball_idx + 2 ) = GLfloat(m_sim.state().r()( ball_idx ));
+      circle_data.segment<3>( 6 * ball_idx + 3 ) = m_ball_colors.segment<3>( 3 * ball_idx ).cast<GLfloat>();
+    }
   }
 
-  Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& plane_data{ m_plane_shader.planeData() };
-  plane_data.resize( 6 * m_sim.state().staticPlanes().size() );
-  for (int plane_idx = 0; plane_idx < int(m_sim.state().staticPlanes().size()); plane_idx++)
   {
-    plane_data.segment<2>( 6 * plane_idx ) = m_sim.state().staticPlanes()[plane_idx].x().cast<GLfloat>();
-    plane_data.segment<2>( 6 * plane_idx + 2 ) = m_sim.state().staticPlanes()[plane_idx].n().cast<GLfloat>();
-    constexpr GLfloat depth = 0.25;
-    plane_data( 6 * plane_idx + 4 ) = GLfloat(depth);
-    constexpr GLfloat width = 8.0;
-    plane_data( 6 * plane_idx + 5 ) = GLfloat(width);
+    Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& plane_data{ m_plane_shader.planeData() };
+    plane_data.resize( 6 * m_sim.state().staticPlanes().size() );
+    for (int plane_idx = 0; plane_idx < int(m_sim.state().staticPlanes().size()); plane_idx++)
+    {
+      plane_data.segment<2>( 6 * plane_idx ) = m_sim.state().staticPlanes()[plane_idx].x().cast<GLfloat>();
+      plane_data.segment<2>( 6 * plane_idx + 2 ) = m_sim.state().staticPlanes()[plane_idx].n().cast<GLfloat>();
+      constexpr GLfloat depth = 0.25;
+      plane_data( 6 * plane_idx + 4 ) = GLfloat(depth);
+      constexpr GLfloat width = 8.0;
+      plane_data( 6 * plane_idx + 5 ) = GLfloat(width);
+    }
+  }
+
+  {
+    Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& annulus_data{ m_annulus_shader.annulusData() };
+    annulus_data.resize( 4 * m_sim.state().staticDrums().size() );
+    for (int drum_idx = 0; drum_idx < int(m_sim.state().staticDrums().size()); drum_idx++)
+    {
+      annulus_data.segment<2>( 4 * drum_idx ) = m_sim.state().staticDrums()[drum_idx].x().cast<GLfloat>();
+      annulus_data( 4 * drum_idx + 2 ) = GLfloat(m_sim.state().staticDrums()[drum_idx].r());
+      constexpr GLfloat width = 0.2;
+      annulus_data( 4 * drum_idx + 3 ) = GLfloat(m_sim.state().staticDrums()[drum_idx].r()) + width;
+    }
   }
 }
 
@@ -451,6 +469,7 @@ void GLWidget::initializeGL()
 
   m_ball_shader.initialize( m_f );
   m_plane_shader.initialize( m_f );
+  m_annulus_shader.initialize( m_f );
 }
 
 void GLWidget::resizeGL( int width, int height )
@@ -482,6 +501,7 @@ void GLWidget::resizeGL( int width, int height )
 
   m_ball_shader.setTransform( pv );
   m_plane_shader.setTransform( pv );
+  m_annulus_shader.setTransform( pv );
 }
 
 void GLWidget::paintGL()
@@ -492,6 +512,7 @@ void GLWidget::paintGL()
 
   m_ball_shader.draw();
   m_plane_shader.draw();
+  m_annulus_shader.draw();
 
   if( m_display_HUD )
   {

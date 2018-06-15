@@ -1,4 +1,4 @@
-#include "BallShader.h"
+#include "AnnulusShader.h"
 
 #include <QMatrix4x4>
 
@@ -8,63 +8,70 @@
 
 #include "scisim/Math/MathDefines.h"
 
-// TODO: Try a version that uses an EBO
-
 static const char* const vertex_shader_source = {
   "#version 330 core\n"
   "layout (location = 0) in vec2 position;\n"
   "layout (location = 1) in vec2 center_of_mass;\n"
-  "layout (location = 2) in float radius;\n"
-  "layout (location = 3) in vec3 circle_color;\n"
+  "layout (location = 2) in float radius0;\n"
+  "layout (location = 3) in float radius1;\n"
   "uniform mat4 projection_view;\n"
-  "out vec3 render_color;\n"
   "void main()\n"
   "{\n"
-  "  gl_Position = projection_view * vec4(radius * position.x + center_of_mass.x, radius * position.y + center_of_mass.y, 0.0f, 1.0f);\n"
-  "  render_color = circle_color;\n"
+  "  float xpos = (1 - mod(gl_VertexID, 2)) * radius0 * position.x + mod(gl_VertexID, 2) * radius1 * position.x + center_of_mass.x;\n"
+  "  float ypos = (1 - mod(gl_VertexID, 2)) * radius0 * position.y + mod(gl_VertexID, 2) * radius1 * position.y + center_of_mass.y;\n"
+  "  gl_Position = projection_view * vec4(xpos, ypos, 0.0, 1.0);\n"
   "}\n"
 };
 
 static const char* const fragment_shader_source = {
   "#version 330 core\n"
-  "in vec3 render_color;\n"
   "out vec4 color;\n"
   "void main()\n"
   "{\n"
-  "  color = vec4(render_color.x, render_color.y, render_color.z, 1.0f);\n"
+  "  color = vec4(0.0f, 0.0f, 0.0f, 1.0f);\n"
   "}\n"
 };
 
-constexpr GLuint g_num_subdivs = 32;
+constexpr GLuint g_num_subdivs = 64;
 
-BallShader::BallShader()
+AnnulusShader::AnnulusShader()
 : m_f( nullptr )
 , m_VAO( 0 )
 , m_instance_VBO( 0 )
 , m_program( 0 )
 , m_pv_mat_loc( -1 )
-, m_circle_data()
+, m_annulus_data()
 , m_data_buffered( false )
 {}
 
-static std::vector<GLfloat> tesselateCircle()
+static void generateIndexedAnnulus( Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& vertices, Eigen::Matrix<GLuint,Eigen::Dynamic,1>& indices )
 {
-  std::vector<GLfloat> vertices( 6 * g_num_subdivs );
-  const double dtheta{ double( 2.0 ) * PI<double> / double( g_num_subdivs ) };
-  for( GLuint div_num = 0; div_num < g_num_subdivs; div_num++ )
+  vertices.resize( 4 * g_num_subdivs );
+  for( GLuint dvsn = 0; dvsn < g_num_subdivs; dvsn++ )
   {
-    const GLuint base_idx = 6 * div_num;
-    vertices[base_idx + 0] = 0.0;
-    vertices[base_idx + 1] = 0.0;
-    vertices[base_idx + 2] = GLfloat( std::cos( div_num * dtheta ) );
-    vertices[base_idx + 3] = GLfloat( std::sin( div_num * dtheta ) );
-    vertices[base_idx + 4] = GLfloat( std::cos( ((div_num + 1) % g_num_subdivs) * dtheta ) );
-    vertices[base_idx + 5] = GLfloat( std::sin( ((div_num + 1) % g_num_subdivs) * dtheta ) );
+    const double theta = double(dvsn) * 2.0 * PI<double> / double(g_num_subdivs);
+    const GLfloat c = GLfloat(std::cos(theta));
+    const GLfloat s = GLfloat(std::sin(theta));
+
+    vertices[4 * dvsn + 0] = c;
+    vertices[4 * dvsn + 1] = s;
+    vertices[4 * dvsn + 2] = c;
+    vertices[4 * dvsn + 3] = s;
   }
-  return vertices;
+
+  indices.resize( 6 * g_num_subdivs );
+  for( GLuint dvsn = 0; dvsn < g_num_subdivs; dvsn++ )
+  {
+    indices[6 * dvsn + 0] = (0 + 2 * dvsn) % (2 * g_num_subdivs);
+    indices[6 * dvsn + 1] = (1 + 2 * dvsn) % (2 * g_num_subdivs);
+    indices[6 * dvsn + 2] = (2 + 2 * dvsn) % (2 * g_num_subdivs);
+    indices[6 * dvsn + 3] = (2 + 2 * dvsn) % (2 * g_num_subdivs);
+    indices[6 * dvsn + 4] = (1 + 2 * dvsn) % (2 * g_num_subdivs);
+    indices[6 * dvsn + 5] = (3 + 2 * dvsn) % (2 * g_num_subdivs);
+  }
 }
 
-void BallShader::initialize( QOpenGLFunctions_3_3_Core* f )
+void AnnulusShader::initialize( QOpenGLFunctions_3_3_Core* f )
 {
   assert( f != nullptr );
   assert( m_f == nullptr );
@@ -106,49 +113,68 @@ void BallShader::initialize( QOpenGLFunctions_3_3_Core* f )
   }
   assert( m_program > 0 );
 
-  // Create a buffer for the circle geometry
-  GLuint circle_vbo = 0;
-  m_f->glGenBuffers( 1, &circle_vbo );
+  // Create buffers for the circle geometry
+  GLuint vbo;
+  GLuint ebo;
   {
-    const std::vector<GLfloat> vertices = tesselateCircle();
-    m_f->glBindBuffer( GL_ARRAY_BUFFER, circle_vbo );
+    Eigen::Matrix<GLfloat,Eigen::Dynamic,1> vertices;
+    Eigen::Matrix<GLuint,Eigen::Dynamic,1> indices;
+    generateIndexedAnnulus( vertices, indices );
+
+    m_f->glGenBuffers( 1, &vbo );
+    m_f->glBindBuffer( GL_ARRAY_BUFFER, vbo );
     m_f->glBufferData( GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
+
+    m_f->glGenBuffers( 1, &ebo );
+    m_f->glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ebo );
+    m_f->glBufferData( GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW );
+    m_f->glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
   }
 
-  // Create a buffer for each body's center of mass, radius, and color
+  // Create a buffer for the centers of mass, inner radii, and outer radii
   m_f->glGenBuffers( 1, &m_instance_VBO );
 
   // Toss the buffer and binding commands into a VAO
   m_f->glGenVertexArrays( 1, &m_VAO );
   m_f->glBindVertexArray( m_VAO );
-    // The circle geometry
-    m_f->glEnableVertexAttribArray( 0 );
-    m_f->glBindBuffer( GL_ARRAY_BUFFER, circle_vbo );
+    // The annulus geometry
+    m_f->glEnableVertexAttribArray( 0) ;
+    m_f->glBindBuffer( GL_ARRAY_BUFFER, vbo );
+    m_f->glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ebo );
     m_f->glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), static_cast<GLvoid*>(nullptr) );
-    m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
+    m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 ); 
+
     // The circle centers of mass
     m_f->glEnableVertexAttribArray( 1 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
-    m_f->glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), static_cast<GLvoid*>(nullptr) );
+    m_f->glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), static_cast<GLvoid*>(nullptr) );
     m_f->glVertexAttribDivisor( 1, 1 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
-    // The circle radii
+
+    // The inner radius
     m_f->glEnableVertexAttribArray( 2 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
-    m_f->glVertexAttribPointer( 2, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)( 2 * sizeof(GLfloat) ) );
+    m_f->glVertexAttribPointer( 2, 1, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)( 2 * sizeof(GLfloat) ) );
     m_f->glVertexAttribDivisor( 2, 1 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
-    // The circle colors
+
+    // The outer radius
     m_f->glEnableVertexAttribArray( 3 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
-    m_f->glVertexAttribPointer( 3, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)( 3 * sizeof(GLfloat) ) );
+    m_f->glVertexAttribPointer( 3, 1, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)( 3 * sizeof(GLfloat) ) );
     m_f->glVertexAttribDivisor( 3, 1 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
-  m_f->glBindVertexArray( 0 );
+    m_f->glBindVertexArray( 0 );
 
-  // Circle vbo is no longer needed
-  m_f->glDeleteBuffers( 1, &circle_vbo );
+    // NB: *don't* unbind
+    // m_f->glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
+
+  m_f->glBindVertexArray(0); 
+
+  // VBO and EBO no longer needed
+  m_f->glDeleteBuffers( 1, &vbo );
+  m_f->glDeleteBuffers( 1, &ebo );
 
   // Cache the uniform locations
   m_pv_mat_loc = m_f->glGetUniformLocation( m_program, "projection_view" );
@@ -158,7 +184,7 @@ void BallShader::initialize( QOpenGLFunctions_3_3_Core* f )
   }
 }
 
-void BallShader::cleanup()
+void AnnulusShader::cleanup()
 {
   assert( m_f != nullptr );
   m_f->glDeleteVertexArrays( 1, &m_VAO );
@@ -167,7 +193,7 @@ void BallShader::cleanup()
   m_f = nullptr;
 }
 
-void BallShader::setTransform( const QMatrix4x4& pv )
+void AnnulusShader::setTransform( const QMatrix4x4& pv )
 {
   assert( m_f != nullptr );
   assert( m_program > 0 );
@@ -177,21 +203,21 @@ void BallShader::setTransform( const QMatrix4x4& pv )
   m_f->glUniformMatrix4fv( m_pv_mat_loc, 1, GL_FALSE, pv.data() );
 }
 
-void BallShader::draw()
+void AnnulusShader::draw()
 {
   assert( m_f != nullptr );
   assert( m_program > 0 );
   assert( m_VAO > 0 );
 
-  assert( m_circle_data.size() % 6 == 0 );
-  const long num_balls{ m_circle_data.size() / 6 };
+  assert( m_annulus_data.size() % 4 == 0 );
+  const GLsizei num_annuli{ GLsizei(m_annulus_data.size() / 4) };
 
   if( !m_data_buffered )
   {
-    if( m_circle_data.size() != 0 )
+    if( m_annulus_data.size() != 0 )
     {
       m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
-      m_f->glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * m_circle_data.size(), m_circle_data.data(), GL_DYNAMIC_DRAW );
+      m_f->glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * m_annulus_data.size(), m_annulus_data.data(), GL_DYNAMIC_DRAW );
       m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
     }
     m_data_buffered = true;
@@ -199,12 +225,12 @@ void BallShader::draw()
 
   m_f->glUseProgram( m_program );
   m_f->glBindVertexArray( m_VAO );
-  m_f->glDrawArraysInstanced( GL_TRIANGLES, 0, 3 * g_num_subdivs, num_balls );
+  m_f->glDrawElementsInstanced( GL_TRIANGLES, 6 * g_num_subdivs, GL_UNSIGNED_INT, nullptr, num_annuli );
   m_f->glBindVertexArray( 0 );
 }
 
-Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& BallShader::circleData()
+Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& AnnulusShader::annulusData()
 {
   m_data_buffered = false;
-  return m_circle_data;
+  return m_annulus_data;
 }

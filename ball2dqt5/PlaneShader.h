@@ -1,9 +1,8 @@
 #ifndef PLANE_SHADER_H
 #define PLANE_SHADER_H
 
-#include "scisim/Math/MathDefines.h"
-
 #include <QOpenGLFunctions_3_3_Core>
+#include <Eigen/Core>
 
 class QMatrix4x4;
 

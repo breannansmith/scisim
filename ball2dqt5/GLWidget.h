@@ -11,6 +11,7 @@
 #include "ball2d/Ball2DSim.h"
 #include "ball2d/PythonScripting.h"
 
+#include "AnnulusShader.h"
 #include "BallShader.h"
 #include "PlaneShader.h"
 
@@ -76,8 +77,7 @@ protected:
 
 private:
 
-  // TODO: Rename to copy render state
-  void copyBallRenderState();
+  void copyRenderState();
 
   bool checkGLErrors() const;
 
@@ -92,6 +92,7 @@ private:
 
   BallShader m_ball_shader;
   PlaneShader m_plane_shader;
+  AnnulusShader m_annulus_shader;
 
   // TODO: Pull these into a separate class
   int m_w;

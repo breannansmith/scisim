@@ -199,8 +199,7 @@ void PlaneShader::draw()
 
   m_f->glUseProgram( m_program );
   m_f->glBindVertexArray( m_VAO );
-  constexpr int num_plane_verts = 6;
-  m_f->glDrawArraysInstanced( GL_TRIANGLES, 0, num_plane_verts, num_planes );
+  m_f->glDrawArraysInstanced( GL_TRIANGLES, 0, 6, num_planes );
   m_f->glBindVertexArray( 0 );
 }
 

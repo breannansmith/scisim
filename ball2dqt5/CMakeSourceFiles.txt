@@ -1,18 +1,20 @@
 set( Sources
+  AnnulusShader.cpp
+  ball2d_qt5.cpp
+  BallShader.cpp
   ContentWidget.cpp
   GLWidget.cpp
   OpenGLShader.cpp
-  Window.cpp
-  BallShader.cpp
   PlaneShader.cpp
-  ball2d_qt5.cpp
+  Window.cpp
 )
 
 set( Headers
+  AnnulusShader.h
+  BallShader.h
   ContentWidget.h
   GLWidget.h
   OpenGLShader.h
-  BallShader.h
   PlaneShader.h
   Window.h
 )

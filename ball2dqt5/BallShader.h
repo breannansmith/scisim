@@ -1,9 +1,8 @@
 #ifndef BALL_SHADER_H
 #define BALL_SHADER_H
 
-#include "scisim/Math/MathDefines.h"
-
 #include <QOpenGLFunctions_3_3_Core>
+#include <Eigen/Core>
 
 class QMatrix4x4;
 
@@ -37,9 +36,6 @@ private:
   GLuint m_program;
 
   GLint m_pv_mat_loc;
-
-  // The number of verts in the circle template
-  GLsizei m_num_circle_verts;
 
   // Storage for the circles to render
   // Size is: 6 * num_circles
