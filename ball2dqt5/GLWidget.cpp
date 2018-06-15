@@ -385,7 +385,7 @@ void GLWidget::stepSystem()
 //     }
   }
 
-  copyBallRenderState();
+  copyRenderState();
 
   if( !m_render_at_fps || m_iteration % m_steps_per_frame == 0 )
   {
@@ -452,7 +452,7 @@ void GLWidget::resetSystem()
   m_scripting.startOfSimCallback();
   m_scripting.forgetState();
 
-  copyBallRenderState();
+  copyRenderState();
   update();
 }
 

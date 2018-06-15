@@ -18,9 +18,3 @@ set( Headers
   PlaneShader.h
   Window.h
 )
-
-# TODO: Delete these from the repo
-#  DisplayController2D.h
-#  DisplayController2D.cpp
-#  GLCircleRenderer2D.h
-#  GLCircleRenderer2D.cpp
