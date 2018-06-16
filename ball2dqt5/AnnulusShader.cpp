@@ -42,6 +42,7 @@ AnnulusShader::AnnulusShader()
 , m_pv_mat_loc( -1 )
 , m_annulus_data()
 , m_data_buffered( false )
+, m_last_copied_size( 0 )
 {}
 
 static void generateIndexedAnnulus( Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& vertices, Eigen::Matrix<GLuint,Eigen::Dynamic,1>& indices )
@@ -217,7 +218,15 @@ void AnnulusShader::draw()
     if( m_annulus_data.size() != 0 )
     {
       m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
-      m_f->glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * m_annulus_data.size(), m_annulus_data.data(), GL_DYNAMIC_DRAW );
+      if( m_last_copied_size != m_annulus_data.size() )
+      {
+        m_f->glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * m_annulus_data.size(), m_annulus_data.data(), GL_DYNAMIC_DRAW );
+        m_last_copied_size = m_annulus_data.size();
+      }
+      else
+      {
+        m_f->glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * m_annulus_data.size(), m_annulus_data.data() );
+      }
       m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
     }
     m_data_buffered = true;

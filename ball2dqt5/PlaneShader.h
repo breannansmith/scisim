@@ -43,6 +43,7 @@ private:
   Eigen::Matrix<GLfloat,Eigen::Dynamic,1> m_plane_data;
 
   bool m_data_buffered;
+  int m_last_copied_size;
 
 };
 
