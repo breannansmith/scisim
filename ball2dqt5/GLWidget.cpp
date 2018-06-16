@@ -27,8 +27,8 @@ GLWidget::GLWidget( QWidget* parent )
 , m_ball_shader()
 , m_plane_shader()
 , m_annulus_shader()
-, m_w( 512 )
-, m_h( 512 )
+, m_w( 1280 )
+, m_h( 720 )
 , m_display_scale( 1.0 )
 , m_center_x( 0.0 )
 , m_center_y( 0.0 )
@@ -1203,7 +1203,7 @@ void GLWidget::mouseMoveEvent( QMouseEvent* event )
     assert( m_right_mouse_button_pressed );
     // makeCurrent();
     const float new_val{ 0.02f * m_display_scale * dy };
-    m_display_scale = std::max( 0.00001f, m_display_scale + new_val );
+    m_display_scale = std::max( 0.1f, m_display_scale + new_val );
     repaint_needed = true;
     resizeGL( m_w, m_h );
   }
@@ -1223,7 +1223,7 @@ void GLWidget::wheelEvent( QWheelEvent* event )
 
   // makeCurrent();
   const float new_val{ -0.002f * m_display_scale * event->delta() };
-  m_display_scale = std::max( 0.00001f, m_display_scale + new_val );
+  m_display_scale = std::max( 0.1f, m_display_scale + new_val );
   resizeGL( m_w, m_h );
   update();
 }
