@@ -11,28 +11,23 @@
 static const char* const vertex_shader_source = {
   "#version 330 core\n"
   "layout (location = 0) in vec3 position;\n"
-//   "layout (location = 1) in vec2 cm;\n"
-//   "layout (location = 2) in vec2 n;\n"
-//   "layout (location = 3) in float width;\n"
-//   "layout (location = 4) in float depth;\n"
+  "layout (location = 1) in vec3 color;\n"
   "uniform mat4 projection_view;\n"
+  "out vec3 render_color;\n"
   "void main()\n"
   "{\n"
-//   "  float sx = width * position.x;\n"
-//   "  float sy = depth * position.y;\n"
-//   "  float rx = n.x * sx - n.y * sy;\n"
-//   "  float ry = n.y * sx + n.x * sy;\n"
-//   "  gl_Position = projection_view * vec4(rx + cm.x, ry + cm.y, 0.0f, 1.0f);\n"
   "  gl_Position = projection_view * vec4(position.x, position.y, 0.0f, position.z);\n"
+  "  render_color = color;\n"
   "}\n"
 };
 
 static const char* const fragment_shader_source = {
   "#version 330 core\n"
+  "in vec3 render_color;\n"
   "out vec4 color;\n"
   "void main()\n"
   "{\n"
-  "  color = vec4(1.0f, 0.0f, 0.0f, 1.0f);\n"
+  "  color = vec4(render_color.x, render_color.y, render_color.z, 1.0f);\n"
   "}\n"
 };
 
@@ -89,16 +84,16 @@ void AxisShader::initialize( QOpenGLFunctions_3_3_Core* f )
   GLuint vbo = 0;
   m_f->glGenBuffers( 1, &vbo );
   {
-    Eigen::Matrix<GLfloat,18,1> plane_data;
+    Eigen::Matrix<GLfloat,36,1> plane_data;
     constexpr GLfloat hw = 0.01;
                   // The x axis
-    plane_data << 0,  hw, 1,
-                  1,  0, 0,
-                  0, -hw, 1,
+    plane_data << 0,  hw, 1, 1, 0, 0,
+                  1,  0,  0, 1, 0, 0,
+                  0, -hw, 1, 1, 0, 0,
                   // The y axis
-                  -hw, 0, 1,
-                   hw, 0, 1,
-                    0, 1, 0;
+                  -hw, 0, 1, 0, 1, 0,
+                   hw, 0, 1, 0, 1, 0,
+                    0, 1, 0, 0, 1, 0;
     m_f->glBindBuffer( GL_ARRAY_BUFFER, vbo );
     m_f->glBufferData( GL_ARRAY_BUFFER, plane_data.size() * sizeof(GLfloat), plane_data.data(), GL_STATIC_DRAW );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
@@ -107,9 +102,15 @@ void AxisShader::initialize( QOpenGLFunctions_3_3_Core* f )
   // Toss the buffer and binding commands into a VAO
   m_f->glGenVertexArrays( 1, &m_VAO );
   m_f->glBindVertexArray( m_VAO );
+    // Vertex positions
     m_f->glEnableVertexAttribArray( 0 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, vbo );
-    m_f->glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), static_cast<GLvoid*>(nullptr) );
+    m_f->glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), static_cast<GLvoid*>(nullptr) );
+    m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
+    // Colors
+    m_f->glEnableVertexAttribArray( 1 );
+    m_f->glBindBuffer( GL_ARRAY_BUFFER, vbo );
+    m_f->glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)( 3 * sizeof(GLfloat) ) );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
   m_f->glBindVertexArray( 0 );
 
