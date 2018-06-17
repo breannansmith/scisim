@@ -84,16 +84,22 @@ void AxisShader::initialize( QOpenGLFunctions_3_3_Core* f )
   GLuint vbo = 0;
   m_f->glGenBuffers( 1, &vbo );
   {
-    Eigen::Matrix<GLfloat,36,1> plane_data;
+    Eigen::Matrix<GLfloat,72,1> plane_data;
     constexpr GLfloat hw = 0.01;
                   // The x axis
-    plane_data << 0,  hw, 1, 1, 0, 0,
-                  1,  0,  0, 1, 0, 0,
-                  0, -hw, 1, 1, 0, 0,
+    plane_data << hw,  hw, 1, 1, 0, 0,
+                   1,   0, 0, 1, 0, 0,
+                  hw, -hw, 1, 1, 0, 0,
+                  hw,  hw, 1, 1, 0, 0,
+                 -hw, -hw, 1, 1, 0, 0,
+                  hw, -hw, 1, 1, 0, 0,
                   // The y axis
-                  -hw, 0, 1, 0, 1, 0,
-                   hw, 0, 1, 0, 1, 0,
-                    0, 1, 0, 0, 1, 0;
+                 -hw,  hw, 1, 0, 1, 0,
+                  hw,  hw, 1, 0, 1, 0,
+                   0,   1, 0, 0, 1, 0,
+                  hw,  hw, 1, 0, 1, 0,
+                 -hw,  hw, 1, 0, 1, 0,
+                 -hw, -hw, 1, 0, 1, 0;
     m_f->glBindBuffer( GL_ARRAY_BUFFER, vbo );
     m_f->glBufferData( GL_ARRAY_BUFFER, plane_data.size() * sizeof(GLfloat), plane_data.data(), GL_STATIC_DRAW );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
@@ -151,6 +157,6 @@ void AxisShader::draw()
 
   m_f->glUseProgram( m_program );
   m_f->glBindVertexArray( m_VAO );
-  m_f->glDrawArrays( GL_TRIANGLES, 0, 6 );
+  m_f->glDrawArrays( GL_TRIANGLES, 0, 12 );
   m_f->glBindVertexArray( 0 );
 }
