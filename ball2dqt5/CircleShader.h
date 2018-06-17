@@ -1,22 +1,22 @@
-#ifndef BALL_SHADER_H
-#define BALL_SHADER_H
+#ifndef CIRCLE_SHADER_H
+#define CIRCLE_SHADER_H
 
 #include <QOpenGLFunctions_3_3_Core>
 #include <Eigen/Core>
 
 class QMatrix4x4;
 
-class BallShader final
+class CircleShader final
 {
 
 public:
 
-  BallShader();
+  CircleShader();
 
-  BallShader( const BallShader& ) = delete;
-  BallShader( BallShader&& ) = delete;
-  BallShader& operator=( const BallShader& ) = delete;
-  BallShader& operator=( BallShader&& ) = delete;
+  CircleShader( const CircleShader& ) = delete;
+  CircleShader( CircleShader&& ) = delete;
+  CircleShader& operator=( const CircleShader& ) = delete;
+  CircleShader& operator=( CircleShader&& ) = delete;
 
   void initialize( QOpenGLFunctions_3_3_Core* f );
   void cleanup();

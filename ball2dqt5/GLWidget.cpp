@@ -25,7 +25,7 @@ GLWidget::GLWidget( QWidget* parent )
 : QOpenGLWidget( parent )
 , m_f( nullptr )
 , m_axis_shader()
-, m_ball_shader()
+, m_circle_shader()
 , m_plane_shader()
 , m_annulus_shader()
 , m_w( 1280 )
@@ -72,7 +72,7 @@ GLWidget::~GLWidget()
 {
   // makeCurrent();
   m_axis_shader.cleanup();
-  m_ball_shader.cleanup();
+  m_circle_shader.cleanup();
   m_plane_shader.cleanup();
   m_annulus_shader.cleanup();
   // doneCurrent();
@@ -277,7 +277,7 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
 void GLWidget::copyRenderState()
 {
   {
-    Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& circle_data{ m_ball_shader.circleData() };
+    Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& circle_data{ m_circle_shader.circleData() };
     circle_data.resize( 6 * m_sim.state().nballs() );
     for( unsigned ball_idx = 0; ball_idx < m_sim.state().nballs(); ball_idx++ )
     {
@@ -473,7 +473,7 @@ void GLWidget::initializeGL()
   m_f->glClearColor( 1.0, 1.0, 1.0, 1.0 );
 
   m_axis_shader.initialize( m_f );
-  m_ball_shader.initialize( m_f );
+  m_circle_shader.initialize( m_f );
   m_plane_shader.initialize( m_f );
   m_annulus_shader.initialize( m_f );
 }
@@ -496,7 +496,7 @@ void GLWidget::resizeGL( int width, int height )
     pv.ortho( left, right, bottom, top, nearVal, farVal );
   }
 
-  m_ball_shader.setTransform( pv );
+  m_circle_shader.setTransform( pv );
   m_plane_shader.setTransform( pv );
   m_annulus_shader.setTransform( pv );
 
@@ -515,7 +515,7 @@ void GLWidget::paintGL()
     m_axis_shader.draw();
   }
 
-  m_ball_shader.draw();
+  m_circle_shader.draw();
   m_plane_shader.draw();
   m_annulus_shader.draw();
 

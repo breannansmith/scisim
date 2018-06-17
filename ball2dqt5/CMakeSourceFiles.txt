@@ -2,7 +2,7 @@ set( Sources
   AnnulusShader.cpp
   AxisShader.cpp
   ball2d_qt5.cpp
-  BallShader.cpp
+  CircleShader.cpp
   ContentWidget.cpp
   GLWidget.cpp
   OpenGLShader.cpp
@@ -13,7 +13,7 @@ set( Sources
 set( Headers
   AnnulusShader.h
   AxisShader.h
-  BallShader.h
+  CircleShader.h
   ContentWidget.h
   GLWidget.h
   OpenGLShader.h

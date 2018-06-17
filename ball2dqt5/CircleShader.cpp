@@ -1,4 +1,4 @@
-#include "BallShader.h"
+#include "CircleShader.h"
 
 #include <QMatrix4x4>
 
@@ -37,7 +37,7 @@ static const char* const fragment_shader_source = {
 
 constexpr GLuint g_num_subdivs = 32;
 
-BallShader::BallShader()
+CircleShader::CircleShader()
 : m_f( nullptr )
 , m_VAO( 0 )
 , m_instance_VBO( 0 )
@@ -65,7 +65,7 @@ static std::vector<GLfloat> tesselateCircle()
   return vertices;
 }
 
-void BallShader::initialize( QOpenGLFunctions_3_3_Core* f )
+void CircleShader::initialize( QOpenGLFunctions_3_3_Core* f )
 {
   assert( f != nullptr );
   assert( m_f == nullptr );
@@ -159,7 +159,7 @@ void BallShader::initialize( QOpenGLFunctions_3_3_Core* f )
   }
 }
 
-void BallShader::cleanup()
+void CircleShader::cleanup()
 {
   assert( m_f != nullptr );
   m_f->glDeleteVertexArrays( 1, &m_VAO );
@@ -168,7 +168,7 @@ void BallShader::cleanup()
   m_f = nullptr;
 }
 
-void BallShader::setTransform( const QMatrix4x4& pv )
+void CircleShader::setTransform( const QMatrix4x4& pv )
 {
   assert( m_f != nullptr );
   assert( m_program > 0 );
@@ -178,14 +178,14 @@ void BallShader::setTransform( const QMatrix4x4& pv )
   m_f->glUniformMatrix4fv( m_pv_mat_loc, 1, GL_FALSE, pv.data() );
 }
 
-void BallShader::draw()
+void CircleShader::draw()
 {
   assert( m_f != nullptr );
   assert( m_program > 0 );
   assert( m_VAO > 0 );
 
   assert( m_circle_data.size() % 6 == 0 );
-  const long num_balls{ m_circle_data.size() / 6 };
+  const long num_circles{ m_circle_data.size() / 6 };
 
   if( !m_data_buffered )
   {
@@ -208,11 +208,11 @@ void BallShader::draw()
 
   m_f->glUseProgram( m_program );
   m_f->glBindVertexArray( m_VAO );
-  m_f->glDrawArraysInstanced( GL_TRIANGLES, 0, 3 * g_num_subdivs, num_balls );
+  m_f->glDrawArraysInstanced( GL_TRIANGLES, 0, 3 * g_num_subdivs, num_circles );
   m_f->glBindVertexArray( 0 );
 }
 
-Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& BallShader::circleData()
+Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& CircleShader::circleData()
 {
   m_data_buffered = false;
   return m_circle_data;

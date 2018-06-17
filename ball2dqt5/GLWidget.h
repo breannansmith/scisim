@@ -13,7 +13,7 @@
 
 #include "AnnulusShader.h"
 #include "AxisShader.h"
-#include "BallShader.h"
+#include "CircleShader.h"
 #include "PlaneShader.h"
 
 class QWheelEvent;
@@ -92,7 +92,7 @@ private:
   QOpenGLFunctions_3_3_Core* m_f;
 
   AxisShader m_axis_shader;
-  BallShader m_ball_shader;
+  CircleShader m_circle_shader;
   PlaneShader m_plane_shader;
   AnnulusShader m_annulus_shader;
 
