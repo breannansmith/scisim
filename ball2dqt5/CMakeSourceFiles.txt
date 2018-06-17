@@ -1,5 +1,6 @@
 set( Sources
   AnnulusShader.cpp
+  AxisShader.cpp
   ball2d_qt5.cpp
   BallShader.cpp
   ContentWidget.cpp
@@ -11,6 +12,7 @@ set( Sources
 
 set( Headers
   AnnulusShader.h
+  AxisShader.h
   BallShader.h
   ContentWidget.h
   GLWidget.h

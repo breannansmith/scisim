@@ -139,7 +139,7 @@ void PlaneShader::initialize( QOpenGLFunctions_3_3_Core* f )
     m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
   m_f->glBindVertexArray( 0 );
 
-  // Circle vbo is no longer needed
+  // VBO is no longer needed
   m_f->glDeleteBuffers( 1, &plane_vbo );
 
   // Cache the uniform locations

@@ -24,6 +24,7 @@
 GLWidget::GLWidget( QWidget* parent )
 : QOpenGLWidget( parent )
 , m_f( nullptr )
+, m_axis_shader()
 , m_ball_shader()
 , m_plane_shader()
 , m_annulus_shader()
@@ -70,6 +71,7 @@ GLWidget::GLWidget( QWidget* parent )
 GLWidget::~GLWidget()
 {
   // makeCurrent();
+  m_axis_shader.cleanup();
   m_ball_shader.cleanup();
   m_plane_shader.cleanup();
   m_annulus_shader.cleanup();
@@ -139,7 +141,10 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   bool new_lock_camera;
 
   // TODO: Instead of std::string as input, just take PythonScripting directly
-  const bool loaded_successfully{ Ball2DSceneParser::parseXMLSceneFile( xml_scene_file_name.toStdString(), new_scripting_callback_name, new_simulation_state, new_unconstrained_map, new_dt_string, new_dt, new_end_time, new_impact_operator, new_imap, new_CoR, new_friction_solver, new_mu, new_if_map, camera_set, camera_center, camera_scale_factor, new_fps, new_render_at_fps, new_lock_camera ) };
+  const bool loaded_successfully{ Ball2DSceneParser::parseXMLSceneFile( xml_scene_file_name.toStdString(), new_scripting_callback_name, new_simulation_state,
+                                                                        new_unconstrained_map, new_dt_string, new_dt, new_end_time, new_impact_operator, new_imap,
+                                                                        new_CoR, new_friction_solver, new_mu, new_if_map, camera_set, camera_center,
+                                                                        camera_scale_factor, new_fps, new_render_at_fps, new_lock_camera ) };
 
   if( !loaded_successfully )
   {
@@ -467,6 +472,7 @@ void GLWidget::initializeGL()
   m_f->initializeOpenGLFunctions();
   m_f->glClearColor( 1.0, 1.0, 1.0, 1.0 );
 
+  m_axis_shader.initialize( m_f );
   m_ball_shader.initialize( m_f );
   m_plane_shader.initialize( m_f );
   m_annulus_shader.initialize( m_f );
@@ -490,18 +496,12 @@ void GLWidget::resizeGL( int width, int height )
     pv.ortho( left, right, bottom, top, nearVal, farVal );
   }
 
-  // for (int row = 0; row < 4; row++)
-  // {
-  //   for (int col = 0; col < 4; col++)
-  //   {
-  //     std::cout << pv(row, col) << " ";
-  //   }
-  //   std::cout << std::endl;
-  // }
-
   m_ball_shader.setTransform( pv );
   m_plane_shader.setTransform( pv );
   m_annulus_shader.setTransform( pv );
+
+  pv.scale( m_display_scale, m_display_scale );
+  m_axis_shader.setTransform( pv );
 }
 
 void GLWidget::paintGL()
@@ -509,6 +509,11 @@ void GLWidget::paintGL()
   assert( m_f != nullptr );
 
   m_f->glClear( GL_COLOR_BUFFER_BIT );
+
+  if( m_left_mouse_button_pressed )
+  {
+    m_axis_shader.draw();
+  }
 
   m_ball_shader.draw();
   m_plane_shader.draw();
@@ -702,7 +707,8 @@ void GLWidget::setMovieFPS( const unsigned fps )
 void GLWidget::exportCameraSettings()
 {
   std::stringstream ss;
-  ss << "<camera cx=\"" << m_center_x << "\" cy=\"" << m_center_y << "\" scale_factor=\"" << m_display_scale << "\" fps=\"" << m_output_fps << "\" render_at_fps=\"" << m_render_at_fps << "\" locked=\"" << m_lock_camera << "\"/>";
+  ss << "<camera cx=\"" << m_center_x << "\" cy=\"" << m_center_y << "\" scale_factor=\"" << m_display_scale << "\" fps=\"" << m_output_fps
+     << "\" render_at_fps=\"" << m_render_at_fps << "\" locked=\"" << m_lock_camera << "\"/>";
   qInfo( "%s", ss.str().c_str() );
 }
 
@@ -1127,22 +1133,22 @@ void GLWidget::mousePressEvent( QMouseEvent* event )
     return;
   }
 
-//   bool repaint_needed{ false };
+  bool repaint_needed{ false };
 
   if( event->buttons() & Qt::LeftButton )
   {
     m_left_mouse_button_pressed = true;
-//     repaint_needed = true;
+    repaint_needed = true;
   }
   if( event->buttons() & Qt::RightButton )
   {
     m_right_mouse_button_pressed = true;
   }
 
-//   if( repaint_needed )
-//   {
-//     update();
-//   }
+  if( repaint_needed )
+  {
+    update();
+  }
 
   m_last_pos = event->pos();
 }
@@ -1154,22 +1160,22 @@ void GLWidget::mouseReleaseEvent( QMouseEvent* event )
     return;
   }
 
-//   bool repaint_needed{ false };
+  bool repaint_needed{ false };
 
   if( !( event->buttons() & Qt::LeftButton ) && m_left_mouse_button_pressed )
   {
     m_left_mouse_button_pressed = false;
-//     repaint_needed = true;
+    repaint_needed = true;
   }
   if( !( event->buttons() & Qt::RightButton ) && m_right_mouse_button_pressed )
   {
     m_right_mouse_button_pressed = false;
   }
 
-//   if( repaint_needed )
-//   {
-//     update();
-//   }
+  if( repaint_needed )
+  {
+    update();
+  }
 }
 
 void GLWidget::mouseMoveEvent( QMouseEvent* event )
