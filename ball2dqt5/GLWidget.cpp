@@ -589,10 +589,10 @@ void GLWidget::paintGL()
     m_axis_shader.draw();
   }
 
-  m_circle_shader.draw();
   m_plane_shader.draw();
   m_annulus_shader.draw();
   m_rectangle_shader.draw();
+  m_circle_shader.draw();
 
   if( m_display_HUD )
   {
