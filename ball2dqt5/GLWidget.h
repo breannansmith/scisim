@@ -15,6 +15,7 @@
 #include "AxisShader.h"
 #include "CircleShader.h"
 #include "PlaneShader.h"
+#include "RectangleShader.h"
 
 class QWheelEvent;
 class QOpenGLFunctions_3_3_Core;
@@ -93,8 +94,10 @@ private:
 
   AxisShader m_axis_shader;
   CircleShader m_circle_shader;
+  // TODO: Roll the plane rendering into the rectangle shader
   PlaneShader m_plane_shader;
   AnnulusShader m_annulus_shader;
+  RectangleShader m_rectangle_shader;
 
   // TODO: Pull these into a separate class
   int m_w;

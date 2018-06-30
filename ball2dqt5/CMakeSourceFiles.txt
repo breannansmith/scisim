@@ -7,6 +7,7 @@ set( Sources
   GLWidget.cpp
   OpenGLShader.cpp
   PlaneShader.cpp
+  RectangleShader.cpp
   Window.cpp
 )
 
@@ -18,5 +19,6 @@ set( Headers
   GLWidget.h
   OpenGLShader.h
   PlaneShader.h
+  RectangleShader.h
   Window.h
 )
