@@ -43,7 +43,7 @@ private:
   Eigen::Matrix<GLfloat,Eigen::Dynamic,1> m_circle_data;
 
   bool m_data_buffered;
-  int m_last_copied_size;
+  int m_buffer_size;
 
 };
 

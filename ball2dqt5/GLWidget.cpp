@@ -279,14 +279,52 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
 void GLWidget::copyRenderState()
 {
   {
+    const VectorXs& q{ m_sim.state().q() };
+    const VectorXs& r{ m_sim.state().r() };
+
+    // Find teleported versions of each ball
+    std::vector<Vector2s> teleported_centers;
+    std::vector<int> teleported_indices;
+    // For each periodic boundary
+    const std::vector<PlanarPortal>& planar_portals{ m_sim.state().planarPortals() };
+    for( const PlanarPortal& planar_portal : planar_portals )
+    {
+      // For each ball
+      for( unsigned ball_idx = 0; ball_idx < r.size(); ball_idx++ )
+      {
+          const Vector2s pos{ q.segment<2>( 2 * ball_idx ) };
+          const scalar rad{ r( ball_idx ) };
+          // If the current ball intersect a periodic boudnary
+          bool intersecting_index;
+          if( planar_portal.ballTouchesPortal( pos, rad, intersecting_index ) )
+          {
+            Vector2s teleported_pos;
+            planar_portal.teleportBall( pos, rad, teleported_pos );
+            teleported_centers.emplace_back( teleported_pos );
+            teleported_indices.emplace_back( ball_idx );
+          }
+      }
+    }
+
     Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& circle_data{ m_circle_shader.circleData() };
-    circle_data.resize( 6 * m_sim.state().nballs() );
+    circle_data.resize( 6 * ( m_sim.state().nballs() + teleported_centers.size() ) );
+
+    // Copy over the non-teleported balls
     for( unsigned ball_idx = 0; ball_idx < m_sim.state().nballs(); ball_idx++ )
     {
       // Center of mass, radius, and color
-      circle_data.segment<2>( 6 * ball_idx ) = m_sim.state().q().segment<2>( 2 * ball_idx ).cast<GLfloat>();
-      circle_data( 6 * ball_idx + 2 ) = GLfloat(m_sim.state().r()( ball_idx ));
+      circle_data.segment<2>( 6 * ball_idx ) = q.segment<2>( 2 * ball_idx ).cast<GLfloat>();
+      circle_data( 6 * ball_idx + 2 ) = GLfloat( r( ball_idx ) );
       circle_data.segment<3>( 6 * ball_idx + 3 ) = m_ball_colors.segment<3>( 3 * ball_idx ).cast<GLfloat>();
+    }
+
+    // Copy over the teleported balls
+    for( int tlprtd_idx = 0; tlprtd_idx < int(teleported_centers.size()); tlprtd_idx++ )
+    {
+      // Center of mass, radius, and color
+      circle_data.segment<2>( 6 * m_sim.state().nballs() + 6 * tlprtd_idx ) = teleported_centers[tlprtd_idx].cast<GLfloat>();
+      circle_data( 6 * m_sim.state().nballs() + 6 * tlprtd_idx + 2 ) = GLfloat( r( teleported_indices[tlprtd_idx] ) );
+      circle_data.segment<3>( 6 * m_sim.state().nballs() + 6 * tlprtd_idx + 3 ) = m_ball_colors.segment<3>( 3 * teleported_indices[tlprtd_idx] ).cast<GLfloat>();
     }
   }
 

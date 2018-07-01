@@ -45,7 +45,7 @@ CircleShader::CircleShader()
 , m_pv_mat_loc( -1 )
 , m_circle_data()
 , m_data_buffered( false )
-, m_last_copied_size( 0 )
+, m_buffer_size( 0 )
 {}
 
 static std::vector<GLfloat> tesselateCircle()
@@ -192,10 +192,10 @@ void CircleShader::draw()
     if( m_circle_data.size() != 0 )
     {
       m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
-      if( m_last_copied_size != m_circle_data.size() )
+      if( m_buffer_size < m_circle_data.size() )
       {
         m_f->glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * m_circle_data.size(), m_circle_data.data(), GL_DYNAMIC_DRAW );
-        m_last_copied_size = m_circle_data.size();
+        m_buffer_size = m_circle_data.size();
       }
       else
       {
