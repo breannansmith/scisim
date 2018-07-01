@@ -135,18 +135,12 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   std::unique_ptr<FrictionSolver> new_friction_solver{ nullptr };
   scalar new_mu = SCALAR_NAN;
   std::unique_ptr<ImpactFrictionMap> new_if_map{ nullptr };
-  bool camera_set{ false };
-  Eigen::Vector2d camera_center{ Eigen::Vector2d::Constant( std::numeric_limits<double>::signaling_NaN() ) };
-  double camera_scale_factor{ std::numeric_limits<double>::signaling_NaN() };
-  unsigned new_fps;
-  bool new_render_at_fps;
-  bool new_lock_camera;
+  RenderSettings render_settings;
 
   // TODO: Instead of std::string as input, just take PythonScripting directly
   const bool loaded_successfully{ Ball2DSceneParser::parseXMLSceneFile( xml_scene_file_name.toStdString(), new_scripting_callback_name, new_simulation_state,
                                                                         new_unconstrained_map, new_dt_string, new_dt, new_end_time, new_impact_operator, new_imap,
-                                                                        new_CoR, new_friction_solver, new_mu, new_if_map, camera_set, camera_center,
-                                                                        camera_scale_factor, new_fps, new_render_at_fps, new_lock_camera ) };
+                                                                        new_CoR, new_friction_solver, new_mu, new_if_map, render_settings ) };
 
   if( !loaded_successfully )
   {
@@ -192,11 +186,11 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   assert( m_end_time > 0.0 );
 
   // Update the FPS setting
-  if( camera_set )
+  if( render_settings.camera_set )
   {
-    m_render_at_fps = new_render_at_fps;
-    m_output_fps = new_fps;
-    m_lock_camera = new_lock_camera;
+    m_render_at_fps = render_settings.render_at_fps;
+    m_output_fps = render_settings.fps;
+    m_lock_camera = render_settings.lock_camera;
   }
   assert( m_output_fps > 0 );
   setMovieFPS( m_output_fps );
@@ -247,15 +241,15 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   const bool lock_backup{ m_lock_camera };
   m_lock_camera = false;
 
-  if( !camera_set )
+  if( !render_settings.camera_set )
   {
     centerCamera( false );
   }
   else
   {
-    m_center_x = camera_center.x();
-    m_center_y = camera_center.y();
-    m_display_scale = camera_scale_factor;
+    m_center_x = render_settings.camera_center.x();
+    m_center_y = render_settings.camera_center.y();
+    m_display_scale = render_settings.camera_scale_factor;
   }
 
   m_lock_camera = lock_backup;

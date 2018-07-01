@@ -1,8 +1,3 @@
-// Ball2DSceneParser.cpp
-//
-// Breannan Smith
-// Last updated: 10/11/2015
-
 #include "Ball2DSceneParser.h"
 
 #include <iostream>
@@ -1483,7 +1478,9 @@ static bool loadPenaltyForce( const rapidxml::xml_node<>& node, std::vector<std:
   return true;
 }
 
-static bool loadSimulationState( const rapidxml::xml_node<>& root_node, const std::string& file_name, std::string& scripting_callback_name, Ball2DState& state, std::unique_ptr<UnconstrainedMap>& integrator, std::string& dt_string, Rational<std::intmax_t>& dt, scalar& end_time, std::unique_ptr<ImpactOperator>& impact_operator, std::unique_ptr<ImpactMap>& impact_map, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, scalar& mu, std::unique_ptr<ImpactFrictionMap>& if_map )
+static bool loadSimulationState( const rapidxml::xml_node<>& root_node, const std::string& file_name, std::string& scripting_callback_name, Ball2DState& state, std::unique_ptr<UnconstrainedMap>& integrator,
+                                 std::string& dt_string, Rational<std::intmax_t>& dt, scalar& end_time, std::unique_ptr<ImpactOperator>& impact_operator,
+                                 std::unique_ptr<ImpactMap>& impact_map, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, scalar& mu, std::unique_ptr<ImpactFrictionMap>& if_map )
 {
   std::vector<Ball2D> balls;
   std::vector<StaticDrum> drums;
@@ -1650,7 +1647,9 @@ static bool loadSimulationState( const rapidxml::xml_node<>& root_node, const st
   return true;
 }
 
-bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::string& scripting_callback_name, Ball2DState& state, std::unique_ptr<UnconstrainedMap>& integrator, std::string& dt_string, Rational<std::intmax_t>& dt, scalar& end_time, std::unique_ptr<ImpactOperator>& impact_operator, std::unique_ptr<ImpactMap>& impact_map, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, scalar& mu, std::unique_ptr<ImpactFrictionMap>& if_map )
+bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::string& scripting_callback_name, Ball2DState& state, std::unique_ptr<UnconstrainedMap>& integrator,
+                                           std::string& dt_string, Rational<std::intmax_t>& dt, scalar& end_time, std::unique_ptr<ImpactOperator>& impact_operator,
+                                           std::unique_ptr<ImpactMap>& impact_map, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, scalar& mu, std::unique_ptr<ImpactFrictionMap>& if_map )
 {
   // Attempt to load the xml document
   std::vector<char> xmlchars;
@@ -1678,7 +1677,10 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::st
   return true;
 }
 
-bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::string& scripting_callback_name, Ball2DState& state, std::unique_ptr<UnconstrainedMap>& integrator, std::string& dt_string, Rational<std::intmax_t>& dt, scalar& end_time, std::unique_ptr<ImpactOperator>& impact_operator, std::unique_ptr<ImpactMap>& impact_map, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, scalar& mu, std::unique_ptr<ImpactFrictionMap>& if_map, bool& camera_set, Eigen::Vector2d& camera_center, double& camera_scale_factor, unsigned& fps, bool& render_at_fps, bool& lock_camera )
+bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::string& scripting_callback_name, Ball2DState& state, std::unique_ptr<UnconstrainedMap>& integrator,
+                                           std::string& dt_string, Rational<std::intmax_t>& dt, scalar& end_time, std::unique_ptr<ImpactOperator>& impact_operator,
+                                           std::unique_ptr<ImpactMap>& impact_map, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, scalar& mu, std::unique_ptr<ImpactFrictionMap>& if_map,
+                                           RenderSettings& render_settings )
 {
   // Attempt to load the xml document
   std::vector<char> xmlchars;
@@ -1697,11 +1699,11 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::st
   const rapidxml::xml_node<>& root_node{ *doc.first_node( "ball2d_scene" ) };
 
   // Attempt to load the optional camera settings
-  camera_set = false;
+  render_settings.camera_set = false;
   if( root_node.first_node( "camera" ) != nullptr )
   {
-    camera_set = true;
-    if( !loadCameraSettings( *root_node.first_node( "camera" ), camera_center, camera_scale_factor, fps, render_at_fps, lock_camera ) )
+    render_settings.camera_set = true;
+    if( !loadCameraSettings( *root_node.first_node( "camera" ), render_settings.camera_center, render_settings.camera_scale_factor, render_settings.fps, render_settings.render_at_fps, render_settings.lock_camera ) )
     {
       std::cerr << "Failed to parse camera node: " << file_name << std::endl;
       return false;
