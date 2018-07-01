@@ -1198,7 +1198,7 @@ void GLWidget::paintHUD()
   }
 
   // QPainter disables multi-sampling, so turn it back on
-  glEnable( GL_MULTISAMPLE );
+  m_f->glEnable( GL_MULTISAMPLE );
 }
 
 void GLWidget::mousePressEvent( QMouseEvent* event )
