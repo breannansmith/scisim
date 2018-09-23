@@ -9,6 +9,7 @@
   <gravity fx="0.0" fy="-10.0"/>
 
   <static_plane x="0 0" n="0 1"/>
+  <static_plane_renderer plane="0" r="0.05 8.0" color="0 0 0"/>
 
   <ball x="0" y="1" vx="0" vy="0" m="8.0" r="0.5" fixed="0"/>
 

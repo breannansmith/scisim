@@ -1677,6 +1677,138 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::st
   return true;
 }
 
+static bool loadPlaneRendererSettings( const rapidxml::xml_node<>& node, const int plane_count, std::vector<PlaneRenderSettings>& plane_render_settings )
+{
+  for( rapidxml::xml_node<>* nd = node.first_node( "static_plane_renderer" ); nd; nd = nd->next_sibling( "static_plane_renderer" ) )
+  {
+    // Read the index of plane to render
+    int idx;
+    {
+      const rapidxml::xml_attribute<>* const attrib{ nd->first_attribute( "plane" ) };
+      if( !attrib )
+      {
+        std::cerr << "Failed to locate plane attribute for static_plane_renderer." << std::endl;
+        return false;
+      }
+      std::stringstream ss;
+      ss << attrib->value();
+      if( !( ss >> idx ) )
+      {
+        std::cerr << "Failed to load plane attribute for static_plane_renderer. Must provide a non-negative integer." << std::endl;
+        return false;
+      }
+      if( idx < 0 || idx > plane_count )
+      {
+        std::cerr << "Failed to load plane attribute for static_plane_renderer. Invalid plane index specified." << std::endl;
+        return false;
+      }
+    }
+    // Read the rendering widths
+    VectorXs r;
+    {
+      const rapidxml::xml_attribute<>* const attrib{ nd->first_attribute( "r" ) };
+      if( !attrib )
+      {
+        std::cerr << "Failed to locate r attribute for static_plane_renderer." << std::endl;
+        return false;
+      }
+      if( !StringUtilities::readScalarList( attrib->value(), 2, ' ', r ) || !( r.array() >= 0.0 ).all() )
+      {
+        std::cerr << "Failed to load r attribute for static_plane_renderer. Must provide 2 positive scalars." << std::endl;
+        return false;
+      }
+    }
+    // Read the color
+    VectorXs color;
+    {
+      const rapidxml::xml_attribute<>* const attrib{ nd->first_attribute( "color" ) };
+      if( !attrib )
+      {
+        std::cerr << "Failed to locate color attribute for static_plane_renderer." << std::endl;
+        return false;
+      }
+      if( !StringUtilities::readScalarList( attrib->value(), 3, ' ', color ) || !( color.array() >= 0.0 ).all() || !( color.array() <= 1.0 ).all() )
+      {
+        std::cerr << "Failed to load color attribute for static_plane_renderer. Must provide 3 scalars in [0, 1]." << std::endl;
+        return false;
+      }
+    }
+    // Create the renderer
+    plane_render_settings.emplace_back( idx, r.cast<float>(), color.cast<float>() );
+  }
+
+  return true;
+}
+
+
+static bool loadDrumRendererSettings( const rapidxml::xml_node<>& node, const int drum_count, std::vector<DrumRenderSettings>& drum_render_settings )
+{
+  for( rapidxml::xml_node<>* nd = node.first_node( "static_drum_renderer" ); nd; nd = nd->next_sibling( "static_drum_renderer" ) )
+  {
+    // Read the index of drum to render
+    int idx;
+    {
+      const rapidxml::xml_attribute<>* const attrib{ nd->first_attribute( "drum" ) };
+      if( !attrib )
+      {
+        std::cerr << "Failed to locate drum attribute for static_drum_renderer." << std::endl;
+        return false;
+      }
+      std::stringstream ss;
+      ss << attrib->value();
+      if( !( ss >> idx ) )
+      {
+        std::cerr << "Failed to load drum attribute for static_drum_renderer. Must provide a non-negative integer." << std::endl;
+        return false;
+      }
+      if( idx < 0 || idx > drum_count )
+      {
+        std::cerr << "Failed to load drum attribute for static_drum_renderer. Invalid drum index specified." << std::endl;
+        return false;
+      }
+    }
+    // Read the rendering width
+    scalar r;
+    {
+      const rapidxml::xml_attribute<>* const attrib_nd{ nd->first_attribute( "r" ) };
+      if( attrib_nd == nullptr )
+      {
+        std::cerr << "Failed to locate r attribute for static_drum_renderer." << std::endl;
+        return false;
+      }
+      if( !StringUtilities::extractFromString( attrib_nd->value(), r ) )
+      {
+        std::cerr << "Failed to load r attribute for static_drum_renderer." << std::endl;
+        return false;
+      }
+      if( r < 0.0 )
+      {
+        std::cerr << "Failed to load r attribute for static_drum_renderer. Must provide a positive scalar." << std::endl;
+        return false;
+      }
+    }
+    // Read the color
+    VectorXs color;
+    {
+      const rapidxml::xml_attribute<>* const attrib{ nd->first_attribute( "color" ) };
+      if( !attrib )
+      {
+        std::cerr << "Failed to locate color attribute for static_drum_renderer." << std::endl;
+        return false;
+      }
+      if( !StringUtilities::readScalarList( attrib->value(), 3, ' ', color ) || !( color.array() >= 0.0 ).all() || !( color.array() <= 1.0 ).all() )
+      {
+        std::cerr << "Failed to load color attribute for static_drum_renderer. Must provide 3 scalars in [0, 1]." << std::endl;
+        return false;
+      }
+    }
+    // Create the renderer
+    drum_render_settings.emplace_back( idx, r, color.cast<float>() );
+  }
+
+  return true;
+}
+
 bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::string& scripting_callback_name, Ball2DState& state, std::unique_ptr<UnconstrainedMap>& integrator,
                                            std::string& dt_string, Rational<std::intmax_t>& dt, scalar& end_time, std::unique_ptr<ImpactOperator>& impact_operator,
                                            std::unique_ptr<ImpactMap>& impact_map, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, scalar& mu, std::unique_ptr<ImpactFrictionMap>& if_map,
@@ -1698,24 +1830,37 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::st
   }
   const rapidxml::xml_node<>& root_node{ *doc.first_node( "ball2d_scene" ) };
 
-  // Attempt to load the optional camera settings
-  render_settings.camera_set = false;
-  if( root_node.first_node( "camera" ) != nullptr )
-  {
-    render_settings.camera_set = true;
-    if( !loadCameraSettings( *root_node.first_node( "camera" ), render_settings.camera_center, render_settings.camera_scale_factor, render_settings.fps, render_settings.render_at_fps, render_settings.lock_camera ) )
-    {
-      std::cerr << "Failed to parse camera node: " << file_name << std::endl;
-      return false;
-    }
-  }
-
   // Attempt to load the state
   const bool loaded{ loadSimulationState( root_node, file_name, scripting_callback_name, state, integrator, dt_string, dt, end_time, impact_operator, impact_map, CoR, friction_solver, mu, if_map ) };
   if( !loaded )
   {
     return false;
   }
+
+  RenderSettings new_render_settings;
+
+  // Attempt to load the optional camera settings
+  new_render_settings.camera_set = false;
+  if( root_node.first_node( "camera" ) != nullptr )
+  {
+    new_render_settings.camera_set = true;
+    if( !loadCameraSettings( *root_node.first_node( "camera" ), new_render_settings.camera_center, new_render_settings.camera_scale_factor, new_render_settings.fps, new_render_settings.render_at_fps, new_render_settings.lock_camera ) )
+    {
+      std::cerr << "Failed to parse camera node: " << file_name << std::endl;
+      return false;
+    }
+  }
+
+  if( !loadPlaneRendererSettings( root_node, state.staticPlanes().size(), new_render_settings.plane_render_settings ) )
+  {
+    return false;
+  }
+  if( !loadDrumRendererSettings( root_node, state.staticDrums().size(), new_render_settings.drum_render_settings ) )
+  {
+    return false;
+  }
+
+  std::swap(render_settings, new_render_settings);
 
   return true;
 }

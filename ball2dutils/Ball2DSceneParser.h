@@ -13,6 +13,35 @@ class FrictionSolver;
 class ImpactFrictionMap;
 template<typename T> class Rational;
 
+struct PlaneRenderSettings final
+{
+  PlaneRenderSettings( const int idx_in, const Eigen::Vector2f& r_in, const Eigen::Vector3f& color_in )
+  : idx( idx_in )
+  , r( r_in )
+  , color( color_in )
+  {}
+
+  int idx;
+  Eigen::Vector2f r;
+  Eigen::Vector3f color;
+};
+
+struct DrumRenderSettings final
+{
+  DrumRenderSettings( const int idx_in, const float& r_in, const Eigen::Vector3f& color_in )
+  : idx( idx_in )
+  , r( r_in )
+  , color( color_in )
+  {}
+
+  int idx;
+  float r;
+  Eigen::Vector3f color;
+};
+
+struct PortalRenderSettings final
+{};
+
 struct RenderSettings final
 {
   bool camera_set;
@@ -21,6 +50,10 @@ struct RenderSettings final
   unsigned fps;
   bool render_at_fps;
   bool lock_camera;
+
+  std::vector<PlaneRenderSettings> plane_render_settings;
+  std::vector<DrumRenderSettings> drum_render_settings;
+  std::vector<PortalRenderSettings> portal_render_settings;
 };
 
 namespace Ball2DSceneParser

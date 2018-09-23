@@ -11,6 +11,8 @@
 #include "ball2d/Ball2DSim.h"
 #include "ball2d/PythonScripting.h"
 
+#include "ball2dutils/Ball2DSceneParser.h"
+
 #include "AnnulusShader.h"
 #include "AxisShader.h"
 #include "CircleShader.h"
@@ -163,6 +165,11 @@ private:
   scalar m_delta_H0;
   Vector2s m_delta_p0;
   scalar m_delta_L0;
+
+  // Static geometry render settings
+  std::vector<PlaneRenderSettings> m_plane_render_settings;
+  std::vector<DrumRenderSettings> m_drum_render_settings;
+  std::vector<PortalRenderSettings> m_portal_render_settings;
 
 };
 

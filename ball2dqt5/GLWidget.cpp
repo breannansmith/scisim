@@ -18,9 +18,6 @@
 
 #include "ball2d/Ball2DState.h"
 
-#include "ball2dutils/Ball2DSceneParser.h"
-
-
 GLWidget::GLWidget( QWidget* parent )
 : QOpenGLWidget( parent )
 , m_f( nullptr )
@@ -67,6 +64,9 @@ GLWidget::GLWidget( QWidget* parent )
 , m_delta_H0( 0.0 )
 , m_delta_p0( Vector2s::Zero() )
 , m_delta_L0( 0.0 )
+, m_plane_render_settings()
+, m_drum_render_settings()
+, m_portal_render_settings()
 {}
 
 GLWidget::~GLWidget()
@@ -259,6 +259,10 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   m_scripting.startOfSimCallback();
   m_scripting.forgetState();
 
+  std::swap( m_plane_render_settings, render_settings.plane_render_settings );
+  std::swap( m_drum_render_settings, render_settings.drum_render_settings );
+  std::swap( m_portal_render_settings, render_settings.portal_render_settings );
+
   if( render_on_load )
   {
     resizeGL( m_w, m_h );
@@ -324,27 +328,30 @@ void GLWidget::copyRenderState()
 
   {
     Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& plane_data{ m_plane_shader.planeData() };
-    plane_data.resize( 6 * m_sim.state().staticPlanes().size() );
-    for (int plane_idx = 0; plane_idx < int(m_sim.state().staticPlanes().size()); plane_idx++)
+    plane_data.resize( 6 * m_plane_render_settings.size() );
+    for( int renderer_num = 0; renderer_num < int(m_plane_render_settings.size()); renderer_num++ )
     {
-      plane_data.segment<2>( 6 * plane_idx ) = m_sim.state().staticPlanes()[plane_idx].x().cast<GLfloat>();
-      plane_data.segment<2>( 6 * plane_idx + 2 ) = m_sim.state().staticPlanes()[plane_idx].n().cast<GLfloat>();
-      constexpr GLfloat depth = 0.25;
-      plane_data( 6 * plane_idx + 4 ) = GLfloat(depth);
-      constexpr GLfloat width = 8.0;
-      plane_data( 6 * plane_idx + 5 ) = GLfloat(width);
+      const int plane_idx = m_plane_render_settings[renderer_num].idx;
+      const StaticPlane& plane = m_sim.state().staticPlanes()[plane_idx];
+
+      plane_data.segment<2>( 6 * plane_idx ) = plane.x().cast<GLfloat>();
+      plane_data.segment<2>( 6 * plane_idx + 2 ) = plane.n().cast<GLfloat>();
+      plane_data( 6 * plane_idx + 4 ) = GLfloat( m_plane_render_settings[renderer_num].r(0) );
+      plane_data( 6 * plane_idx + 5 ) = GLfloat( m_plane_render_settings[renderer_num].r(1) );
     }
   }
 
   {
     Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& annulus_data{ m_annulus_shader.annulusData() };
     annulus_data.resize( 4 * m_sim.state().staticDrums().size() );
-    for (int drum_idx = 0; drum_idx < int(m_sim.state().staticDrums().size()); drum_idx++)
+    for( int renderer_num = 0; renderer_num < int(m_drum_render_settings.size()); renderer_num++ )
     {
-      annulus_data.segment<2>( 4 * drum_idx ) = m_sim.state().staticDrums()[drum_idx].x().cast<GLfloat>();
-      annulus_data( 4 * drum_idx + 2 ) = GLfloat(m_sim.state().staticDrums()[drum_idx].r());
-      constexpr GLfloat width = 0.2;
-      annulus_data( 4 * drum_idx + 3 ) = GLfloat(m_sim.state().staticDrums()[drum_idx].r()) + width;
+      const int drum_idx = m_drum_render_settings[renderer_num].idx;
+      const StaticDrum& drum = m_sim.state().staticDrums()[drum_idx];
+
+      annulus_data.segment<2>( 4 * drum_idx ) = drum.x().cast<GLfloat>();
+      annulus_data( 4 * drum_idx + 2 ) = GLfloat(drum.r());
+      annulus_data( 4 * drum_idx + 3 ) = GLfloat(drum.r()) + m_drum_render_settings[renderer_num].r;
     }
   }
 
