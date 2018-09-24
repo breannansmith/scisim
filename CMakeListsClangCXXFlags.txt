@@ -4,20 +4,17 @@ if( STRICT_BUILD )
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic" )
   
   # Remove warnings that cause issues with SCISim
-  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter -Wno-padded -Wno-float-equal -Wno-global-constructors -Wno-exit-time-destructors" )
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-conversion -Wno-undefined-func-template -Wno-float-equal -Wno-weak-vtables -Wno-padded -Wno-exit-time-destructors -Wno-global-constructors" )
 
-  # Remove warnigns that cause issues with the Qt4 front-ends
-  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-over-aligned" )
+  # Remove warnings that cause issues with the Qt5 front-ends
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-redundant-parens" )
 
   # Warnings that cause issues with the FrictionProblem file from So-bogus
-  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-documentation-unknown-command -Wno-old-style-cast -Wno-conversion -Wno-weak-vtables -Wno-undefined-func-template" )
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-old-style-cast" )
 endif()
 
 # Disable run time type information
 set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti" )
-
-# Compiles with static analysis support
-#set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --analyze" )
 
 # Enable extra optimizations
 set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native" )

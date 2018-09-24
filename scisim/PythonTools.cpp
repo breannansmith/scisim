@@ -1,8 +1,3 @@
-// PythonTools.cpp
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
 #include "PythonTools.h"
 
 #include <iostream>
@@ -11,7 +6,11 @@
 #include "PythonObject.h"
 #endif
 
+#ifdef USE_PYTHON
 void PythonTools::pythonCommand( const std::string& command )
+#else
+void PythonTools::pythonCommand( const std::string& /*command*/ )
+#endif
 {
   #ifdef USE_PYTHON
   if( PyRun_SimpleString( ( command + "\n" ).c_str() ) != 0 )
@@ -28,7 +27,11 @@ void PythonTools::pythonCommand( const std::string& command )
 
 // TODO: For debugging, try printing sys.modules, see if the module is already here on loading... if so
 //       have to reload it? 'sys' in sys.modules
+#ifdef USE_PYTHON
 void PythonTools::loadModule( const std::string& path, const std::string& module_name, PythonObject& loaded_module )
+#else
+void PythonTools::loadModule( const std::string& /*path*/, const std::string& /*module_name*/, PythonObject& /*loaded_module*/ )
+#endif
 {
   #ifdef USE_PYTHON
   // Load the module
@@ -60,7 +63,11 @@ void PythonTools::loadModule( const std::string& path, const std::string& module
   #endif
 }
 
+#ifdef USE_PYTHON
 void PythonTools::loadFunction( const std::string& function_name, PythonObject& loaded_module, PythonObject& function )
+#else
+void PythonTools::loadFunction( const std::string& /*function_name*/, PythonObject& /*loaded_module*/, PythonObject& /*function*/ )
+#endif
 {
   #ifdef USE_PYTHON
   PythonObject new_function{ PyObject_GetAttrString( loaded_module, function_name.c_str() ) };

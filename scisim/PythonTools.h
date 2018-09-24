@@ -1,8 +1,3 @@
-// PythonTools.h
-//
-// Breannan Smith
-// Last updated: 09/03/2015
-
 #ifndef PYTHON_TOOLS_H
 #define PYTHON_TOOLS_H
 

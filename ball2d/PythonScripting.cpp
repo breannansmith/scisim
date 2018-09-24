@@ -130,7 +130,11 @@ void swap( PythonScripting& first, PythonScripting& second )
   #endif
 }
 
+#ifdef USE_PYTHON
 void PythonScripting::restitutionCoefficient( const std::vector<std::unique_ptr<Constraint>>& active_set, VectorXs& cor )
+#else
+void PythonScripting::restitutionCoefficient( const std::vector<std::unique_ptr<Constraint>>& /*active_set*/, VectorXs& /*cor*/ )
+#endif
 {
   #ifdef USE_PYTHON
   assert( !m_module_name.empty() );
@@ -159,7 +163,11 @@ void PythonScripting::restitutionCoefficient( const std::vector<std::unique_ptr<
   #endif
 }
 
+#ifdef USE_PYTHON
 void PythonScripting::frictionCoefficient( const std::vector<std::unique_ptr<Constraint>>& active_set, VectorXs& mu )
+#else
+void PythonScripting::frictionCoefficient( const std::vector<std::unique_ptr<Constraint>>& /*active_set*/, VectorXs& /*mu*/ )
+#endif
 {
   #ifdef USE_PYTHON
   assert( !m_module_name.empty() );
@@ -236,7 +244,11 @@ void PythonScripting::endOfSim()
   #endif
 }
 
+#ifdef USE_PYTHON
 void PythonScripting::startOfStep( const unsigned next_iteration, const Rational<std::intmax_t>& dt )
+#else
+void PythonScripting::startOfStep( const unsigned /*next_iteration*/, const Rational<std::intmax_t>& /*dt*/ )
+#endif
 {
   #ifdef USE_PYTHON
   assert( !m_module_name.empty() );
@@ -265,7 +277,11 @@ void PythonScripting::startOfStep( const unsigned next_iteration, const Rational
   #endif
 }
 
+#ifdef USE_PYTHON
 void PythonScripting::endOfStep( const unsigned next_iteration, const Rational<std::intmax_t>& dt )
+#else
+void PythonScripting::endOfStep( const unsigned /*next_iteration*/, const Rational<std::intmax_t>& /*dt*/ )
+#endif
 {
   #ifdef USE_PYTHON
   assert( !m_module_name.empty() );
@@ -299,7 +315,11 @@ std::string PythonScripting::name() const
   return m_module_name;
 }
 
+#ifdef USE_PYTHON
 void PythonScripting::setState( Ball2DState& state )
+#else
+void PythonScripting::setState( Ball2DState& /*state*/ )
+#endif
 {
   #ifdef USE_PYTHON
   s_ball_state = &state;
