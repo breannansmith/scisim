@@ -1,7 +1,7 @@
-// TODO: Break these utilities into separate dense and sparse utility collections
-
 #ifndef MATH_UTILITIES_H
 #define MATH_UTILITIES_H
+
+// TODO: Break these utilities into separate dense and sparse utility collections
 
 #include <Eigen/Core>
 #include <Eigen/LU>

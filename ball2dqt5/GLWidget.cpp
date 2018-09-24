@@ -247,9 +247,9 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   }
   else
   {
-    m_center_x = render_settings.camera_center.x();
-    m_center_y = render_settings.camera_center.y();
-    m_display_scale = render_settings.camera_scale_factor;
+    m_center_x = float(render_settings.camera_center.x());
+    m_center_y = float(render_settings.camera_center.y());
+    m_display_scale = float(render_settings.camera_scale_factor);
   }
 
   m_lock_camera = lock_backup;
@@ -326,6 +326,7 @@ void GLWidget::copyRenderState()
     }
   }
 
+  // Planes
   {
     Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& plane_data{ m_plane_shader.planeData() };
     plane_data.resize( 6 * m_plane_render_settings.size() );
@@ -336,11 +337,12 @@ void GLWidget::copyRenderState()
 
       plane_data.segment<2>( 6 * plane_idx ) = plane.x().cast<GLfloat>();
       plane_data.segment<2>( 6 * plane_idx + 2 ) = plane.n().cast<GLfloat>();
-      plane_data( 6 * plane_idx + 4 ) = GLfloat( m_plane_render_settings[renderer_num].r(0) );
-      plane_data( 6 * plane_idx + 5 ) = GLfloat( m_plane_render_settings[renderer_num].r(1) );
+      plane_data( 6 * plane_idx + 4 ) = m_plane_render_settings[renderer_num].r(0);
+      plane_data( 6 * plane_idx + 5 ) = m_plane_render_settings[renderer_num].r(1);
     }
   }
 
+  // Annuli
   {
     Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& annulus_data{ m_annulus_shader.annulusData() };
     annulus_data.resize( 4 * m_sim.state().staticDrums().size() );
@@ -355,73 +357,76 @@ void GLWidget::copyRenderState()
     }
   }
 
+  // Portals
   {
     const std::vector<PlanarPortal>& planar_portals{ m_sim.state().planarPortals() };
 
     Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& rectangle_data{ m_rectangle_shader.data() };
-    rectangle_data.resize( 32 * planar_portals.size() );
+    rectangle_data.resize( 32 * m_portal_render_settings.size() );
 
-    for (int portal_idx = 0; portal_idx < int(planar_portals.size()); portal_idx++)
+    for( int render_num = 0; render_num < int(m_portal_render_settings.size()); render_num++ )
     {
-      constexpr scalar r0 = 0.1;
-      constexpr scalar r1 = 6.0;
-      const Vector3s portal_color(0.0, 0.0, 0.0);
+      const int portal_idx = m_portal_render_settings[render_num].idx;
+      const float& r0 = m_portal_render_settings[render_num].thickness;
+      const float& r1 = m_portal_render_settings[render_num].half_width;
+      const float& iw = m_portal_render_settings[render_num].indicator_half_width;
+      const Eigen::Vector3f& portal_color = m_portal_render_settings[render_num].color;
 
       // Top portal
       // Center of mass
-      rectangle_data(32 * portal_idx + 0) = planar_portals[portal_idx].planeA().x().x() - r0 * planar_portals[portal_idx].planeA().n().x();
-      rectangle_data(32 * portal_idx + 1) = planar_portals[portal_idx].planeA().x().y() - r0 * planar_portals[portal_idx].planeA().n().y();
+      rectangle_data(32 * render_num + 0) = float(planar_portals[portal_idx].planeA().x().x()) - r0 * float(planar_portals[portal_idx].planeA().n().x());
+      rectangle_data(32 * render_num + 1) = float(planar_portals[portal_idx].planeA().x().y()) - r0 * float(planar_portals[portal_idx].planeA().n().y());
       // Orientation
-      rectangle_data(32 * portal_idx + 2) = std::atan2(planar_portals[portal_idx].planeA().n().y(), planar_portals[portal_idx].planeA().n().x());
+      rectangle_data(32 * render_num + 2) = float(std::atan2(planar_portals[portal_idx].planeA().n().y(), planar_portals[portal_idx].planeA().n().x()));
       // Radii
-      rectangle_data(32 * portal_idx + 3) = r0;
-      rectangle_data(32 * portal_idx + 4) = r1;
+      rectangle_data(32 * render_num + 3) = r0;
+      rectangle_data(32 * render_num + 4) = r1;
       // Color
-      rectangle_data(32 * portal_idx + 5) = portal_color.x();
-      rectangle_data(32 * portal_idx + 6) = portal_color.y();
-      rectangle_data(32 * portal_idx + 7) = portal_color.z();
+      rectangle_data(32 * render_num + 5) = portal_color.x();
+      rectangle_data(32 * render_num + 6) = portal_color.y();
+      rectangle_data(32 * render_num + 7) = portal_color.z();
 
       // Top portal center
       // Center of mass
-      rectangle_data(32 * portal_idx + 8) = planar_portals[portal_idx].transformedAx().x() - (r0 + 0.1 * r1) * planar_portals[portal_idx].planeA().n().x();
-      rectangle_data(32 * portal_idx + 9) = planar_portals[portal_idx].transformedAx().y() - (r0 + 0.1 * r1) * planar_portals[portal_idx].planeA().n().y();
+      rectangle_data(32 * render_num + 8) = float(planar_portals[portal_idx].transformedAx().x()) - (r0 + iw) * float(planar_portals[portal_idx].planeA().n().x());
+      rectangle_data(32 * render_num + 9) = float(planar_portals[portal_idx].transformedAx().y()) - (r0 + iw) * float(planar_portals[portal_idx].planeA().n().y());
       // Orientation
-      rectangle_data(32 * portal_idx + 10) = std::atan2(planar_portals[portal_idx].planeA().n().y(), planar_portals[portal_idx].planeA().n().x());
+      rectangle_data(32 * render_num + 10) = float(std::atan2(planar_portals[portal_idx].planeA().n().y(), planar_portals[portal_idx].planeA().n().x()));
       // Radii
-      rectangle_data(32 * portal_idx + 11) = 0.1 * r1;
-      rectangle_data(32 * portal_idx + 12) = r0;
+      rectangle_data(32 * render_num + 11) = iw;
+      rectangle_data(32 * render_num + 12) = r0;
       // Color
-      rectangle_data(32 * portal_idx + 13) = portal_color.x();
-      rectangle_data(32 * portal_idx + 14) = portal_color.y();
-      rectangle_data(32 * portal_idx + 15) = portal_color.z();
+      rectangle_data(32 * render_num + 13) = portal_color.x();
+      rectangle_data(32 * render_num + 14) = portal_color.y();
+      rectangle_data(32 * render_num + 15) = portal_color.z();
 
       // Bottom portal
       // Center of mass
-      rectangle_data(32 * portal_idx + 16) = planar_portals[portal_idx].planeB().x().x() - r0 * planar_portals[portal_idx].planeB().n().x();
-      rectangle_data(32 * portal_idx + 17) = planar_portals[portal_idx].planeB().x().y() - r0 * planar_portals[portal_idx].planeB().n().y();
+      rectangle_data(32 * render_num + 16) = float(planar_portals[portal_idx].planeB().x().x()) - r0 * float(planar_portals[portal_idx].planeB().n().x());
+      rectangle_data(32 * render_num + 17) = float(planar_portals[portal_idx].planeB().x().y()) - r0 * float(planar_portals[portal_idx].planeB().n().y());
       // Orientation
-      rectangle_data(32 * portal_idx + 18) = std::atan2(planar_portals[portal_idx].planeB().n().y(), planar_portals[portal_idx].planeB().n().x());
+      rectangle_data(32 * render_num + 18) = float(std::atan2(planar_portals[portal_idx].planeB().n().y(), planar_portals[portal_idx].planeB().n().x()));
       // Radii
-      rectangle_data(32 * portal_idx + 19) = r0;
-      rectangle_data(32 * portal_idx + 20) = r1;
+      rectangle_data(32 * render_num + 19) = r0;
+      rectangle_data(32 * render_num + 20) = r1;
       // Color
-      rectangle_data(32 * portal_idx + 21) = portal_color.x();
-      rectangle_data(32 * portal_idx + 22) = portal_color.y();
-      rectangle_data(32 * portal_idx + 23) = portal_color.z();
+      rectangle_data(32 * render_num + 21) = portal_color.x();
+      rectangle_data(32 * render_num + 22) = portal_color.y();
+      rectangle_data(32 * render_num + 23) = portal_color.z();
 
       // Bottom portal center
       // Center of mass
-      rectangle_data(32 * portal_idx + 24) = planar_portals[portal_idx].transformedBx().x() - (r0 + 0.1 * r1) * planar_portals[portal_idx].planeB().n().x();
-      rectangle_data(32 * portal_idx + 25) = planar_portals[portal_idx].transformedBx().y() - (r0 + 0.1 * r1) * planar_portals[portal_idx].planeB().n().y();
+      rectangle_data(32 * render_num + 24) = float(planar_portals[portal_idx].transformedBx().x()) - (r0 + iw) * float(planar_portals[portal_idx].planeB().n().x());
+      rectangle_data(32 * render_num + 25) = float(planar_portals[portal_idx].transformedBx().y()) - (r0 + iw) * float(planar_portals[portal_idx].planeB().n().y());
       // Orientation
-      rectangle_data(32 * portal_idx + 26) = std::atan2(planar_portals[portal_idx].planeB().n().y(), planar_portals[portal_idx].planeB().n().x());
+      rectangle_data(32 * render_num + 26) = float(std::atan2(planar_portals[portal_idx].planeB().n().y(), planar_portals[portal_idx].planeB().n().x()));
       // Radii
-      rectangle_data(32 * portal_idx + 27) = 0.1 * r1;
-      rectangle_data(32 * portal_idx + 28) = r0;
+      rectangle_data(32 * render_num + 27) = iw;
+      rectangle_data(32 * render_num + 28) = r0;
       // Color
-      rectangle_data(32 * portal_idx + 29) = portal_color.x();
-      rectangle_data(32 * portal_idx + 30) = portal_color.y();
-      rectangle_data(32 * portal_idx + 31) = portal_color.z();
+      rectangle_data(32 * render_num + 29) = portal_color.x();
+      rectangle_data(32 * render_num + 30) = portal_color.y();
+      rectangle_data(32 * render_num + 31) = portal_color.z();
     }
   }
 }
@@ -753,9 +758,9 @@ void GLWidget::centerCamera( const bool update_gl )
   const scalar ratio{ scalar( m_h ) / scalar( m_w ) };
   const scalar size{ 1.2 * std::max( ratio * rx, ry ) };
 
-  m_center_x = cx;
-  m_center_y = cy;
-  m_display_scale = size;
+  m_center_x = float(cx);
+  m_center_y = float(cy);
+  m_display_scale = float(size);
 
   if( update_gl )
   {
@@ -1322,7 +1327,7 @@ void GLWidget::mouseMoveEvent( QMouseEvent* event )
   {
     assert( m_right_mouse_button_pressed );
     // makeCurrent();
-    const float new_val{ 0.02f * m_display_scale * dy };
+    const float new_val{ 0.02f * m_display_scale * float(dy) };
     m_display_scale = std::max( 0.1f, m_display_scale + new_val );
     repaint_needed = true;
     resizeGL( m_w, m_h );
@@ -1342,7 +1347,7 @@ void GLWidget::wheelEvent( QWheelEvent* event )
   }
 
   // makeCurrent();
-  const float new_val{ -0.002f * m_display_scale * event->delta() };
+  const float new_val{ -0.002f * m_display_scale * float(event->delta()) };
   m_display_scale = std::max( 0.1f, m_display_scale + new_val );
   resizeGL( m_w, m_h );
   update();

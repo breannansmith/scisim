@@ -1,8 +1,3 @@
-// LCPOperatorQLVP.cpp
-//
-// Breannan Smith
-// Last updated: 09/03/2015
-
 #include "LCPOperatorQLVP.h"
 
 //#include "ImpactOperatorUtilities.h"
@@ -120,7 +115,7 @@ LCPOperatorQLVP::LCPOperatorQLVP( const scalar& tol )
 //  return ifail;
 //}
 
-void LCPOperatorQLVP::flow( const std::vector<std::unique_ptr<Constraint>>& cons, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& q0, const VectorXs& v0, const VectorXs& v0F, const SparseMatrixsc& N, const SparseMatrixsc& Q, const VectorXs& nrel, const VectorXs& CoR, VectorXs& alpha )
+void LCPOperatorQLVP::flow( const std::vector<std::unique_ptr<Constraint>>& /*cons*/, const SparseMatrixsc& /*M*/, const SparseMatrixsc& /*Minv*/, const VectorXs& /*q0*/, const VectorXs& /*v0*/, const VectorXs& /*v0F*/, const SparseMatrixsc& /*N*/, const SparseMatrixsc& /*Q*/, const VectorXs& /*nrel*/, const VectorXs& /*CoR*/, VectorXs& /*alpha*/ )
 {
   std::cerr << "Error, LCPOperatorQLVP::flow not updated to work with new interface" << std::endl;
   std::exit( EXIT_FAILURE );
@@ -180,7 +175,7 @@ std::unique_ptr<ImpactOperator> LCPOperatorQLVP::clone() const
   return std::unique_ptr<ImpactOperator>{ new LCPOperatorQLVP{ m_tol } };
 }
 
-void LCPOperatorQLVP::serialize( std::ostream& output_stream ) const
+void LCPOperatorQLVP::serialize( std::ostream& /*output_stream*/ ) const
 {
   std::cerr << "Code up LCPOperatorQLVP::serialize" << std::endl;
   std::exit( EXIT_FAILURE );

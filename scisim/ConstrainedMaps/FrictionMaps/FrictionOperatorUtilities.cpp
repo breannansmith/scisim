@@ -1,8 +1,3 @@
-// FrictionOperatorUtilities.cpp
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
 #include "FrictionOperatorUtilities.h"
 
 #include "scisim/Constraints/Constraint.h"
@@ -54,7 +49,7 @@ void FrictionOperatorUtilities::formGeneralizedFrictionBasis( const VectorXs& q0
   // Build the matrix
   buildLinearFrictionBasis( q0, v0, num_samples, K, D, drel );
 
-  D.prune( []( const Eigen::Index& row, const Eigen::Index& col, const scalar& value ) { return value != 0.0; } );
+  D.prune( []( const Eigen::Index& /*row*/, const Eigen::Index& /*col*/, const scalar& value ) { return value != 0.0; } );
   assert( D.innerNonZeroPtr() == nullptr );
 }
 

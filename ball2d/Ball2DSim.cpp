@@ -63,13 +63,12 @@ unsigned Ball2DSim::ambientSpaceDimensions() const
   return 2;
 }
 
-bool Ball2DSim::isKinematicallyScripted( const int i ) const
+bool Ball2DSim::isKinematicallyScripted( const int /*i*/ ) const
 {
-  assert( i >= 0 ); assert( nvdofs() % 2 == 0 ); assert( i < nvdofs() / 2 );
   return false;
 }
 
-void Ball2DSim::computeForce( const VectorXs& q, const VectorXs& v, const scalar& t, VectorXs& F )
+void Ball2DSim::computeForce( const VectorXs& q, const VectorXs& v, const scalar& /*t*/, VectorXs& F )
 {
   assert( q.size() == v.size() ); assert( q.size() == F.size() );
 
@@ -148,7 +147,7 @@ std::string Ball2DSim::name() const
   return "ball_2d";
 }
 
-void Ball2DSim::computeActiveSet( const VectorXs& q0, const VectorXs& qp, const VectorXs& v, std::vector<std::unique_ptr<Constraint>>& active_set )
+void Ball2DSim::computeActiveSet( const VectorXs& q0, const VectorXs& qp, const VectorXs& /*v*/, std::vector<std::unique_ptr<Constraint>>& active_set )
 {
   assert( q0.size() % 2 == 0 );
   assert( q0.size() / 2 == m_state.nballs() );
@@ -744,9 +743,9 @@ void Ball2DSim::computeBallDrumActiveSetAllPairs( const VectorXs& q0, const Vect
   }
 }
 
-void Ball2DSim::computeBallPlaneActiveSetAllPairs( const VectorXs& q0, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const
+void Ball2DSim::computeBallPlaneActiveSetAllPairs( const VectorXs& /*q0*/, const VectorXs& q1, std::vector<std::unique_ptr<Constraint>>& active_set ) const
 {
-  assert( q0.size() == q1.size() ); assert( q0.size() % 2 == 0 ); assert( q0.size() / 2 == m_state.r().size() );
+  assert( q1.size() % 2 == 0 ); assert( q1.size() / 2 == m_state.r().size() );
   // Check all ball-plane pairs
   using st = std::vector<StaticPlane>::size_type;
   for( st pln_idx = 0; pln_idx < m_state.staticPlanes().size(); ++pln_idx )

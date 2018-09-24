@@ -1,8 +1,3 @@
-// LCPOperatorQLVP.h
-//
-// Breannan Smith
-// Last updated: 09/21/2015
-
 #ifndef LCP_OPERATOR_QL_VP
 #define LCP_OPERATOR_QL_VP
 

@@ -51,7 +51,7 @@ CircleShader::CircleShader()
 static std::vector<GLfloat> tesselateCircle()
 {
   std::vector<GLfloat> vertices( 6 * g_num_subdivs );
-  const double dtheta{ double( 2.0 ) * PI<double> / double( g_num_subdivs ) };
+  const double dtheta{ 2.0 * PI<double> / double( g_num_subdivs ) };
   for( GLuint div_num = 0; div_num < g_num_subdivs; div_num++ )
   {
     const GLuint base_idx = 6 * div_num;
@@ -195,7 +195,7 @@ void CircleShader::draw()
       if( m_buffer_size < m_circle_data.size() )
       {
         m_f->glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * m_circle_data.size(), m_circle_data.data(), GL_DYNAMIC_DRAW );
-        m_buffer_size = m_circle_data.size();
+        m_buffer_size = int(m_circle_data.size());
       }
       else
       {
@@ -208,7 +208,7 @@ void CircleShader::draw()
 
   m_f->glUseProgram( m_program );
   m_f->glBindVertexArray( m_VAO );
-  m_f->glDrawArraysInstanced( GL_TRIANGLES, 0, 3 * g_num_subdivs, num_circles );
+  m_f->glDrawArraysInstanced( GL_TRIANGLES, 0, 3 * g_num_subdivs, GLsizei(num_circles) );
   m_f->glBindVertexArray( 0 );
 }
 

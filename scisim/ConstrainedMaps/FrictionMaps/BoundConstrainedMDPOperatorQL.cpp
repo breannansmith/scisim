@@ -1,8 +1,3 @@
-// BoundConstrainedMDPOperatorQL.cpp
-//
-// Breannan Smith
-// Last updated: 09/03/2015
-
 #include "BoundConstrainedMDPOperatorQL.h"
 
 #include "FrictionOperatorUtilities.h"
@@ -87,7 +82,7 @@ static int solveQP( const scalar& tol, MatrixXXsc& C, VectorXs& c, VectorXs& xl,
   return ifail;
 }
 
-void BoundConstrainedMDPOperatorQL::flow( const scalar& t, const SparseMatrixsc& Minv, const VectorXs& v0, const SparseMatrixsc& D, const SparseMatrixsc& Q, const VectorXs& gdotD, const VectorXs& mu, const VectorXs& alpha, VectorXs& beta, VectorXs& lambda )
+void BoundConstrainedMDPOperatorQL::flow( const scalar& /*t*/, const SparseMatrixsc& /*Minv*/, const VectorXs& v0, const SparseMatrixsc& D, const SparseMatrixsc& Q, const VectorXs& gdotD, const VectorXs& mu, const VectorXs& alpha, VectorXs& beta, VectorXs& lambda )
 {
   // Quadratic term in the objective: 1/2 x^T C x
   assert( Q.rows() == Q.cols() );

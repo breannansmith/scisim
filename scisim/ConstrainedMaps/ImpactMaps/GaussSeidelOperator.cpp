@@ -1,8 +1,3 @@
-// GaussSeidelOperator.cpp
-//
-// Breannan Smith
-// Last updated: 09/03/2015
-
 #include "GaussSeidelOperator.h"
 #include "scisim/Utilities.h"
 #include "scisim/Constraints/Constraint.h"
@@ -19,7 +14,11 @@ GaussSeidelOperator::GaussSeidelOperator( std::istream& input_stream )
   assert( m_v_tol >= 0.0 );
 }
 
-void GaussSeidelOperator::flow( const std::vector<std::unique_ptr<Constraint>>& cons, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& q0, const VectorXs& v0, const VectorXs& v0F, const SparseMatrixsc& N, const SparseMatrixsc& Q, const VectorXs& nrel, const VectorXs& CoR, VectorXs& alpha )
+#ifndef NDEBUG
+void GaussSeidelOperator::flow( const std::vector<std::unique_ptr<Constraint>>& cons, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& q0, const VectorXs& v0, const VectorXs& v0F, const SparseMatrixsc& N, const SparseMatrixsc& /*Q*/, const VectorXs& /*nrel*/, const VectorXs& CoR, VectorXs& alpha )
+#else
+void GaussSeidelOperator::flow( const std::vector<std::unique_ptr<Constraint>>& cons, const SparseMatrixsc& M, const SparseMatrixsc& /*Minv*/, const VectorXs& q0, const VectorXs& v0, const VectorXs& /*v0F*/, const SparseMatrixsc& /*N*/, const SparseMatrixsc& /*Q*/, const VectorXs& /*nrel*/, const VectorXs& CoR, VectorXs& alpha )
+#endif
 {
   // TODO: Check input sizes, etc
   assert( ( alpha.array() == 0.0 ).all() );

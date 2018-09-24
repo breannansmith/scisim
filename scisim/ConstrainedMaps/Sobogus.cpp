@@ -1,8 +1,3 @@
-// Sobogus.cpp
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
 #include "Sobogus.h"
 
 #include "scisim/Constraints/Constraint.h"
@@ -686,7 +681,11 @@ static void buildLocalToGlobalMap( const unsigned nglobalbodies, const std::vect
   assert( local_idx == num_present );
 }
 
+#ifndef NDEBUG
 static void extractMass2D( const unsigned nlocalbodies, const unsigned nglobalbodies, const VectorXu& ltg, const SparseMatrixsc& M, VectorXs& masses )
+#else
+static void extractMass2D( const unsigned nlocalbodies, const unsigned /*nglobalbodies*/, const VectorXu& ltg, const SparseMatrixsc& M, VectorXs& masses )
+#endif
 {
   assert( M.rows() == M.cols() );
   assert( M.rows() == M.nonZeros() );
@@ -703,7 +702,11 @@ static void extractMass2D( const unsigned nlocalbodies, const unsigned nglobalbo
   assert( ( masses.array() >= 0.0 ).all() );
 }
 
+#ifndef NDEBUG
 static void extractMass2DRigidBody( const unsigned nlocalbodies, const unsigned nglobalbodies, const VectorXu& ltg, const SparseMatrixsc& M, VectorXs& masses )
+#else
+static void extractMass2DRigidBody( const unsigned nlocalbodies, const unsigned /*nglobalbodies*/, const VectorXu& ltg, const SparseMatrixsc& M, VectorXs& masses )
+#endif
 {
   assert( M.rows() == M.cols() );
   assert( M.rows() == M.nonZeros() );
@@ -813,7 +816,7 @@ void SobogusFrictionProblem::flattenMass( const SparseMatrixsc& M, VectorXs& mas
   }
 }
 
-static void extractq2D( const unsigned nlocalbodies, const unsigned nglobalbodies, const VectorXu& ltg, const VectorXs& q0, VectorXs& q_local )
+static void extractq2D( const unsigned nlocalbodies, const unsigned /*nglobalbodies*/, const VectorXu& ltg, const VectorXs& q0, VectorXs& q_local )
 {
   q_local.resize( 2 * nlocalbodies );
   for( unsigned local_body_index = 0; local_body_index < nlocalbodies; ++local_body_index )
@@ -823,7 +826,7 @@ static void extractq2D( const unsigned nlocalbodies, const unsigned nglobalbodie
   }
 }
 
-static void extractq2DRigidBody( const unsigned nlocalbodies, const unsigned nglobalbodies, const VectorXu& ltg, const VectorXs& q0, VectorXs& q_local )
+static void extractq2DRigidBody( const unsigned nlocalbodies, const unsigned /*nglobalbodies*/, const VectorXu& ltg, const VectorXs& q0, VectorXs& q_local )
 {
   q_local.resize( 3 * nlocalbodies );
   for( unsigned local_body_index = 0; local_body_index < nlocalbodies; ++local_body_index )
@@ -844,7 +847,7 @@ static void extractq3D( const unsigned nlocalbodies, const unsigned nglobalbodie
   }
 }
 
-static void extractv2D( const unsigned nlocalbodies, const unsigned nglobalbodies, const VectorXu& ltg, const VectorXs& v0, VectorXs& v_local )
+static void extractv2D( const unsigned nlocalbodies, const unsigned /*nglobalbodies*/, const VectorXu& ltg, const VectorXs& v0, VectorXs& v_local )
 {
   v_local.resize( 2 * nlocalbodies );
   for( unsigned local_body_index = 0; local_body_index < nlocalbodies; ++local_body_index )
@@ -855,7 +858,7 @@ static void extractv2D( const unsigned nlocalbodies, const unsigned nglobalbodie
   }
 }
 
-static void extractv2DRigidBody( const unsigned nlocalbodies, const unsigned nglobalbodies, const VectorXu& ltg, const VectorXs& v0, VectorXs& v_local )
+static void extractv2DRigidBody( const unsigned nlocalbodies, const unsigned /*nglobalbodies*/, const VectorXu& ltg, const VectorXs& v0, VectorXs& v_local )
 {
   v_local.resize( 3 * nlocalbodies );
   for( unsigned local_body_index = 0; local_body_index < nlocalbodies; ++local_body_index )
@@ -877,7 +880,7 @@ static void extractv3D( const unsigned nlocalbodies, const unsigned nglobalbodie
   }
 }
 
-void Sobogus::solve( const unsigned iteration, const scalar& dt, const FlowableSystem& fsys, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& CoR, const VectorXs& mu, const VectorXs& q0, const VectorXs& v0, std::vector<std::unique_ptr<Constraint>>& active_set, const MatrixXXsc& contact_bases, const VectorXs& nrel_extra, const VectorXs& drel_extra, const unsigned max_iters, const scalar& tol, VectorXs& f, VectorXs& alpha, VectorXs& beta, VectorXs& vout, bool& solve_succeeded, scalar& error )
+void Sobogus::solve( const unsigned /*iteration*/, const scalar& /*dt*/, const FlowableSystem& fsys, const SparseMatrixsc& M, const SparseMatrixsc& /*Minv*/, const VectorXs& CoR, const VectorXs& mu, const VectorXs& q0, const VectorXs& v0, std::vector<std::unique_ptr<Constraint>>& active_set, const MatrixXXsc& contact_bases, const unsigned max_iters, const scalar& tol, VectorXs& f, VectorXs& alpha, VectorXs& beta, VectorXs& vout, bool& solve_succeeded, scalar& error )
 {
   const unsigned nglobalbodies{ fsys.numBodies() };
 

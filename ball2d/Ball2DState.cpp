@@ -1,8 +1,3 @@
-// Ball2DState.cpp
-//
-// Breannan Smith
-// Last updated: 09/07/2015
-
 #include "Ball2DState.h"
 
 #include "scisim/Math/MathUtilities.h"
@@ -39,8 +34,8 @@ Ball2DState& Ball2DState::operator=( const Ball2DState& other )
 
 static SparseMatrixsc createM( const VectorXs& m )
 {
-  SparseMatrixsc M{ static_cast<SparseMatrixsc::Index>( m.size() ), static_cast<SparseMatrixsc::Index>( m.size() ) };
-  M.reserve( SparseMatrixsc::Index( m.size() ) );
+  SparseMatrixsc M{ m.size(), m.size() };
+  M.reserve( m.size() );
   for( int col = 0; col < m.size(); ++col )
   {
     M.startVec( col );
@@ -53,8 +48,8 @@ static SparseMatrixsc createM( const VectorXs& m )
 
 static SparseMatrixsc createMinv( const VectorXs& m )
 {
-  SparseMatrixsc Minv{ static_cast<SparseMatrixsc::Index>( m.size() ), static_cast<SparseMatrixsc::Index>( m.size() ) };
-  Minv.reserve( SparseMatrixsc::Index( m.size() ) );
+  SparseMatrixsc Minv{ m.size(), m.size() };
+  Minv.reserve( m.size() );
   for( int col = 0; col < m.size(); ++col )
   {
     Minv.startVec( col );

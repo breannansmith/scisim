@@ -1,8 +1,3 @@
-// ImpactFrictionMap.h
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
 #ifndef IMPACT_FRICTION_MAP_H
 #define IMPACT_FRICTION_MAP_H
 

@@ -947,7 +947,11 @@ static bool loadQLMDPOperator( const rapidxml::xml_node<>& node, std::unique_ptr
 }
 #endif
 
+#ifdef QL_FOUND
 static bool loadMDPOperator( const rapidxml::xml_node<>& node, std::unique_ptr<FrictionOperator>& friction_operator )
+#else
+static bool loadMDPOperator( const rapidxml::xml_node<>& node, std::unique_ptr<FrictionOperator>& /*friction_operator*/ )
+#endif
 {
   // Attempt to load the impact operator type
   std::string name;
@@ -1697,7 +1701,7 @@ static bool loadPlaneRendererSettings( const rapidxml::xml_node<>& node, const i
         std::cerr << "Failed to load plane attribute for static_plane_renderer. Must provide a non-negative integer." << std::endl;
         return false;
       }
-      if( idx < 0 || idx > plane_count )
+      if( idx < 0 || idx >= plane_count )
       {
         std::cerr << "Failed to load plane attribute for static_plane_renderer. Invalid plane index specified." << std::endl;
         return false;
@@ -1712,7 +1716,7 @@ static bool loadPlaneRendererSettings( const rapidxml::xml_node<>& node, const i
         std::cerr << "Failed to locate r attribute for static_plane_renderer." << std::endl;
         return false;
       }
-      if( !StringUtilities::readScalarList( attrib->value(), 2, ' ', r ) || !( r.array() >= 0.0 ).all() )
+      if( !StringUtilities::readScalarList( attrib->value(), 2, ' ', r ) || !( r.array() > 0.0 ).all() )
       {
         std::cerr << "Failed to load r attribute for static_plane_renderer. Must provide 2 positive scalars." << std::endl;
         return false;
@@ -1740,7 +1744,6 @@ static bool loadPlaneRendererSettings( const rapidxml::xml_node<>& node, const i
   return true;
 }
 
-
 static bool loadDrumRendererSettings( const rapidxml::xml_node<>& node, const int drum_count, std::vector<DrumRenderSettings>& drum_render_settings )
 {
   for( rapidxml::xml_node<>* nd = node.first_node( "static_drum_renderer" ); nd; nd = nd->next_sibling( "static_drum_renderer" ) )
@@ -1761,7 +1764,7 @@ static bool loadDrumRendererSettings( const rapidxml::xml_node<>& node, const in
         std::cerr << "Failed to load drum attribute for static_drum_renderer. Must provide a non-negative integer." << std::endl;
         return false;
       }
-      if( idx < 0 || idx > drum_count )
+      if( idx < 0 || idx >= drum_count )
       {
         std::cerr << "Failed to load drum attribute for static_drum_renderer. Invalid drum index specified." << std::endl;
         return false;
@@ -1781,7 +1784,7 @@ static bool loadDrumRendererSettings( const rapidxml::xml_node<>& node, const in
         std::cerr << "Failed to load r attribute for static_drum_renderer." << std::endl;
         return false;
       }
-      if( r < 0.0 )
+      if( r <= 0.0 )
       {
         std::cerr << "Failed to load r attribute for static_drum_renderer. Must provide a positive scalar." << std::endl;
         return false;
@@ -1804,6 +1807,114 @@ static bool loadDrumRendererSettings( const rapidxml::xml_node<>& node, const in
     }
     // Create the renderer
     drum_render_settings.emplace_back( idx, r, color.cast<float>() );
+  }
+
+  return true;
+}
+
+static bool loadPortalRendererSettings( const rapidxml::xml_node<>& node, const int portal_count, std::vector<PortalRenderSettings>& portal_render_settings )
+{
+  for( rapidxml::xml_node<>* nd = node.first_node( "portal_renderer" ); nd; nd = nd->next_sibling( "portal_renderer" ) )
+  {
+    // Read the index of portal to render
+    int idx;
+    {
+      const rapidxml::xml_attribute<>* const attrib{ nd->first_attribute( "portal" ) };
+      if( !attrib )
+      {
+        std::cerr << "Failed to locate portal attribute for portal_renderer." << std::endl;
+        return false;
+      }
+      std::stringstream ss;
+      ss << attrib->value();
+      if( !( ss >> idx ) )
+      {
+        std::cerr << "Failed to load portal attribute for portal_renderer. Must provide a non-negative integer." << std::endl;
+        return false;
+      }
+      if( idx < 0 || idx >= portal_count )
+      {
+        std::cerr << "Failed to load portal attribute for portal_renderer. Invalid portal index specified." << std::endl;
+        return false;
+      }
+    }
+    // Read the thickness
+    scalar thickness;
+    {
+      const rapidxml::xml_attribute<>* const attrib_nd{ nd->first_attribute( "thickness" ) };
+      if( attrib_nd == nullptr )
+      {
+        std::cerr << "Failed to locate thickness attribute for portal_renderer." << std::endl;
+        return false;
+      }
+      if( !StringUtilities::extractFromString( attrib_nd->value(), thickness ) )
+      {
+        std::cerr << "Failed to load thickness attribute for portal_renderer." << std::endl;
+        return false;
+      }
+      if( thickness <= 0.0 )
+      {
+        std::cerr << "Failed to load thickness attribute for portal_renderer. Must provide a positive scalar." << std::endl;
+        return false;
+      }
+    }
+    // Read the half-width
+    scalar width;
+    {
+      const rapidxml::xml_attribute<>* const attrib_nd{ nd->first_attribute( "width" ) };
+      if( attrib_nd == nullptr )
+      {
+        std::cerr << "Failed to locate width attribute for portal_renderer." << std::endl;
+        return false;
+      }
+      if( !StringUtilities::extractFromString( attrib_nd->value(), width ) )
+      {
+        std::cerr << "Failed to load width attribute for portal_renderer." << std::endl;
+        return false;
+      }
+      if( width <= 0.0 )
+      {
+        std::cerr << "Failed to load width attribute for portal_renderer. Must provide a positive scalar." << std::endl;
+        return false;
+      }
+    }
+    // Read the indicator half-width
+    scalar indicator_width;
+    {
+      const rapidxml::xml_attribute<>* const attrib_nd{ nd->first_attribute( "indicator_width" ) };
+      if( attrib_nd == nullptr )
+      {
+        std::cerr << "Failed to locate indicator_width attribute for portal_renderer." << std::endl;
+        return false;
+      }
+      if( !StringUtilities::extractFromString( attrib_nd->value(), indicator_width ) )
+      {
+        std::cerr << "Failed to load indicator_width attribute for portal_renderer." << std::endl;
+        return false;
+      }
+      if( indicator_width <= 0.0 )
+      {
+        std::cerr << "Failed to load indicator_width attribute for portal_renderer. Must provide a positive scalar." << std::endl;
+        return false;
+      }
+    }
+    // Read the color
+    VectorXs color;
+    {
+      const rapidxml::xml_attribute<>* const attrib{ nd->first_attribute( "color" ) };
+      if( !attrib )
+      {
+        std::cerr << "Failed to locate color attribute for portal_renderer." << std::endl;
+        return false;
+      }
+      if( !StringUtilities::readScalarList( attrib->value(), 3, ' ', color ) || !( color.array() >= 0.0 ).all() || !( color.array() <= 1.0 ).all() )
+      {
+        std::cerr << "Failed to load color attribute for portal_renderer. Must provide 3 scalars in [0, 1]." << std::endl;
+        return false;
+      }
+    }
+    // Create the renderer
+    portal_render_settings.emplace_back( idx, float(thickness), float(width), float(indicator_width), color.cast<float>() );
   }
 
   return true;
@@ -1851,11 +1962,15 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::st
     }
   }
 
-  if( !loadPlaneRendererSettings( root_node, state.staticPlanes().size(), new_render_settings.plane_render_settings ) )
+  if( !loadPlaneRendererSettings( root_node, int(state.staticPlanes().size()), new_render_settings.plane_render_settings ) )
   {
     return false;
   }
-  if( !loadDrumRendererSettings( root_node, state.staticDrums().size(), new_render_settings.drum_render_settings ) )
+  if( !loadDrumRendererSettings( root_node, int(state.staticDrums().size()), new_render_settings.drum_render_settings ) )
+  {
+    return false;
+  }
+  if( !loadPortalRendererSettings( root_node, int(state.planarPortals().size()), new_render_settings.portal_render_settings ) )
   {
     return false;
   }

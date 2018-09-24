@@ -1,8 +1,3 @@
-// BallBallConstraint.cpp
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
 #include "BallBallConstraint.h"
 
 bool BallBallConstraint::isActive( const unsigned idx0, const unsigned idx1, const VectorXs& q, const VectorXs& r )
@@ -36,7 +31,7 @@ BallBallConstraint::BallBallConstraint( const unsigned idx0, const unsigned idx1
   assert( m_r1 >= 0.0 );
 }
 
-scalar BallBallConstraint::evalNdotV( const VectorXs& q, const VectorXs& v ) const
+scalar BallBallConstraint::evalNdotV( const VectorXs& /*q*/, const VectorXs& v ) const
 {
   assert( v.size() % 2 == 0 ); assert( 2 * m_sphere_idx0 + 1 < v.size() ); assert( 2 * m_sphere_idx1 + 1 < v.size() );
   return m_n.dot( v.segment<2>( 2 * m_sphere_idx0 ) - v.segment<2>( 2 * m_sphere_idx1 ) );
@@ -123,9 +118,9 @@ void BallBallConstraint::evalgradg( const VectorXs& q, const int col, SparseMatr
 //  gdotD( start_column ) = 0.0;
 //}
 
-void BallBallConstraint::computeGeneralizedFrictionGivenTangentSample( const VectorXs& q, const VectorXs& t, const unsigned column, SparseMatrixsc& D ) const
+void BallBallConstraint::computeGeneralizedFrictionGivenTangentSample( const VectorXs& /*q*/, const VectorXs& t, const unsigned column, SparseMatrixsc& D ) const
 {
-  assert( column < unsigned( D.cols() ) ); assert( q.size() % 2 == 0 );
+  assert( column < unsigned( D.cols() ) );
   assert( t.size() == 2 ); assert( fabs( t.norm() - 1.0 ) <= 1.0e-6 );
   assert( fabs( m_n.dot( t ) ) <= 1.0e-6 );
   assert( m_sphere_idx0 < m_sphere_idx1 );
@@ -159,14 +154,14 @@ void BallBallConstraint::getBodyIndices( std::pair<int,int>& bodies ) const
   this->getSimulatedBodyIndices( bodies );
 }
 
-void BallBallConstraint::evalKinematicNormalRelVel( const VectorXs& q, const int strt_idx, VectorXs& gdotN ) const
+void BallBallConstraint::evalKinematicNormalRelVel( const VectorXs& /*q*/, const int strt_idx, VectorXs& gdotN ) const
 {
   assert( strt_idx >= 0 ); assert( strt_idx < gdotN.size() );
   // No kinematic scripting here, yet
   gdotN( strt_idx ) = 0.0;
 }
 
-void BallBallConstraint::evalH( const VectorXs& q, const MatrixXXsc& basis, MatrixXXsc& H0, MatrixXXsc& H1 ) const
+void BallBallConstraint::evalH( const VectorXs& /*q*/, const MatrixXXsc& basis, MatrixXXsc& H0, MatrixXXsc& H1 ) const
 {
   assert( H0.rows() == 2 ); assert( H0.cols() == 2 );
   assert( H1.rows() == 2 ); assert( H1.cols() == 2 );
@@ -221,7 +216,7 @@ void BallBallConstraint::getWorldSpaceContactPoint( const VectorXs& q, VectorXs&
   contact_point = q.segment<2>( 2 * m_sphere_idx0 ) - m_r0 * m_n;
 }
 
-void BallBallConstraint::getWorldSpaceContactNormal( const VectorXs& q, VectorXs& contact_normal ) const
+void BallBallConstraint::getWorldSpaceContactNormal( const VectorXs& /*q*/, VectorXs& contact_normal ) const
 {
   contact_normal = m_n;
 }
@@ -241,7 +236,7 @@ bool BallBallConstraint::teleported() const
   return m_teleported;
 }
 
-void BallBallConstraint::computeContactBasis( const VectorXs& q, const VectorXs& v, MatrixXXsc& basis ) const
+void BallBallConstraint::computeContactBasis( const VectorXs& /*q*/, const VectorXs& /*v*/, MatrixXXsc& basis ) const
 {
   assert( fabs( m_n.norm() - 1.0 ) <= 1.0e-6 );
   const Vector2s t{ -m_n.y(), m_n.x() };
@@ -251,7 +246,7 @@ void BallBallConstraint::computeContactBasis( const VectorXs& q, const VectorXs&
   basis.col( 1 ) = t;
 }
 
-VectorXs BallBallConstraint::computeRelativeVelocity( const VectorXs& q, const VectorXs& v ) const
+VectorXs BallBallConstraint::computeRelativeVelocity( const VectorXs& /*q*/, const VectorXs& v ) const
 {
   assert( v.size() % 2 == 0 ); assert( 2 * m_sphere_idx0 + 1 < v.size() ); assert( 2 * m_sphere_idx1 + 1 < v.size() );
   return v.segment<2>( 2 * m_sphere_idx0 ) - v.segment<2>( 2 * m_sphere_idx1 );
@@ -279,7 +274,7 @@ scalar BallBallConstraint::computePenetrationDepth( const VectorXs& q ) const
   }
 }
 
-VectorXs BallBallConstraint::computeKinematicRelativeVelocity( const VectorXs& q, const VectorXs& v ) const
+VectorXs BallBallConstraint::computeKinematicRelativeVelocity( const VectorXs& /*q*/, const VectorXs& /*v*/ ) const
 {
   // No kinematic contribution
   return VectorXs::Zero( 2 );

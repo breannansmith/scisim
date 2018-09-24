@@ -1,8 +1,3 @@
-// PenaltyForce.cpp
-//
-// Breannan Smith
-// Last updated: 10/11/2015
-
 #include "PenaltyForce.h"
 
 #include "scisim/StringUtilities.h"
@@ -22,9 +17,10 @@ PenaltyForce::PenaltyForce( std::istream& input_stream )
   assert( m_k > 0.0 );
 }
 
-scalar PenaltyForce::computePotential( const VectorXs& q, const SparseMatrixsc& M, const VectorXs& r ) const
+scalar PenaltyForce::computePotential( const VectorXs& q, const SparseMatrixsc& /*M*/, const VectorXs& r ) const
 {
-  assert( q.size() % 2 == 0 ); assert( q.size() == M.rows() ); assert( q.size() == M.cols() ); assert( r.size() == q.size() / 2 );
+  assert( q.size() % 2 == 0 );
+  assert( r.size() == q.size() / 2 );
 
   scalar U{ 0.0 };
   // For each ball
@@ -53,10 +49,11 @@ scalar PenaltyForce::computePotential( const VectorXs& q, const SparseMatrixsc& 
   return U;
 }
 
-void PenaltyForce::computeForce( const VectorXs& q, const VectorXs& v, const SparseMatrixsc& M, const VectorXs& r, VectorXs& result ) const
+void PenaltyForce::computeForce( const VectorXs& q, const VectorXs& /*v*/, const SparseMatrixsc& /*M*/, const VectorXs& r, VectorXs& result ) const
 {
-  assert( q.size() % 2 == 0 ); assert( q.size() == v.size() ); assert( q.size() == M.rows() );
-  assert( q.size() == M.cols() ); assert( r.size() == q.size() / 2 ); assert( q.size() == result.size() );
+  assert( q.size() % 2 == 0 );
+  assert( r.size() == q.size() / 2 );
+  assert( q.size() == result.size() );
 
   // For each ball
   for( unsigned ball0 = 0; ball0 < r.size(); ++ball0 )

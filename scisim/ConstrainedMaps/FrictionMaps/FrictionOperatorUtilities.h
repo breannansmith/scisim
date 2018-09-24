@@ -1,8 +1,3 @@
-// FrictionOperatorUtilities.h
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
 #ifndef FRICTION_OPERATOR_UTILITIES_H
 #define FRICTION_OPERATOR_UTILITIES_H
 

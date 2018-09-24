@@ -1,8 +1,3 @@
-// SymplecticEulerMap.h
-//
-// Breannan Smith
-// Last updated: 09/21/2015
-
 #ifndef SYMPLECTIC_EULER_MAP_H
 #define SYMPLECTIC_EULER_MAP_H
 

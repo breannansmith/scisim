@@ -1,8 +1,3 @@
-// LinearMDPOperatorQL.cpp
-//
-// Breannan Smith
-// Last updated: 09/03/2015
-
 #include "LinearMDPOperatorQL.h"
 
 #include "FrictionOperatorUtilities.h"
@@ -107,7 +102,7 @@ static int solveQP( const scalar& tol, MatrixXXsc& C, VectorXs& c, MatrixXXsc& A
   return ifail;
 }
 
-void LinearMDPOperatorQL::flow( const scalar& t, const SparseMatrixsc& Minv, const VectorXs& v0, const SparseMatrixsc& D, const SparseMatrixsc& Q, const VectorXs& gdotD, const VectorXs& mu, const VectorXs& alpha, VectorXs& beta, VectorXs& lambda )
+void LinearMDPOperatorQL::flow( const scalar& /*t*/, const SparseMatrixsc& /*Minv*/, const VectorXs& v0, const SparseMatrixsc& D, const SparseMatrixsc& Q, const VectorXs& gdotD, const VectorXs& mu, const VectorXs& alpha, VectorXs& beta, VectorXs& lambda )
 {
   // Total number of constraints
   const int num_constraints{ int( alpha.size() ) };

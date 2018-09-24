@@ -1,8 +1,3 @@
-// Ball2DForce.cpp
-//
-// Breannan Smith
-// Last updated: 09/07/2015
-
 #include "Ball2DGravityForce.h"
 
 #include "scisim/Math/MathUtilities.h"
@@ -19,7 +14,7 @@ Ball2DGravityForce::Ball2DGravityForce( std::istream& input_stream )
 Ball2DGravityForce::~Ball2DGravityForce()
 {}
 
-scalar Ball2DGravityForce::computePotential( const VectorXs& q, const SparseMatrixsc& M, const VectorXs& r ) const
+scalar Ball2DGravityForce::computePotential( const VectorXs& q, const SparseMatrixsc& M, const VectorXs& /*r*/ ) const
 {
   assert( q.size() % 2 == 0 ); assert( q.size() == M.rows() ); assert( q.size() == M.cols() );
 
@@ -33,9 +28,9 @@ scalar Ball2DGravityForce::computePotential( const VectorXs& q, const SparseMatr
   return U;
 }
 
-void Ball2DGravityForce::computeForce( const VectorXs& q, const VectorXs& v, const SparseMatrixsc& M, const VectorXs& r, VectorXs& result ) const
+void Ball2DGravityForce::computeForce( const VectorXs& q, const VectorXs& /*v*/, const SparseMatrixsc& M, const VectorXs& /*r*/, VectorXs& result ) const
 {
-  assert( q.size() % 2 == 0 ); assert( q.size() == v.size() ); assert( q.size() == M.rows() );
+  assert( q.size() % 2 == 0 ); assert( q.size() == M.rows() );
   assert( q.size() == M.cols() ); assert( q.size() == result.size() );
 
   for( int i = 0; i < q.size(); i += 2 )

@@ -1,8 +1,3 @@
-// BallStaticPlaneConstraint.cpp
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
 #include "BallStaticPlaneConstraint.h"
 
 #include "ball2d/StaticGeometry/StaticPlane.h"
@@ -62,7 +57,7 @@ scalar StaticPlaneConstraint::evaluateGapFunction( const VectorXs& q ) const
   return m_static_plane.n().dot( q.segment<2>( 2 * m_ball_idx ) - m_static_plane.x() ) - m_r;
 }
 
-void StaticPlaneConstraint::evalgradg( const VectorXs& q, const int col, SparseMatrixsc& G, const FlowableSystem& fsys ) const
+void StaticPlaneConstraint::evalgradg( const VectorXs& /*q*/, const int col, SparseMatrixsc& G, const FlowableSystem& /*fsys*/ ) const
 {
   assert( col >= 0 ); assert( col < G.cols() ); assert( fabs( m_static_plane.n().norm() - 1.0 ) <= 1.0e-6 );
 
@@ -72,10 +67,11 @@ void StaticPlaneConstraint::evalgradg( const VectorXs& q, const int col, SparseM
   G.insert( 2 * m_ball_idx + 1, col ) = m_static_plane.n().y();
 }
 
-void StaticPlaneConstraint::computeGeneralizedFrictionDisk( const VectorXs& q, const VectorXs& v, const int start_column, const int num_samples, SparseMatrixsc& D, VectorXs& gdotD ) const
+void StaticPlaneConstraint::computeGeneralizedFrictionDisk( const VectorXs& q, const VectorXs& /*v*/, const int start_column, const int /*num_samples*/, SparseMatrixsc& D, VectorXs& gdotD ) const
 {
-  assert( v.size() % 2 == 0 ); assert( q.size() == v.size() ); assert( start_column >= 0 );
-  assert( start_column < D.cols() ); assert( D.cols() == gdotD.size() ); assert( num_samples == 1 );
+  assert( start_column >= 0 );
+  assert( start_column < D.cols() );
+  assert( D.cols() == gdotD.size() );
 
   // Effect on center of mass
   assert( 2 * m_ball_idx + 1 < unsigned( D.rows() ) );
@@ -86,9 +82,9 @@ void StaticPlaneConstraint::computeGeneralizedFrictionDisk( const VectorXs& q, c
   gdotD( start_column ) = -m_static_plane.t().dot( computePlaneCollisionPointVelocity( q ) );
 }
 
-void StaticPlaneConstraint::computeGeneralizedFrictionGivenTangentSample( const VectorXs& q, const VectorXs& t, const unsigned column, SparseMatrixsc& D ) const
+void StaticPlaneConstraint::computeGeneralizedFrictionGivenTangentSample( const VectorXs& /*q*/, const VectorXs& t, const unsigned column, SparseMatrixsc& D ) const
 {
-  assert( t.size() == 2 ); assert( column < unsigned( D.cols() ) ); assert( q.size() % 2 == 0 );
+  assert( t.size() == 2 ); assert( column < unsigned( D.cols() ) );
   assert( fabs( t.norm() - 1.0 ) <= 1.0e-6 ); assert( fabs( m_static_plane.n().dot( t ) ) <= 1.0e-6 );
 
   // Effect on center of mass
@@ -123,10 +119,9 @@ void StaticPlaneConstraint::evalKinematicNormalRelVel( const VectorXs& q, const 
   gdotN( strt_idx ) = - m_static_plane.n().dot( computePlaneCollisionPointVelocity( q ) );
 }
 
-void StaticPlaneConstraint::evalH( const VectorXs& q, const MatrixXXsc& basis, MatrixXXsc& H0, MatrixXXsc& H1 ) const
+void StaticPlaneConstraint::evalH( const VectorXs& /*q*/, const MatrixXXsc& basis, MatrixXXsc& H0, MatrixXXsc& /*H1*/ ) const
 {
   assert( H0.rows() == 2 ); assert( H0.cols() == 2 );
-  assert( H1.rows() == 2 ); assert( H1.cols() == 2 );
   assert( ( basis * basis.transpose() - MatrixXXsc::Identity( 2, 2 ) ).lpNorm<Eigen::Infinity>() <= 1.0e-6 );
   assert( fabs( basis.determinant() - 1.0 ) <= 1.0e-6 );
 
@@ -142,7 +137,7 @@ void StaticPlaneConstraint::evalH( const VectorXs& q, const MatrixXXsc& basis, M
   H0.block<1,2>(1,0) = t;
 }
 
-Vector2s StaticPlaneConstraint::computePlaneCollisionPointVelocity( const VectorXs& q ) const
+Vector2s StaticPlaneConstraint::computePlaneCollisionPointVelocity( const VectorXs& /*q*/ ) const
 {
   // No rotational component allowed in 2D static planes, yet
   return m_static_plane.v();
@@ -173,7 +168,7 @@ void StaticPlaneConstraint::getWorldSpaceContactPoint( const VectorXs& q, Vector
   contact_point = q.segment<2>( 2 * m_ball_idx ) - m_r * m_static_plane.n();
 }
 
-void StaticPlaneConstraint::getWorldSpaceContactNormal( const VectorXs& q, VectorXs& contact_normal ) const
+void StaticPlaneConstraint::getWorldSpaceContactNormal( const VectorXs& /*q*/, VectorXs& contact_normal ) const
 {
   contact_normal = m_static_plane.n();
 }
@@ -193,7 +188,7 @@ unsigned StaticPlaneConstraint::ballIdx() const
   return m_ball_idx;
 }
 
-void StaticPlaneConstraint::computeContactBasis( const VectorXs& q, const VectorXs& v, MatrixXXsc& basis ) const
+void StaticPlaneConstraint::computeContactBasis( const VectorXs& /*q*/, const VectorXs& /*v*/, MatrixXXsc& basis ) const
 {
   const Vector2s n{ m_static_plane.n() };
   assert( fabs( n.norm() - 1.0 ) <= 1.0e-6 );
@@ -222,7 +217,7 @@ scalar StaticPlaneConstraint::computePenetrationDepth( const VectorXs& q ) const
   return std::min( 0.0, m_static_plane.n().dot( q.segment<2>( 2 * m_ball_idx ) - m_static_plane.x() ) - m_r );
 }
 
-VectorXs StaticPlaneConstraint::computeKinematicRelativeVelocity( const VectorXs& q, const VectorXs& v ) const
+VectorXs StaticPlaneConstraint::computeKinematicRelativeVelocity( const VectorXs& q, const VectorXs& /*v*/ ) const
 {
   return computePlaneCollisionPointVelocity( q );
 }

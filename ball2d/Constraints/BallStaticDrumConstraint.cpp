@@ -1,8 +1,3 @@
-// BallStaticDrumConstraint.cpp
-//
-// Breannan Smith
-// Last updated: 09/04/2015
-
 #include "BallStaticDrumConstraint.h"
 
 bool StaticDrumConstraint::isActive( const unsigned ball_idx, const VectorXs& q, const VectorXs& r, const Vector2s& X, const scalar& R )
@@ -28,7 +23,7 @@ StaticDrumConstraint::StaticDrumConstraint( const unsigned ball_idx, const Vecto
 StaticDrumConstraint::~StaticDrumConstraint()
 {}
 
-scalar StaticDrumConstraint::evalNdotV( const VectorXs& q, const VectorXs& v ) const
+scalar StaticDrumConstraint::evalNdotV( const VectorXs& /*q*/, const VectorXs& v ) const
 {
   assert( v.size() % 2 == 0 ); assert( 2 * m_idx_ball + 1 < v.size() );
 
@@ -56,7 +51,7 @@ scalar StaticDrumConstraint::evalNdotV( const VectorXs& q, const VectorXs& v ) c
 //  vout.segment<2>( 2 * m_idx_ball ) += Minv.valuePtr()[ 2 * m_idx_ball ] * lambda * m_n;
 //}
 
-void StaticDrumConstraint::evalgradg( const VectorXs& q, const int col, SparseMatrixsc& G, const FlowableSystem& fsys ) const
+void StaticDrumConstraint::evalgradg( const VectorXs& /*q*/, const int col, SparseMatrixsc& G, const FlowableSystem& /*fsys*/ ) const
 {
   assert( col >= 0 ); assert( col < G.cols() ); assert( 2 * m_idx_ball + 1 < unsigned( G.rows() ) );
 
@@ -65,11 +60,11 @@ void StaticDrumConstraint::evalgradg( const VectorXs& q, const int col, SparseMa
   G.insert( 2 * m_idx_ball + 1, col ) = m_n.y();
 }
 
-void StaticDrumConstraint::computeGeneralizedFrictionDisk( const VectorXs& q, const VectorXs& v, const int start_column, const int num_samples, SparseMatrixsc& D, VectorXs& gdotD ) const
+void StaticDrumConstraint::computeGeneralizedFrictionDisk( const VectorXs& /*q*/, const VectorXs& /*v*/, const int start_column, const int /*num_samples*/, SparseMatrixsc& D, VectorXs& gdotD ) const
 {
-  assert( start_column >= 0 ); assert( start_column < D.cols() );
+  assert( start_column >= 0 );
+  assert( start_column < D.cols() );
   assert( D.cols() == gdotD.size() );
-  assert( num_samples == 1 );
 
   // Rotate the normal by 90 degrees
   assert( fabs( m_n.norm() - 1.0 ) <= 1.0e-6 );
@@ -86,9 +81,9 @@ void StaticDrumConstraint::computeGeneralizedFrictionDisk( const VectorXs& q, co
   gdotD( start_column ) = 0.0;
 }
 
-void StaticDrumConstraint::computeGeneralizedFrictionGivenTangentSample( const VectorXs& q, const VectorXs& t, const unsigned column, SparseMatrixsc& D ) const
+void StaticDrumConstraint::computeGeneralizedFrictionGivenTangentSample( const VectorXs& /*q*/, const VectorXs& t, const unsigned column, SparseMatrixsc& D ) const
 {
-  assert( t.size() == 2 ); assert( column < unsigned( D.cols() ) ); assert( q.size() % 2 == 0 );
+  assert( t.size() == 2 ); assert( column < unsigned( D.cols() ) );
   assert( fabs( t.norm() - 1.0 ) <= 1.0e-6 ); assert( fabs( m_n.dot( t ) ) <= 1.0e-6 );
 
   // Effect on center of mass
@@ -118,7 +113,7 @@ void StaticDrumConstraint::getBodyIndices( std::pair<int,int>& bodies ) const
   this->getSimulatedBodyIndices( bodies );
 }
 
-void StaticDrumConstraint::evalKinematicNormalRelVel( const VectorXs& q, const int strt_idx, VectorXs& gdotN ) const
+void StaticDrumConstraint::evalKinematicNormalRelVel( const VectorXs& /*q*/, const int strt_idx, VectorXs& gdotN ) const
 {
   assert( strt_idx >= 0 ); assert( strt_idx < gdotN.size() );
 
@@ -126,10 +121,9 @@ void StaticDrumConstraint::evalKinematicNormalRelVel( const VectorXs& q, const i
   gdotN( strt_idx ) = 0.0;
 }
 
-void StaticDrumConstraint::evalH( const VectorXs& q, const MatrixXXsc& basis, MatrixXXsc& H0, MatrixXXsc& H1 ) const
+void StaticDrumConstraint::evalH( const VectorXs& /*q*/, const MatrixXXsc& basis, MatrixXXsc& H0, MatrixXXsc& /*H1*/ ) const
 {
   assert( H0.rows() == 2 ); assert( H0.cols() == 2 );
-  assert( H1.rows() == 2 ); assert( H1.cols() == 2 );
   assert( ( basis * basis.transpose() - MatrixXXsc::Identity( 2, 2 ) ).lpNorm<Eigen::Infinity>() <= 1.0e-6 );
   assert( fabs( basis.determinant() - 1.0 ) <= 1.0e-6 );
 
@@ -170,7 +164,7 @@ void StaticDrumConstraint::getWorldSpaceContactPoint( const VectorXs& q, VectorX
   contact_point = q.segment<2>( 2 * m_idx_ball ) - m_r_ball * m_n;
 }
 
-void StaticDrumConstraint::getWorldSpaceContactNormal( const VectorXs& q, VectorXs& contact_normal ) const
+void StaticDrumConstraint::getWorldSpaceContactNormal( const VectorXs& /*q*/, VectorXs& contact_normal ) const
 {
   contact_normal = m_n;
 }
@@ -190,7 +184,7 @@ unsigned StaticDrumConstraint::ballIdx() const
   return m_idx_ball;
 }
 
-void StaticDrumConstraint::computeContactBasis( const VectorXs& q, const VectorXs& v, MatrixXXsc& basis ) const
+void StaticDrumConstraint::computeContactBasis( const VectorXs& /*q*/, const VectorXs& /*v*/, MatrixXXsc& basis ) const
 {
   assert( fabs( m_n.norm() - 1.0 ) <= 1.0e-6 );
   const Vector2s t{ -m_n.y(), m_n.x() };
@@ -201,9 +195,10 @@ void StaticDrumConstraint::computeContactBasis( const VectorXs& q, const VectorX
   basis.col( 1 ) = t;
 }
 
-VectorXs StaticDrumConstraint::computeRelativeVelocity( const VectorXs& q, const VectorXs& v ) const
+VectorXs StaticDrumConstraint::computeRelativeVelocity( const VectorXs& /*q*/, const VectorXs& v ) const
 {
-  assert( v.size() % 2 == 0 ); assert( q.size() == v.size() ); assert( 2 * m_idx_ball + 1 < v.size() );
+  assert( v.size() % 2 == 0 );
+  assert( 2 * m_idx_ball + 1 < v.size() );
   return v.segment<2>( 2 * m_idx_ball );
 }
 
@@ -212,7 +207,7 @@ void StaticDrumConstraint::setBodyIndex0( const unsigned idx )
   m_idx_ball = idx;
 }
 
-VectorXs StaticDrumConstraint::computeKinematicRelativeVelocity( const VectorXs& q, const VectorXs& v ) const
+VectorXs StaticDrumConstraint::computeKinematicRelativeVelocity( const VectorXs& /*q*/, const VectorXs& /*v*/ ) const
 {
   // No kinematic contribution, for now
   return VectorXs::Zero( 2 );

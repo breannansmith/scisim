@@ -1,8 +1,3 @@
-// GRRFriction.cpp
-//
-// Breannan Smith
-// Last updated: 09/03/2015
-
 #include "GRRFriction.h"
 
 #include <iostream>
@@ -25,8 +20,7 @@ GRRFriction::GRRFriction( std::istream& input_stream )
 
 GRRFriction::~GRRFriction()
 {}
-
-void GRRFriction::solve( const unsigned iteration, const scalar& dt, const FlowableSystem& fsys, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& CoR, const VectorXs& mu, const VectorXs& q0, const VectorXs& v0, std::vector<std::unique_ptr<Constraint>>& active_set, const MatrixXXsc& contact_bases, const VectorXs& nrel_extra, const VectorXs& drel_extra, const unsigned max_iters, const scalar& tol, VectorXs& f, VectorXs& alpha, VectorXs& beta, VectorXs& vout, bool& solve_succeeded, scalar& error )
+void GRRFriction::solve( const unsigned iteration, const scalar& dt, const FlowableSystem& fsys, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& CoR, const VectorXs& mu, const VectorXs& q0, const VectorXs& v0, std::vector<std::unique_ptr<Constraint>>& active_set, const MatrixXXsc& contact_bases, const unsigned /*max_iters*/, const scalar& /*tol*/, VectorXs& /*f*/, VectorXs& alpha, VectorXs& beta, VectorXs& vout, bool& solve_succeeded, scalar& error )
 {
   if( nrel_extra.size() != 0 )
   {
@@ -40,7 +34,7 @@ void GRRFriction::solve( const unsigned iteration, const scalar& dt, const Flowa
   }
 
   // Impact basis
-  SparseMatrixsc N{ static_cast<SparseMatrixsc::Index>( v0.size() ), static_cast<SparseMatrixsc::Index>( alpha.size() ) };
+  SparseMatrixsc N{ v0.size(), alpha.size() };
   ImpactOperatorUtilities::computeN( fsys, active_set, q0, N );
 
   // Friction basis
@@ -58,7 +52,7 @@ void GRRFriction::solve( const unsigned iteration, const scalar& dt, const Flowa
   else
   {
     drel.resize( beta.size() );
-    D.resize( SparseMatrixsc::Index( v0.size() ), SparseMatrixsc::Index( beta.size() ) );
+    D.resize( v0.size(), beta.size() );
     m_friction_operator->formGeneralizedFrictionBasis( q0, v0, active_set, D, drel );
   }
 
@@ -90,7 +84,7 @@ void GRRFriction::solve( const unsigned iteration, const scalar& dt, const Flowa
   error = 0.0;
 }
 
-unsigned GRRFriction::numFrictionImpulsesPerNormal( const unsigned ambient_space_dimensions ) const
+unsigned GRRFriction::numFrictionImpulsesPerNormal( const unsigned /*ambient_space_dimensions*/ ) const
 {
   return m_friction_operator->numFrictionImpulsesPerNormal();
 }

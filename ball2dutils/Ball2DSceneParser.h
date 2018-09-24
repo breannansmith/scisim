@@ -40,7 +40,21 @@ struct DrumRenderSettings final
 };
 
 struct PortalRenderSettings final
-{};
+{
+  PortalRenderSettings( const int idx_in, const float& thickness_in, const float& width_in, const float& indicator_width_in, const Eigen::Vector3f& color_in )
+  : idx( idx_in )
+  , thickness( 0.5f * thickness_in )
+  , half_width( 0.5f * width_in )
+  , indicator_half_width( 0.5f * indicator_width_in )
+  , color( color_in )
+  {}
+
+  int idx;
+  float thickness;
+  float half_width;
+  float indicator_half_width;
+  Eigen::Vector3f color;
+};
 
 struct RenderSettings final
 {

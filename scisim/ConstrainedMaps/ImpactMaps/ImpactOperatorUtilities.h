@@ -1,8 +1,3 @@
-// ImpactOperatorUtilities.h
-//
-// Breannan Smith
-// Last updated: 09/03/2015
-
 #ifndef IMPACT_OPERATOR_UTILITIES_H
 #define IMPACT_OPERATOR_UTILITIES_H
 

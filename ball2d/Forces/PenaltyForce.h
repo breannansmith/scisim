@@ -1,8 +1,3 @@
-// PenaltyForce.h
-//
-// Breannan Smith
-// Last updated: 10/11/2015
-
 #ifndef PENALTY_FORCE_H
 #define PENALTY_FORCE_H
 

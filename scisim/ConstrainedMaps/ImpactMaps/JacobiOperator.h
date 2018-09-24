@@ -1,8 +1,3 @@
-// JacobiOperator.h
-//
-// Breannan Smith
-// Last updated: 09/21/2015
-
 #ifndef JACOBI_OPERATOR
 #define JACOBI_OPERATOR
 

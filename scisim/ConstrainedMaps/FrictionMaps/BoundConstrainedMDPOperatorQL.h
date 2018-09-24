@@ -1,8 +1,3 @@
-// BoundConstrainedMDPOperatorQL.h
-//
-// Breannan Smith
-// Last updated: 09/21/2015
-
 // Solves the problem:
 //   1/2 beta^T Q beta + beta^T ( D^T v0 + gdotD  )
 //    s.t. - diag(mu) alpha <= beta <= diag(mu) alpha

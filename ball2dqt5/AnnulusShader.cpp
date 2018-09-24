@@ -221,7 +221,7 @@ void AnnulusShader::draw()
       if( m_last_copied_size != m_annulus_data.size() )
       {
         m_f->glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * m_annulus_data.size(), m_annulus_data.data(), GL_DYNAMIC_DRAW );
-        m_last_copied_size = m_annulus_data.size();
+        m_last_copied_size = int(m_annulus_data.size());
       }
       else
       {

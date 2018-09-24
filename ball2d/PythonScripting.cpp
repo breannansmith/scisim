@@ -1,8 +1,3 @@
-// PythonScripting.cpp
-//
-// Breannan Smith
-// Last updated: 09/05/2015
-
 #include "PythonScripting.h"
 
 #ifdef USE_PYTHON
@@ -328,41 +323,37 @@ void PythonScripting::serialize( std::ostream& output_stream )
 }
 
 #ifdef USE_PYTHON
-static PyObject* timestep( PyObject* self, PyObject* args )
+static PyObject* timestep( PyObject* /*self*/, PyObject* /*args*/ )
 {
-  assert( args == nullptr );
   using std::is_same;
   static_assert( is_same<scalar,double>::value || is_same<scalar,float>::value, "Error, scalar type must be double or float for Python interface." );
   return Py_BuildValue( is_same<scalar,double>::value ? "d" : "f", s_timestep );
 }
 
-static PyObject* nextIteration( PyObject* self, PyObject* args )
+static PyObject* nextIteration( PyObject* /*self*/, PyObject* /*args*/ )
 {
-  assert( args == nullptr );
   return Py_BuildValue( "I", s_next_iteration );
 }
 
-static PyObject* configuration( PyObject* self, PyObject* args )
+static PyObject* configuration( PyObject* /*self*/, PyObject* /*args*/ )
 {
   assert( s_ball_state != nullptr );
-  assert( args == nullptr );
   npy_intp dims[1] = { s_ball_state->q().size() };
   using std::is_same;
   static_assert( is_same<scalar,double>::value || is_same<scalar,float>::value, "Error, scalar type must be double or float for Python interface." );
   return PyArray_SimpleNewFromData( 1, dims, (is_same<scalar,double>::value ? NPY_DOUBLE : NPY_FLOAT), s_ball_state->q().data() );
 }
 
-static PyObject* velocity( PyObject* self, PyObject* args )
+static PyObject* velocity( PyObject* /*self*/, PyObject* /*args*/ )
 {
   assert( s_ball_state != nullptr );
-  assert( args == nullptr );
   npy_intp dims[1] = { s_ball_state->v().size() };
   using std::is_same;
   static_assert( is_same<scalar,double>::value || is_same<scalar,float>::value, "Error, scalar type must be double or float for Python interface." );
   return PyArray_SimpleNewFromData( 1, dims, (is_same<scalar,double>::value ? NPY_DOUBLE : NPY_FLOAT), s_ball_state->v().data() );
 }
 
-static PyObject* insertBall( PyObject* self, PyObject* args )
+static PyObject* insertBall( PyObject* /*self*/, PyObject* args )
 {
   Vector2s q;
   Vector2s v;
@@ -398,14 +389,13 @@ static PyObject* insertBall( PyObject* self, PyObject* args )
   return Py_BuildValue( "" );
 }
 
-static PyObject* numStaticPlanes( PyObject* self, PyObject* args )
+static PyObject* numStaticPlanes( PyObject* /*self*/, PyObject* /*args*/ )
 {
-  assert( args == nullptr );
   assert( s_ball_state != nullptr );
   return Py_BuildValue( "I", s_ball_state->staticPlanes().size() );
 }
 
-static PyObject* setStaticPlanePosition( PyObject* self, PyObject* args )
+static PyObject* setStaticPlanePosition( PyObject* /*self*/, PyObject* args )
 {
   using std::is_same;
   static_assert( is_same<scalar,double>::value || is_same<scalar,float>::value, "Error, scalar type must be double or float for Python interface." );
@@ -429,7 +419,7 @@ static PyObject* setStaticPlanePosition( PyObject* self, PyObject* args )
   return Py_BuildValue( "" );
 }
 
-static PyObject* setStaticPlaneVelocity( PyObject* self, PyObject* args )
+static PyObject* setStaticPlaneVelocity( PyObject* /*self*/, PyObject* args )
 {
   using std::is_same;
   static_assert( is_same<scalar,double>::value || is_same<scalar,float>::value, "Error, scalar type must be double or float for Python interface." );
@@ -453,7 +443,7 @@ static PyObject* setStaticPlaneVelocity( PyObject* self, PyObject* args )
   return Py_BuildValue( "" );
 }
 
-static PyObject* deleteStaticPlane( PyObject* self, PyObject* args )
+static PyObject* deleteStaticPlane( PyObject* /*self*/, PyObject* args )
 {
   unsigned plane_idx;
   assert( args != nullptr );
@@ -473,9 +463,8 @@ static PyObject* deleteStaticPlane( PyObject* self, PyObject* args )
   return Py_BuildValue( "" );
 }
 
-static PyObject* mu( PyObject* self, PyObject* args )
+static PyObject* mu( PyObject* /*self*/, PyObject* /*args*/ )
 {
-  assert( args == nullptr );
   assert( s_mu != nullptr );
   npy_intp dims[1] = { s_mu->size() };
   assert( s_mu->data() != nullptr );
@@ -484,9 +473,8 @@ static PyObject* mu( PyObject* self, PyObject* args )
   return PyArray_SimpleNewFromData( 1, dims, (is_same<scalar,double>::value ? NPY_DOUBLE : NPY_FLOAT), s_mu->data() );
 }
 
-static PyObject* cor( PyObject* self, PyObject* args )
+static PyObject* cor( PyObject* /*self*/, PyObject* /*args*/ )
 {
-  assert( args == nullptr );
   assert( s_cor != nullptr );
   npy_intp dims[1] = { s_cor->size() };
   assert( s_cor->data() != nullptr );
@@ -495,14 +483,13 @@ static PyObject* cor( PyObject* self, PyObject* args )
   return PyArray_SimpleNewFromData( 1, dims, (is_same<scalar,double>::value ? NPY_DOUBLE : NPY_FLOAT), s_cor->data() );
 }
 
-static PyObject* numCollisions( PyObject* self, PyObject* args )
+static PyObject* numCollisions( PyObject* /*self*/, PyObject* /*args*/ )
 {
-  assert( args == nullptr );
   assert( s_active_set != nullptr );
   return Py_BuildValue( "I", s_active_set->size() );
 }
 
-static PyObject* collisionType( PyObject* self, PyObject* args )
+static PyObject* collisionType( PyObject* /*self*/, PyObject* args )
 {
   unsigned collision_idx;
   assert( args != nullptr );
@@ -521,7 +508,7 @@ static PyObject* collisionType( PyObject* self, PyObject* args )
   return Py_BuildValue( "s", (*s_active_set)[collision_idx]->name().c_str() );
 }
 
-static PyObject* collisionIndices( PyObject* self, PyObject* args )
+static PyObject* collisionIndices( PyObject* /*self*/, PyObject* args )
 {
   unsigned collision_idx;
   assert( args != nullptr );

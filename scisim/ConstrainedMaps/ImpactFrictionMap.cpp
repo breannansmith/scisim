@@ -1,8 +1,3 @@
-// ImpactFrictionMap.cpp
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
 #include "ImpactFrictionMap.h"
 
 #include "scisim/Constraints/Constraint.h"
@@ -65,7 +60,7 @@ static void getCollisionIndices( const Constraint& con, std::pair<int,int>& indi
   }
 }
 
-void ImpactFrictionMap::exportConstraintForcesToBinaryFile( const VectorXs& q, const std::vector<std::unique_ptr<Constraint>>& constraints, const MatrixXXsc& contact_bases, const VectorXs& alpha, const VectorXs& beta, const scalar& dt, HDF5File& output_file )
+void ImpactFrictionMap::exportConstraintForcesToBinaryFile( const VectorXs& q, const std::vector<std::unique_ptr<Constraint>>& constraints, const MatrixXXsc& contact_bases, const VectorXs& alpha, const VectorXs& beta, const scalar& /*dt*/, HDF5File& output_file )
 {
   const unsigned ncons{ unsigned( constraints.size() ) };
   assert( ncons == alpha.size() );

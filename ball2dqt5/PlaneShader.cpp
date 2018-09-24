@@ -195,7 +195,7 @@ void PlaneShader::draw()
       if( m_last_copied_size != m_plane_data.size() )
       {
         m_f->glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * m_plane_data.size(), m_plane_data.data(), GL_DYNAMIC_DRAW );
-        m_last_copied_size = m_plane_data.size();
+        m_last_copied_size = int(m_plane_data.size());
       }
       else
       {
@@ -208,7 +208,7 @@ void PlaneShader::draw()
 
   m_f->glUseProgram( m_program );
   m_f->glBindVertexArray( m_VAO );
-  m_f->glDrawArraysInstanced( GL_TRIANGLES, 0, 6, num_planes );
+  m_f->glDrawArraysInstanced( GL_TRIANGLES, 0, 6, GLsizei(num_planes) );
   m_f->glBindVertexArray( 0 );
 }
 

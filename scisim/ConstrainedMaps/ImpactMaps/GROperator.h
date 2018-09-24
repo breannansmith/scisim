@@ -1,8 +1,3 @@
-// GROperator.h
-//
-// Breannan Smith
-// Last updated: 09/21/2015
-
 #ifndef GR_OPERATOR_H
 #define GR_OPERATOR_H
 

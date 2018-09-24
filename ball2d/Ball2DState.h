@@ -1,8 +1,3 @@
-// Ball2DState.h
-//
-// Breannan Smith
-// Last updated: 09/07/2015
-
 #ifndef BALL_2D_STATE_H
 #define BALL_2D_STATE_H
 

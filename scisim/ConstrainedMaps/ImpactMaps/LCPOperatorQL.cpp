@@ -1,8 +1,3 @@
-// LCPOperatorQL.cpp
-//
-// Breannan Smith
-// Last updated: 09/03/2015
-
 #include "LCPOperatorQL.h"
 
 #include "ImpactOperatorUtilities.h"
@@ -101,7 +96,7 @@ static int solveQP( const scalar& tol, MatrixXXsc& C, VectorXs& dvec, VectorXs& 
   return ifail;
 }
 
-void LCPOperatorQL::flow( const std::vector<std::unique_ptr<Constraint>>& cons, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& q0, const VectorXs& v0, const VectorXs& v0F, const SparseMatrixsc& N, const SparseMatrixsc& Q, const VectorXs& nrel, const VectorXs& CoR, VectorXs& alpha )
+void LCPOperatorQL::flow( const std::vector<std::unique_ptr<Constraint>>& /*cons*/, const SparseMatrixsc& /*M*/, const SparseMatrixsc& /*Minv*/, const VectorXs& /*q0*/, const VectorXs& v0, const VectorXs& v0F, const SparseMatrixsc& N, const SparseMatrixsc& Q, const VectorXs& nrel, const VectorXs& CoR, VectorXs& alpha )
 {
   // Q in 1/2 \alpha^T Q \alpha
   assert( Q.rows() == Q.cols() );

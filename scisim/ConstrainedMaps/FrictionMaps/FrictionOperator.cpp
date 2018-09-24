@@ -1,8 +1,3 @@
-// FrictionOperator.cpp
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
 #include "FrictionOperator.h"
 
 #include "scisim/Constraints/Constraint.h"
@@ -51,13 +46,13 @@ void FrictionOperator::formGeneralizedSmoothFrictionBasis( const unsigned ndofs,
   }
   assert( itr == K.cend() );
 
-  D.prune( []( const Eigen::Index& row, const Eigen::Index& col, const scalar& value ) { return value != 0.0; } );
+  D.prune( []( const Eigen::Index& /*row*/, const Eigen::Index& /*col*/, const scalar& value ) { return value != 0.0; } );
   assert( D.innerNonZeroPtr() == nullptr );
 }
 
 #include <iostream>
 
-void FrictionOperator::formGeneralizedFrictionBasis( const VectorXs& q, const VectorXs& v, const std::vector<std::unique_ptr<Constraint>>& K, SparseMatrixsc& D, VectorXs& drel )
+void FrictionOperator::formGeneralizedFrictionBasis( const VectorXs& /*q*/, const VectorXs& /*v*/, const std::vector<std::unique_ptr<Constraint>>& /*K*/, SparseMatrixsc& /*D*/, VectorXs& /*drel*/ )
 {
   std::cerr << "Deprecated method FrictionOperator::formGeneralizedFrictionBasis not implemented for " << name() << std::endl;
   std::exit( EXIT_FAILURE );

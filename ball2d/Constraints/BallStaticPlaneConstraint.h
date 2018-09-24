@@ -1,8 +1,3 @@
-// BallStaticPlaneConstraint.h
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
 #ifndef STATIC_PLANE_CONSTRAINT_H
 #define STATIC_PLANE_CONSTRAINT_H
 

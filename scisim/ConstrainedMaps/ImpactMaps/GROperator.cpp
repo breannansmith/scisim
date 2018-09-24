@@ -1,8 +1,3 @@
-// GROperator.cpp
-//
-// Breannan Smith
-// Last updated: 09/07/2015
-
 #include "GROperator.h"
 
 #include <iostream>
@@ -30,10 +25,8 @@ GROperator::GROperator( std::istream& input_stream )
 GROperator::~GROperator()
 {}
 
-void GROperator::flow( const std::vector<std::unique_ptr<Constraint>>& cons, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& q0, const VectorXs& v0, const VectorXs& v0F, const SparseMatrixsc& N, const SparseMatrixsc& Q, const VectorXs& nrel, const VectorXs& CoR, VectorXs& alpha )
+void GROperator::flow( const std::vector<std::unique_ptr<Constraint>>& cons, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& q0, const VectorXs& /*v0*/, const VectorXs& v0F, const SparseMatrixsc& N, const SparseMatrixsc& /*Q*/, const VectorXs& nrel, const VectorXs& CoR, VectorXs& alpha )
 {
-  // Not intended for use with staggered projections
-  assert( ( v0.array() == v0F.array() ).all() );
   // Only works with one CoR
   assert( ( CoR.array() == CoR(0) ).all() );
   if( ( CoR.array() != CoR(0) ).any() )

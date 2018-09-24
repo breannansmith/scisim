@@ -1,8 +1,3 @@
-// KinematicKickBallBallConstraint.h
-//
-// Breannan Smith
-// Last updated: 09/04/2015
-
 #ifndef KINEMATIC_KICK_BALL_BALL_CONSTRAINT_H
 #define KINEMATIC_KICK_BALL_BALL_CONSTRAINT_H
 

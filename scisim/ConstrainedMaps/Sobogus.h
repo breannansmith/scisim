@@ -1,13 +1,8 @@
-// Sobogus.h
-//
-// Breannan Smith
-// Last updated: 09/21/2015
+#ifndef SOBOGUS_H
+#define SOBOGUS_H
 
 // TODO: Break this into three classes
 // TODO: 2D solver has no need to cache H0 and H1
-
-#ifndef SOBOGUS_H
-#define SOBOGUS_H
 
 #include <memory>
 #include "scisim/Math/MathDefines.h"

@@ -1,8 +1,3 @@
-// Constraint.cpp
-//
-// Breannan Smith
-// Last updated: 09/30/2015
-
 #include "Constraint.h"
 
 #include <iostream>
@@ -128,7 +123,7 @@ void Constraint::evalKinematicRelVelGivenBases( const VectorXs& q, const VectorX
 Constraint::~Constraint()
 {}
 
-void Constraint::resolveImpact( const scalar& CoR, const SparseMatrixsc& M, const scalar& ndotv, VectorXs& vout, scalar& alpha ) const
+void Constraint::resolveImpact( const scalar& /*CoR*/, const SparseMatrixsc& /*M*/, const scalar& /*ndotv*/, VectorXs& /*vout*/, scalar& /*alpha*/ ) const
 {
   std::cerr << "Constraint::resolveImpact not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
@@ -140,19 +135,19 @@ scalar Constraint::evaluateGapFunction( const VectorXs& q ) const
   std::exit( EXIT_FAILURE );
 }
 
-void Constraint::evalgradg( const VectorXs& q, const int col, SparseMatrixsc& G, const FlowableSystem& fsys ) const
+void Constraint::evalgradg( const VectorXs& /*q*/, const int /*col*/, SparseMatrixsc& /*G*/, const FlowableSystem& /*fsys*/ ) const
 {
   std::cerr << "Constraint::evalgradg not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
-void Constraint::computeGeneralizedFrictionDisk( const VectorXs& q, const VectorXs& v, const int start_column, const int num_samples, SparseMatrixsc& D, VectorXs& drel ) const
+void Constraint::computeGeneralizedFrictionDisk( const VectorXs& /*q*/, const VectorXs& /*v*/, const int /*start_column*/, const int /*num_samples*/, SparseMatrixsc& /*D*/, VectorXs& /*drel*/ ) const
 {
   std::cerr << "Constraint::computeGeneralizedFrictionDisk not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
-void Constraint::computeGeneralizedFrictionGivenTangentSample( const VectorXs& q, const VectorXs& t, const unsigned column, SparseMatrixsc& D ) const
+void Constraint::computeGeneralizedFrictionGivenTangentSample( const VectorXs& /*q*/, const VectorXs& /*t*/, const unsigned /*column*/, SparseMatrixsc& /*D*/ ) const
 {
   std::cerr << "Constraint::computeGeneralizedFrictionGivenTangentSample not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
@@ -164,43 +159,43 @@ int Constraint::frictionStencilSize() const
   std::exit( EXIT_FAILURE );
 }
 
-void Constraint::getSimulatedBodyIndices( std::pair<int,int>& bodies ) const
+void Constraint::getSimulatedBodyIndices( std::pair<int,int>& /*bodies*/ ) const
 {
   std::cerr << "Constraint::getSimulatedBodyIndices not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
-void Constraint::getBodyIndices( std::pair<int,int>& bodies ) const
+void Constraint::getBodyIndices( std::pair<int,int>& /*bodies*/ ) const
 {
   std::cerr << "Constraint::getBodyIndices not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
-void Constraint::evalKinematicNormalRelVel( const VectorXs& q, const int strt_idx, VectorXs& gdotN )  const
+void Constraint::evalKinematicNormalRelVel( const VectorXs& /*q*/, const int /*strt_idx*/, VectorXs& /*gdotN*/ )  const
 {
   std::cerr << "Constraint::evalKinematicNormalRelVel not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
-void Constraint::evalH( const VectorXs& q, const MatrixXXsc& basis, MatrixXXsc& H0, MatrixXXsc& H1 ) const
+void Constraint::evalH( const VectorXs& /*q*/, const MatrixXXsc& /*basis*/, MatrixXXsc& /*H0*/, MatrixXXsc& /*H1*/ ) const
 {
   std::cerr << "Constraint::evalH not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
-void Constraint::computeContactBasis( const VectorXs& q, const VectorXs& v, MatrixXXsc& basis ) const
+void Constraint::computeContactBasis( const VectorXs& /*q*/, const VectorXs& /*v*/, MatrixXXsc& /*basis*/ ) const
 {
   std::cerr << "Constraint::computeContactBasis not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
-void Constraint::getWorldSpaceContactPoint( const VectorXs& q, VectorXs& contact_point ) const
+void Constraint::getWorldSpaceContactPoint( const VectorXs& /*q*/, VectorXs& /*contact_point*/ ) const
 {
   std::cerr << "Constraint::getWorldSpaceContactPoint not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
-void Constraint::getWorldSpaceContactNormal( const VectorXs& q, VectorXs& contact_normal ) const
+void Constraint::getWorldSpaceContactNormal( const VectorXs& /*q*/, VectorXs& /*contact_normal*/ ) const
 {
   std::cerr << "Constraint::getWorldSpaceContactNormal not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
@@ -212,30 +207,30 @@ unsigned Constraint::getStaticObjectIndex() const
   std::exit( EXIT_FAILURE );
 }
 
-VectorXs Constraint::computeRelativeVelocity( const VectorXs& q, const VectorXs& v ) const
+VectorXs Constraint::computeRelativeVelocity( const VectorXs& /*q*/, const VectorXs& /*v*/ ) const
 {
   std::cerr << "Constraint::computeRelativeVelocity not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
-void Constraint::setBodyIndex0( const unsigned idx )
+void Constraint::setBodyIndex0( const unsigned /*idx*/ )
 {
   std::cerr << "Constraint::setBodyIndex0 not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
-void Constraint::setBodyIndex1( const unsigned idx )
+void Constraint::setBodyIndex1( const unsigned /*idx*/ )
 {
   std::cerr << "Constraint::setBodyIndex1 not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
-scalar Constraint::computePenetrationDepth( const VectorXs& q ) const
+scalar Constraint::computePenetrationDepth( const VectorXs& /*q*/ ) const
 {
   return SCALAR_NAN;
 }
 
-scalar Constraint::computeOverlapVolume( const VectorXs& q ) const
+scalar Constraint::computeOverlapVolume( const VectorXs& /*q*/ ) const
 {
   return SCALAR_NAN;
 }

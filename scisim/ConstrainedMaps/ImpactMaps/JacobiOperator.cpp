@@ -1,8 +1,3 @@
-// JacobiOperator.cpp
-//
-// Breannan Smith
-// Last updated: 09/03/2015
-
 #include "JacobiOperator.h"
 
 // Temp include
@@ -12,7 +7,7 @@ JacobiOperator::JacobiOperator( const scalar& v_tol )
 : m_v_tol( v_tol )
 {}
 
-void JacobiOperator::flow( const std::vector<std::unique_ptr<Constraint>>& cons, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& q0, const VectorXs& v0, const VectorXs& v0F, const SparseMatrixsc& N, const SparseMatrixsc& Q, const VectorXs& nrel, const VectorXs& CoR, VectorXs& alpha )
+void JacobiOperator::flow( const std::vector<std::unique_ptr<Constraint>>& /*cons*/, const SparseMatrixsc& /*M*/, const SparseMatrixsc& /*Minv*/, const VectorXs& /*q0*/, const VectorXs& /*v0*/, const VectorXs& /*v0F*/, const SparseMatrixsc& /*N*/, const SparseMatrixsc& /*Q*/, const VectorXs& /*nrel*/, const VectorXs& /*CoR*/, VectorXs& /*alpha*/ )
 {
   std::cerr << "Error, JacobiOperator::flow has not been updated to work with new interface." << std::endl;
   std::exit( EXIT_FAILURE );
@@ -61,7 +56,7 @@ std::unique_ptr<ImpactOperator> JacobiOperator::clone() const
   return std::unique_ptr<ImpactOperator>{ new JacobiOperator{ m_v_tol } };
 }
 
-void JacobiOperator::serialize( std::ostream& output_stream ) const
+void JacobiOperator::serialize( std::ostream& /*output_stream*/ ) const
 {
   std::cerr << "Code up JacobiOperator::serialize" << std::endl;
   std::exit( EXIT_FAILURE );

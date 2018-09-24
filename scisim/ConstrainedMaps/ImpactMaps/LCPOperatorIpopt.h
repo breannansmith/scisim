@@ -1,8 +1,3 @@
-// LCPOperatorIpopt.h
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
 #ifndef LCP_OPERATOR_IPOPT_H
 #define LCP_OPERATOR_IPOPT_H
 

@@ -1,8 +1,3 @@
-// SmoothMDPOperatorIpopt.cpp
-//
-// Breannan Smith
-// Last updated: 10/23/2015
-
 #include "SmoothMDPOperatorIpopt.h"
 
 #include "scisim/ConstrainedMaps/IpoptUtilities.h"
@@ -108,7 +103,7 @@ static void createIpoptApplication( const scalar& tol, Ipopt::SmartPtr<Ipopt::Ip
 #endif
 }
 
-void SmoothMDPOperatorIpopt::flow( const scalar& t, const SparseMatrixsc& Minv, const VectorXs& v0, const SparseMatrixsc& D, const SparseMatrixsc& Q, const VectorXs& gdotD, const VectorXs& mu, const VectorXs& alpha, VectorXs& beta, VectorXs& lambda )
+void SmoothMDPOperatorIpopt::flow( const scalar& /*t*/, const SparseMatrixsc& /*Minv*/, const VectorXs& v0, const SparseMatrixsc& D, const SparseMatrixsc& Q, const VectorXs& gdotD, const VectorXs& mu, const VectorXs& alpha, VectorXs& beta, VectorXs& lambda )
 {
   Ipopt::SmartPtr<Ipopt::IpoptApplication> ipopt_app;
   createIpoptApplication( m_tol, ipopt_app );
@@ -291,7 +286,11 @@ bool SmoothMDPNLP::get_bounds_info( Ipopt::Index n, Ipopt::Number* x_l, Ipopt::N
 }
 
 // TODO: Why aren't z_L, z_U, and lambda nullptr ?
-bool SmoothMDPNLP::get_starting_point( Ipopt::Index n, bool init_x, Ipopt::Number* x, bool init_z, Ipopt::Number* z_L, Ipopt::Number* z_U, Ipopt::Index m, bool init_lambda, Ipopt::Number* lambda )
+#ifndef NDEBUG
+bool SmoothMDPNLP::get_starting_point( Ipopt::Index n, bool init_x, Ipopt::Number* x, bool init_z, Ipopt::Number* /*z_L*/, Ipopt::Number* /*z_U*/, Ipopt::Index /*m*/, bool init_lambda, Ipopt::Number* /*lambda*/ )
+#else
+bool SmoothMDPNLP::get_starting_point( Ipopt::Index n, bool /*init_x*/, Ipopt::Number* x, bool /*init_z*/, Ipopt::Number* /*z_L*/, Ipopt::Number* /*z_U*/, Ipopt::Index /*m*/, bool /*init_lambda*/, Ipopt::Number* /*lambda*/ )
+#endif
 {
   static_assert( std::is_same<Ipopt::Number,scalar>::value, "Ipopt's floating point type must be the same type as SCISim's scalar." );
   assert( init_x );
@@ -307,7 +306,7 @@ bool SmoothMDPNLP::get_starting_point( Ipopt::Index n, bool init_x, Ipopt::Numbe
   return true;
 }
 
-bool SmoothMDPNLP::eval_f( Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::Number& obj_value )
+bool SmoothMDPNLP::eval_f( Ipopt::Index n, const Ipopt::Number* x, bool /*new_x*/, Ipopt::Number& obj_value )
 {
   static_assert( std::is_same<Ipopt::Number,scalar>::value, "Ipopt's floating point type must be the same type as SCISim's scalar." );
   assert( m_Q.rows() == m_Q.cols() );
@@ -322,7 +321,7 @@ bool SmoothMDPNLP::eval_f( Ipopt::Index n, const Ipopt::Number* x, bool new_x, I
   return true;
 }
 
-bool SmoothMDPNLP::eval_grad_f( Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::Number* grad_f )
+bool SmoothMDPNLP::eval_grad_f( Ipopt::Index n, const Ipopt::Number* x, bool /*new_x*/, Ipopt::Number* grad_f )
 {
   static_assert( std::is_same<Ipopt::Number,scalar>::value, "Ipopt's floating point type must be the same type as SCISim's scalar." );
   assert( m_Q.rows() == m_Q.cols() );
@@ -341,7 +340,7 @@ bool SmoothMDPNLP::eval_grad_f( Ipopt::Index n, const Ipopt::Number* x, bool new
 }
 
 // TODO: Could re-write this with Eigen column wise stuff if we wanted
-bool SmoothMDPNLP::eval_g( Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::Index m, Ipopt::Number* g )
+bool SmoothMDPNLP::eval_g( Ipopt::Index n, const Ipopt::Number* x, bool /*new_x*/, Ipopt::Index m, Ipopt::Number* g )
 {
   static_assert( std::is_same<Ipopt::Number,scalar>::value, "Ipopt's floating point type must be the same type as SCISim's scalar." );
   assert( 2 * m == n );
@@ -361,7 +360,11 @@ bool SmoothMDPNLP::eval_g( Ipopt::Index n, const Ipopt::Number* x, bool new_x, I
   return true;
 }
 
-bool SmoothMDPNLP::eval_jac_g( Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::Index m, Ipopt::Index nele_jac, Ipopt::Index* iRow, Ipopt::Index* jCol, Ipopt::Number* values )
+#ifndef NDEBUG
+bool SmoothMDPNLP::eval_jac_g( Ipopt::Index n, const Ipopt::Number* x, bool /*new_x*/, Ipopt::Index m, Ipopt::Index nele_jac, Ipopt::Index* iRow, Ipopt::Index* jCol, Ipopt::Number* values )
+#else
+bool SmoothMDPNLP::eval_jac_g( Ipopt::Index /*n*/, const Ipopt::Number* x, bool /*new_x*/, Ipopt::Index m, Ipopt::Index nele_jac, Ipopt::Index* iRow, Ipopt::Index* jCol, Ipopt::Number* values )
+#endif
 {
   assert( 2 * m == n );
   assert( nele_jac == n );
@@ -402,7 +405,11 @@ bool SmoothMDPNLP::eval_jac_g( Ipopt::Index n, const Ipopt::Number* x, bool new_
   return true;
 }
 
-bool SmoothMDPNLP::eval_h( Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::Number obj_factor, Ipopt::Index m, const Ipopt::Number* lambda, bool new_lambda, Ipopt::Index nele_hess, Ipopt::Index* iRow, Ipopt::Index* jCol, Ipopt::Number* values )
+#ifndef NDEBUG
+bool SmoothMDPNLP::eval_h( Ipopt::Index n, const Ipopt::Number* x, bool /*new_x*/, Ipopt::Number obj_factor, Ipopt::Index m, const Ipopt::Number* lambda, bool /*new_lambda*/, Ipopt::Index nele_hess, Ipopt::Index* iRow, Ipopt::Index* jCol, Ipopt::Number* values )
+#else
+bool SmoothMDPNLP::eval_h( Ipopt::Index n, const Ipopt::Number* /*x*/, bool /*new_x*/, Ipopt::Number obj_factor, Ipopt::Index m, const Ipopt::Number* lambda, bool /*new_lambda*/, Ipopt::Index nele_hess, Ipopt::Index* iRow, Ipopt::Index* jCol, Ipopt::Number* values )
+#endif
 {
   assert( 2 * m == n );
 
@@ -461,7 +468,7 @@ bool SmoothMDPNLP::eval_h( Ipopt::Index n, const Ipopt::Number* x, bool new_x, I
   return true;
 }
 
-void SmoothMDPNLP::finalize_solution( Ipopt::SolverReturn status, Ipopt::Index n, const Ipopt::Number* x, const Ipopt::Number* z_L, const Ipopt::Number* z_U, Ipopt::Index m, const Ipopt::Number* g, const Ipopt::Number* lambda, Ipopt::Number obj_value, const Ipopt::IpoptData* ip_data, Ipopt::IpoptCalculatedQuantities* ip_cq )
+void SmoothMDPNLP::finalize_solution( Ipopt::SolverReturn status, Ipopt::Index n, const Ipopt::Number* x, const Ipopt::Number* /*z_L*/, const Ipopt::Number* /*z_U*/, Ipopt::Index /*m*/, const Ipopt::Number* /*g*/, const Ipopt::Number* /*lambda*/, Ipopt::Number /*obj_value*/, const Ipopt::IpoptData* /*ip_data*/, Ipopt::IpoptCalculatedQuantities* /*ip_cq*/ )
 {
   m_solve_return_status = status;
   m_beta = Eigen::Map< const Eigen::Matrix<Ipopt::Number,1,Eigen::Dynamic> >{ x, n };

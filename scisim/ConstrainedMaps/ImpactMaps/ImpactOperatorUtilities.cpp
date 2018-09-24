@@ -1,8 +1,3 @@
-// ImpactOperatorUtilities.cpp
-//
-// Breannan Smith
-// Last updated: 09/03/2015
-
 #include "ImpactOperatorUtilities.h"
 
 #include "scisim/Constraints/Constraint.h"
@@ -43,7 +38,7 @@ void ImpactOperatorUtilities::computeN( const FlowableSystem& fsys, const std::v
 
   assert( column_nonzeros.sum() == N.nonZeros() );
 
-  N.prune( []( const Eigen::Index& row, const Eigen::Index& col, const scalar& value ) { return value != 0.0; } );
+  N.prune( []( const Eigen::Index& /*row*/, const Eigen::Index& /*col*/, const scalar& value ) { return value != 0.0; } );
   assert( N.innerNonZeroPtr() == nullptr );
 }
 

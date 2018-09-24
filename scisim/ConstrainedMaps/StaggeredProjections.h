@@ -1,8 +1,3 @@
-// StaggeredProjections.h
-//
-// Breannan Smith
-// Last updated: 09/21/2015
-
 #ifndef STAGGERED_PROJECTIONS_H
 #define STAGGERED_PROJECTIONS_H
 

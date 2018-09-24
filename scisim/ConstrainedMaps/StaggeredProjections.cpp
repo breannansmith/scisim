@@ -1,8 +1,3 @@
-// StaggeredProjections.cpp
-//
-// Breannan Smith
-// Last updated: 10/23/2015
-
 #include "StaggeredProjections.h"
 
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
@@ -175,7 +170,7 @@ void StaggeredProjections::solve( const unsigned iteration, const scalar& dt, co
   FrictionOperator::formGeneralizedSmoothFrictionBasis( unsigned( v0.size() ), unsigned( alpha.size() ), q0, active_set, contact_bases, D );
 
   // Impact basis
-  SparseMatrixsc N{ static_cast<SparseMatrixsc::Index>( v0.size() ), static_cast<SparseMatrixsc::Index>( alpha.size() ) };
+  SparseMatrixsc N{ v0.size(), alpha.size() };
   ImpactOperatorUtilities::computeN( fsys, active_set, q0, N );
 
   VectorXs nrel{ alpha.size() };
@@ -317,7 +312,7 @@ void StaggeredProjections::solve( const unsigned iteration, const scalar& dt, co
   }
 }
 
-unsigned StaggeredProjections::numFrictionImpulsesPerNormal( const unsigned ambient_space_dimensions ) const
+unsigned StaggeredProjections::numFrictionImpulsesPerNormal( const unsigned /*ambient_space_dimensions*/ ) const
 {
   return m_friction_operator->numFrictionImpulsesPerNormal();
 }

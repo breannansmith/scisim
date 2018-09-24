@@ -1,21 +1,21 @@
 # Note: GCC makes one add extra flags
 if( STRICT_BUILD )
-  # Do not work with Qt4: -Wzero-as-null-pointer-constant -Wuseless-cast
-  # Do not work with Sobogus: -Wsign-conversion -Wold-style-cast -Weffc++
-  # Do not work with SCISim: -Wfloat-equal -Wstrict-overflow=5 -Wsuggest-final-types -Wunsafe-loop-optimizations -Wsuggest-final-methods -Wnull-dereference
+  # Does not work with Sobogus: -Wsign-conversion -Weffc++ -Wold-style-cast
+  # Does not work with Eigen: -Wzero-as-null-pointer-constant -Wstrict-overflow=5
+  # Does not work with SCISim: -Wfloat-equal -Wsuggest-final-types -Wsuggest-final-methods
 
   # Enable as many warnings as possible
-  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -Wpedantic -Wcast-align -Wdisabled-optimization -Wformat=2 -Winit-self -Winvalid-pch -Wmissing-include-dirs -Wnoexcept -Woverloaded-virtual -Wsign-promo -Wstrict-null-sentinel -Wtrampolines -Wundef -Wvector-operation-performance -Wconversion -Wctor-dtor-privacy -Wlogical-op -Wshadow -Wabi -Wcast-qual -Wmissing-declarations -Wredundant-decls -Werror=double-promotion -Wlogical-op" )
-  # TODO: Conditionally add in GCC 6 flags, -Wduplicated-cond
-
-  # Remove warnings that the code does not pass
-  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter" )
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -Wpedantic -Wcast-align -Wdisabled-optimization -Wformat=2 -Winit-self" )
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Winvalid-pch -Wmissing-include-dirs -Wnoexcept -Woverloaded-virtual -Wsign-promo -Wstrict-null-sentinel" )
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wtrampolines -Wundef -Wvector-operation-performance -Wconversion -Wctor-dtor-privacy -Wlogical-op -Wshadow" )
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wcast-qual -Wmissing-declarations -Wredundant-decls -Werror=double-promotion -Wlogical-op" )
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wuseless-cast -Wunsafe-loop-optimizations -Wnull-dereference" )
 endif()
 
 # Disable run time type information
 set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti" )
 
-# Enable extra optimizations; note that march=native seemds to degrade performance on OS X
+# Enable extra optimizations; note that march=native seems to degrade performance on OS X
 if( NOT APPLE )
   set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native" )
 endif()

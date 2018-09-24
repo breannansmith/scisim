@@ -1,8 +1,3 @@
-// GaussSeidelOperator.h
-//
-// Breannan Smith
-// Last updated: 09/21/2015
-
 #ifndef GAUSS_SEIDEL_OPERATOR
 #define GAUSS_SEIDEL_OPERATOR
 

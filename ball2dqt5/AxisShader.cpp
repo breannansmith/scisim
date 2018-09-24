@@ -85,7 +85,7 @@ void AxisShader::initialize( QOpenGLFunctions_3_3_Core* f )
   m_f->glGenBuffers( 1, &vbo );
   {
     Eigen::Matrix<GLfloat,72,1> plane_data;
-    constexpr GLfloat hw = 0.01;
+    constexpr GLfloat hw = 0.01f;
                   // The x axis
     plane_data << hw,  hw, 1, 1, 0, 0,
                    1,   0, 0, 1, 0, 0,

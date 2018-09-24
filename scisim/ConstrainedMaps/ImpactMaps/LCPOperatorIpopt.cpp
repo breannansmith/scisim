@@ -1,8 +1,3 @@
-// LCPOperatorIpopt.cpp
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
 #include "LCPOperatorIpopt.h"
 
 #include <iostream>
@@ -88,7 +83,7 @@ static void createIpoptApplication( const scalar& tol, Ipopt::SmartPtr<Ipopt::Ip
 #endif
 }
 
-void LCPOperatorIpopt::flow( const std::vector<std::unique_ptr<Constraint>>& cons, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& q0, const VectorXs& v0, const VectorXs& v0F, const SparseMatrixsc& N, const SparseMatrixsc& Q, const VectorXs& nrel, const VectorXs& CoR, VectorXs& alpha )
+void LCPOperatorIpopt::flow( const std::vector<std::unique_ptr<Constraint>>& /*cons*/, const SparseMatrixsc& /*M*/, const SparseMatrixsc& /*Minv*/, const VectorXs& /*q0*/, const VectorXs& v0, const VectorXs& v0F, const SparseMatrixsc& N, const SparseMatrixsc& Q, const VectorXs& nrel, const VectorXs& CoR, VectorXs& alpha )
 {
   Ipopt::SmartPtr<Ipopt::IpoptApplication> ipopt_app;
   createIpoptApplication( m_tol, ipopt_app );
@@ -241,7 +236,11 @@ bool QPNLP::get_nlp_info( Ipopt::Index& n, Ipopt::Index& m, Ipopt::Index& nnz_ja
   return true;
 }
 
-bool QPNLP::get_bounds_info( Ipopt::Index n, Ipopt::Number* x_l, Ipopt::Number* x_u, Ipopt::Index m, Ipopt::Number* g_l, Ipopt::Number* g_u )
+#ifndef NDEBUG
+bool QPNLP::get_bounds_info( Ipopt::Index n, Ipopt::Number* x_l, Ipopt::Number* x_u, Ipopt::Index m, Ipopt::Number* /*g_l*/, Ipopt::Number* /*g_u*/ )
+#else
+bool QPNLP::get_bounds_info( Ipopt::Index n, Ipopt::Number* x_l, Ipopt::Number* x_u, Ipopt::Index /*m*/, Ipopt::Number* /*g_l*/, Ipopt::Number* /*g_u*/ )
+#endif
 {
   static_assert( std::is_same<Ipopt::Number,scalar>::value, "Ipopt's floating point type must be the same type as SCISim's scalar." );
   assert( m_Q.rows() == m_Q.cols() );
@@ -260,7 +259,11 @@ bool QPNLP::get_bounds_info( Ipopt::Index n, Ipopt::Number* x_l, Ipopt::Number* 
 }
 
 // TODO: Why aren't z_L, z_U, and lambda nullptr ?
-bool QPNLP::get_starting_point( Ipopt::Index n, bool init_x, Ipopt::Number* x, bool init_z, Ipopt::Number* z_L, Ipopt::Number* z_U, Ipopt::Index m, bool init_lambda, Ipopt::Number* lambda )
+#ifndef NDEBUG
+bool QPNLP::get_starting_point( Ipopt::Index n, bool init_x, Ipopt::Number* x, bool init_z, Ipopt::Number* z_L, Ipopt::Number* z_U, Ipopt::Index m, bool /*init_lambda*/, Ipopt::Number* /*lambda*/ )
+#else
+bool QPNLP::get_starting_point( Ipopt::Index n, bool init_x, Ipopt::Number* x, bool init_z, Ipopt::Number* z_L, Ipopt::Number* /*z_U*/, Ipopt::Index /*m*/, bool /*init_lambda*/, Ipopt::Number* /*lambda*/ )
+#endif
 {
   static_assert( std::is_same<Ipopt::Number,scalar>::value, "Ipopt's floating point type must be the same type as SCISim's scalar." );
   assert( m_Q.rows() == m_Q.cols() );
@@ -291,7 +294,7 @@ bool QPNLP::get_starting_point( Ipopt::Index n, bool init_x, Ipopt::Number* x, b
   return true;
 }  
 
-bool QPNLP::eval_f( Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::Number& obj_value )
+bool QPNLP::eval_f( Ipopt::Index n, const Ipopt::Number* x, bool /*new_x*/, Ipopt::Number& obj_value )
 {
   static_assert( std::is_same<Ipopt::Number,scalar>::value, "Ipopt's floating point type must be the same type as SCISim's scalar." );
   assert( m_Q.rows() == m_Q.cols() );
@@ -305,7 +308,7 @@ bool QPNLP::eval_f( Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::N
   return true;
 }  
 
-bool QPNLP::eval_grad_f( Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::Number* grad_f )
+bool QPNLP::eval_grad_f( Ipopt::Index n, const Ipopt::Number* x, bool /*new_x*/, Ipopt::Number* grad_f )
 {
   static_assert( std::is_same<Ipopt::Number,scalar>::value, "Ipopt's floating point type must be the same type as SCISim's scalar." );
   assert( m_Q.rows() == m_Q.cols() );
@@ -322,14 +325,18 @@ bool QPNLP::eval_grad_f( Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipo
   return true;
 }
 
-bool QPNLP::eval_g( Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::Index m, Ipopt::Number* g )
+bool QPNLP::eval_g( Ipopt::Index /*n*/, const Ipopt::Number* /*x*/, bool /*new_x*/, Ipopt::Index /*m*/, Ipopt::Number* /*g*/ )
 {
-  std::cerr << " QPNLP::eval_g not needed. Perhaps an options was set incorrectly? Exiting." << std::endl;
+  std::cerr << " QPNLP::eval_g not needed. Perhaps an option was set incorrectly? Exiting." << std::endl;
   std::exit( EXIT_FAILURE );
 }
 
 // TODO: A little wierd that this is getting called... email Ipopt people
-bool QPNLP::eval_jac_g( Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::Index m, Ipopt::Index nele_jac, Ipopt::Index* iRow, Ipopt::Index* jCol, Ipopt::Number* values )
+#ifndef NDEBUG
+bool QPNLP::eval_jac_g( Ipopt::Index n, const Ipopt::Number* x, bool /*new_x*/, Ipopt::Index m, Ipopt::Index nele_jac, Ipopt::Index* iRow, Ipopt::Index* jCol, Ipopt::Number* values )
+#else
+bool QPNLP::eval_jac_g( Ipopt::Index /*n*/, const Ipopt::Number* /*x*/, bool /*new_x*/, Ipopt::Index /*m*/, Ipopt::Index /*nele_jac*/, Ipopt::Index* /*iRow*/, Ipopt::Index* /*jCol*/, Ipopt::Number* /*values*/ )
+#endif
 {
   assert( m_Q.rows() == m_Q.cols() );
   assert( m_A.size() == m_Q.rows() );
@@ -347,7 +354,11 @@ bool QPNLP::eval_jac_g( Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipop
   return true;
 }
 
-bool QPNLP::eval_h( Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::Number obj_factor, Ipopt::Index m, const Ipopt::Number* lambda, bool new_lambda, Ipopt::Index nele_hess, Ipopt::Index* iRow, Ipopt::Index* jCol, Ipopt::Number* values )
+#ifndef NDEBUG
+bool QPNLP::eval_h( Ipopt::Index n, const Ipopt::Number* x, bool /*new_x*/, Ipopt::Number obj_factor, Ipopt::Index m, const Ipopt::Number* lambda, bool /*new_lambda*/, Ipopt::Index nele_hess, Ipopt::Index* iRow, Ipopt::Index* jCol, Ipopt::Number* values )
+#else
+bool QPNLP::eval_h( Ipopt::Index /*n*/, const Ipopt::Number* /*x*/, bool /*new_x*/, Ipopt::Number obj_factor, Ipopt::Index /*m*/, const Ipopt::Number* /*lambda*/, bool /*new_lambda*/, Ipopt::Index nele_hess, Ipopt::Index* iRow, Ipopt::Index* jCol, Ipopt::Number* values )
+#endif
 {
   assert( m_Q.rows() == m_Q.cols() );
   assert( m_A.size() == m_Q.rows() );
@@ -387,7 +398,11 @@ bool QPNLP::eval_h( Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::N
   return true;
 }
 
-void QPNLP::finalize_solution( Ipopt::SolverReturn status, Ipopt::Index n, const Ipopt::Number* x, const Ipopt::Number* z_L, const Ipopt::Number* z_U, Ipopt::Index m, const Ipopt::Number* g, const Ipopt::Number* lambda, Ipopt::Number obj_value, const Ipopt::IpoptData* ip_data, Ipopt::IpoptCalculatedQuantities* ip_cq )
+#ifndef NDEBUG
+void QPNLP::finalize_solution( Ipopt::SolverReturn status, Ipopt::Index n, const Ipopt::Number* x, const Ipopt::Number* z_L, const Ipopt::Number* /*z_U*/, Ipopt::Index m, const Ipopt::Number* /*g*/, const Ipopt::Number* /*lambda*/, Ipopt::Number /*obj_value*/, const Ipopt::IpoptData* /*ip_data*/, Ipopt::IpoptCalculatedQuantities* /*ip_cq*/ )
+#else
+void QPNLP::finalize_solution( Ipopt::SolverReturn status, Ipopt::Index n, const Ipopt::Number* x, const Ipopt::Number* /*z_L*/, const Ipopt::Number* /*z_U*/, Ipopt::Index /*m*/, const Ipopt::Number* /*g*/, const Ipopt::Number* /*lambda*/, Ipopt::Number /*obj_value*/, const Ipopt::IpoptData* /*ip_data*/, Ipopt::IpoptCalculatedQuantities* /*ip_cq*/ )
+#endif
 {
   assert( m_Q.rows() == m_Q.cols() );
   assert( m_A.size() == m_Q.rows() );

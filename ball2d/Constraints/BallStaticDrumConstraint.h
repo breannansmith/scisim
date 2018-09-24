@@ -1,8 +1,3 @@
-// BallStaticDrumConstraint.h
-//
-// Breannan Smith
-// Last updated: 09/04/2015
-
 #ifndef STATIC_DRUM_CONSTRAINT_H
 #define STATIC_DRUM_CONSTRAINT_H
 

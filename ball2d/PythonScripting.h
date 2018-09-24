@@ -1,8 +1,3 @@
-// PythonScripting.h
-//
-// Breannan Smith
-// Last updated: 09/21/2015
-
 #ifndef PYTHON_SCRIPTING_H
 #define PYTHON_SCRIPTING_H
 

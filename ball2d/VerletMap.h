@@ -1,8 +1,3 @@
-// VerletMap.h
-//
-// Breannan Smith
-// Last updated: 12/08/2015
-
 #ifndef VERLET_MAP_H
 #define VERLET_MAP_H
 

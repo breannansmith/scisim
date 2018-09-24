@@ -1,8 +1,3 @@
-// LinearMDPOperatorQL.h
-//
-// Breannan Smith
-// Last updated: 09/21/2015
-
 #ifndef LINEAR_MDP_OPERATOR_QL
 #define LINEAR_MDP_OPERATOR_QL
 

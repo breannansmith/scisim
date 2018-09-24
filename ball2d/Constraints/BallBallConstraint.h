@@ -1,12 +1,7 @@
-// BallBallConstraint.h
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
-// TODO: Break BallBallConstraint and TeleportedBallBallConstraint into separate classes
-
 #ifndef BALL_BALL_CONSTRAINT_H
 #define BALL_BALL_CONSTRAINT_H
+
+// TODO: Break BallBallConstraint and TeleportedBallBallConstraint into separate classes
 
 #include "scisim/Constraints/Constraint.h"
 

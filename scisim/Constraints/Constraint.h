@@ -1,8 +1,3 @@
-// Constraint.h
-//
-// Breannan Smith
-// Last updated: 09/30/2015
-
 // TODO: This class has accumulated up lots of redundant code. Pare down to the minimum and cleanup.
 
 #ifndef CONSTRAINT_H

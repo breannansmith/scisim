@@ -1,8 +1,3 @@
-// MathUtilities.cpp
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
 #include "MathUtilities.h"
 
 #include <fstream>
@@ -170,7 +165,7 @@ void MathUtilities::deserialize( SparseMatrixsc& A, std::istream& stm )
   Eigen::Matrix<SparseMatrixsc::Scalar,Eigen::Dynamic,1> values{ nnz };
   stm.read( reinterpret_cast<char*>( values.data() ), values.size() * sizeof(SparseMatrixsc::Scalar) );
 
-  const Eigen::Map<const SparseMatrixsc> matrix_map{ rows, cols, nnz, outter_indices.data(), inner_indices.data(), values.data() };
+  const Eigen::Map<const SparseMatrixsc> matrix_map( rows, cols, nnz, outter_indices.data(), inner_indices.data(), values.data() );
 
   A = matrix_map;
   assert( A.isCompressed() );
