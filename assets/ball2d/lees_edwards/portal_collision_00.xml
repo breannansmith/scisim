@@ -15,6 +15,9 @@
   <lees_edwards_portal planeA="0" planeB="1" v="-1.0" bounds="3.0"/>
   <planar_portal planeA="2" planeB="3"/>
 
+  <portal_renderer portal="0" thickness="0.1" width="4.0" indicator_width="0.5" color="0.5 0.5 0.5"/>
+  <portal_renderer portal="1" thickness="0.1" width="6.0" indicator_width="0.5" color="0.5 0.5 0.5"/>
+
   <ball x="1.4" y="0" vx="0" vy="0" m="0.1" r="0.5" fixed="0"/>
   <ball x="-1.9" y="2" vx="0" vy="0" m="0.1" r="0.5" fixed="0"/>
 

@@ -16,6 +16,8 @@
 
   <static_plane x="0 -1" n="0 1"/>
 
+  <static_plane_renderer plane="0" r="0.05 10.0" color="0 0 0"/>
+
   <ball x="-2" y="1" vx="0" vy="0" m="2.0" r="0.25" fixed="0"/>
   <ball x="0" y="1" vx="0" vy="0" m="2.0" r="0.25" fixed="0"/>
   <ball x="2" y="1" vx="0" vy="0" m="2.0" r="0.25" fixed="0"/>

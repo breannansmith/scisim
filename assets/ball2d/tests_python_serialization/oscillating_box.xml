@@ -19,6 +19,11 @@
   <static_plane x="-1 0" n="1 0"/>
   <static_plane x="1 0" n="-1 0"/>
 
+  <static_plane_renderer plane="0" r="0.05 2.0" color="0 0 0"/>
+  <static_plane_renderer plane="1" r="0.05 2.0" color="0 0 0"/>
+  <static_plane_renderer plane="2" r="0.05 2.0" color="0 0 0"/>
+  <static_plane_renderer plane="3" r="0.05 2.0" color="0 0 0"/>
+
   <ball x="0" y="0" vx="0" vy="0" m="2.0" r="0.25" fixed="0"/>
   <ball x="0.5" y="0.5" vx="0" vy="0" m="5.0" r="0.1" fixed="0"/>
   <ball x="-0.25" y="-0.5" vx="0" vy="0" m="3.7" r="0.07" fixed="0"/>

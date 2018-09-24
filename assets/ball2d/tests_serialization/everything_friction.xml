@@ -20,8 +20,9 @@
 
   <static_drum x="0.0" y="0.0" r="10.0"/>
 
-  <static_plane_renderer plane="0" r="0.2 8.0" color="0 0 0"/>
+  <static_plane_renderer plane="0" r="0.2 32.0" color="0 0 0"/>
   <static_drum_renderer drum="0" r="0.2" color="0 0 0"/>
+  <portal_renderer portal="0" thickness="0.2" width="12.1" indicator_width="0.5" color="0.5 0.5 0.5"/>
 
   <ball x="-2.5" y="-2" vx="2" vy="2" m="1.37" r="0.8" fixed="0"/>
   <ball x="2.5" y="2" vx="-2" vy="-2" m="2.0" r="1.2" fixed="0"/>

@@ -14,11 +14,14 @@
 
   <gravity fx="383.30723704797755372" fy="-903.01526123684396118"/> <!-- 23 degrees -->
 
-  <static_plane x="0 0" n="0 1"/>
-  <static_plane x="0 25" n="1 0"/>
-  <static_plane x="12.4517 25" n="-1 0"/>
+  <static_plane x="6.22585 0" n="0 1"/>
+  <static_plane x="0 15" n="1 0"/>
+  <static_plane x="12.4517 15" n="-1 0"/>
 
   <planar_portal planeA="1" planeB="2"/>
+
+  <static_plane_renderer plane="0" r="0.1 12.4517" color="0 0 0"/>
+  <portal_renderer portal="0" thickness="0.1" width="30.0" indicator_width="1.0" color="0.5 0.5 0.5"/>
 
   <ball x="3.42062618002508" y="19.6565473088693" vx="0" vy="0" m="0.0247564702349027" r="0.0558096327511647" fixed="0"/>
   <ball x="2.74711968448467" y="24.2609320799301" vx="0" vy="0" m="0.031015236677041" r="0.0624672450347074" fixed="0"/>
