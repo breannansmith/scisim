@@ -80,7 +80,7 @@ scalar BallBallConstraint::evaluateGapFunction( const VectorXs& q ) const
   }
 }
 
-void BallBallConstraint::evalgradg( const VectorXs& q, const int col, SparseMatrixsc& G, const FlowableSystem& fsys ) const
+void BallBallConstraint::evalgradg( const VectorXs& /*q*/, const int col, SparseMatrixsc& G, const FlowableSystem& /*fsys*/ ) const
 {
   assert( col >= 0 ); assert( col < G.cols() );
   assert( m_sphere_idx0 < m_sphere_idx1 );

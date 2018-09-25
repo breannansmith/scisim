@@ -23,7 +23,7 @@ LCPOperatorAPGD::LCPOperatorAPGD( std::istream& input_stream )
   assert( m_tol >= 0.0 );
 }
 
-void LCPOperatorAPGD::flow( const std::vector<std::unique_ptr<Constraint>>& cons, const SparseMatrixsc& M, const SparseMatrixsc& Minv, const VectorXs& q0, const VectorXs& v0, const VectorXs& v0F, const SparseMatrixsc& N, const SparseMatrixsc& Q, const VectorXs& nrel, const VectorXs& CoR, VectorXs& alpha )
+void LCPOperatorAPGD::flow( const std::vector<std::unique_ptr<Constraint>>& /*cons*/, const SparseMatrixsc& /*M*/, const SparseMatrixsc& /*Minv*/, const VectorXs& /*q0*/, const VectorXs& v0, const VectorXs& v0F, const SparseMatrixsc& N, const SparseMatrixsc& Q, const VectorXs& nrel, const VectorXs& CoR, VectorXs& alpha )
 {
   // b in b^T \alpha
   VectorXs b;

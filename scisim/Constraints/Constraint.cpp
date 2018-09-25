@@ -129,7 +129,7 @@ void Constraint::resolveImpact( const scalar& /*CoR*/, const SparseMatrixsc& /*M
   std::exit( EXIT_FAILURE );
 }
 
-scalar Constraint::evaluateGapFunction( const VectorXs& q ) const
+scalar Constraint::evaluateGapFunction( const VectorXs& /*q*/ ) const
 {
   std::cerr << "Constraint::evaluateGapFunction not implemented for: " << name() << std::endl;
   std::exit( EXIT_FAILURE );

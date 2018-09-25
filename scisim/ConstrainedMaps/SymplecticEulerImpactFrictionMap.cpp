@@ -198,7 +198,7 @@ static void cacheImpulses( const ImpulsesToCache cache_mode, const unsigned ambi
 }
 
 // TODO: Ignore the unconstrained map, somehow?
-void SymplecticEulerImpactFrictionMap::flow( ScriptingCallback& call_back, FlowableSystem& fsys, ConstrainedSystem& csys, UnconstrainedMap& umap, FrictionSolver& friction_solver, const unsigned iteration, const scalar& dt, const scalar& CoR_default, const scalar& mu_default, const VectorXs& q0, const VectorXs& v0, VectorXs& q1, VectorXs& v1 )
+void SymplecticEulerImpactFrictionMap::flow( ScriptingCallback& call_back, FlowableSystem& fsys, ConstrainedSystem& csys, UnconstrainedMap& /*umap*/, FrictionSolver& friction_solver, const unsigned iteration, const scalar& dt, const scalar& CoR_default, const scalar& mu_default, const VectorXs& q0, const VectorXs& v0, VectorXs& q1, VectorXs& v1 )
 {
   assert( dt > 0.0 );
   // assert( CoR_default >= 0.0 );
@@ -296,7 +296,7 @@ void SymplecticEulerImpactFrictionMap::flow( ScriptingCallback& call_back, Flowa
     // TODO: Pull nrel and drel computation into functions
     VectorXs nrel;
     {
-      SparseMatrixsc N{ static_cast<SparseMatrixsc::Index>( v0.size() ), static_cast<SparseMatrixsc::Index>( alpha.size() ) };
+      SparseMatrixsc N{ v0.size(), alpha.size() };
       ImpactOperatorUtilities::computeN( fsys, active_set, q0, N );
       nrel = N.transpose() * vdelta;
     }
@@ -372,7 +372,7 @@ void SymplecticEulerImpactFrictionMap::flow( ScriptingCallback& call_back, Flowa
   #ifndef NDEBUG
   if( ( mu.array() == 0.0 ).all() )
   {
-    SparseMatrixsc N{ static_cast<SparseMatrixsc::Index>( v0.size() ), static_cast<SparseMatrixsc::Index>( alpha.size() ) };
+    SparseMatrixsc N{ v0.size(), alpha.size() };
     ImpactOperatorUtilities::computeN( fsys, active_set, q0, N );
     assert( ( v0 + vdelta + fsys.Minv() * N * alpha - v1 ).lpNorm<Eigen::Infinity>() <= 1.0e-6 );
     const VectorXs CoR_part = CoR(0) * N.transpose() * v0;
