@@ -68,6 +68,8 @@ public:
 
   void exportCameraSettings();
 
+  void insertBallCallback( const int num_balls );
+
 protected:
 
   virtual void initializeGL() override;
@@ -91,6 +93,8 @@ private:
   // void paintSystem();
 
   void paintHUD();
+
+  Vector3s generateColor();
 
   QOpenGLFunctions_3_3_Core* m_f;
 
@@ -116,6 +120,7 @@ private:
 
   // Colors to render balls in the scene
   VectorXs m_ball_colors;
+  std::uniform_real_distribution<scalar> m_color_gen;
   std::mt19937_64 m_ball_color_gen;
 
   // Number of decimal places to display in time display

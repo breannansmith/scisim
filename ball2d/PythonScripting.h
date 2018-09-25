@@ -30,6 +30,8 @@ public:
   void setState( Ball2DState& state );
   void forgetState();
 
+  void registerBallInsertCallback(void* context, void (*callback)(void*, int));
+
   void serialize( std::ostream& output_stream );
 
 private:

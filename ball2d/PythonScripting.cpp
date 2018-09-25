@@ -22,6 +22,11 @@ static VectorXs* s_cor;
 static const std::vector<std::unique_ptr<Constraint>>* s_active_set;
 #endif
 
+// User-provided callbacks
+typedef void (*BallInsertCallback)(void*, int);
+static void* s_ball_insert_context = nullptr;
+static BallInsertCallback s_ball_insert_call_back = nullptr;
+
 PythonScripting::PythonScripting()
 : m_path()
 , m_module_name()
@@ -327,6 +332,12 @@ void PythonScripting::setState( Ball2DState& /*state*/ )
   // No need to handle state cache if scripting is disabled
 }
 
+void PythonScripting::registerBallInsertCallback(void* context, void (*callback)(void*, int))
+{
+  s_ball_insert_context = context;
+  s_ball_insert_call_back = callback;
+}
+
 void PythonScripting::forgetState()
 {
   #ifdef USE_PYTHON
@@ -406,6 +417,10 @@ static PyObject* insertBall( PyObject* /*self*/, PyObject* args )
   }
   assert( s_ball_state != nullptr );
   s_ball_state->pushBallBack( q, v, r, m, fixed );
+  if( s_ball_insert_call_back != nullptr )
+  {
+    s_ball_insert_call_back( s_ball_insert_context, s_ball_state->nballs() );
+  }
   return Py_BuildValue( "" );
 }
 

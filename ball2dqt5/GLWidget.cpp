@@ -37,6 +37,7 @@ GLWidget::GLWidget( QWidget* parent )
 , m_left_mouse_button_pressed( false )
 , m_right_mouse_button_pressed( false )
 , m_ball_colors()
+, m_color_gen( 0.0, 1.0 )
 , m_ball_color_gen( 1337 )
 , m_display_precision( 0 )
 , m_display_HUD( true )
@@ -118,6 +119,30 @@ static std::string xmlFilePath( const std::string& xml_file_name )
     swap( path, file_name );
   }
   return path;
+}
+
+Vector3s GLWidget::generateColor()
+{
+  Vector3s color( 1.0, 1.0, 1.0 );
+  // Generate colors until we get one with a luminance in [0.1, 0.9]
+  while( ( 0.2126 * color.x() + 0.7152 * color.y() + 0.0722 * color.z() ) > 0.9 || ( 0.2126 * color.x() + 0.7152 * color.y() + 0.0722 * color.z() ) < 0.1 )
+  {
+    color.x() = m_color_gen( m_ball_color_gen );
+    color.y() = m_color_gen( m_ball_color_gen );
+    color.z() = m_color_gen( m_ball_color_gen );
+  }
+  return color;
+}
+
+void GLWidget::insertBallCallback( const int num_balls )
+{
+  m_ball_colors.conservativeResize( 3 * num_balls );
+  m_ball_colors.segment<3>( 3 * num_balls - 3) = generateColor();
+}
+
+static void ballInsertCallback( void* context, int num_balls )
+{
+  static_cast<GLWidget*>(context)->insertBallCallback(num_balls);
 }
 
 bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render_on_load, unsigned& fps, bool& render_at_fps, bool& lock_camera )
@@ -213,25 +238,11 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   m_display_precision = computeTimestepDisplayPrecision( m_dt, new_dt_string );
 
   // Generate a random color for each ball
-  // TODO: Initialize these directly in HSV of CMYK and save as QColor objects
+  m_ball_color_gen = std::mt19937_64( 1337 );
   m_ball_colors.resize( 3 * m_sim.state().nballs() );
+  for( int i = 0; i < m_ball_colors.size(); i += 3 )
   {
-    m_ball_color_gen = std::mt19937_64( 1337 );
-    std::uniform_real_distribution<scalar> color_gen( 0.0, 1.0 );
-    for( int i = 0; i < m_ball_colors.size(); i += 3 )
-    {
-      scalar r = 1.0;
-      scalar g = 1.0;
-      scalar b = 1.0;
-      // Generate colors until we get one with a luminance within [0.1,0.9]
-      while( ( 0.2126 * r + 0.7152 * g + 0.0722 * b ) > 0.9 || ( 0.2126 * r + 0.7152 * g + 0.0722 * b ) < 0.1 )
-      {
-        r = color_gen( m_ball_color_gen );
-        g = color_gen( m_ball_color_gen );
-        b = color_gen( m_ball_color_gen );
-      }
-      m_ball_colors.segment<3>( i ) << r, g, b;
-    }
+    m_ball_colors.segment<3>( i ) = generateColor();
   }
 
   // Reset the output movie option
@@ -258,6 +269,9 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   m_scripting.setState( m_sim.state() );
   m_scripting.startOfSimCallback();
   m_scripting.forgetState();
+
+  // Register UI callbacks for Python scripting
+  m_scripting.registerBallInsertCallback( this, &ballInsertCallback );
 
   std::swap( m_plane_render_settings, render_settings.plane_render_settings );
   std::swap( m_drum_render_settings, render_settings.drum_render_settings );
@@ -477,35 +491,6 @@ void GLWidget::stepSystem()
     m_delta_L0 = std::max( m_delta_L0, fabs( m_L0 - state.computeAngularMomentum() ) );
   }
 
-  // If the number of particles changed
-  if( m_ball_colors.size() != 3 * m_sim.state().r().size() )
-  {
-    qFatal( "Error, changing ball count not supported in the new front-end, yet!" );
-//     const unsigned original_size{ static_cast<unsigned>( m_ball_colors.size() ) };
-//     m_ball_colors.conservativeResize( 3 * m_sim.state().r().size() );
-//     // If the size grew
-//     if( m_ball_colors.size() > original_size )
-//     {
-//       const unsigned num_new_balls = ( unsigned( m_ball_colors.size() ) - original_size ) / 3;
-//       // Add new colors
-//       for( unsigned new_ball_num = 0; new_ball_num < num_new_balls; ++new_ball_num )
-//       {
-//         std::uniform_real_distribution<scalar> color_gen( 0.0, 1.0 );
-//         scalar r = 1.0;
-//         scalar g = 1.0;
-//         scalar b = 1.0;
-//         // Generate colors until we get one with a luminance within [0.1,0.9]
-//         while( ( 0.2126 * r + 0.7152 * g + 0.0722 * b ) > 0.9 || ( 0.2126 * r + 0.7152 * g + 0.0722 * b ) < 0.1 )
-//         {
-//           r = color_gen( m_ball_color_gen );
-//           g = color_gen( m_ball_color_gen );
-//           b = color_gen( m_ball_color_gen );
-//         }
-//         m_ball_colors.segment<3>( original_size + 3 * new_ball_num ) << r, g, b;
-//       }
-//     }
-  }
-
   copyRenderState();
 
   if( !m_render_at_fps || m_iteration % m_steps_per_frame == 0 )
@@ -550,28 +535,20 @@ void GLWidget::resetSystem()
   m_output_frame = 0;
 
   // Reset ball colors, in case the number of balls changed
+  m_ball_color_gen = std::mt19937_64( 1337 );
   m_ball_colors.resize( 3 * m_sim.state().nballs() );
+  for( int i = 0; i < m_ball_colors.size(); i += 3 )
   {
-    m_ball_color_gen = std::mt19937_64( 1337 );
-    std::uniform_real_distribution<scalar> color_gen( 0.0, 1.0 );
-    for( int i = 0; i < m_ball_colors.size(); i += 3 )
-    {
-      scalar r = 1.0; scalar g = 1.0; scalar b = 1.0;
-      // Generate colors until we get one with a luminance within [0.1,0.9]
-      while( ( 0.2126 * r + 0.7152 * g + 0.0722 * b ) > 0.9 || ( 0.2126 * r + 0.7152 * g + 0.0722 * b ) < 0.1 )
-      {
-        r = color_gen( m_ball_color_gen );
-        g = color_gen( m_ball_color_gen );
-        b = color_gen( m_ball_color_gen );
-      }
-      m_ball_colors.segment<3>( i ) << r, g, b;
-    }
+    m_ball_colors.segment<3>( i ) = generateColor();
   }
 
   // User-provided start of simulation python callback
   m_scripting.setState( m_sim.state() );
   m_scripting.startOfSimCallback();
   m_scripting.forgetState();
+
+  // Register UI callbacks for Python scripting
+  m_scripting.registerBallInsertCallback( this, &ballInsertCallback );
 
   copyRenderState();
   update();
@@ -645,73 +622,6 @@ void GLWidget::paintGL()
 
   assert( checkGLErrors() );
 }
-// {
-//   assert( glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE );
-
-//   glClear( GL_COLOR_BUFFER_BIT );
-
-//   glMatrixMode( GL_MODELVIEW );
-
-//   if( axesDrawingIsEnabled() )
-//   {
-//     paintAxes();
-//   }
-
-//   paintSystem();
-
-//   if( m_display_HUD )
-//   {
-//     paintHUD();
-//   }
-
-//   assert( checkGLErrors() );
-// }
-
-// bool GLWidget::axesDrawingIsEnabled() const
-// {
-//   return m_left_mouse_button_pressed;
-// }
-
-// void GLWidget::paintAxes()
-// {
-//   // Draw the positive x axis
-//   glColor3d( 1.0, 0.0, 0.0 );
-//   glLineWidth( 2.0 );
-//   glBegin( GL_LINES );
-//   glVertex4f( 0.0, 0.0, 0.0, 1.0 );
-//   glVertex4f( 1.0, 0.0, 0.0, 0.0 );
-//   glEnd();
-
-//   // Draw the negative x axis
-//   glColor3d( 1.0, 0.0, 0.0 );
-//   glLineWidth( 2.0 );
-//   glLineStipple( 8, 0xAAAA );
-//   glEnable( GL_LINE_STIPPLE );
-//   glBegin( GL_LINES );
-//   glVertex4f( 0.0, 0.0, 0.0, 1.0 );
-//   glVertex4f( -1.0, 0.0, 0.0, 0.0 );
-//   glEnd();
-//   glDisable( GL_LINE_STIPPLE );
-
-//   // Draw the positive y axis
-//   glColor3d( 0, 1.0, 0 );
-//   glLineWidth( 2.0 );
-//   glBegin( GL_LINES );
-//   glVertex4f( 0.0, 0.0, 0.0, 1.0 );
-//   glVertex4f( 0.0, 1.0, 0.0, 0.0 );
-//   glEnd();
-
-//   // Draw the negative y axis
-//   glColor3d( 0, 1.0, 0 );
-//   glLineWidth( 2.0 );
-//   glLineStipple( 8, 0xAAAA );
-//   glEnable( GL_LINE_STIPPLE );
-//   glBegin( GL_LINES );
-//   glVertex4f( 0.0, 0.0, 0.0, 1.0 );
-//   glVertex4f( 0.0, -1.0, 0.0, 0.0 );
-//   glEnd();
-//   glDisable( GL_LINE_STIPPLE );
-// }
 
 void GLWidget::renderAtFPS( const bool render_at_fps )
 {
@@ -830,359 +740,6 @@ void GLWidget::exportCameraSettings()
      << "\" render_at_fps=\"" << m_render_at_fps << "\" locked=\"" << m_lock_camera << "\"/>";
   qInfo( "%s", ss.str().c_str() );
 }
-
-// static void paintInfiniteLine( const Vector2s& x, const Vector2s& n )
-// {
-//   const scalar theta{ -180.0 * atan2( n.x(), n.y() ) / PI<scalar> };
-
-//   glPushMatrix();
-
-//   glTranslated( GLdouble( x.x() ), GLdouble( x.y() ), GLdouble( 0.0 ) );
-//   glRotated( GLdouble( theta ), GLdouble( 0.0 ), GLdouble( 0.0 ), GLdouble( 1.0 ) );
-
-//   glBegin( GL_LINES );
-//   glVertex4d(  0.0,  0.0, 0.0, 1.0 );
-//   glVertex4d(  1.0,  0.0, 0.0, 0.0 );
-//   glVertex4d(  0.0,  0.0, 0.0, 1.0 );
-//   glVertex4d( -1.0,  0.0, 0.0, 0.0 );
-//   glEnd();
-
-//   glPopMatrix();
-// }
-
-// static void paintSolidHalfPlane( const Vector2s& x, const Vector2s& n )
-// {
-//   paintInfiniteLine( x, n );
-
-//   //const scalar theta = -180.0 * atan2( n.x(), n.y() ) / 3.14159265359;
-//   //
-//   //glPushMatrix();
-//   //
-//   //glTranslated( (GLdouble) x.x(), (GLdouble) x.y(), (GLdouble) 0.0 );
-//   //glRotated( (GLdouble) theta, 0.0, (GLdouble) 0.0, (GLdouble) 1.0 );
-//   //
-//   //glBegin( GL_TRIANGLES );
-//   //glVertex4d(  0.0,  0.0, 0.0, 1.0 );
-//   //glVertex4d(  1.0,  0.0, 0.0, 0.0 );
-//   //glVertex4d(  0.0, -1.0, 0.0, 0.0 );
-//   //glVertex4d(  0.0,  0.0, 0.0, 1.0 );
-//   //glVertex4d( -1.0,  0.0, 0.0, 0.0 );
-//   //glVertex4d(  0.0, -1.0, 0.0, 0.0 );
-//   //glEnd();
-//   //
-//   //glPopMatrix();
-// }
-
-// // TODO: Abstract the shared code in here into its own function
-// static void paintPlanarPortal( const PlanarPortal& planar_portal )
-// {
-//   // Draw the first plane of the portal
-//   {
-//     const scalar theta{ -180.0 * atan2( planar_portal.planeA().n().x(), planar_portal.planeA().n().y() ) / PI<scalar> };
-
-//     glPushMatrix();
-//     glTranslated( GLdouble( planar_portal.planeA().x().x() ), GLdouble( planar_portal.planeA().x().y() ), 0.0 );
-//     glRotated( GLdouble( theta ), 0.0, 0.0, 1.0 );
-
-//     glLineStipple( 8, 0xAAAA );
-//     glEnable( GL_LINE_STIPPLE );
-//     glBegin( GL_LINES );
-//     glVertex4d( 0.0, 0.0, 0.0, 1.0 );
-//     glVertex4d( -1.0, 0.0, 0.0, 0.0 );
-//     glEnd();
-//     glDisable( GL_LINE_STIPPLE );
-
-//     glLineStipple( 8, 0x5555 );
-//     glEnable( GL_LINE_STIPPLE );
-//     glBegin( GL_LINES );
-//     glVertex4d( 0.0, 0.0, 0.0, 1.0 );
-//     glVertex4d( 1.0, 0.0, 0.0, 0.0 );
-//     glEnd();
-//     glDisable( GL_LINE_STIPPLE );
-
-//     glPopMatrix();
-
-//     if( planar_portal.isLeesEdwards() )
-//     {
-//       // Draw the lower bound
-//       glPushMatrix();
-//       glTranslated( GLdouble( planar_portal.planeA().x().x() ), GLdouble( planar_portal.planeA().x().y() ), 0.0 );
-//       glRotated( GLdouble( theta ), 0.0, 0.0, 1.0 );
-//       glTranslated( -planar_portal.bounds(), 0.0, 0.0 );
-//       glLineStipple( 8, 0x5555 );
-//       glEnable( GL_LINE_STIPPLE );
-//       glBegin( GL_LINES );
-//       glVertex4d( 0.0, 0.0, 0.0, 1.0 );
-//       glVertex4d( 0.0, -1.0, 0.0, 0.0 );
-//       glEnd();
-//       glDisable( GL_LINE_STIPPLE );
-//       glPopMatrix();
-
-//       // Draw the upper bound
-//       glPushMatrix();
-//       glTranslated( GLdouble( planar_portal.planeA().x().x() ), GLdouble( planar_portal.planeA().x().y() ), 0.0 );
-//       glRotated( GLdouble( theta ), 0.0, 0.0, 1.0 );
-//       glTranslated( planar_portal.bounds(), 0.0, 0.0 );
-//       glLineStipple( 8, 0x5555 );
-//       glEnable( GL_LINE_STIPPLE );
-//       glBegin( GL_LINES );
-//       glVertex4d( 0.0, 0.0, 0.0, 1.0 );
-//       glVertex4d( 0.0, -1.0, 0.0, 0.0 );
-//       glEnd();
-//       glDisable( GL_LINE_STIPPLE );
-//       glPopMatrix();
-
-//       // Draw a short line to indicate the rest position of the center of the portal
-//       glPushMatrix();
-//       glTranslated( planar_portal.planeA().x().x(), GLdouble( planar_portal.planeA().x().y() ), 0.0 );
-//       glRotated( GLdouble( theta ), 0.0, 0.0, 1.0 );
-
-//       glLineStipple( 8, 0x5555 );
-//       glEnable( GL_LINE_STIPPLE );
-//       glBegin( GL_LINES );
-//       glVertex2d( 0.0, 0.0 );
-//       glVertex2d( 0.0, - 0.2 * planar_portal.bounds() );
-//       glEnd();
-//       glDisable( GL_LINE_STIPPLE );
-
-//       glPopMatrix();
-
-//       // Draw a short line to indicate the current position of the center of the portal
-//       const Vector2s plane_a_x{ planar_portal.transformedAx() };
-//       glPushMatrix();
-//       glTranslated( GLdouble( plane_a_x.x() ), GLdouble( plane_a_x.y() ), 0.0 );
-//       glRotated( GLdouble( theta ), 0.0, 0.0, 1.0 );
-
-//       glLineStipple( 8, 0x5555 );
-//       glEnable( GL_LINE_STIPPLE );
-//       glBegin( GL_LINES );
-//       glVertex2d( 0.0, 0.0 );
-//       glVertex2d( 0.0, - 0.2 * planar_portal.bounds() );
-//       glEnd();
-//       glDisable( GL_LINE_STIPPLE );
-
-//       glPopMatrix();
-//     }
-//     else
-//     {
-//       glPushMatrix();
-//       glTranslated( GLdouble( planar_portal.planeA().x().x() ), GLdouble( planar_portal.planeA().x().y() ), 0.0 );
-//       glRotated( GLdouble( theta ), 0.0, 0.0, 1.0 );
-
-//       // Draw an infinite line to show what half of portal is free
-//       glLineStipple( 8, 0x5555 );
-//       glEnable( GL_LINE_STIPPLE );
-//       glBegin( GL_LINES );
-//       glVertex4d( 0.0, 0.0, 0.0, 1.0 );
-//       glVertex4d( 0.0, -1.0, 0.0, 0.0 );
-//       glEnd();
-//       glDisable( GL_LINE_STIPPLE );
-
-//       glPopMatrix();
-//     }
-//   }
-
-//   // Draw the second plane of the portal
-//   {
-//     const scalar theta{ -180.0 * atan2( planar_portal.planeB().n().x(), planar_portal.planeB().n().y() ) / PI<scalar> };
-
-//     glPushMatrix();
-//     glTranslated( GLdouble( planar_portal.planeB().x().x() ), GLdouble( planar_portal.planeB().x().y() ), 0.0 );
-//     glRotated( GLdouble( theta ), 0.0, 0.0, 1.0 );
-
-//     glLineStipple( 8, 0xAAAA );
-//     glEnable( GL_LINE_STIPPLE );
-//     glBegin( GL_LINES );
-//     glVertex4d( 0.0, 0.0, 0.0, 1.0 );
-//     glVertex4d( -1.0, 0.0, 0.0, 0.0 );
-//     glEnd();
-//     glDisable( GL_LINE_STIPPLE );
-
-//     glLineStipple( 8, 0x5555 );
-//     glEnable( GL_LINE_STIPPLE );
-//     glBegin( GL_LINES );
-//     glVertex4d( 0.0, 0.0, 0.0, 1.0 );
-//     glVertex4d( 1.0, 0.0, 0.0, 0.0 );
-//     glEnd();
-//     glDisable( GL_LINE_STIPPLE );
-
-//     glPopMatrix();
-
-//     if( planar_portal.isLeesEdwards() )
-//     {
-//       // Draw the lower bound
-//       glPushMatrix();
-//       glTranslated( GLdouble( planar_portal.planeB().x().x() ), GLdouble( planar_portal.planeB().x().y() ), 0.0 );
-//       glRotated( GLdouble( theta ), 0.0, 0.0, 1.0 );
-//       glTranslated( - planar_portal.bounds(), 0.0, 0.0 );
-//       glLineStipple( 8, 0x5555 );
-//       glEnable( GL_LINE_STIPPLE );
-//       glBegin( GL_LINES );
-//       glVertex4d( 0.0, 0.0, 0.0, 1.0 );
-//       glVertex4d( 0.0, -1.0, 0.0, 0.0 );
-//       glEnd();
-//       glDisable( GL_LINE_STIPPLE );
-//       glPopMatrix();
-
-//       // Draw the upper bound
-//       glPushMatrix();
-//       glTranslated( GLdouble( planar_portal.planeB().x().x() ), GLdouble( planar_portal.planeB().x().y() ), 0.0 );
-//       glRotated( GLdouble( theta ), 0.0, 0.0, 1.0 );
-//       glTranslated( planar_portal.bounds(), 0.0, 0.0 );
-//       glLineStipple( 8, 0x5555 );
-//       glEnable( GL_LINE_STIPPLE );
-//       glBegin( GL_LINES );
-//       glVertex4d( 0.0, 0.0, 0.0, 1.0 );
-//       glVertex4d( 0.0, -1.0, 0.0, 0.0 );
-//       glEnd();
-//       glDisable( GL_LINE_STIPPLE );
-//       glPopMatrix();
-
-//       // Draw a short line to indicate the rest position of the center of the portal
-//       glPushMatrix();
-//       glTranslated( GLdouble( planar_portal.planeB().x().x() ), GLdouble( planar_portal.planeB().x().y() ), 0.0 );
-//       glRotated( GLdouble( theta ), 0.0, 0.0, 1.0 );
-
-//       glLineStipple( 8, 0x5555 );
-//       glEnable( GL_LINE_STIPPLE );
-//       glBegin( GL_LINES );
-//       glVertex2d( 0.0, 0.0 );
-//       glVertex2d( 0.0, - 0.2 * planar_portal.bounds() );
-//       glEnd();
-//       glDisable( GL_LINE_STIPPLE );
-
-//       glPopMatrix();
-
-//       // Draw a short line to indicate the current position of the center of the portal
-//       const Vector2s plane_b_x{ planar_portal.transformedBx() };
-//       glPushMatrix();
-//       glTranslated( GLdouble( plane_b_x.x() ), GLdouble( plane_b_x.y() ), 0.0 );
-//       glRotated( GLdouble( theta ), 0.0, 0.0, 1.0 );
-
-//       glLineStipple( 8, 0x5555 );
-//       glEnable( GL_LINE_STIPPLE );
-//       glBegin( GL_LINES );
-//       glVertex2d( 0.0, 0.0 );
-//       glVertex2d( 0.0, - 0.2 * planar_portal.bounds() );
-//       glEnd();
-//       glDisable( GL_LINE_STIPPLE );
-
-//       glPopMatrix();
-//     }
-//     else
-//     {
-//       glPushMatrix();
-//       glTranslated( GLdouble( planar_portal.planeB().x().x() ), GLdouble( planar_portal.planeB().x().y() ), 0.0 );
-//       glRotated( GLdouble( theta ), 0.0, 0.0, 1.0 );
-
-//       // Draw an infinite line to show what half of portal is free
-//       glLineStipple( 8, 0x5555 );
-//       glEnable( GL_LINE_STIPPLE );
-//       glBegin( GL_LINES );
-//       glVertex4d( 0.0, 0.0, 0.0, 1.0 );
-//       glVertex4d( 0.0, -1.0, 0.0, 0.0 );
-//       glEnd();
-//       glDisable( GL_LINE_STIPPLE );
-
-//       glPopMatrix();
-//     }
-//   }
-// }
-
-// void GLWidget::paintSystem()
-// {
-//   const Ball2DState& state{ m_sim.state() };
-
-//   // Draw each ball
-//   glPushAttrib( GL_COLOR );
-//   {
-//     const VectorXs& q{ state.q() };
-//     const VectorXs& r{ state.r() };
-//     assert( q.size() == 2 * r.size() );
-//     assert( m_ball_colors.size() == 3 * r.size() );
-//     for( int i = 0; i < r.size(); i++ )
-//     {
-//       glColor3d( m_ball_colors( 3 * i + 0 ), m_ball_colors( 3 * i + 1 ), m_ball_colors( 3 * i + 2 ) );
-//       m_circle_renderer.renderSolidCircle( q.segment<2>( 2 * i ), r( i ) );
-//     }
-//   }
-//   glPopAttrib();
-
-//   // Draw teleported versions of each ball
-//   glPushAttrib( GL_COLOR );
-//   {
-//     const VectorXs& q{ state.q() };
-//     const VectorXs& r{ state.r() };
-//     assert( q.size() == 2 * r.size() );
-//     assert( m_ball_colors.size() == 3 * r.size() );
-//     const std::vector<PlanarPortal>& planar_portals{ state.planarPortals() };
-//     // For each periodic boundary
-//     for( const PlanarPortal& planar_portal : planar_portals )
-//     {
-//       // For each ball
-//       for( unsigned ball_idx = 0; ball_idx < r.size(); ball_idx++ )
-//       {
-//         const Vector2s pos{ q.segment<2>( 2 * ball_idx ) };
-//         const scalar rad{ r( ball_idx ) };
-//         // If the current ball intersect a periodic boudnary
-//         bool intersecting_index;
-//         if( planar_portal.ballTouchesPortal( pos, rad, intersecting_index ) )
-//         {
-//           Vector2s teleported_pos;
-//           planar_portal.teleportBall( pos, rad, teleported_pos );
-//           glColor3d( m_ball_colors( 3 * ball_idx + 0 ), m_ball_colors( 3 * ball_idx + 1 ), m_ball_colors( 3 * ball_idx + 2 ) );
-//           m_circle_renderer.renderCircle( teleported_pos, rad );
-//         }
-//       }
-//     }
-//   }
-//   glPopAttrib();
-
-//   // Draw each static drum
-//   glPushAttrib( GL_COLOR );
-//   glColor3d( 0.0, 0.0, 0.0 );
-//   {
-//     const std::vector<StaticDrum>& drums = state.staticDrums();
-//     for( std::vector<StaticDrum>::size_type i = 0; i < drums.size(); i++ )
-//     {
-//       m_circle_renderer.renderSolidCircle( drums[i].x(), drums[i].r() );
-//     }
-//   }
-//   glPopAttrib();
-
-//   // Draw each planar portal
-//   glPushAttrib( GL_COLOR );
-//   glPushAttrib( GL_LINE_WIDTH );
-//   glLineWidth( 2.0 );
-//   {
-//     // TODO: Create a set number of nice looking colors for the portal
-//     std::mt19937_64 mt{ 123456 };
-//     std::uniform_int_distribution<int> color_gen{ 0, 255 };
-//     const std::vector<PlanarPortal>& planar_portals{ state.planarPortals() };
-//     for( const PlanarPortal& planar_portal : planar_portals )
-//     {
-//       const int r = color_gen( mt );
-//       const int g = color_gen( mt );
-//       const int b = color_gen( mt );
-//       glColor3d( GLdouble(r) / 255.0, GLdouble(g) / 255.0, GLdouble(b) / 255.0 );
-//       paintPlanarPortal( planar_portal );
-//     }
-//   }
-//   glPopAttrib();
-//   glPopAttrib();
-
-//   // Draw each static plane
-//   glPushAttrib( GL_COLOR );
-//   glColor3d( 0.0, 0.0, 0.0 );
-//   {
-//     const std::vector<StaticPlane>& planes = state.staticPlanes();
-//     for( const StaticPlane& plane : planes )
-//     {
-//       paintSolidHalfPlane( plane.x(), plane.n() );
-//     }
-//   }
-//   glPopAttrib();
-// }
 
 static QString generateTimeString( const unsigned iteration, const Rational<std::intmax_t>& dt, const int display_precision, const scalar& end_time )
 {

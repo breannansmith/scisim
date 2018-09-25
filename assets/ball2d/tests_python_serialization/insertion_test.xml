@@ -1,6 +1,6 @@
 <ball2d_scene>
 
-  <camera cx="0" cy="0" scale_factor="11.2642" fps="50" render_at_fps="1" locked="0"/>
+  <camera cx="0" cy="-5" scale_factor="7.25" fps="50" render_at_fps="1" locked="0"/>
 
   <scripting callback="insertion_test"/>
 
@@ -11,7 +11,11 @@
   <gravity fx="0.0" fy="-10.0"/>
 
   <static_plane x="0.0 -10.0" n="0.0 1.0"/>
-  <static_plane x="-10.0 0.0" n="1.0 0.0"/>
-  <static_plane x=" 10.0 0.0" n="-1.0 0.0"/>
+  <static_plane x="-10.0 -5.0" n="1.0 0.0"/>
+  <static_plane x=" 10.0 -5.0" n="-1.0 0.0"/>
+
+  <static_plane_renderer plane="0" r="0.1 20.0" color="0 0 0"/>
+  <static_plane_renderer plane="1" r="0.1 10.0" color="0 0 0"/>
+  <static_plane_renderer plane="2" r="0.1 10.0" color="0 0 0"/>
 
 </ball2d_scene>
