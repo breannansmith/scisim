@@ -27,8 +27,8 @@ matrix:
             - llvm-toolchain-trusty-6.0
           packages:
             - clang-6.0
-            - libc++-6-dev
-            - libc++abi-6-dev
+            - libc++-dev
+            - libc++abi-dev
       env: 
         - CC_COMPILER=clang-6.0
         - CXX_COMPILER=clang++-6.0
