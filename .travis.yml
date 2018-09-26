@@ -17,22 +17,22 @@ matrix:
         - CC_COMPILER=gcc-8
         - CXX_COMPILER=g++-8
     # Linux and Clang
-    - os: linux
-      dist: trusty
-      sudo: required
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-6.0
-          packages:
-            - clang-6.0
-            - llvm-6.0-dev
-            - libc++-dev
-            - libc++abi-dev
-      env: 
-        - CC_COMPILER=clang-6.0
-        - CXX_COMPILER=clang++-6.0
+    # - os: linux
+    #   dist: trusty
+    #   sudo: required
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - ubuntu-toolchain-r-test
+    #         - llvm-toolchain-trusty-6.0
+    #       packages:
+    #         - clang-6.0
+    #         - llvm-6.0-dev
+    #         - libc++-dev
+    #         - libc++abi-dev
+    #   env: 
+    #     - CC_COMPILER=clang-6.0
+    #     - CXX_COMPILER=clang++-6.0
     # OS X and Clang
     - os: osx
       osx_image: xcode10
