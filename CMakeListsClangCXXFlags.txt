@@ -16,6 +16,9 @@ endif()
 # Disable run time type information
 set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti" )
 
+# Force libc++
+set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++" )
+
 # Enable extra optimizations
 set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native" )
 # lto causes spurious warnings with the address sanitizer on Apple LLVM version 7.0.2
