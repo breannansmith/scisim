@@ -1,13 +1,13 @@
 # Note: GCC makes one add extra flags
 if( STRICT_BUILD )
   # Does not work with Sobogus: -Wsign-conversion -Weffc++ -Wold-style-cast
-  # Does not work with Eigen: -Wzero-as-null-pointer-constant -Wstrict-overflow=5
+  # Does not work with Eigen: -Wvector-operation-performance -Wzero-as-null-pointer-constant -Wstrict-overflow=5
   # Does not work with SCISim: -Wfloat-equal -Wsuggest-final-types -Wsuggest-final-methods
 
   # Enable as many warnings as possible
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -Wpedantic -Wcast-align -Wdisabled-optimization -Wformat=2 -Winit-self" )
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Winvalid-pch -Wmissing-include-dirs -Wnoexcept -Woverloaded-virtual -Wsign-promo -Wstrict-null-sentinel" )
-  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wtrampolines -Wundef -Wvector-operation-performance -Wconversion -Wctor-dtor-privacy -Wlogical-op -Wshadow" )
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wtrampolines -Wundef -Wconversion -Wctor-dtor-privacy -Wlogical-op -Wshadow" )
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wcast-qual -Wmissing-declarations -Wredundant-decls -Werror=double-promotion -Wlogical-op" )
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wuseless-cast -Wunsafe-loop-optimizations -Wnull-dereference" )
 endif()
