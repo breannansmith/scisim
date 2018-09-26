@@ -23,7 +23,7 @@ matrix:
       addons:
         apt:
           sources:
-            - llvm-toolchain-trusty-6.0
+            - ubuntu-toolchain-r-test
           packages:
             - clang-6.0
       env: 
@@ -41,7 +41,6 @@ matrix:
       env:
         - CC_COMPILER=gcc-8
         - CXX_COMPILER=g++-8
-        - TEST_NAME="OSX_GCC"
 
 before_install:
   # Workaround for weird Python binary in the latest Travis CI update
@@ -56,7 +55,8 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then CTEST_EXEC=ctest ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update > /dev/null ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew outdated cmake || brew upgrade cmake ; fi
-  - if [[ "$TEST_NAME" == "OSX_GCC" ]]; then brew reinstall gcc ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew cask uninstall oclint ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew reinstall gcc ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install md5sha1sum ninja homebrew/core/numpy homebrew/core/hdf5 python@2 ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then pip install h5py ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then PY_INC=`python-config --includes | grep -o '\-I[^ ]*' | head -n 1 | cut -c 3-` ; fi
