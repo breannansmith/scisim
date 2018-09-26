@@ -27,6 +27,7 @@ matrix:
             - llvm-toolchain-trusty-6.0
           packages:
             - clang-6.0
+            - llvm-6.0-dev
             - libc++-dev
             - libc++abi-dev
       env: 
