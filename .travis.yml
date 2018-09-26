@@ -11,37 +11,36 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - gcc-6
-            - g++-6
+            - gcc-8
+            - g++-8
       env:
-        - CC_COMPILER=gcc-6
-        - CXX_COMPILER=g++-6
-    # llvm-toolchain-trusty does not look whitelisted, yet:
-    #    https://github.com/travis-ci/apt-source-whitelist
-    # - os: linux
-    #   dist: trusty
-    #   sudo: required
-    #   addons:
-    #     apt:
-    #       sources:
-    #         - llvm-toolchain-trusty
-    #       packages:
-    #         - clang-3.8
-    #   env: 
-    #     - CC_COMPILER=clang-3.8
-    #     - CXX_COMPILER=clang++-3.8
+        - CC_COMPILER=gcc-8
+        - CXX_COMPILER=g++-8
+    # Linux and Clang
+    - os: linux
+      dist: trusty
+      sudo: required
+      addons:
+        apt:
+          sources:
+            - llvm-toolchain-trusty-6.0
+          packages:
+            - clang-6.0
+      env: 
+        - CC_COMPILER=clang-6.0
+        - CXX_COMPILER=clang++-6.0
     # OS X and Clang
     - os: osx
-      osx_image: xcode8
+      osx_image: xcode10
       env:
         - CC_COMPILER=cc
         - CXX_COMPILER=c++
     # OS X and GCC
     - os: osx
-      osx_image: xcode8
+      osx_image: xcode10
       env:
-        - CC_COMPILER=gcc-7
-        - CXX_COMPILER=g++-7
+        - CC_COMPILER=gcc-8
+        - CXX_COMPILER=g++-8
         - TEST_NAME="OSX_GCC"
 
 before_install:
