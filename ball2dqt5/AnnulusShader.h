@@ -18,7 +18,7 @@ public:
   AnnulusShader& operator=( const AnnulusShader& ) = delete;
   AnnulusShader& operator=( AnnulusShader&& ) = delete;
 
-  void initialize( QOpenGLFunctions_3_3_Core* f );
+  void initialize( const int num_subdivs, QOpenGLFunctions_3_3_Core* f );
   void cleanup();
 
   void setTransform( const QMatrix4x4& pv );
@@ -28,6 +28,8 @@ public:
   Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& annulusData();
 
 private:
+
+  GLuint m_num_subdivs;
 
   QOpenGLFunctions_3_3_Core* m_f;
 

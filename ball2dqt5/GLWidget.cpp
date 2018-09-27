@@ -68,6 +68,8 @@ GLWidget::GLWidget( QWidget* parent )
 , m_plane_render_settings()
 , m_drum_render_settings()
 , m_portal_render_settings()
+, m_num_circle_subdivs( 32 )
+, m_num_drum_subdivs( 32 )
 {}
 
 GLWidget::~GLWidget()
@@ -277,8 +279,19 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   std::swap( m_drum_render_settings, render_settings.drum_render_settings );
   std::swap( m_portal_render_settings, render_settings.portal_render_settings );
 
+  m_num_circle_subdivs = render_settings.num_ball_subdivs;
+  m_num_drum_subdivs = render_settings.num_drum_subdivs;
+
   if( render_on_load )
   {
+    // Update the global render settings
+    m_circle_shader.cleanup();
+    m_circle_shader.initialize( m_num_circle_subdivs, m_f );
+
+    m_annulus_shader.cleanup();
+    m_annulus_shader.initialize( m_num_drum_subdivs, m_f );
+
+    // Draw the scene
     resizeGL( m_w, m_h );
     update();
   }
@@ -566,9 +579,9 @@ void GLWidget::initializeGL()
   m_f->glClearColor( 1.0, 1.0, 1.0, 1.0 );
 
   m_axis_shader.initialize( m_f );
-  m_circle_shader.initialize( m_f );
+  m_circle_shader.initialize( m_num_circle_subdivs, m_f );
   m_plane_shader.initialize( m_f );
-  m_annulus_shader.initialize( m_f );
+  m_annulus_shader.initialize( m_num_circle_subdivs, m_f );
   m_rectangle_shader.initialize( m_f );
 }
 

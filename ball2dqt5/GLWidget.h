@@ -176,6 +176,10 @@ private:
   std::vector<DrumRenderSettings> m_drum_render_settings;
   std::vector<PortalRenderSettings> m_portal_render_settings;
 
+  // Global render settings
+  int m_num_circle_subdivs;
+  int m_num_drum_subdivs;
+
 };
 
 #endif

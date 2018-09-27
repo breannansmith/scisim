@@ -186,6 +186,41 @@ static bool loadCameraSettings( const rapidxml::xml_node<>& node, Eigen::Vector2
   return true;
 }
 
+static bool loadGlobalRenderSettings( const rapidxml::xml_node<>& node, int& num_ball_subdivs, int& num_drum_subdivs )
+{
+  // Attempt to parse the ball subdivision setting
+  {
+    const rapidxml::xml_attribute<>* attrib{ node.first_attribute( "num_ball_subdivs" ) };
+    if( attrib == nullptr )
+    {
+      std::cerr << "Failed to locate num_ball_subdivs attribute for global_render_settings" << std::endl;
+      return false;
+    }
+    if( !StringUtilities::extractFromString( attrib->value(), num_ball_subdivs ) || num_ball_subdivs <= 0 )
+    {
+      std::cerr << "Failed to parse num_ball_subdivs attribute for global_render_settings. Value must be a positive integer." << std::endl;
+      return false;
+    }
+  }
+
+  // Attempt to parse the drum subdivision setting
+  {
+    const rapidxml::xml_attribute<>* attrib{ node.first_attribute( "num_drum_subdivs" ) };
+    if( attrib == nullptr )
+    {
+      std::cerr << "Failed to locate num_drum_subdivs attribute for global_render_settings" << std::endl;
+      return false;
+    }
+    if( !StringUtilities::extractFromString( attrib->value(), num_drum_subdivs ) || num_drum_subdivs <= 0 )
+    {
+      std::cerr << "Failed to parse num_drum_subdivs attribute for global_render_settings. Value must be a positive integer." << std::endl;
+      return false;
+    }
+  }
+
+  return true;
+}
+
 static bool loadEndTime( const rapidxml::xml_node<>& node, scalar& end_time )
 {
   // Attempt to parse the time setting
@@ -1958,6 +1993,16 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::st
     if( !loadCameraSettings( *root_node.first_node( "camera" ), new_render_settings.camera_center, new_render_settings.camera_scale_factor, new_render_settings.fps, new_render_settings.render_at_fps, new_render_settings.lock_camera ) )
     {
       std::cerr << "Failed to parse camera node: " << file_name << std::endl;
+      return false;
+    }
+  }
+
+  // Attempt to load the optional global render settings
+  if( root_node.first_node( "global_render_settings" ) != nullptr )
+  {
+    if( !loadGlobalRenderSettings( *root_node.first_node( "global_render_settings" ), new_render_settings.num_ball_subdivs, new_render_settings.num_drum_subdivs ) )
+    {
+      std::cerr << "Failed to parse global render settings: " << file_name << std::endl;
       return false;
     }
   }

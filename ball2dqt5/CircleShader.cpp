@@ -35,10 +35,9 @@ static const char* const fragment_shader_source = {
   "}\n"
 };
 
-constexpr GLuint g_num_subdivs = 32;
-
 CircleShader::CircleShader()
-: m_f( nullptr )
+: m_num_subdivs( 1 )
+, m_f( nullptr )
 , m_VAO( 0 )
 , m_instance_VBO( 0 )
 , m_program( 0 )
@@ -48,25 +47,28 @@ CircleShader::CircleShader()
 , m_buffer_size( 0 )
 {}
 
-static std::vector<GLfloat> tesselateCircle()
+static std::vector<GLfloat> tesselateCircle( const GLuint num_subdivs )
 {
-  std::vector<GLfloat> vertices( 6 * g_num_subdivs );
-  const double dtheta{ 2.0 * PI<double> / double( g_num_subdivs ) };
-  for( GLuint div_num = 0; div_num < g_num_subdivs; div_num++ )
+  std::vector<GLfloat> vertices( 6 * num_subdivs );
+  const double dtheta{ 2.0 * PI<double> / double( num_subdivs ) };
+  for( GLuint div_num = 0; div_num < num_subdivs; div_num++ )
   {
     const GLuint base_idx = 6 * div_num;
     vertices[base_idx + 0] = 0.0;
     vertices[base_idx + 1] = 0.0;
     vertices[base_idx + 2] = GLfloat( std::cos( div_num * dtheta ) );
     vertices[base_idx + 3] = GLfloat( std::sin( div_num * dtheta ) );
-    vertices[base_idx + 4] = GLfloat( std::cos( ((div_num + 1) % g_num_subdivs) * dtheta ) );
-    vertices[base_idx + 5] = GLfloat( std::sin( ((div_num + 1) % g_num_subdivs) * dtheta ) );
+    vertices[base_idx + 4] = GLfloat( std::cos( ((div_num + 1) % num_subdivs) * dtheta ) );
+    vertices[base_idx + 5] = GLfloat( std::sin( ((div_num + 1) % num_subdivs) * dtheta ) );
   }
   return vertices;
 }
 
-void CircleShader::initialize( QOpenGLFunctions_3_3_Core* f )
+void CircleShader::initialize( const int num_subdivs, QOpenGLFunctions_3_3_Core* f )
 {
+  assert( num_subdivs > 0 );
+  m_num_subdivs = num_subdivs;
+
   assert( f != nullptr );
   assert( m_f == nullptr );
   m_f = f;
@@ -111,7 +113,7 @@ void CircleShader::initialize( QOpenGLFunctions_3_3_Core* f )
   GLuint circle_vbo = 0;
   m_f->glGenBuffers( 1, &circle_vbo );
   {
-    const std::vector<GLfloat> vertices = tesselateCircle();
+    const std::vector<GLfloat> vertices = tesselateCircle( m_num_subdivs );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, circle_vbo );
     m_f->glBufferData( GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
@@ -161,11 +163,19 @@ void CircleShader::initialize( QOpenGLFunctions_3_3_Core* f )
 
 void CircleShader::cleanup()
 {
+  m_num_subdivs = 1;
   assert( m_f != nullptr );
   m_f->glDeleteVertexArrays( 1, &m_VAO );
+  m_VAO = 0;
   m_f->glDeleteBuffers( 1, &m_instance_VBO );
+  m_instance_VBO = 0;
   m_f->glDeleteProgram( m_program );
+  m_program = 0;
   m_f = nullptr;
+  m_pv_mat_loc = -1;
+  // m_circle_data
+  m_data_buffered = false;
+  m_buffer_size = 0;
 }
 
 void CircleShader::setTransform( const QMatrix4x4& pv )
@@ -208,7 +218,7 @@ void CircleShader::draw()
 
   m_f->glUseProgram( m_program );
   m_f->glBindVertexArray( m_VAO );
-  m_f->glDrawArraysInstanced( GL_TRIANGLES, 0, 3 * g_num_subdivs, GLsizei(num_circles) );
+  m_f->glDrawArraysInstanced( GL_TRIANGLES, 0, 3 * m_num_subdivs, GLsizei(num_circles) );
   m_f->glBindVertexArray( 0 );
 }
 

@@ -65,6 +65,9 @@ struct RenderSettings final
   bool render_at_fps;
   bool lock_camera;
 
+  int num_ball_subdivs = 32;
+  int num_drum_subdivs = 32;
+
   std::vector<PlaneRenderSettings> plane_render_settings;
   std::vector<DrumRenderSettings> drum_render_settings;
   std::vector<PortalRenderSettings> portal_render_settings;

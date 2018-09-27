@@ -32,10 +32,9 @@ static const char* const fragment_shader_source = {
   "}\n"
 };
 
-constexpr GLuint g_num_subdivs = 64;
-
 AnnulusShader::AnnulusShader()
-: m_f( nullptr )
+: m_num_subdivs( 1 )
+, m_f( nullptr )
 , m_VAO( 0 )
 , m_instance_VBO( 0 )
 , m_program( 0 )
@@ -45,12 +44,12 @@ AnnulusShader::AnnulusShader()
 , m_last_copied_size( 0 )
 {}
 
-static void generateIndexedAnnulus( Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& vertices, Eigen::Matrix<GLuint,Eigen::Dynamic,1>& indices )
+static void generateIndexedAnnulus( const GLuint num_subdivs, Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& vertices, Eigen::Matrix<GLuint,Eigen::Dynamic,1>& indices )
 {
-  vertices.resize( 4 * g_num_subdivs );
-  for( GLuint dvsn = 0; dvsn < g_num_subdivs; dvsn++ )
+  vertices.resize( 4 * num_subdivs );
+  for( GLuint dvsn = 0; dvsn < num_subdivs; dvsn++ )
   {
-    const double theta = double(dvsn) * 2.0 * PI<double> / double(g_num_subdivs);
+    const double theta = double(dvsn) * 2.0 * PI<double> / double(num_subdivs);
     const GLfloat c = GLfloat(std::cos(theta));
     const GLfloat s = GLfloat(std::sin(theta));
 
@@ -60,20 +59,23 @@ static void generateIndexedAnnulus( Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& ver
     vertices[4 * dvsn + 3] = s;
   }
 
-  indices.resize( 6 * g_num_subdivs );
-  for( GLuint dvsn = 0; dvsn < g_num_subdivs; dvsn++ )
+  indices.resize( 6 * num_subdivs );
+  for( GLuint dvsn = 0; dvsn < num_subdivs; dvsn++ )
   {
-    indices[6 * dvsn + 0] = (0 + 2 * dvsn) % (2 * g_num_subdivs);
-    indices[6 * dvsn + 1] = (1 + 2 * dvsn) % (2 * g_num_subdivs);
-    indices[6 * dvsn + 2] = (2 + 2 * dvsn) % (2 * g_num_subdivs);
-    indices[6 * dvsn + 3] = (2 + 2 * dvsn) % (2 * g_num_subdivs);
-    indices[6 * dvsn + 4] = (1 + 2 * dvsn) % (2 * g_num_subdivs);
-    indices[6 * dvsn + 5] = (3 + 2 * dvsn) % (2 * g_num_subdivs);
+    indices[6 * dvsn + 0] = (0 + 2 * dvsn) % (2 * num_subdivs);
+    indices[6 * dvsn + 1] = (1 + 2 * dvsn) % (2 * num_subdivs);
+    indices[6 * dvsn + 2] = (2 + 2 * dvsn) % (2 * num_subdivs);
+    indices[6 * dvsn + 3] = (2 + 2 * dvsn) % (2 * num_subdivs);
+    indices[6 * dvsn + 4] = (1 + 2 * dvsn) % (2 * num_subdivs);
+    indices[6 * dvsn + 5] = (3 + 2 * dvsn) % (2 * num_subdivs);
   }
 }
 
-void AnnulusShader::initialize( QOpenGLFunctions_3_3_Core* f )
+void AnnulusShader::initialize( const int num_subdivs, QOpenGLFunctions_3_3_Core* f )
 {
+  assert( num_subdivs > 0 );
+  m_num_subdivs = num_subdivs;
+
   assert( f != nullptr );
   assert( m_f == nullptr );
   m_f = f;
@@ -120,7 +122,7 @@ void AnnulusShader::initialize( QOpenGLFunctions_3_3_Core* f )
   {
     Eigen::Matrix<GLfloat,Eigen::Dynamic,1> vertices;
     Eigen::Matrix<GLuint,Eigen::Dynamic,1> indices;
-    generateIndexedAnnulus( vertices, indices );
+    generateIndexedAnnulus( m_num_subdivs, vertices, indices );
 
     m_f->glGenBuffers( 1, &vbo );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, vbo );
@@ -187,11 +189,19 @@ void AnnulusShader::initialize( QOpenGLFunctions_3_3_Core* f )
 
 void AnnulusShader::cleanup()
 {
+  m_num_subdivs = 1;
   assert( m_f != nullptr );
   m_f->glDeleteVertexArrays( 1, &m_VAO );
+  m_VAO = 0;
   m_f->glDeleteBuffers( 1, &m_instance_VBO );
+  m_instance_VBO = 0;
   m_f->glDeleteProgram( m_program );
+  m_program = 0;
   m_f = nullptr;
+  m_pv_mat_loc = -1;
+  // m_annulus_data
+  m_data_buffered = false;
+  m_last_copied_size = 0;
 }
 
 void AnnulusShader::setTransform( const QMatrix4x4& pv )
@@ -234,7 +244,7 @@ void AnnulusShader::draw()
 
   m_f->glUseProgram( m_program );
   m_f->glBindVertexArray( m_VAO );
-  m_f->glDrawElementsInstanced( GL_TRIANGLES, 6 * g_num_subdivs, GL_UNSIGNED_INT, nullptr, num_annuli );
+  m_f->glDrawElementsInstanced( GL_TRIANGLES, 6 * m_num_subdivs, GL_UNSIGNED_INT, nullptr, num_annuli );
   m_f->glBindVertexArray( 0 );
 }
 
