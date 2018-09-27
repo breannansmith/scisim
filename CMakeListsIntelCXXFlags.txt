@@ -5,25 +5,12 @@ if( STRICT_BUILD )
 
   # Remove warnings that cause issues
   #    981: operands are evaluated in unspecified order
-  #   1418: external function definition with no prior declaration
   #   1572: floating-point equality and inequality comparisons are unreliable
-  #    869: parameter was never referenced
-  #    383: value copied to temporary, reference to temporary used
+  #   1418: external function definition with no prior declaration
   #  11074: Inlining inhibited by limit max-size
   #  11076: To get full report use -qopt-report=4 -qopt-report-phase ipo
-  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -wd981,1418,1572,869,383,11074,11076" )
-
-  # Remove warnings that cause problems with Qt5
-  if( USE_QT5 )
-    #  444: destructor for base class is not virtual
-    # 1875: offsetof applied to non-POD (Plain Old Data) types is nonstandard
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -wd444,1875" )
-  endif()
-
-  # Remove warnings when building on Linux
-  #  13368: loop was not vectorized with "vector always assert"
-  #  15527: loop was not vectorized: function call to free cannot be vectorized
-  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -wd13368,15527" )
+  #    383: value copied to temporary, reference to temporary used
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -wd981,1572,1418,11074,11076,383" )
 endif()
 
 # Disable run time type information

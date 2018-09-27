@@ -20,7 +20,6 @@ static Ball2DState* s_ball_state;
 static VectorXs* s_mu;
 static VectorXs* s_cor;
 static const std::vector<std::unique_ptr<Constraint>>* s_active_set;
-#endif
 
 // User-provided callbacks
 typedef void (*BallInsertCallback)(void*, int);
@@ -30,6 +29,7 @@ static BallInsertCallback s_ball_insert_call_back = nullptr;
 typedef void (*PlaneDeleteCallback)(void*, int);
 static void* s_plane_delete_context = nullptr;
 static PlaneDeleteCallback s_plane_delete_call_back = nullptr;
+#endif
 
 
 PythonScripting::PythonScripting()
@@ -337,16 +337,28 @@ void PythonScripting::setState( Ball2DState& /*state*/ )
   // No need to handle state cache if scripting is disabled
 }
 
+#ifdef USE_PYTHON
 void PythonScripting::registerBallInsertCallback( void* context, void (*callback)(void*, int) )
+#else
+void PythonScripting::registerBallInsertCallback( void* /*context*/, void (*)(void*, int) )
+#endif
 {
+  #ifdef USE_PYTHON
   s_ball_insert_context = context;
   s_ball_insert_call_back = callback;
+  #endif
 }
 
+#ifdef USE_PYTHON
 void PythonScripting::registerPlaneDeleteCallback( void* context, void (*callback)(void*, int) )
+#else
+void PythonScripting::registerPlaneDeleteCallback( void* /*context*/, void (*)(void*, int) )
+#endif
 {
+  #ifdef USE_PYTHON
   s_plane_delete_context = context;
   s_plane_delete_call_back = callback;
+  #endif
 }
 
 void PythonScripting::forgetState()
