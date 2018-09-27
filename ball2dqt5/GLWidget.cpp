@@ -147,6 +147,35 @@ static void ballInsertCallback( void* context, int num_balls )
   static_cast<GLWidget*>(context)->insertBallCallback(num_balls);
 }
 
+void GLWidget::deletePlaneCallback( const int plane_idx )
+{
+  // For each plane renderer
+  for( int rndr_idx = 0; rndr_idx < int(m_plane_render_settings.size()); rndr_idx++ )
+  {
+    PlaneRenderSettings& settings = m_plane_render_settings[rndr_idx];
+    // Flag the renderer for deletion if it matches the marked plane
+    if( settings.idx == plane_idx )
+    {
+      settings.idx = -1;
+    }
+    // Otherwise, if the index is greater than the marked plane, decrement the index
+    else if( settings.idx > plane_idx )
+    {
+      settings.idx--;
+    }
+  }
+  // Delete any flagged renderers
+  m_plane_render_settings.erase(
+    std::remove_if( m_plane_render_settings.begin(), m_plane_render_settings.end(),
+      []( const PlaneRenderSettings& settings ){ return settings.idx == -1; } ),
+    m_plane_render_settings.end() );
+}
+
+static void planeDeleteCallback( void* context, int plane_idx )
+{
+  static_cast<GLWidget*>(context)->deletePlaneCallback(plane_idx);
+}
+
 bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render_on_load, unsigned& fps, bool& render_at_fps, bool& lock_camera )
 {
   // State provided by config files
@@ -274,6 +303,7 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
 
   // Register UI callbacks for Python scripting
   m_scripting.registerBallInsertCallback( this, &ballInsertCallback );
+  m_scripting.registerPlaneDeleteCallback( this, &planeDeleteCallback );
 
   std::swap( m_plane_render_settings, render_settings.plane_render_settings );
   std::swap( m_drum_render_settings, render_settings.drum_render_settings );
@@ -562,6 +592,7 @@ void GLWidget::resetSystem()
 
   // Register UI callbacks for Python scripting
   m_scripting.registerBallInsertCallback( this, &ballInsertCallback );
+  m_scripting.registerPlaneDeleteCallback( this, &planeDeleteCallback );
 
   copyRenderState();
   update();

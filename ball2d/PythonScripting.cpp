@@ -27,6 +27,11 @@ typedef void (*BallInsertCallback)(void*, int);
 static void* s_ball_insert_context = nullptr;
 static BallInsertCallback s_ball_insert_call_back = nullptr;
 
+typedef void (*PlaneDeleteCallback)(void*, int);
+static void* s_plane_delete_context = nullptr;
+static PlaneDeleteCallback s_plane_delete_call_back = nullptr;
+
+
 PythonScripting::PythonScripting()
 : m_path()
 , m_module_name()
@@ -332,10 +337,16 @@ void PythonScripting::setState( Ball2DState& /*state*/ )
   // No need to handle state cache if scripting is disabled
 }
 
-void PythonScripting::registerBallInsertCallback(void* context, void (*callback)(void*, int))
+void PythonScripting::registerBallInsertCallback( void* context, void (*callback)(void*, int) )
 {
   s_ball_insert_context = context;
   s_ball_insert_call_back = callback;
+}
+
+void PythonScripting::registerPlaneDeleteCallback( void* context, void (*callback)(void*, int) )
+{
+  s_plane_delete_context = context;
+  s_plane_delete_call_back = callback;
 }
 
 void PythonScripting::forgetState()
@@ -495,6 +506,10 @@ static PyObject* deleteStaticPlane( PyObject* /*self*/, PyObject* args )
     std::exit( EXIT_FAILURE );
   }
   s_ball_state->staticPlanes().erase( s_ball_state->staticPlanes().begin() + plane_idx );
+  if( s_plane_delete_call_back != nullptr )
+  {
+    s_plane_delete_call_back( s_plane_delete_context, plane_idx );
+  }
   return Py_BuildValue( "" );
 }
 

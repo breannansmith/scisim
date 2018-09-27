@@ -69,6 +69,7 @@ public:
   void exportCameraSettings();
 
   void insertBallCallback( const int num_balls );
+  void deletePlaneCallback( const int plane_idx );
 
 protected:
 
