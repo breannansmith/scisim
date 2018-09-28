@@ -28,8 +28,6 @@ class ImpactOperator;
 class FrictionSolver;
 class ImpactFrictionMap;
 
-// TODO: Factor out the camera management code
-// TODO: Move to the new and improved integrator setup
 class GLWidget final : public QOpenGLWidget
 {
 
@@ -87,11 +85,6 @@ private:
   void copyRenderState();
 
   bool checkGLErrors() const;
-
-  // bool axesDrawingIsEnabled() const;
-  // void paintAxes();
-
-  // void paintSystem();
 
   void paintHUD();
 

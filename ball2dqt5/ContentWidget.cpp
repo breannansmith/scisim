@@ -146,8 +146,6 @@ void ContentWidget::openScene()
 
   // Try to load the file
   openScene( xml_scene_file_name, true );
-
-  //this->setFocus();
 }
 
 void ContentWidget::openScene( const QString& scene_file_name, const bool render_on_load )
@@ -197,8 +195,6 @@ void ContentWidget::reloadScene()
 {
   // Try to load the file
   openScene( m_xml_file_name, true );
-
-  //this->setFocus();
 }
 
 void ContentWidget::simulateToggled( const bool state )
@@ -246,7 +242,6 @@ void ContentWidget::exportMovieToggled( const bool checked )
       assert( m_export_movie_checkbox != nullptr );
       m_export_movie_checkbox->toggle();
     }
-    //this->setFocus();
   }
   else
   {
@@ -274,7 +269,6 @@ void ContentWidget::exportImage()
   {
     m_gl_widget->saveScreenshot( file_name );
   }
-  //this->setFocus();
 }
 
 void ContentWidget::exportMovie()
@@ -287,8 +281,6 @@ void ContentWidget::exportMovie()
 void ContentWidget::movieFPSChanged( int fps )
 {
   m_gl_widget->setMovieFPS( fps );
-
-  //this->setFocus();
 }
 
 void ContentWidget::exportCameraSettings()
@@ -299,20 +291,17 @@ void ContentWidget::exportCameraSettings()
 QString ContentWidget::getOpenFileNameFromUser( const QString& prompt )
 {
   const QString file_name{ QFileDialog::getOpenFileName( this, prompt ) };
-  //activateWindow();
   return file_name;
 }
 
 QString ContentWidget::getSaveFileNameFromUser( const QString& prompt )
 {
   const QString file_name{ QFileDialog::getSaveFileName( this, prompt ) };
-  //activateWindow();
   return file_name;
 }
 
 QString ContentWidget::getDirectoryNameFromUser( const QString& prompt )
 {
   const QString file_name{ QFileDialog::getExistingDirectory( this, prompt ) };
-  //activateWindow();
   return file_name;
 }

@@ -1,20 +1,20 @@
 #include "GLWidget.h"
 
+#include <QApplication>
+#include <QFontDatabase>
 #include <QMatrix4x4>
+#include <QOpenGLFunctions_3_3_Core>
 #include <QPainter>
 #include <QWheelEvent>
-#include <QFontDatabase>
-#include <QOpenGLFunctions_3_3_Core>
-#include <QApplication>
 
-#include <iomanip>
 #include <cassert>
+#include <iomanip>
 
-#include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
 #include "scisim/ConstrainedMaps/FrictionSolver.h"
 #include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
+#include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
 
 #include "ball2d/Ball2DState.h"
 
@@ -127,7 +127,8 @@ Vector3s GLWidget::generateColor()
 {
   Vector3s color( 1.0, 1.0, 1.0 );
   // Generate colors until we get one with a luminance in [0.1, 0.9]
-  while( ( 0.2126 * color.x() + 0.7152 * color.y() + 0.0722 * color.z() ) > 0.9 || ( 0.2126 * color.x() + 0.7152 * color.y() + 0.0722 * color.z() ) < 0.1 )
+  while( ( 0.2126 * color.x() + 0.7152 * color.y() + 0.0722 * color.z() ) > 0.9 ||
+         ( 0.2126 * color.x() + 0.7152 * color.y() + 0.0722 * color.z() ) < 0.1 )
   {
     color.x() = m_color_gen( m_ball_color_gen );
     color.y() = m_color_gen( m_ball_color_gen );
@@ -193,10 +194,10 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   std::unique_ptr<ImpactFrictionMap> new_if_map{ nullptr };
   RenderSettings render_settings;
 
-  // TODO: Instead of std::string as input, just take PythonScripting directly
-  const bool loaded_successfully{ Ball2DSceneParser::parseXMLSceneFile( xml_scene_file_name.toStdString(), new_scripting_callback_name, new_simulation_state,
-                                                                        new_unconstrained_map, new_dt_string, new_dt, new_end_time, new_impact_operator, new_imap,
-                                                                        new_CoR, new_friction_solver, new_mu, new_if_map, render_settings ) };
+  const bool loaded_successfully{ Ball2DSceneParser::parseXMLSceneFile( xml_scene_file_name.toStdString(), new_scripting_callback_name,
+                                                                        new_simulation_state, new_unconstrained_map, new_dt_string, new_dt,
+                                                                        new_end_time, new_impact_operator, new_imap, new_CoR,
+                                                                        new_friction_solver, new_mu, new_if_map, render_settings ) };
 
   if( !loaded_successfully )
   {
@@ -205,9 +206,12 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   }
 
   // Ensure we have a correct combination of maps.
-  assert( ( new_unconstrained_map != nullptr && new_impact_operator == nullptr && new_friction_solver == nullptr && new_if_map == nullptr && new_imap == nullptr ) ||
-          ( new_unconstrained_map != nullptr && new_impact_operator != nullptr && new_friction_solver == nullptr && new_if_map == nullptr && new_imap != nullptr ) ||
-          ( new_unconstrained_map != nullptr && new_impact_operator == nullptr && new_friction_solver != nullptr && new_if_map != nullptr && new_imap == nullptr ) );
+  assert( ( new_unconstrained_map != nullptr && new_impact_operator == nullptr &&
+            new_friction_solver == nullptr && new_if_map == nullptr && new_imap == nullptr ) ||
+          ( new_unconstrained_map != nullptr && new_impact_operator != nullptr &&
+            new_friction_solver == nullptr && new_if_map == nullptr && new_imap != nullptr ) ||
+          ( new_unconstrained_map != nullptr && new_impact_operator == nullptr &&
+            new_friction_solver != nullptr && new_if_map != nullptr && new_imap == nullptr ) );
 
   // Set the new maps
   m_unconstrained_map.swap( new_unconstrained_map );
@@ -361,25 +365,25 @@ void GLWidget::copyRenderState()
       }
     }
 
-    Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& circle_data{ m_circle_shader.circleData() };
-    circle_data.resize( 6 * ( m_sim.state().nballs() + teleported_centers.size() ) );
+    Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& cd{ m_circle_shader.circleData() };
+    cd.resize( 6 * ( m_sim.state().nballs() + teleported_centers.size() ) );
 
     // Copy over the non-teleported balls
     for( unsigned ball_idx = 0; ball_idx < m_sim.state().nballs(); ball_idx++ )
     {
       // Center of mass, radius, and color
-      circle_data.segment<2>( 6 * ball_idx ) = q.segment<2>( 2 * ball_idx ).cast<GLfloat>();
-      circle_data( 6 * ball_idx + 2 ) = GLfloat( r( ball_idx ) );
-      circle_data.segment<3>( 6 * ball_idx + 3 ) = m_ball_colors.segment<3>( 3 * ball_idx ).cast<GLfloat>();
+      cd.segment<2>( 6 * ball_idx ) = q.segment<2>( 2 * ball_idx ).cast<GLfloat>();
+      cd( 6 * ball_idx + 2 ) = GLfloat( r( ball_idx ) );
+      cd.segment<3>( 6 * ball_idx + 3 ) = m_ball_colors.segment<3>( 3 * ball_idx ).cast<GLfloat>();
     }
 
     // Copy over the teleported balls
     for( int tlprtd_idx = 0; tlprtd_idx < int(teleported_centers.size()); tlprtd_idx++ )
     {
       // Center of mass, radius, and color
-      circle_data.segment<2>( 6 * m_sim.state().nballs() + 6 * tlprtd_idx ) = teleported_centers[tlprtd_idx].cast<GLfloat>();
-      circle_data( 6 * m_sim.state().nballs() + 6 * tlprtd_idx + 2 ) = GLfloat( r( teleported_indices[tlprtd_idx] ) );
-      circle_data.segment<3>( 6 * m_sim.state().nballs() + 6 * tlprtd_idx + 3 ) = m_ball_colors.segment<3>( 3 * teleported_indices[tlprtd_idx] ).cast<GLfloat>();
+      cd.segment<2>( 6 * m_sim.state().nballs() + 6 * tlprtd_idx ) = teleported_centers[tlprtd_idx].cast<GLfloat>();
+      cd( 6 * m_sim.state().nballs() + 6 * tlprtd_idx + 2 ) = GLfloat( r( teleported_indices[tlprtd_idx] ) );
+      cd.segment<3>( 6 * m_sim.state().nballs() + 6 * tlprtd_idx + 3 ) = m_ball_colors.segment<3>( 3 * teleported_indices[tlprtd_idx] ).cast<GLfloat>();
     }
   }
 
@@ -431,10 +435,13 @@ void GLWidget::copyRenderState()
 
       // Top portal
       // Center of mass
-      rectangle_data(32 * render_num + 0) = float(planar_portals[portal_idx].planeA().x().x()) - r0 * float(planar_portals[portal_idx].planeA().n().x());
-      rectangle_data(32 * render_num + 1) = float(planar_portals[portal_idx].planeA().x().y()) - r0 * float(planar_portals[portal_idx].planeA().n().y());
+      rectangle_data(32 * render_num + 0) = float(planar_portals[portal_idx].planeA().x().x())
+                                            - r0 * float(planar_portals[portal_idx].planeA().n().x());
+      rectangle_data(32 * render_num + 1) = float(planar_portals[portal_idx].planeA().x().y())
+                                            - r0 * float(planar_portals[portal_idx].planeA().n().y());
       // Orientation
-      rectangle_data(32 * render_num + 2) = float(std::atan2(planar_portals[portal_idx].planeA().n().y(), planar_portals[portal_idx].planeA().n().x()));
+      rectangle_data(32 * render_num + 2) = float(std::atan2(planar_portals[portal_idx].planeA().n().y(),
+                                                  planar_portals[portal_idx].planeA().n().x()));
       // Radii
       rectangle_data(32 * render_num + 3) = r0;
       rectangle_data(32 * render_num + 4) = r1;
@@ -445,10 +452,13 @@ void GLWidget::copyRenderState()
 
       // Top portal center
       // Center of mass
-      rectangle_data(32 * render_num + 8) = float(planar_portals[portal_idx].transformedAx().x()) - (r0 + iw) * float(planar_portals[portal_idx].planeA().n().x());
-      rectangle_data(32 * render_num + 9) = float(planar_portals[portal_idx].transformedAx().y()) - (r0 + iw) * float(planar_portals[portal_idx].planeA().n().y());
+      rectangle_data(32 * render_num + 8) = float(planar_portals[portal_idx].transformedAx().x())
+                                            - (r0 + iw) * float(planar_portals[portal_idx].planeA().n().x());
+      rectangle_data(32 * render_num + 9) = float(planar_portals[portal_idx].transformedAx().y())
+                                            - (r0 + iw) * float(planar_portals[portal_idx].planeA().n().y());
       // Orientation
-      rectangle_data(32 * render_num + 10) = float(std::atan2(planar_portals[portal_idx].planeA().n().y(), planar_portals[portal_idx].planeA().n().x()));
+      rectangle_data(32 * render_num + 10) = float(std::atan2(planar_portals[portal_idx].planeA().n().y(),
+                                                   planar_portals[portal_idx].planeA().n().x()));
       // Radii
       rectangle_data(32 * render_num + 11) = iw;
       rectangle_data(32 * render_num + 12) = r0;
@@ -459,10 +469,13 @@ void GLWidget::copyRenderState()
 
       // Bottom portal
       // Center of mass
-      rectangle_data(32 * render_num + 16) = float(planar_portals[portal_idx].planeB().x().x()) - r0 * float(planar_portals[portal_idx].planeB().n().x());
-      rectangle_data(32 * render_num + 17) = float(planar_portals[portal_idx].planeB().x().y()) - r0 * float(planar_portals[portal_idx].planeB().n().y());
+      rectangle_data(32 * render_num + 16) = float(planar_portals[portal_idx].planeB().x().x())
+                                             - r0 * float(planar_portals[portal_idx].planeB().n().x());
+      rectangle_data(32 * render_num + 17) = float(planar_portals[portal_idx].planeB().x().y())
+                                             - r0 * float(planar_portals[portal_idx].planeB().n().y());
       // Orientation
-      rectangle_data(32 * render_num + 18) = float(std::atan2(planar_portals[portal_idx].planeB().n().y(), planar_portals[portal_idx].planeB().n().x()));
+      rectangle_data(32 * render_num + 18) = float(std::atan2(planar_portals[portal_idx].planeB().n().y(),
+                                                   planar_portals[portal_idx].planeB().n().x()));
       // Radii
       rectangle_data(32 * render_num + 19) = r0;
       rectangle_data(32 * render_num + 20) = r1;
@@ -473,10 +486,13 @@ void GLWidget::copyRenderState()
 
       // Bottom portal center
       // Center of mass
-      rectangle_data(32 * render_num + 24) = float(planar_portals[portal_idx].transformedBx().x()) - (r0 + iw) * float(planar_portals[portal_idx].planeB().n().x());
-      rectangle_data(32 * render_num + 25) = float(planar_portals[portal_idx].transformedBx().y()) - (r0 + iw) * float(planar_portals[portal_idx].planeB().n().y());
+      rectangle_data(32 * render_num + 24) = float(planar_portals[portal_idx].transformedBx().x())
+                                             - (r0 + iw) * float(planar_portals[portal_idx].planeB().n().x());
+      rectangle_data(32 * render_num + 25) = float(planar_portals[portal_idx].transformedBx().y())
+                                             - (r0 + iw) * float(planar_portals[portal_idx].planeB().n().y());
       // Orientation
-      rectangle_data(32 * render_num + 26) = float(std::atan2(planar_portals[portal_idx].planeB().n().y(), planar_portals[portal_idx].planeB().n().x()));
+      rectangle_data(32 * render_num + 26) = float(std::atan2(planar_portals[portal_idx].planeB().n().y(),
+                                                   planar_portals[portal_idx].planeB().n().x()));
       // Radii
       rectangle_data(32 * render_num + 27) = iw;
       rectangle_data(32 * render_num + 28) = r0;
@@ -726,7 +742,8 @@ void GLWidget::centerCamera( const bool update_gl )
 void GLWidget::saveScreenshot( const QString& file_name )
 {
   std::stringstream ss;
-  ss << "Saving screenshot of time " << std::fixed << std::setprecision( m_display_precision ) << m_iteration * scalar( m_dt ) << " to " << file_name.toStdString();
+  ss << "Saving screenshot of time " << std::fixed << std::setprecision( m_display_precision )
+     << m_iteration * scalar( m_dt ) << " to " << file_name.toStdString();
   qInfo( "%s", ss.str().c_str() );
   const QImage frame_buffer{ grabFramebuffer() };
   frame_buffer.save( file_name );
