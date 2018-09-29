@@ -1,8 +1,3 @@
-// NearEarthGravityForce.cpp
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
 #include "NearEarthGravityForce.h"
 
 #include "scisim/Math/MathUtilities.h"
@@ -32,9 +27,9 @@ scalar NearEarthGravityForce::computePotential( const VectorXs& q, const SparseM
   return U;
 }
 
-void NearEarthGravityForce::computeForce( const VectorXs& q, const VectorXs& v, const SparseMatrixsc& M, VectorXs& result ) const
+void NearEarthGravityForce::computeForce( const VectorXs& q, const VectorXs& /*v*/, const SparseMatrixsc& M, VectorXs& result ) const
 {
-  assert( q.size() % 3 == 0 ); assert( q.size() == v.size() ); assert( M.rows() == M.cols() ); assert( M.nonZeros() == q.size() );
+  assert( q.size() % 3 == 0 ); assert( M.rows() == M.cols() ); assert( M.nonZeros() == q.size() );
 
   const unsigned nbodies{ static_cast<unsigned>( q.size() / 3 ) };
 

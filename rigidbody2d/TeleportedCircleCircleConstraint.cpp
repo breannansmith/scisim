@@ -1,8 +1,3 @@
-// TeleportedCircleCircleConstraint.cpp
-//
-// Breannan Smith
-// Last updated: 09/10/2015
-
 #include "TeleportedCircleCircleConstraint.h"
 
 #include "scisim/Math/MathUtilities.h"
@@ -29,14 +24,14 @@ TeleportedCircleCircleConstraint::TeleportedCircleCircleConstraint( const unsign
 TeleportedCircleCircleConstraint::~TeleportedCircleCircleConstraint()
 {}
 
-scalar TeleportedCircleCircleConstraint::evalNdotV( const VectorXs& q, const VectorXs& v ) const
+scalar TeleportedCircleCircleConstraint::evalNdotV( const VectorXs& /*q*/, const VectorXs& v ) const
 {
   assert( v.size() % 3 == 0 ); assert( 3 * m_idx0 + 1 < v.size() ); assert( 3 * m_idx1 + 1 < v.size() );
   // n || r => n dot ( omega cross r ) == 0
   return m_n.dot( v.segment<2>( 3 * m_idx0 ) - v.segment<2>( 3 * m_idx1 ) );
 }
 
-void TeleportedCircleCircleConstraint::evalgradg( const VectorXs& q, const int col, SparseMatrixsc& G, const FlowableSystem& fsys ) const
+void TeleportedCircleCircleConstraint::evalgradg( const VectorXs& /*q*/, const int col, SparseMatrixsc& G, const FlowableSystem& /*fsys*/ ) const
 {
   assert( col >= 0 ); assert( col < G.cols() );
 
@@ -67,7 +62,7 @@ void TeleportedCircleCircleConstraint::getBodyIndices( std::pair<int,int>& bodie
   bodies.second = m_idx1;
 }
 
-void TeleportedCircleCircleConstraint::evalKinematicNormalRelVel( const VectorXs& q, const int strt_idx, VectorXs& gdotN ) const
+void TeleportedCircleCircleConstraint::evalKinematicNormalRelVel( const VectorXs& /*q*/, const int strt_idx, VectorXs& gdotN ) const
 {
   // No relative velocity contribution from kinematic scripting
   gdotN( strt_idx ) = 0.0;
@@ -93,7 +88,7 @@ std::string TeleportedCircleCircleConstraint::name() const
   return "teleported_circle_circle";
 }
 
-void TeleportedCircleCircleConstraint::evalH( const VectorXs& q, const MatrixXXsc& basis, MatrixXXsc& H0, MatrixXXsc& H1 ) const
+void TeleportedCircleCircleConstraint::evalH( const VectorXs& /*q*/, const MatrixXXsc& basis, MatrixXXsc& H0, MatrixXXsc& H1 ) const
 {
   assert( H0.rows() == 2 ); assert( H0.cols() == 3 );
   assert( H1.rows() == 2 ); assert( H1.cols() == 3 );
@@ -124,7 +119,7 @@ void TeleportedCircleCircleConstraint::evalH( const VectorXs& q, const MatrixXXs
   H1(1,2) = MathUtilities::cross( m_r1, t );
 }
 
-void TeleportedCircleCircleConstraint::computeContactBasis( const VectorXs& q, const VectorXs& v, MatrixXXsc& basis ) const
+void TeleportedCircleCircleConstraint::computeContactBasis( const VectorXs& /*q*/, const VectorXs& /*v*/, MatrixXXsc& basis ) const
 {
   assert( fabs( m_n.norm() - 1.0 ) <= 1.0e-6 );
   const Vector2s t{ -m_n.y(), m_n.x() };
@@ -134,7 +129,7 @@ void TeleportedCircleCircleConstraint::computeContactBasis( const VectorXs& q, c
   basis.col( 1 ) = t;
 }
 
-VectorXs TeleportedCircleCircleConstraint::computeRelativeVelocity( const VectorXs& q, const VectorXs& v ) const
+VectorXs TeleportedCircleCircleConstraint::computeRelativeVelocity( const VectorXs& /*q*/, const VectorXs& v ) const
 {
   assert( v.size() % 3 == 0 );
   assert( 3 * m_idx0 + 2 < v.size() );
@@ -181,7 +176,7 @@ scalar TeleportedCircleCircleConstraint::computePenetrationDepth( const VectorXs
   return std::min( 0.0, ( q0 - q1 ).norm() - m_radius0 - m_radius1 );
 }
 
-VectorXs TeleportedCircleCircleConstraint::computeKinematicRelativeVelocity( const VectorXs& q, const VectorXs& v ) const
+VectorXs TeleportedCircleCircleConstraint::computeKinematicRelativeVelocity( const VectorXs& /*q*/, const VectorXs& /*v*/ ) const
 {
   // No kinematic contribution
   return VectorXs::Zero( 2 );

@@ -1,8 +1,3 @@
-// RigidBody2DState.h
-//
-// Breannan Smith
-// Last updated: 12/07/2015
-
 #ifndef RIGID_BODY_2D_STATE
 #define RIGID_BODY_2D_STATE
 

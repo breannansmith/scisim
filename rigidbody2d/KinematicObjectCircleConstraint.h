@@ -1,8 +1,3 @@
-// KinematicObjectCircleConstraint.h
-//
-// Breannan Smith
-// Last updated: 12/07/2015
-
 #ifndef KINEMATIC_OBJECT_CIRCLE_CONSTRAINT_H
 #define KINEMATIC_OBJECT_CIRCLE_CONSTRAINT_H
 

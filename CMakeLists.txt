@@ -171,7 +171,7 @@ endif()
 
 
 # Core two dimensional rigid body library
-# add_subdirectory( rigidbody2d )
+add_subdirectory( rigidbody2d )
 
 # Utilities shared by the command-line and Qt5 interface
 # add_subdirectory( rigidbody2dutils )

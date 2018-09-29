@@ -1,8 +1,3 @@
-// KinematicKickCircleCircleConstraint.cpp
-//
-// Breannan Smith
-// Last updated: 09/10/2015
-
 #include "KinematicKickCircleCircleConstraint.h"
 
 #ifndef NDEBUG
@@ -18,14 +13,14 @@ KinematicKickCircleCircleConstraint::KinematicKickCircleCircleConstraint( const 
 KinematicKickCircleCircleConstraint::~KinematicKickCircleCircleConstraint()
 {}
 
-scalar KinematicKickCircleCircleConstraint::evalNdotV( const VectorXs& q, const VectorXs& v ) const
+scalar KinematicKickCircleCircleConstraint::evalNdotV( const VectorXs& /*q*/, const VectorXs& v ) const
 {
   assert( v.size() % 3 == 0 ); assert( 3 * m_idx0 + 1 < v.size() ); assert( 3 * m_idx1 + 1 < v.size() );
   // n || r => n dot ( omega cross r ) == 0
   return m_n.dot( v.segment<2>( 3 * m_idx0 ) - v.segment<2>( 3 * m_idx1 ) - m_kinematic_kick );
 }
 
-void KinematicKickCircleCircleConstraint::evalKinematicNormalRelVel( const VectorXs& q, const int strt_idx, VectorXs& gdotN ) const
+void KinematicKickCircleCircleConstraint::evalKinematicNormalRelVel( const VectorXs& /*q*/, const int strt_idx, VectorXs& gdotN ) const
 {
   assert( strt_idx >= 0 ); assert( strt_idx < gdotN.size() );
   gdotN( strt_idx ) = - m_n.dot( m_kinematic_kick );
@@ -36,7 +31,7 @@ std::string KinematicKickCircleCircleConstraint::name() const
   return "kinematic_kick_circle_circle";
 }
 
-VectorXs KinematicKickCircleCircleConstraint::computeRelativeVelocity( const VectorXs& q, const VectorXs& v ) const
+VectorXs KinematicKickCircleCircleConstraint::computeRelativeVelocity( const VectorXs& /*q*/, const VectorXs& v ) const
 {
   assert( v.size() % 3 == 0 );
   assert( 3 * m_idx0 + 2 < v.size() );
@@ -54,7 +49,7 @@ VectorXs KinematicKickCircleCircleConstraint::computeRelativeVelocity( const Vec
   return v.segment<2>( 3 * m_idx0 ) + v( 3 * m_idx0 + 2 ) * t0 - v.segment<2>( 3 * m_idx1 ) - v( 3 * m_idx1 + 2 ) * t1 - m_kinematic_kick;
 }
 
-VectorXs KinematicKickCircleCircleConstraint::computeKinematicRelativeVelocity( const VectorXs& q, const VectorXs& v ) const
+VectorXs KinematicKickCircleCircleConstraint::computeKinematicRelativeVelocity( const VectorXs& /*q*/, const VectorXs& /*v*/ ) const
 {
   return m_kinematic_kick;
 }

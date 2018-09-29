@@ -1,8 +1,3 @@
-// StaticPlaneCircleConstraint.h
-//
-// Breannan Smith
-// Last updated: 09/30/2015
-
 #ifndef STATIC_PLANE_CIRCLE_CONSTRAINT_H
 #define STATIC_PLANE_CIRCLE_CONSTRAINT_H
 

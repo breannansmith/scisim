@@ -1,8 +1,3 @@
-// BodyBodyConstraint.h
-//
-// Breannan Smith
-// Last updated: 01/07/2016
-
 #ifndef BODY_BODY_CONSTRAINT_H
 #define BODY_BODY_CONSTRAINT_H
 

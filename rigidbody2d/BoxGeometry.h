@@ -1,8 +1,3 @@
-// BoxGeometry.h
-//
-// Breannan Smith
-// Last updated: 01/07/2016
-
 #ifndef BOX_GEOMETRY_H
 #define BOX_GEOMETRY_H
 

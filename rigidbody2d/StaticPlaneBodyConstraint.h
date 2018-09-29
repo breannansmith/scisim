@@ -1,8 +1,3 @@
-// StaticPlaneBodyConstraint.h
-//
-// Breannan Smith
-// Last updated: 01/08/2016
-
 #ifndef STATIC_PLANE_BODY_CONSTRAINT_H
 #define STATIC_PLANE_BODY_CONSTRAINT_H
 

@@ -1,8 +1,3 @@
-// KinematicKickCircleCircleConstraint.h
-//
-// Breannan Smith
-// Last updated: 09/10/2015
-
 #ifndef KINEMATIC_KICK_CIRCLE_CIRCLE_CONSTRAINT_H
 #define KINEMATIC_KICK_CIRCLE_CIRCLE_CONSTRAINT_H
 

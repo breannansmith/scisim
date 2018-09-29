@@ -1,13 +1,8 @@
-// VerletMap.cpp
-//
-// Breannan Smith
-// Last updated: 12/08/2015
-
 #include "VerletMap.h"
 
 #include "scisim/UnconstrainedMaps/FlowableSystem.h"
 
-VerletMap::VerletMap( std::istream& input_stream )
+VerletMap::VerletMap( std::istream& /*input_stream*/ )
 {
   // No state to read in
 }
@@ -59,7 +54,7 @@ std::string VerletMap::name() const
   return "verlet";
 }
 
-void VerletMap::serialize( std::ostream& output_stream ) const
+void VerletMap::serialize( std::ostream& /*output_stream*/ ) const
 {
   // No state to serialize
 }

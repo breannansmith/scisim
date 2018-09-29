@@ -1,8 +1,3 @@
-// TeleportedCircleCircleConstraint.h
-//
-// Breannan Smith
-// Last updated: 09/10/2015
-
 #ifndef TELEPORTED_CIRCLE_CIRCLE_CONSTRAINT_H
 #define TELEPORTED_CIRCLE_CIRCLE_CONSTRAINT_H
 

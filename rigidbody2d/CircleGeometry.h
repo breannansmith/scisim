@@ -1,8 +1,3 @@
-// CircleGeometry.h
-//
-// Breannan Smith
-// Last updated: 09/21/2015
-
 #ifndef CIRCLE_GEOMETRY_H
 #define CIRCLE_GEOMETRY_H
 

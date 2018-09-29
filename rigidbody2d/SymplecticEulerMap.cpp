@@ -1,13 +1,8 @@
-// SymplecticEulerMap.cpp
-//
-// Breannan Smith
-// Last updated: 12/07/2015
-
 #include "SymplecticEulerMap.h"
 
 #include "scisim/UnconstrainedMaps/FlowableSystem.h"
 
-SymplecticEulerMap::SymplecticEulerMap( std::istream& input_stream )
+SymplecticEulerMap::SymplecticEulerMap( std::istream& /*input_stream*/ )
 {
   // No state to read in
 }
@@ -42,7 +37,7 @@ std::string SymplecticEulerMap::name() const
   return "symplectic_euler";
 }
 
-void SymplecticEulerMap::serialize( std::ostream& output_stream ) const
+void SymplecticEulerMap::serialize( std::ostream& /*output_stream*/ ) const
 {
   // No state to serialize
 }

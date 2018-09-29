@@ -1,8 +1,3 @@
-// NearEarthGravityForce.h
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
 #ifndef NEAR_EARTH_GRAVITY_FORCE_H
 #define NEAR_EARTH_GRAVITY_FORCE_H
 

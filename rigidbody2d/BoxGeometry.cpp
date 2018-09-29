@@ -1,8 +1,3 @@
-// BoxGeometry.cpp
-//
-// Breannan Smith
-// Last updated: 01/08/2016
-
 #include "BoxGeometry.h"
 
 #include "scisim/Math/MathUtilities.h"
@@ -29,7 +24,7 @@ std::unique_ptr<RigidBody2DGeometry> BoxGeometry::clone() const
   return std::unique_ptr<RigidBody2DGeometry>{ new BoxGeometry{ m_r } };
 }
 
-void BoxGeometry::computeCollisionAABB( const Vector2s& x0, const scalar& theta0, const Vector2s& x1, const scalar& theta1, Array2s& min, Array2s& max ) const
+void BoxGeometry::computeCollisionAABB( const Vector2s& /*x0*/, const scalar& /*theta0*/, const Vector2s& x1, const scalar& theta1, Array2s& min, Array2s& max ) const
 {
   this->computeAABB( x1, theta1, min, max );
 }

@@ -1,8 +1,3 @@
-// CircleCircleConstraint.cpp
-//
-// Breannan Smith
-// Last updated: 09/30/2015
-
 #include "CircleCircleConstraint.h"
 
 #include "scisim/Math/MathUtilities.h"
@@ -26,14 +21,14 @@ CircleCircleConstraint::CircleCircleConstraint( const unsigned sphere_idx0, cons
   assert( m_r1 >= 0.0 );
 }
 
-scalar CircleCircleConstraint::evalNdotV( const VectorXs& q, const VectorXs& v ) const
+scalar CircleCircleConstraint::evalNdotV( const VectorXs& /*q*/, const VectorXs& v ) const
 {
   assert( v.size() % 3 == 0 ); assert( 3 * m_idx0 + 1 < v.size() ); assert( 3 * m_idx1 + 1 < v.size() );
   // n || r => n dot ( omega cross r ) == 0, so computeRelativeVelocity not used
   return m_n.dot( v.segment<2>( 3 * m_idx0 ) - v.segment<2>( 3 * m_idx1 ) );
 }
 
-void CircleCircleConstraint::evalgradg( const VectorXs& q, const int col, SparseMatrixsc& G, const FlowableSystem& fsys ) const
+void CircleCircleConstraint::evalgradg( const VectorXs& /*q*/, const int col, SparseMatrixsc& G, const FlowableSystem& /*fsys*/ ) const
 {
   assert( col >= 0 ); assert( col < G.cols() );
 
@@ -99,7 +94,7 @@ void CircleCircleConstraint::getBodyIndices( std::pair<int,int>& bodies ) const
   bodies.second = m_idx1;
 }
 
-void CircleCircleConstraint::evalKinematicNormalRelVel( const VectorXs& q, const int strt_idx, VectorXs& gdotN ) const
+void CircleCircleConstraint::evalKinematicNormalRelVel( const VectorXs& /*q*/, const int strt_idx, VectorXs& gdotN ) const
 {
   // No relative velocity contribution from kinematic scripting
   gdotN( strt_idx ) = 0.0;
@@ -140,7 +135,7 @@ void CircleCircleConstraint::evalH( const VectorXs& q, const MatrixXXsc& basis, 
   H1(1,2) = MathUtilities::cross( rj, t );
 }
 
-void CircleCircleConstraint::computeContactBasis( const VectorXs& q, const VectorXs& v, MatrixXXsc& basis ) const
+void CircleCircleConstraint::computeContactBasis( const VectorXs& /*q*/, const VectorXs& /*v*/, MatrixXXsc& basis ) const
 {
   assert( fabs( m_n.norm() - 1.0 ) <= 1.0e-6 );
   const Vector2s t{ -m_n.y(), m_n.x() };
@@ -207,18 +202,18 @@ scalar CircleCircleConstraint::computePenetrationDepth( const VectorXs& q ) cons
   return std::min( 0.0, ( q.segment<2>( 3 * m_idx0 ) - q.segment<2>( 3 * m_idx1 ) ).norm() - m_r0 - m_r1 );
 }
 
-VectorXs CircleCircleConstraint::computeKinematicRelativeVelocity( const VectorXs& q, const VectorXs& v ) const
+VectorXs CircleCircleConstraint::computeKinematicRelativeVelocity( const VectorXs& /*q*/, const VectorXs& /*v*/ ) const
 {
   // No kinematic contribution
   return VectorXs::Zero( 2 );
 }
 
-void CircleCircleConstraint::getWorldSpaceContactPoint( const VectorXs& q, VectorXs& contact_point ) const
+void CircleCircleConstraint::getWorldSpaceContactPoint( const VectorXs& /*q*/, VectorXs& contact_point ) const
 {
   contact_point = m_p;
 }
 
-void CircleCircleConstraint::getWorldSpaceContactNormal( const VectorXs& q, VectorXs& contact_normal ) const
+void CircleCircleConstraint::getWorldSpaceContactNormal( const VectorXs& /*q*/, VectorXs& contact_normal ) const
 {
   contact_normal = m_n;
 }

@@ -1,8 +1,3 @@
-// StaticPlaneCircleConstraint.cpp
-//
-// Breannan Smith
-// Last updated: 09/30/2015
-
 #include "StaticPlaneCircleConstraint.h"
 
 #include "scisim/Math/MathUtilities.h"
@@ -31,7 +26,7 @@ scalar StaticPlaneCircleConstraint::evalNdotV( const VectorXs& q, const VectorXs
   return m_plane.n().dot( v.segment<2>( 3 * m_circle_idx ) - computePlaneCollisionPointVelocity( q ) );
 }
 
-void StaticPlaneCircleConstraint::evalgradg( const VectorXs& q, const int col, SparseMatrixsc& G, const FlowableSystem& fsys ) const
+void StaticPlaneCircleConstraint::evalgradg( const VectorXs& /*q*/, const int col, SparseMatrixsc& G, const FlowableSystem& /*fsys*/ ) const
 {
   assert( col >= 0 ); assert( col < G.cols() );
   assert( 3 * m_circle_idx + 1 < unsigned( G.rows() ) );
@@ -66,10 +61,9 @@ void StaticPlaneCircleConstraint::evalKinematicNormalRelVel( const VectorXs& q, 
   gdotN( strt_idx ) = - m_plane.n().dot( computePlaneCollisionPointVelocity( q ) );
 }
 
-void StaticPlaneCircleConstraint::evalH( const VectorXs& q, const MatrixXXsc& basis, MatrixXXsc& H0, MatrixXXsc& H1 ) const
+void StaticPlaneCircleConstraint::evalH( const VectorXs& /*q*/, const MatrixXXsc& basis, MatrixXXsc& H0, MatrixXXsc& /*H1*/ ) const
 {
   assert( H0.rows() == 2 ); assert( H0.cols() == 3 );
-  assert( H1.rows() == 2 ); assert( H1.cols() == 3 );
   assert( ( basis * basis.transpose() - MatrixXXsc::Identity( 2, 2 ) ).lpNorm<Eigen::Infinity>() <= 1.0e-6 );
   assert( fabs( basis.determinant() - 1.0 ) <= 1.0e-6 );
 
@@ -119,7 +113,7 @@ Vector2s StaticPlaneCircleConstraint::computePlaneCollisionPointVelocity( const 
   return m_plane.v() + m_plane.omega() * t0;
 }
 
-void StaticPlaneCircleConstraint::computeContactBasis( const VectorXs& q, const VectorXs& v, MatrixXXsc& basis ) const
+void StaticPlaneCircleConstraint::computeContactBasis( const VectorXs& /*q*/, const VectorXs& /*v*/, MatrixXXsc& basis ) const
 {
   const Vector2s n{ m_plane.n() };
   assert( fabs( n.norm() - 1.0 ) <= 1.0e-6 );
@@ -157,7 +151,7 @@ scalar StaticPlaneCircleConstraint::computePenetrationDepth( const VectorXs& q )
   return std::min( 0.0, m_plane.n().dot( q.segment<2>( 3 * m_circle_idx ) - m_plane.x() ) - m_r );
 }
 
-VectorXs StaticPlaneCircleConstraint::computeKinematicRelativeVelocity( const VectorXs& q, const VectorXs& v ) const
+VectorXs StaticPlaneCircleConstraint::computeKinematicRelativeVelocity( const VectorXs& q, const VectorXs& /*v*/ ) const
 {
   return computePlaneCollisionPointVelocity( q );
 }
@@ -167,7 +161,7 @@ void StaticPlaneCircleConstraint::getWorldSpaceContactPoint( const VectorXs& q, 
   contact_point = q.segment<2>( 3 * m_circle_idx ) - m_r * m_plane.n();
 }
 
-void StaticPlaneCircleConstraint::getWorldSpaceContactNormal( const VectorXs& q, VectorXs& contact_normal ) const
+void StaticPlaneCircleConstraint::getWorldSpaceContactNormal( const VectorXs& /*q*/, VectorXs& contact_normal ) const
 {
   contact_normal = m_plane.n();
 }

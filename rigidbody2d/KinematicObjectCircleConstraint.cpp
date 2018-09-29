@@ -1,8 +1,3 @@
-// KinematicObjectCircleConstraint.cpp
-//
-// Breannan Smith
-// Last updated: 12/07/2015
-
 #include "KinematicObjectCircleConstraint.h"
 
 #include "scisim/Math/MathUtilities.h"
@@ -26,7 +21,7 @@ scalar KinematicObjectCircleConstraint::evalNdotV( const VectorXs& q, const Vect
   return m_n.dot( v.segment<2>( 3 * m_sim_idx ) - computeKinematicCollisionPointVelocity( q ) );
 }
 
-void KinematicObjectCircleConstraint::evalgradg( const VectorXs& q, const int col, SparseMatrixsc& G, const FlowableSystem& fsys ) const
+void KinematicObjectCircleConstraint::evalgradg( const VectorXs& /*q*/, const int col, SparseMatrixsc& G, const FlowableSystem& /*fsys*/ ) const
 {
   assert( col >= 0 );
   assert( col < G.cols() );
@@ -60,12 +55,10 @@ void KinematicObjectCircleConstraint::evalKinematicNormalRelVel( const VectorXs&
   gdotN( strt_idx ) = - m_n.dot( computeKinematicCollisionPointVelocity( q ) );
 }
 
-void KinematicObjectCircleConstraint::evalH( const VectorXs& q, const MatrixXXsc& basis, MatrixXXsc& H0, MatrixXXsc& H1 ) const
+void KinematicObjectCircleConstraint::evalH( const VectorXs& /*q*/, const MatrixXXsc& basis, MatrixXXsc& H0, MatrixXXsc& /*H1*/ ) const
 {
   assert( H0.rows() == 2 );
   assert( H0.cols() == 3 );
-  assert( H1.rows() == 2 );
-  assert( H1.cols() == 3 );
   assert( ( basis * basis.transpose() - MatrixXXsc::Identity( 2, 2 ) ).lpNorm<Eigen::Infinity>() <= 1.0e-6 );
   assert( fabs( basis.determinant() - 1.0 ) <= 1.0e-6 );
 
@@ -89,7 +82,7 @@ void KinematicObjectCircleConstraint::evalH( const VectorXs& q, const MatrixXXsc
   H0(1,2) = MathUtilities::cross( r, t );
 }
 
-void KinematicObjectCircleConstraint::computeContactBasis( const VectorXs& q, const VectorXs& v, MatrixXXsc& basis ) const
+void KinematicObjectCircleConstraint::computeContactBasis( const VectorXs& /*q*/, const VectorXs& /*v*/, MatrixXXsc& basis ) const
 {
   assert( fabs( m_n.norm() - 1.0 ) <= 1.0e-6 );
   const Vector2s t{ -m_n.y(), m_n.x() };
@@ -150,7 +143,7 @@ void KinematicObjectCircleConstraint::setBodyIndex0( const unsigned idx )
   m_sim_idx = idx;
 }
 
-VectorXs KinematicObjectCircleConstraint::computeKinematicRelativeVelocity( const VectorXs& q, const VectorXs& v ) const
+VectorXs KinematicObjectCircleConstraint::computeKinematicRelativeVelocity( const VectorXs& q, const VectorXs& /*v*/ ) const
 {
   return computeKinematicCollisionPointVelocity( q );
 }
@@ -160,7 +153,7 @@ void KinematicObjectCircleConstraint::getWorldSpaceContactPoint( const VectorXs&
   contact_point = q.segment<2>( 3 * m_sim_idx ) - m_r * m_n;
 }
 
-void KinematicObjectCircleConstraint::getWorldSpaceContactNormal( const VectorXs& q, VectorXs& contact_normal ) const
+void KinematicObjectCircleConstraint::getWorldSpaceContactNormal( const VectorXs& /*q*/, VectorXs& contact_normal ) const
 {
   contact_normal = m_n;
 }

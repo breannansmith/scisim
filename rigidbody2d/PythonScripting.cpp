@@ -1,8 +1,3 @@
-// PythonScripting.cpp
-//
-// Breannan Smith
-// Last updated: 09/10/2015
-
 #include "PythonScripting.h"
 
 #ifdef USE_PYTHON
@@ -135,7 +130,11 @@ void swap( PythonScripting& first, PythonScripting& second )
   #endif
 }
 
+#ifdef USE_PYTHON
 void PythonScripting::restitutionCoefficient( const std::vector<std::unique_ptr<Constraint>>& active_set, VectorXs& cor )
+#else
+void PythonScripting::restitutionCoefficient( const std::vector<std::unique_ptr<Constraint>>& /*active_set*/, VectorXs& /*cor*/ )
+#endif
 {
   #ifdef USE_PYTHON
   assert( !m_module_name.empty() );
@@ -167,7 +166,11 @@ void PythonScripting::restitutionCoefficient( const std::vector<std::unique_ptr<
   #endif
 }
 
+#ifdef USE_PYTHON
 void PythonScripting::frictionCoefficient( const std::vector<std::unique_ptr<Constraint>>& active_set, VectorXs& mu )
+#else
+void PythonScripting::frictionCoefficient( const std::vector<std::unique_ptr<Constraint>>& /*active_set*/, VectorXs& /*mu*/ )
+#endif
 {
   #ifdef USE_PYTHON
   assert( !m_module_name.empty() );
@@ -246,7 +249,11 @@ void PythonScripting::endOfSim()
   #endif
 }
 
+#ifdef USE_PYTHON
 void PythonScripting::startOfStep( const unsigned next_iteration, const Rational<std::intmax_t>& dt )
+#else
+void PythonScripting::startOfStep( const unsigned /*next_iteration*/, const Rational<std::intmax_t>& /*dt*/ )
+#endif
 {
   #ifdef USE_PYTHON
   assert( !m_module_name.empty() );
@@ -275,7 +282,11 @@ void PythonScripting::startOfStep( const unsigned next_iteration, const Rational
   #endif
 }
 
+#ifdef USE_PYTHON
 void PythonScripting::endOfStep( const unsigned next_iteration, const Rational<std::intmax_t>& dt )
+#else
+void PythonScripting::endOfStep( const unsigned /*next_iteration*/, const Rational<std::intmax_t>& /*dt*/ )
+#endif
 {
   #ifdef USE_PYTHON
   assert( !m_module_name.empty() );
@@ -309,7 +320,11 @@ std::string PythonScripting::name() const
   return m_module_name;
 }
 
+#ifdef USE_PYTHON
 void PythonScripting::setState( RigidBody2DState& state )
+#else
+void PythonScripting::setState( RigidBody2DState& /*state*/ )
+#endif
 {
   #ifdef USE_PYTHON
   s_state = &state;
@@ -333,28 +348,25 @@ void PythonScripting::serialize( std::ostream& output_stream )
 }
 
 #ifdef USE_PYTHON
-static PyObject* timestep( PyObject* self, PyObject* args )
+static PyObject* timestep( PyObject* /*self*/, PyObject* /*args*/ )
 {
-  assert( args == nullptr );
   using std::is_same;
   static_assert( is_same<scalar,double>::value || is_same<scalar,float>::value, "Error, scalar type must be double or float for Python interface." );
   return Py_BuildValue( is_same<scalar,double>::value ? "d" : "f", s_timestep );
 }
 
-static PyObject* nextIteration( PyObject* self, PyObject* args )
+static PyObject* nextIteration( PyObject* /*self*/, PyObject* /*args*/ )
 {
-  assert( args == nullptr );
   return Py_BuildValue( "I", s_next_iteration );
 }
 
-static PyObject* numStaticPlanes( PyObject* self, PyObject* args )
+static PyObject* numStaticPlanes( PyObject* /*self*/, PyObject* /*args*/ )
 {
-  assert( args == nullptr );
   assert( s_state != nullptr );
   return Py_BuildValue( "I", s_state->planes().size() );
 }
 
-static PyObject* setStaticPlanePosition( PyObject* self, PyObject* args )
+static PyObject* setStaticPlanePosition( PyObject* /*self*/, PyObject* args )
 {
   using std::is_same;
   static_assert( is_same<scalar,double>::value || is_same<scalar,float>::value, "Error, scalar type must be double or float for Python interface." );
@@ -378,7 +390,7 @@ static PyObject* setStaticPlanePosition( PyObject* self, PyObject* args )
   return Py_BuildValue( "" );
 }
 
-static PyObject* setStaticPlaneVelocity( PyObject* self, PyObject* args )
+static PyObject* setStaticPlaneVelocity( PyObject* /*self*/, PyObject* args )
 {
   using std::is_same;
   static_assert( is_same<scalar,double>::value || is_same<scalar,float>::value, "Error, scalar type must be double or float for Python interface." );
@@ -402,7 +414,7 @@ static PyObject* setStaticPlaneVelocity( PyObject* self, PyObject* args )
   return Py_BuildValue( "" );
 }
 
-static PyObject* setStaticPlaneNormal( PyObject* self, PyObject* args )
+static PyObject* setStaticPlaneNormal( PyObject* /*self*/, PyObject* args )
 {
   using std::is_same;
   static_assert( is_same<scalar,double>::value || is_same<scalar,float>::value, "Error, scalar type must be double or float for Python interface." );
@@ -426,7 +438,7 @@ static PyObject* setStaticPlaneNormal( PyObject* self, PyObject* args )
   return Py_BuildValue( "" );
 }
 
-static PyObject* setStaticPlaneAngularVelocity( PyObject* self, PyObject* args )
+static PyObject* setStaticPlaneAngularVelocity( PyObject* /*self*/, PyObject* args )
 {
   using std::is_same;
   static_assert( is_same<scalar,double>::value || is_same<scalar,float>::value, "Error, scalar type must be double or float for Python interface." );
@@ -449,7 +461,7 @@ static PyObject* setStaticPlaneAngularVelocity( PyObject* self, PyObject* args )
   return Py_BuildValue( "" );
 }
 
-static PyObject* deleteStaticPlane( PyObject* self, PyObject* args )
+static PyObject* deleteStaticPlane( PyObject* /*self*/, PyObject* args )
 {
   unsigned plane_idx;
   assert( args != nullptr );
@@ -469,14 +481,13 @@ static PyObject* deleteStaticPlane( PyObject* self, PyObject* args )
   return Py_BuildValue( "" );
 }
 
-static PyObject* numGeometryInstances( PyObject* self, PyObject* args )
+static PyObject* numGeometryInstances( PyObject* /*self*/, PyObject* /*args*/ )
 {
-  assert( args == nullptr );
   assert( s_state != nullptr );
   return Py_BuildValue( "I", s_state->geometry().size() );
 }
 
-static PyObject* addCircleGeometry( PyObject* self, PyObject* args )
+static PyObject* addCircleGeometry( PyObject* /*self*/, PyObject* args )
 {
   scalar radius;
   assert( args != nullptr );
@@ -498,7 +509,7 @@ static PyObject* addCircleGeometry( PyObject* self, PyObject* args )
   return Py_BuildValue( "" );
 }
 
-static PyObject* addBody( PyObject* self, PyObject* args )
+static PyObject* addBody( PyObject* /*self*/, PyObject* args )
 {
   Vector2s q;
   scalar theta;
@@ -536,7 +547,7 @@ static PyObject* addBody( PyObject* self, PyObject* args )
   return Py_BuildValue( "" );
 }
 
-static PyObject* deleteBodies( PyObject* self, PyObject* args )
+static PyObject* deleteBodies( PyObject* /*self*/, PyObject* args )
 {
   PyArrayObject* body_list;
   if( !PyArg_ParseTuple( args, "O", &body_list ) )
@@ -574,7 +585,7 @@ static PyObject* deleteBodies( PyObject* self, PyObject* args )
   return Py_BuildValue( "" );
 }
 
-static PyObject* deleteGeometry( PyObject* self, PyObject* args )
+static PyObject* deleteGeometry( PyObject* /*self*/, PyObject* args )
 {
   PyArrayObject* geo_list;
   if( !PyArg_ParseTuple( args, "O", &geo_list ) )
@@ -612,15 +623,13 @@ static PyObject* deleteGeometry( PyObject* self, PyObject* args )
   return Py_BuildValue( "" );
 }
 
-static PyObject* numBodies( PyObject* self, PyObject* args )
+static PyObject* numBodies( PyObject* /*self*/, PyObject* /*args*/ )
 {
-  assert( args == nullptr );
   return Py_BuildValue( "I", s_state->nbodies() );
 }
 
-static PyObject* numGeometry( PyObject* self, PyObject* args )
+static PyObject* numGeometry( PyObject* /*self*/, PyObject* /*args*/ )
 {
-  assert( args == nullptr );
   return Py_BuildValue( "I", s_state->geometry().size() );
 }
 

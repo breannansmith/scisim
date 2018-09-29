@@ -1,8 +1,3 @@
-// StaticPlaneBodyConstraint.cpp
-//
-// Breannan Smith
-// Last updated: 01/08/2016
-
 #include "StaticPlaneBodyConstraint.h"
 
 #include "scisim/Math/MathUtilities.h"
@@ -43,10 +38,9 @@ unsigned StaticPlaneBodyConstraint::getStaticObjectIndex() const
   return m_idx_plane;
 }
 
-void StaticPlaneBodyConstraint::evalH( const VectorXs& q, const MatrixXXsc& basis, MatrixXXsc& H0, MatrixXXsc& H1 ) const
+void StaticPlaneBodyConstraint::evalH( const VectorXs& q, const MatrixXXsc& basis, MatrixXXsc& H0, MatrixXXsc& /*H1*/ ) const
 {
   assert( H0.rows() == 2 ); assert( H0.cols() == 3 );
-  assert( H1.rows() == 2 ); assert( H1.cols() == 3 );
   assert( ( basis * basis.transpose() - MatrixXXsc::Identity( 2, 2 ) ).lpNorm<Eigen::Infinity>() <= 1.0e-6 );
   assert( fabs( basis.determinant() - 1.0 ) <= 1.0e-6 );
 
@@ -88,7 +82,7 @@ std::string StaticPlaneBodyConstraint::name() const
   return "static_plane_body";
 }
 
-Vector2s StaticPlaneBodyConstraint::computePlaneCollisionPointVelocity( const VectorXs& q ) const
+Vector2s StaticPlaneBodyConstraint::computePlaneCollisionPointVelocity( const VectorXs& /*q*/ ) const
 {
   // TODO: Add support for collisions with kinematically scripted moving planes
   assert( ( m_plane.v().array() == 0.0 ).all() );
@@ -96,7 +90,7 @@ Vector2s StaticPlaneBodyConstraint::computePlaneCollisionPointVelocity( const Ve
   return Vector2s::Zero();
 }
 
-void StaticPlaneBodyConstraint::computeContactBasis( const VectorXs& q, const VectorXs& v, MatrixXXsc& basis ) const
+void StaticPlaneBodyConstraint::computeContactBasis( const VectorXs& /*q*/, const VectorXs& /*v*/, MatrixXXsc& basis ) const
 {
   assert( fabs( m_plane.n().norm() - 1.0 ) <= 1.0e-9 );
   const Vector2s t{ -m_plane.n().y(), m_plane.n().x() };
@@ -124,7 +118,7 @@ void StaticPlaneBodyConstraint::setBodyIndex0( const unsigned idx )
   m_idx_body = idx;
 }
 
-VectorXs StaticPlaneBodyConstraint::computeKinematicRelativeVelocity( const VectorXs& q, const VectorXs& v ) const
+VectorXs StaticPlaneBodyConstraint::computeKinematicRelativeVelocity( const VectorXs& q, const VectorXs& /*v*/ ) const
 {
   return computePlaneCollisionPointVelocity( q );
 }
@@ -134,7 +128,7 @@ void StaticPlaneBodyConstraint::getWorldSpaceContactPoint( const VectorXs& q, Ve
   contact_point = q.segment<2>( 3 * m_idx_body ) + Eigen::Rotation2D<scalar>{ q( 3 * m_idx_body + 2 ) } * m_body_r;
 }
 
-void StaticPlaneBodyConstraint::getWorldSpaceContactNormal( const VectorXs& q, VectorXs& contact_normal ) const
+void StaticPlaneBodyConstraint::getWorldSpaceContactNormal( const VectorXs& /*q*/, VectorXs& contact_normal ) const
 {
   contact_normal = m_plane.n();
 }

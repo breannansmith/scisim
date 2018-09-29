@@ -1,8 +1,3 @@
-// BodyBodyConstraint.cpp
-//
-// Breannan Smith
-// Last updated: 01/07/2016
-
 #include "BodyBodyConstraint.h"
 
 #include "scisim/Math/MathUtilities.h"
@@ -41,7 +36,7 @@ void BodyBodyConstraint::getBodyIndices( std::pair<int,int>& bodies ) const
   bodies.second = m_idx1;
 }
 
-void BodyBodyConstraint::evalH( const VectorXs& q, const MatrixXXsc& basis, MatrixXXsc& H0, MatrixXXsc& H1 ) const
+void BodyBodyConstraint::evalH( const VectorXs& /*q*/, const MatrixXXsc& basis, MatrixXXsc& H0, MatrixXXsc& H1 ) const
 {
   assert( H0.rows() == 2 ); assert( H0.cols() == 3 );
   assert( H1.rows() == 2 ); assert( H1.cols() == 3 );
@@ -70,7 +65,7 @@ void BodyBodyConstraint::evalH( const VectorXs& q, const MatrixXXsc& basis, Matr
   H1(1,2) = MathUtilities::cross( m_r1, t );
 }
 
-void BodyBodyConstraint::computeContactBasis( const VectorXs& q, const VectorXs& v, MatrixXXsc& basis ) const
+void BodyBodyConstraint::computeContactBasis( const VectorXs& /*q*/, const VectorXs& /*v*/, MatrixXXsc& basis ) const
 {
   assert( fabs( m_n.norm() - 1.0 ) <= 1.0e-6 );
   const Vector2s t{ -m_n.y(), m_n.x() };
@@ -100,7 +95,7 @@ std::string BodyBodyConstraint::name() const
   return "body_body";
 }
 
-VectorXs BodyBodyConstraint::computeRelativeVelocity( const VectorXs& q, const VectorXs& v ) const
+VectorXs BodyBodyConstraint::computeRelativeVelocity( const VectorXs& /*q*/, const VectorXs& v ) const
 {
   assert( v.size() % 3 == 0 );
   assert( 3 * m_idx0 + 2 < v.size() );
@@ -123,7 +118,7 @@ void BodyBodyConstraint::setBodyIndex1( const unsigned idx )
   m_idx1 = idx;
 }
 
-VectorXs BodyBodyConstraint::computeKinematicRelativeVelocity( const VectorXs& q, const VectorXs& v ) const
+VectorXs BodyBodyConstraint::computeKinematicRelativeVelocity( const VectorXs& /*q*/, const VectorXs& /*v*/ ) const
 {
   // No kinematic contribution
   return VectorXs::Zero( 2 );
@@ -138,7 +133,7 @@ void BodyBodyConstraint::getWorldSpaceContactPoint( const VectorXs& q, VectorXs&
   #endif
 }
 
-void BodyBodyConstraint::getWorldSpaceContactNormal( const VectorXs& q, VectorXs& contact_normal ) const
+void BodyBodyConstraint::getWorldSpaceContactNormal( const VectorXs& /*q*/, VectorXs& contact_normal ) const
 {
   contact_normal = m_n;
 }

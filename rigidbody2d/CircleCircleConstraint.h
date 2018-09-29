@@ -1,8 +1,3 @@
-// CircleCircleConstraint.h
-//
-// Breannan Smith
-// Last updated: 09/30/2015
-
 #ifndef CIRCLE_CIRCLE_CONSTRAINT_H
 #define CIRCLE_CIRCLE_CONSTRAINT_H
 

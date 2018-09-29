@@ -1,8 +1,3 @@
-// RigidBody2DState.cpp
-//
-// Breannan Smith
-// Last updated: 01/05/2016
-
 #include "RigidBody2DState.h"
 
 #include "scisim/Utilities.h"
@@ -15,8 +10,8 @@
 
 static SparseMatrixsc generateM( const VectorXs& m )
 {
-  SparseMatrixsc M{ SparseMatrixsc::Index( m.size() ), SparseMatrixsc::Index( m.size() ) };
-  M.reserve( SparseMatrixsc::Index( m.size() ) );
+  SparseMatrixsc M{ m.size(), m.size() };
+  M.reserve( m.size() );
   for( int col = 0; col < m.size(); ++col )
   {
     M.startVec( col );
@@ -30,8 +25,8 @@ static SparseMatrixsc generateM( const VectorXs& m )
 
 static SparseMatrixsc generateMinv( const VectorXs& m )
 {
-  SparseMatrixsc Minv{ SparseMatrixsc::Index( m.size() ), SparseMatrixsc::Index( m.size() ) };
-  Minv.reserve( SparseMatrixsc::Index( m.size() ) );
+  SparseMatrixsc Minv{ m.size(), m.size() };
+  Minv.reserve( m.size() );
   for( int col = 0; col < m.size(); ++col )
   {
     Minv.startVec( col );

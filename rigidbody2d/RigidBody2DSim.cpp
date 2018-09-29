@@ -101,7 +101,7 @@ bool RigidBody2DSim::isKinematicallyScripted( const int i ) const
   return m_state.fixed( i );
 }
 
-void RigidBody2DSim::computeForce( const VectorXs& q, const VectorXs& v, const scalar& t, VectorXs& F )
+void RigidBody2DSim::computeForce( const VectorXs& q, const VectorXs& v, const scalar& /*t*/, VectorXs& F )
 {
   assert( q.size() % 3 == 0 ); assert( v.size() == q.size() ); assert( v.size() == F.size() );
   F.setZero();
@@ -112,7 +112,7 @@ void RigidBody2DSim::computeForce( const VectorXs& q, const VectorXs& v, const s
   }
 }
 
-void RigidBody2DSim::zeroOutForcesOnFixedBodies( VectorXs& F ) const
+void RigidBody2DSim::zeroOutForcesOnFixedBodies( VectorXs& /*F*/ ) const
 {
   std::cerr << "RigidBody2DSim::zeroOutForcesOnFixedBodies not implemented, yet (but it is easy to do so!)." << std::endl;
   std::exit( EXIT_FAILURE );
@@ -347,7 +347,7 @@ void RigidBody2DSim::dispatchNarrowPhaseCollision( unsigned idx0, unsigned idx1,
   }
 }
 
-static bool collisionIsActive( const Vector2s& x0, const scalar& theta0, const std::unique_ptr<RigidBody2DGeometry>& geo0, const Vector2s& x1, const scalar& theta1, const std::unique_ptr<RigidBody2DGeometry>& geo1 )
+static bool collisionIsActive( const Vector2s& x0, const scalar& /*theta0*/, const std::unique_ptr<RigidBody2DGeometry>& geo0, const Vector2s& x1, const scalar& /*theta1*/, const std::unique_ptr<RigidBody2DGeometry>& geo1 )
 {
   switch( geo0->type() )
   {
