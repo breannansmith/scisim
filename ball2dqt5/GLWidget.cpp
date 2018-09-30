@@ -606,7 +606,7 @@ void GLWidget::initializeGL()
   m_axis_shader.initialize( m_f );
   m_circle_shader.initialize( m_num_circle_subdivs, m_f );
   m_plane_shader.initialize( m_f );
-  m_annulus_shader.initialize( m_num_circle_subdivs, m_f );
+  m_annulus_shader.initialize( m_num_drum_subdivs, m_f );
   m_rectangle_shader.initialize( m_f );
 }
 
