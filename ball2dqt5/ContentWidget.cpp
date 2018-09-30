@@ -17,7 +17,7 @@
 ContentWidget::ContentWidget( const QString& scene_name, QWidget* parent )
 : QWidget( parent )
 , m_idle_timer( nullptr )
-, m_gl_widget( new GLWidget(this) )
+, m_gl_widget( new GLWidget( this, QSurfaceFormat::defaultFormat() ) )
 , m_xml_file_name()
 {
   QVBoxLayout* mainLayout{ new QVBoxLayout };
@@ -155,12 +155,6 @@ void ContentWidget::openScene( const QString& scene_file_name, const bool render
   // If the user provided a valid file
   if( QFile::exists( scene_file_name ) )
   {
-    // TODO: Only replace the widget if the surface format changes
-    GLWidget* new_gl_widget = new GLWidget(this);
-    layout()->replaceWidget( m_gl_widget, new_gl_widget );
-    delete m_gl_widget;
-    m_gl_widget = new_gl_widget;
-
     // Load the simulation
     SimSettings sim_settings;
     RenderSettings render_settings;
@@ -169,6 +163,18 @@ void ContentWidget::openScene( const QString& scene_file_name, const bool render
     {
       qWarning() << "Failed to load file: " << scene_file_name;
       return;
+    }
+
+    // If the sample count changed, update the GL widget with a new format
+    if( m_gl_widget->sampleCount() != render_settings.num_aa_samples )
+    {
+      QSurfaceFormat format = QSurfaceFormat::defaultFormat();
+      format.setSamples( render_settings.num_aa_samples );
+
+      GLWidget* new_gl_widget = new GLWidget( this, format );
+      layout()->replaceWidget( m_gl_widget, new_gl_widget );
+      delete m_gl_widget;
+      m_gl_widget = new_gl_widget;
     }
 
     // Initialize the simulation

@@ -18,7 +18,7 @@
 
 #include "ball2d/Ball2DState.h"
 
-GLWidget::GLWidget( QWidget* parent )
+GLWidget::GLWidget( QWidget* parent, const QSurfaceFormat& format )
 : QOpenGLWidget( parent )
 , m_f( nullptr )
 , m_axis_shader()
@@ -70,7 +70,10 @@ GLWidget::GLWidget( QWidget* parent )
 , m_portal_render_settings()
 , m_num_circle_subdivs( 32 )
 , m_num_drum_subdivs( 32 )
-{}
+, m_num_aa_samples( format.samples() )
+{
+  this->setFormat( format );
+}
 
 GLWidget::~GLWidget()
 {
@@ -95,6 +98,11 @@ QSize GLWidget::minimumSizeHint() const
 QSize GLWidget::sizeHint() const
 {
   return QSize{ m_w, m_h };
+}
+
+int GLWidget::sampleCount() const
+{
+  return m_num_aa_samples;
 }
 
 static int computeTimestepDisplayPrecision( const Rational<std::intmax_t>& dt, const std::string& dt_string )
@@ -182,11 +190,6 @@ static void planeDeleteCallback( void* context, int plane_idx )
 
 void GLWidget::initializeSimulation( const QString& xml_scene_file_name, const bool& render_on_load, SimSettings& sim_settings, RenderSettings& render_settings )
 {
-  // TODO: Move this to the parent class, pass in format to constructor
-  QSurfaceFormat format = QSurfaceFormat::defaultFormat();
-  format.setSamples( render_settings.num_aa_samples );
-  this->setFormat( format );
-
   // Ensure we have a correct combination of maps.
   assert( ( sim_settings.unconstrained_map != nullptr && sim_settings.impact_operator == nullptr &&
             sim_settings.friction_solver == nullptr && sim_settings.if_map == nullptr && sim_settings.impact_map == nullptr ) ||

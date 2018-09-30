@@ -33,7 +33,7 @@ class GLWidget final : public QOpenGLWidget
 
 public:
 
-  explicit GLWidget( QWidget* parent = nullptr );
+  GLWidget( QWidget* parent, const QSurfaceFormat& format );
   virtual ~GLWidget() override;
   GLWidget( GLWidget& ) = delete;
   GLWidget( GLWidget&& ) = delete;
@@ -42,6 +42,8 @@ public:
 
   virtual QSize minimumSizeHint() const override;
   virtual QSize sizeHint() const override;
+
+  int sampleCount() const;
 
   void initializeSimulation( const QString& xml_scene_file_name, const bool& render_on_load, SimSettings& sim_settings, RenderSettings& render_settings );
 
@@ -172,6 +174,7 @@ private:
   // Global render settings
   int m_num_circle_subdivs;
   int m_num_drum_subdivs;
+  int m_num_aa_samples;
 
 };
 
