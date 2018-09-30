@@ -1,17 +1,18 @@
 #ifndef BALL_2D_SCENE_PARSER_H
 #define BALL_2D_SCENE_PARSER_H
 
+#include "scisim/ConstrainedMaps/FrictionSolver.h"
+#include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
 #include "scisim/Math/MathDefines.h"
+#include "scisim/Math/Rational.h"
+#include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
+
+#include "ball2d/Ball2DState.h"
+
 #include <iosfwd>
 #include <memory>
-
-class Ball2DState;
-class UnconstrainedMap;
-class ImpactOperator;
-class ImpactMap;
-class FrictionSolver;
-class ImpactFrictionMap;
-template<typename T> class Rational;
 
 struct PlaneRenderSettings final
 {
@@ -56,6 +57,26 @@ struct PortalRenderSettings final
   Eigen::Vector3f color;
 };
 
+struct SimSettings final
+{
+  std::string scripting_callback_name;
+
+  Ball2DState state;
+
+  std::string dt_string;
+  Rational<std::intmax_t> dt;
+  scalar end_time = SCALAR_INFINITY;
+
+  scalar CoR = 1.0;
+  scalar mu = 0.0;
+
+  std::unique_ptr<UnconstrainedMap> unconstrained_map = nullptr;
+  std::unique_ptr<ImpactOperator> impact_operator = nullptr;
+  std::unique_ptr<ImpactMap> impact_map = nullptr;
+  std::unique_ptr<FrictionSolver> friction_solver = nullptr;
+  std::unique_ptr<ImpactFrictionMap> if_map = nullptr;
+};
+
 struct RenderSettings final
 {
   bool camera_set;
@@ -65,9 +86,9 @@ struct RenderSettings final
   bool render_at_fps;
   bool lock_camera;
 
-  int num_ball_subdivs = 32;
-  int num_drum_subdivs = 32;
-  int num_aa_samples = -16;
+  int num_ball_subdivs = 64;
+  int num_drum_subdivs = 64;
+  int num_aa_samples = 4;
 
   std::vector<PlaneRenderSettings> plane_render_settings;
   std::vector<DrumRenderSettings> drum_render_settings;
@@ -76,16 +97,8 @@ struct RenderSettings final
 
 namespace Ball2DSceneParser
 {
-
-  bool parseXMLSceneFile( const std::string& file_name, std::string& scripting_callback_name, Ball2DState& state, std::unique_ptr<UnconstrainedMap>& integrator,
-                          std::string& dt_string, Rational<std::intmax_t>& dt, scalar& end_time, std::unique_ptr<ImpactOperator>& impact_operator,
-                          std::unique_ptr<ImpactMap>& impact_map, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, scalar& mu, std::unique_ptr<ImpactFrictionMap>& if_map );
-
-  bool parseXMLSceneFile( const std::string& file_name, std::string& scripting_callback_name, Ball2DState& state, std::unique_ptr<UnconstrainedMap>& integrator,
-                          std::string& dt_string, Rational<std::intmax_t>& dt, scalar& end_time, std::unique_ptr<ImpactOperator>& impact_operator,
-                          std::unique_ptr<ImpactMap>& impact_map, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, scalar& mu, std::unique_ptr<ImpactFrictionMap>& if_map,
-                          RenderSettings& render_settings );
-
+  bool parseXMLSceneFile( const std::string& file_name, SimSettings& sim_settings );
+  bool parseXMLSceneFile( const std::string& file_name, SimSettings& sim_settings, RenderSettings& render_settings );
 }
 
 #endif

@@ -1,8 +1,3 @@
-// ball2d_cli.cpp
-//
-// Breannan Smith
-// Last updated: 09/28/2015
-
 #ifdef USE_PYTHON
 #include <Python.h>
 #endif
@@ -42,15 +37,15 @@
 
 static Ball2DSim g_sim;
 static unsigned g_iteration{ 0 };
-static std::unique_ptr<UnconstrainedMap> g_unconstrained_map{ nullptr };
+static std::unique_ptr<UnconstrainedMap> g_unconstrained_map;
 static Rational<std::intmax_t> g_dt;
-static scalar g_end_time{ SCALAR_NAN };
-static std::unique_ptr<ImpactOperator> g_impact_operator{ nullptr };
-static scalar g_CoR{ SCALAR_NAN };
-static std::unique_ptr<FrictionSolver> g_friction_solver{ nullptr };
-static scalar g_mu{ SCALAR_NAN };
-static std::unique_ptr<ImpactMap> g_impact_map{ nullptr };
-static std::unique_ptr<ImpactFrictionMap> g_impact_friction_map{ nullptr };
+static scalar g_end_time;
+static std::unique_ptr<ImpactOperator> g_impact_operator;
+static scalar g_CoR;
+static std::unique_ptr<FrictionSolver> g_friction_solver;
+static scalar g_mu;
+static std::unique_ptr<ImpactMap> g_impact_map;
+static std::unique_ptr<ImpactFrictionMap> g_impact_friction_map;
 static PythonScripting g_scripting;
 
 #ifdef USE_HDF5
@@ -125,26 +120,32 @@ static std::string xmlFilePath( const std::string& xml_file_name )
 
 static bool loadXMLScene( const std::string& xml_file_name )
 {
-  Ball2DState simulation_state;
-  std::string scripting_callback_name;
-  std::string dt_string;
-
-  // Attempt to load the user-requested file
-  const bool loaded_successfully{ Ball2DSceneParser::parseXMLSceneFile( xml_file_name, scripting_callback_name, simulation_state, g_unconstrained_map, dt_string, g_dt, g_end_time, g_impact_operator, g_impact_map, g_CoR, g_friction_solver, g_mu, g_impact_friction_map ) };
+  SimSettings sim_settings;
+  const bool loaded_successfully{ Ball2DSceneParser::parseXMLSceneFile( xml_file_name, sim_settings ) };
   if( !loaded_successfully )
   {
     return false;
   }
 
-  g_dt_string_precision = computeTimestepDisplayPrecision( g_dt, dt_string );
+  using std::swap;
+  swap( g_dt, sim_settings.dt );
+  swap( g_end_time, sim_settings.end_time );
+  swap( g_unconstrained_map, sim_settings.unconstrained_map );
+  swap( g_impact_operator, sim_settings.impact_operator );
+  swap( g_CoR, sim_settings.CoR );
+  swap( g_impact_map, sim_settings.impact_map );
+  swap( g_friction_solver, sim_settings.friction_solver );
+  swap( g_mu, sim_settings.mu );
+  swap( g_impact_friction_map, sim_settings.if_map );
+
+  g_dt_string_precision = computeTimestepDisplayPrecision( g_dt, sim_settings.dt_string );
 
   // Move the new state over to the simulation
-  using std::swap;
-  swap( simulation_state, g_sim.state() );
+  swap( sim_settings.state, g_sim.state() );
   g_sim.clearConstraintCache();
 
   // Configure the scripting
-  PythonScripting new_scripting{ xmlFilePath( xml_file_name ), scripting_callback_name };
+  PythonScripting new_scripting{ xmlFilePath( xml_file_name ), sim_settings.scripting_callback_name };
   swap( g_scripting, new_scripting );
 
   // User-provided start of simulation python callback
@@ -291,10 +292,10 @@ static int deserializeSystem( const std::string& file_name )
   assert( g_end_time > 0.0 );
   g_impact_operator = ConstrainedMapUtilities::deserializeImpactOperator( serial_stream );
   g_CoR = Utilities::deserialize<scalar>( serial_stream );
-  assert( std::isnan(g_CoR) || g_CoR >= 0.0 ); assert( std::isnan(g_CoR) || g_CoR <= 1.0 );
+  assert( g_CoR >= 0.0 ); assert( g_CoR <= 1.0 );
   g_friction_solver = ConstrainedMapUtilities::deserializeFrictionSolver( serial_stream );
   g_mu = Utilities::deserialize<scalar>( serial_stream );
-  assert( std::isnan(g_mu) || g_mu >= 0.0 );
+  assert( g_mu >= 0.0 );
   g_impact_map = ConstrainedMapUtilities::deserializeImpactMap( serial_stream );
   g_impact_friction_map = ConstrainedMapUtilities::deserializeImpactFrictionMap( serial_stream );
   {

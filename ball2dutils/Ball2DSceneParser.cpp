@@ -5,33 +5,27 @@
 
 #include "Ball2D.h"
 
-#include "ball2d/Ball2DState.h"
 #include "ball2d/Forces/Ball2DForce.h"
 #include "ball2d/Forces/Ball2DGravityForce.h"
 #include "ball2d/Forces/PenaltyForce.h"
+#include "ball2d/Portals/PlanarPortal.h"
 #include "ball2d/StaticGeometry/StaticDrum.h"
 #include "ball2d/StaticGeometry/StaticPlane.h"
-#include "ball2d/Portals/PlanarPortal.h"
-#include "ball2d/VerletMap.h"
 #include "ball2d/SymplecticEulerMap.h"
+#include "ball2d/VerletMap.h"
 
-#include "scisim/StringUtilities.h"
-#include "scisim/Math/Rational.h"
-#include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
+#include "scisim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
 #include "scisim/ConstrainedMaps/GeometricImpactFrictionMap.h"
-#include "scisim/ConstrainedMaps/StabilizedImpactFrictionMap.h"
-#include "scisim/ConstrainedMaps/SymplecticEulerImpactFrictionMap.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/GaussSeidelOperator.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/JacobiOperator.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/GROperator.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/GRROperator.h"
-#include "scisim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
-#include "scisim/ConstrainedMaps/FrictionSolver.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/JacobiOperator.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorAPGD.h"
-#include "scisim/ConstrainedMaps/StaggeredProjections.h"
 #include "scisim/ConstrainedMaps/Sobogus.h"
+#include "scisim/ConstrainedMaps/StabilizedImpactFrictionMap.h"
+#include "scisim/ConstrainedMaps/StaggeredProjections.h"
+#include "scisim/ConstrainedMaps/SymplecticEulerImpactFrictionMap.h"
+#include "scisim/StringUtilities.h"
 
 #include "rapidxml.hpp"
 
@@ -40,9 +34,9 @@
 #endif
 
 #ifdef QL_FOUND
+#include "scisim/ConstrainedMaps/FrictionMaps/BoundConstrainedMDPOperatorQL.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorQL.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorQLVP.h"
-#include "scisim/ConstrainedMaps/FrictionMaps/BoundConstrainedMDPOperatorQL.h"
 #endif
 
 static bool loadTextFileIntoVector( const std::string& filename, std::vector<char>& xmlchars )
@@ -790,7 +784,7 @@ static bool loadLCPSolver( const rapidxml::xml_node<>& node, std::unique_ptr<Imp
     }
 
     // Attempt to read the convergence tolerance
-    scalar con_tol = std::numeric_limits<scalar>::signaling_NaN();
+    scalar con_tol;
     {
       const rapidxml::xml_attribute<>* const attrib{ node.first_attribute( "tol" ) };
       if( attrib == nullptr )
@@ -838,7 +832,7 @@ static bool loadImpactOperatorNoCoR( const rapidxml::xml_node<>& node, std::uniq
     type = typend->value();
   }
 
-  scalar v_tol = std::numeric_limits<scalar>::signaling_NaN();
+  scalar v_tol;
   if( type == "gauss_seidel" || type == "jacobi" || type == "gr" )
   {
     // Attempt to load the termination tolerance
@@ -948,7 +942,6 @@ static bool loadImpactOperator( const rapidxml::xml_node<>& node, std::unique_pt
       return false;
     }
 
-    CoR = std::numeric_limits<scalar>::signaling_NaN();
     if( !StringUtilities::extractFromString( std::string{ cor_nd->value() }, CoR ) )
     {
       std::cerr << "Could not load CoR value" << std::endl;
@@ -1051,7 +1044,6 @@ static bool loadStaggeredProjectionsFrictionSolver( const rapidxml::xml_node<>& 
         return false;
       }
 
-      mu = std::numeric_limits<scalar>::signaling_NaN();
       if( !StringUtilities::extractFromString( attrib_nd->value(), mu ) )
       {
         std::cerr << "Could not load mu value for staggered_projections_friction_solver" << std::endl;
@@ -1074,7 +1066,6 @@ static bool loadStaggeredProjectionsFrictionSolver( const rapidxml::xml_node<>& 
         return false;
       }
 
-      CoR = std::numeric_limits<scalar>::signaling_NaN();
       if( !StringUtilities::extractFromString( attrib_nd->value(), CoR ) )
       {
         std::cerr << "Could not load CoR value for staggered_projections_friction_solver" << std::endl;
@@ -1250,7 +1241,6 @@ static bool loadSobogusFrictionSolver( const rapidxml::xml_node<>& node, std::un
       return false;
     }
 
-    mu = std::numeric_limits<scalar>::signaling_NaN();
     if( !StringUtilities::extractFromString( attrib_nd->value(), mu ) )
     {
       std::cerr << "Could not load mu value for sobogus_friction_solver" << std::endl;
@@ -1273,7 +1263,6 @@ static bool loadSobogusFrictionSolver( const rapidxml::xml_node<>& node, std::un
       return false;
     }
 
-    CoR = std::numeric_limits<scalar>::signaling_NaN();
     if( !StringUtilities::extractFromString( attrib_nd->value(), CoR ) )
     {
       std::cerr << "Could not load CoR value for sobogus_friction_solver" << std::endl;
@@ -1550,7 +1539,6 @@ static bool loadSimulationState( const rapidxml::xml_node<>& root_node, const st
   }
 
   // Attempt to load the end time, if present
-  end_time = SCALAR_INFINITY;
   if( root_node.first_node( "end_time" ) != nullptr )
   {
     if( !loadEndTime( *root_node.first_node( "end_time" ), end_time ) )
@@ -1596,11 +1584,9 @@ static bool loadSimulationState( const rapidxml::xml_node<>& root_node, const st
   {
     impact_operator.reset( nullptr );
     impact_map.reset( nullptr );
-    CoR = SCALAR_NAN;
   }
 
   friction_solver.reset( nullptr );
-  mu = SCALAR_NAN;
   if_map.reset( nullptr );
 
   // Load a staggered projections friction solver, if present
@@ -1701,9 +1687,7 @@ static bool loadSimulationState( const rapidxml::xml_node<>& root_node, const st
   return true;
 }
 
-bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::string& scripting_callback_name, Ball2DState& state, std::unique_ptr<UnconstrainedMap>& integrator,
-                                           std::string& dt_string, Rational<std::intmax_t>& dt, scalar& end_time, std::unique_ptr<ImpactOperator>& impact_operator,
-                                           std::unique_ptr<ImpactMap>& impact_map, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, scalar& mu, std::unique_ptr<ImpactFrictionMap>& if_map )
+bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, SimSettings& sim_settings )
 {
   // Attempt to load the xml document
   std::vector<char> xmlchars;
@@ -1722,7 +1706,7 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::st
   const rapidxml::xml_node<>& root_node{ *doc.first_node( "ball2d_scene" ) };
 
   // Attempt to load the state
-  const bool loaded{ loadSimulationState( root_node, file_name, scripting_callback_name, state, integrator, dt_string, dt, end_time, impact_operator, impact_map, CoR, friction_solver, mu, if_map ) };
+  const bool loaded{ loadSimulationState( root_node, file_name, sim_settings.scripting_callback_name, sim_settings.state, sim_settings.unconstrained_map, sim_settings.dt_string, sim_settings.dt, sim_settings.end_time, sim_settings.impact_operator, sim_settings.impact_map, sim_settings.CoR, sim_settings.friction_solver, sim_settings.mu, sim_settings.if_map ) };
   if( !loaded )
   {
     return false;
@@ -1970,10 +1954,7 @@ static bool loadPortalRendererSettings( const rapidxml::xml_node<>& node, const 
   return true;
 }
 
-bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::string& scripting_callback_name, Ball2DState& state, std::unique_ptr<UnconstrainedMap>& integrator,
-                                           std::string& dt_string, Rational<std::intmax_t>& dt, scalar& end_time, std::unique_ptr<ImpactOperator>& impact_operator,
-                                           std::unique_ptr<ImpactMap>& impact_map, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, scalar& mu, std::unique_ptr<ImpactFrictionMap>& if_map,
-                                           RenderSettings& render_settings )
+bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, SimSettings& sim_settings, RenderSettings& render_settings )
 {
   // Attempt to load the xml document
   std::vector<char> xmlchars;
@@ -1991,8 +1972,10 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::st
   }
   const rapidxml::xml_node<>& root_node{ *doc.first_node( "ball2d_scene" ) };
 
+  SimSettings new_sim_settings;
+
   // Attempt to load the state
-  const bool loaded{ loadSimulationState( root_node, file_name, scripting_callback_name, state, integrator, dt_string, dt, end_time, impact_operator, impact_map, CoR, friction_solver, mu, if_map ) };
+  const bool loaded{ loadSimulationState( root_node, file_name, new_sim_settings.scripting_callback_name, new_sim_settings.state, new_sim_settings.unconstrained_map, new_sim_settings.dt_string, new_sim_settings.dt, new_sim_settings.end_time, new_sim_settings.impact_operator, new_sim_settings.impact_map, new_sim_settings.CoR, new_sim_settings.friction_solver, new_sim_settings.mu, new_sim_settings.if_map ) };
   if( !loaded )
   {
     return false;
@@ -2022,19 +2005,20 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::st
     }
   }
 
-  if( !loadPlaneRendererSettings( root_node, int(state.staticPlanes().size()), new_render_settings.plane_render_settings ) )
+  if( !loadPlaneRendererSettings( root_node, int(new_sim_settings.state.staticPlanes().size()), new_render_settings.plane_render_settings ) )
   {
     return false;
   }
-  if( !loadDrumRendererSettings( root_node, int(state.staticDrums().size()), new_render_settings.drum_render_settings ) )
+  if( !loadDrumRendererSettings( root_node, int(new_sim_settings.state.staticDrums().size()), new_render_settings.drum_render_settings ) )
   {
     return false;
   }
-  if( !loadPortalRendererSettings( root_node, int(state.planarPortals().size()), new_render_settings.portal_render_settings ) )
+  if( !loadPortalRendererSettings( root_node, int(new_sim_settings.state.planarPortals().size()), new_render_settings.portal_render_settings ) )
   {
     return false;
   }
 
+  std::swap(sim_settings, new_sim_settings);
   std::swap(render_settings, new_render_settings);
 
   return true;

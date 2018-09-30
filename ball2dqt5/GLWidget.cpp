@@ -55,8 +55,8 @@ GLWidget::GLWidget( QWidget* parent )
 , m_iteration( 0 )
 , m_dt( 0, 1 )
 , m_end_time( SCALAR_INFINITY )
-, m_CoR( SCALAR_NAN )
-, m_mu( SCALAR_NAN )
+, m_CoR( 1.0 )
+, m_mu( 0.0 )
 , m_sim0()
 , m_sim()
 , m_H0( 0.0 )
@@ -182,25 +182,10 @@ static void planeDeleteCallback( void* context, int plane_idx )
 
 bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render_on_load, unsigned& fps, bool& render_at_fps, bool& lock_camera )
 {
-  // State provided by config files
-  std::string new_scripting_callback_name;
-  Ball2DState new_simulation_state;
-  std::string new_dt_string;
-  Rational<std::intmax_t> new_dt;
-  scalar new_end_time = SCALAR_NAN;
-  std::unique_ptr<UnconstrainedMap> new_unconstrained_map{ nullptr };
-  std::unique_ptr<ImpactOperator> new_impact_operator{ nullptr };
-  scalar new_CoR = SCALAR_NAN;
-  std::unique_ptr<ImpactMap> new_imap{ nullptr };
-  std::unique_ptr<FrictionSolver> new_friction_solver{ nullptr };
-  scalar new_mu = SCALAR_NAN;
-  std::unique_ptr<ImpactFrictionMap> new_if_map{ nullptr };
+  SimSettings sim_settings;
   RenderSettings render_settings;
 
-  const bool loaded_successfully{ Ball2DSceneParser::parseXMLSceneFile( xml_scene_file_name.toStdString(), new_scripting_callback_name,
-                                                                        new_simulation_state, new_unconstrained_map, new_dt_string, new_dt,
-                                                                        new_end_time, new_impact_operator, new_imap, new_CoR,
-                                                                        new_friction_solver, new_mu, new_if_map, render_settings ) };
+  const bool loaded_successfully{ Ball2DSceneParser::parseXMLSceneFile( xml_scene_file_name.toStdString(), sim_settings, render_settings ) };
 
   if( !loaded_successfully )
   {
@@ -214,43 +199,43 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   this->setFormat( format );
 
   // Ensure we have a correct combination of maps.
-  assert( ( new_unconstrained_map != nullptr && new_impact_operator == nullptr &&
-            new_friction_solver == nullptr && new_if_map == nullptr && new_imap == nullptr ) ||
-          ( new_unconstrained_map != nullptr && new_impact_operator != nullptr &&
-            new_friction_solver == nullptr && new_if_map == nullptr && new_imap != nullptr ) ||
-          ( new_unconstrained_map != nullptr && new_impact_operator == nullptr &&
-            new_friction_solver != nullptr && new_if_map != nullptr && new_imap == nullptr ) );
+  assert( ( sim_settings.unconstrained_map != nullptr && sim_settings.impact_operator == nullptr &&
+            sim_settings.friction_solver == nullptr && sim_settings.if_map == nullptr && sim_settings.impact_map == nullptr ) ||
+          ( sim_settings.unconstrained_map != nullptr && sim_settings.impact_operator != nullptr &&
+            sim_settings.friction_solver == nullptr && sim_settings.if_map == nullptr && sim_settings.impact_map != nullptr ) ||
+          ( sim_settings.unconstrained_map != nullptr && sim_settings.impact_operator == nullptr &&
+            sim_settings.friction_solver != nullptr && sim_settings.if_map != nullptr && sim_settings.impact_map == nullptr ) );
 
   // Set the new maps
-  m_unconstrained_map.swap( new_unconstrained_map );
-  m_impact_operator.swap( new_impact_operator );
-  m_friction_solver.swap( new_friction_solver );
-  m_if_map.swap( new_if_map );
-  m_imap.swap( new_imap );
+  m_unconstrained_map.swap( sim_settings.unconstrained_map );
+  m_impact_operator.swap( sim_settings.impact_operator );
+  m_friction_solver.swap( sim_settings.friction_solver );
+  m_if_map.swap( sim_settings.if_map );
+  m_imap.swap( sim_settings.impact_map );
 
   // Initialize the scripting callback
   {
-    PythonScripting new_scripting{ xmlFilePath( xml_scene_file_name.toStdString() ), new_scripting_callback_name };
+    PythonScripting new_scripting{ xmlFilePath( xml_scene_file_name.toStdString() ), sim_settings.scripting_callback_name };
     swap( m_scripting, new_scripting );
   }
 
   // Save the coefficient of restitution and the coefficient of friction
-  m_CoR = new_CoR;
-  m_mu = new_mu;
+  m_CoR = sim_settings.CoR;
+  m_mu = sim_settings.mu;
 
   // Push the new state to the simulation
   using std::swap;
-  swap( new_simulation_state, m_sim.state() );
+  swap( sim_settings.state, m_sim.state() );
   m_sim.clearConstraintCache();
 
   // Cache the new state locally to allow one to reset a simulation
   m_sim0 = m_sim;
 
   // Save the timestep and compute related quantities
-  m_dt = new_dt;
+  m_dt = sim_settings.dt;
   assert( m_dt.positive() );
   m_iteration = 0;
-  m_end_time = new_end_time;
+  m_end_time = sim_settings.end_time;
   assert( m_end_time > 0.0 );
 
   // Update the FPS setting
@@ -278,7 +263,7 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   m_delta_L0 = 0.0;
 
   // Compute the number of characters after the decimal point in the timestep string
-  m_display_precision = computeTimestepDisplayPrecision( m_dt, new_dt_string );
+  m_display_precision = computeTimestepDisplayPrecision( m_dt, sim_settings.dt_string );
 
   // Generate a random color for each ball
   m_ball_color_gen = std::mt19937_64( 1337 );
