@@ -1,5 +1,7 @@
 <ball2d_scene>
 
+  <global_render_settings num_ball_subdivs="256" num_drum_subdivs="256" num_aa_samples="8"/>
+
   <camera cx="0.0" cy="0.0" scale_factor="3.69532" fps="50" render_at_fps="1" locked="0"/>
 
   <integrator type="verlet" dt="0.001"/>
@@ -8,6 +10,9 @@
 
   <static_plane x="0 0" n="0.5 1"/>
   <static_plane x="0 0" n="-0.5 1"/>
+
+  <static_plane_renderer plane="0" r="0.1 5.85" color="0 0 0"/>
+  <static_plane_renderer plane="1" r="0.1 5.85" color="0 0 0"/>
 
   <sobogus_friction_solver mu="0.3" CoR="0.0" max_iters="5000" tol="1.0e-12" eval_every="1" staggering="symplectic_euler" cache_impulses="normal_and_friction" stabilization="1" penetration_threshold="1.0e-5"/>
 

@@ -4,6 +4,8 @@
 
 <ball2d_scene>
 
+  <global_render_settings num_ball_subdivs="256" num_drum_subdivs="256" num_aa_samples="8"/>
+
   <camera cx="6.22585" cy="10.32" scale_factor="11.68" fps="60" render_at_fps="1" locked="1"/>
 
   <scripting callback="different_friction"/>

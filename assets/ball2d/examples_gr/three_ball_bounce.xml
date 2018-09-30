@@ -4,6 +4,8 @@
 
 <ball2d_scene>
 
+  <global_render_settings num_ball_subdivs="256" num_drum_subdivs="256" num_aa_samples="8"/>
+
   <camera cx="0" cy="0" scale_factor="3" fps="10" render_at_fps="0" locked="0"/>
 
   <integrator type="verlet" dt="0.1"/>

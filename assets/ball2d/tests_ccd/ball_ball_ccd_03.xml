@@ -1,5 +1,7 @@
 <ball2d_scene>
 
+  <global_render_settings num_ball_subdivs="256" num_drum_subdivs="256" num_aa_samples="8"/>
+
   <camera cx="1.93039" cy="2.88111" scale_factor="3.61422" fps="1" render_at_fps="1" locked="0"/>
 
   <integrator type="verlet" dt="1.0"/>

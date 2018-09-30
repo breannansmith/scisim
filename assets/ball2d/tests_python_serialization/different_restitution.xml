@@ -4,6 +4,8 @@
 
 <ball2d_scene>
 
+  <global_render_settings num_ball_subdivs="256" num_drum_subdivs="256" num_aa_samples="8"/>
+
   <camera cx="0" cy="1" scale_factor="2.5" fps="50" render_at_fps="0" locked="0"/>
 
   <scripting callback="different_restitution"/>
