@@ -6,6 +6,8 @@
 
 #include "Window.h"
 
+#include "ball2dutils/Ball2DSceneParser.h"
+
 #ifdef USE_PYTHON
 #include <Python.h>
 #include "ball2d/PythonScripting.cpp"
@@ -39,7 +41,23 @@ static void exitCleanup()
 
 int main( int argc, char** argv )
 {
-  // TODO: Load the simulation file here
+  if( argc > 2 )
+  {
+    qWarning( "Error, must provide a valid configuration file name or no argument. Exiting." );
+    return EXIT_FAILURE;
+  }
+
+  SimSettings sim_settings;
+  RenderSettings render_settings;
+  if( argc == 2 )
+  {
+    const bool loaded{ Ball2DSceneParser::parseXMLSceneFile( argv[1], sim_settings, render_settings ) };
+    if( !loaded )
+    {
+      qWarning( "Error, failed to parse input file." );
+      return EXIT_FAILURE;
+    }
+  }
 
   #ifdef USE_PYTHON
   // Initialize the Python interpreter
@@ -69,18 +87,13 @@ int main( int argc, char** argv )
   }
 
   QApplication app{ argc, argv };
-  const QStringList arguments{ app.arguments() };
-  if( arguments.count() > 2 )
-  {
-    qWarning( "Error, must provide a valid configuration file name or no argument. Exiting." );
-    return EXIT_FAILURE;
-  }
 
-  Window window{ arguments.count() == 2 ? arguments[1] : "" };
+  Window window{ argc == 2 ? argv[1] : "", sim_settings, render_settings };
   window.resize( window.sizeHint() );
   window.setWindowTitle( QObject::tr("2D Ball Simulation") );
   centerWindow( window );
   window.show();
   window.raise();
+
   return app.exec();
 }

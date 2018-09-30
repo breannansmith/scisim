@@ -14,7 +14,7 @@
 
 #include "GLWidget.h"
 
-ContentWidget::ContentWidget( const QString& scene_name, QWidget* parent )
+ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settings, RenderSettings& render_settings, QWidget* parent )
 : QWidget( parent )
 , m_idle_timer( nullptr )
 , m_gl_widget( new GLWidget( this, QSurfaceFormat::defaultFormat() ) )
@@ -90,7 +90,7 @@ ContentWidget::ContentWidget( const QString& scene_name, QWidget* parent )
 
   if( !scene_name.isEmpty() )
   {
-    openScene( scene_name, false );
+    initializeSimulation( scene_name, false, sim_settings, render_settings );
   }
 
   this->setFocusPolicy( Qt::StrongFocus );
@@ -155,7 +155,6 @@ void ContentWidget::openScene( const QString& scene_file_name, const bool render
   // If the user provided a valid file
   if( QFile::exists( scene_file_name ) )
   {
-    // Load the simulation
     SimSettings sim_settings;
     RenderSettings render_settings;
     const bool loaded{ Ball2DSceneParser::parseXMLSceneFile( scene_file_name.toStdString(), sim_settings, render_settings ) };
@@ -165,42 +164,7 @@ void ContentWidget::openScene( const QString& scene_file_name, const bool render
       return;
     }
 
-    // If the sample count changed, update the GL widget with a new format
-    if( m_gl_widget->sampleCount() != render_settings.num_aa_samples )
-    {
-      QSurfaceFormat format = QSurfaceFormat::defaultFormat();
-      format.setSamples( render_settings.num_aa_samples );
-
-      GLWidget* new_gl_widget = new GLWidget( this, format );
-      layout()->replaceWidget( m_gl_widget, new_gl_widget );
-      delete m_gl_widget;
-      m_gl_widget = new_gl_widget;
-    }
-
-    // Initialize the simulation
-    unsigned fps = render_settings.fps;
-    bool render_at_fps = render_settings.render_at_fps;
-    bool lock_camera = render_settings.lock_camera;
-    m_gl_widget->initializeSimulation( scene_file_name, render_on_load, sim_settings, render_settings );
-
-    // Make sure the simulation is not running when we start
-    assert( m_simulate_checkbox != nullptr );
-    if( m_simulate_checkbox->isChecked() )
-    {
-      toggleSimulationCheckbox();
-    }
-
-    // Update UI elements
-    assert( m_fps_spin_box != nullptr );
-    m_fps_spin_box->setValue( fps );
-    assert( m_render_at_fps_checkbox != nullptr );
-    m_render_at_fps_checkbox->setCheckState( render_at_fps ? Qt::Checked : Qt::Unchecked );
-    assert( m_lock_camera_button != nullptr );
-    m_lock_camera_button->setCheckState( lock_camera ? Qt::Checked : Qt::Unchecked );
-
-    m_xml_file_name = scene_file_name;
-
-    disableMovieExport();
+    initializeSimulation( scene_file_name, render_on_load, sim_settings, render_settings );
   }
   else
   {
@@ -208,6 +172,46 @@ void ContentWidget::openScene( const QString& scene_file_name, const bool render
     str msg{ str{"Warning, requested file '"} + scene_file_name.toStdString() + str{"' does not exist."} };
     qWarning( "%s", msg.c_str() );
   }
+}
+
+void ContentWidget::initializeSimulation( const QString& scene_file_name, const bool render_on_load, SimSettings& sim_settings, RenderSettings& render_settings )
+{
+  // If the sample count changed, update the GL widget with a new format
+  if( m_gl_widget->sampleCount() != render_settings.num_aa_samples )
+  {
+    QSurfaceFormat format = QSurfaceFormat::defaultFormat();
+    format.setSamples( render_settings.num_aa_samples );
+
+    GLWidget* new_gl_widget = new GLWidget( this, format );
+    layout()->replaceWidget( m_gl_widget, new_gl_widget );
+    delete m_gl_widget;
+    m_gl_widget = new_gl_widget;
+  }
+
+  // Initialize the simulation
+  unsigned fps = render_settings.fps;
+  bool render_at_fps = render_settings.render_at_fps;
+  bool lock_camera = render_settings.lock_camera;
+  m_gl_widget->initializeSimulation( scene_file_name, render_on_load, sim_settings, render_settings );
+
+  // Make sure the simulation is not running when we start
+  assert( m_simulate_checkbox != nullptr );
+  if( m_simulate_checkbox->isChecked() )
+  {
+    toggleSimulationCheckbox();
+  }
+
+  // Update UI elements
+  assert( m_fps_spin_box != nullptr );
+  m_fps_spin_box->setValue( fps );
+  assert( m_render_at_fps_checkbox != nullptr );
+  m_render_at_fps_checkbox->setCheckState( render_at_fps ? Qt::Checked : Qt::Unchecked );
+  assert( m_lock_camera_button != nullptr );
+  m_lock_camera_button->setCheckState( lock_camera ? Qt::Checked : Qt::Unchecked );
+
+  m_xml_file_name = scene_file_name;
+
+  disableMovieExport();
 }
 
 void ContentWidget::reloadScene()

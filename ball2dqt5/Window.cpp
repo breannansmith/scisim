@@ -7,10 +7,10 @@
 
 #include "ContentWidget.h"
 
-Window::Window( const QString& scene_name, QWidget* parent )
+Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSettings& render_settings, QWidget* parent )
 : QMainWindow( parent )
 {
-  ContentWidget* content_widget{ new ContentWidget{ scene_name, this } };
+  ContentWidget* content_widget{ new ContentWidget{ scene_name, sim_settings, render_settings, this } };
   setCentralWidget( content_widget );
 
   // File menu actions

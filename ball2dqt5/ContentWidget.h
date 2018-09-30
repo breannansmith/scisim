@@ -7,6 +7,9 @@ class QCheckBox;
 class QSpinBox;
 class GLWidget;
 
+struct RenderSettings;
+struct SimSettings;
+
 class ContentWidget final : public QWidget
 {
 
@@ -14,7 +17,7 @@ class ContentWidget final : public QWidget
 
 public:
 
-  ContentWidget( const QString& scene_name, QWidget* parent = nullptr );
+  ContentWidget( const QString& scene_name, SimSettings& sim_settings, RenderSettings& render_settings, QWidget* parent = nullptr );
   virtual ~ContentWidget() override = default;
   ContentWidget( ContentWidget& ) = delete;
   ContentWidget( ContentWidget&& ) = delete;
@@ -54,6 +57,8 @@ public slots:
 private:
 
   void openScene( const QString& scene_file_name, const bool render_on_load );
+
+  void initializeSimulation( const QString& scene_file_name, const bool render_on_load, SimSettings& sim_settings, RenderSettings& render_settings );
 
   QString getOpenFileNameFromUser( const QString& prompt );
   QString getSaveFileNameFromUser( const QString& prompt );
