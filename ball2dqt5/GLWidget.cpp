@@ -180,19 +180,8 @@ static void planeDeleteCallback( void* context, int plane_idx )
   static_cast<GLWidget*>(context)->deletePlaneCallback(plane_idx);
 }
 
-bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render_on_load, unsigned& fps, bool& render_at_fps, bool& lock_camera )
+void GLWidget::initializeSimulation( const QString& xml_scene_file_name, const bool& render_on_load, SimSettings& sim_settings, RenderSettings& render_settings )
 {
-  SimSettings sim_settings;
-  RenderSettings render_settings;
-
-  const bool loaded_successfully{ Ball2DSceneParser::parseXMLSceneFile( xml_scene_file_name.toStdString(), sim_settings, render_settings ) };
-
-  if( !loaded_successfully )
-  {
-    qWarning() << "Failed to load file: " << xml_scene_file_name;
-    return false;
-  }
-
   // TODO: Move this to the parent class, pass in format to constructor
   QSurfaceFormat format = QSurfaceFormat::defaultFormat();
   format.setSamples( render_settings.num_aa_samples );
@@ -247,11 +236,6 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   }
   assert( m_output_fps > 0 );
   setMovieFPS( m_output_fps );
-
-  // For the parent to update the UI
-  fps = m_output_fps;
-  render_at_fps = m_render_at_fps;
-  lock_camera = m_lock_camera;
 
   // Compute the initial energy, momentum, and angular momentum
   m_H0 = m_sim.state().computeTotalEnergy();
@@ -324,8 +308,6 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   }
 
   copyRenderState();
-
-  return true;
 }
 
 void GLWidget::copyRenderState()

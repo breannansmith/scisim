@@ -10,6 +10,8 @@
 
 #include <cassert>
 
+#include "ball2dutils/Ball2DSceneParser.h"
+
 #include "GLWidget.h"
 
 ContentWidget::ContentWidget( const QString& scene_name, QWidget* parent )
@@ -155,39 +157,44 @@ void ContentWidget::openScene( const QString& scene_file_name, const bool render
   {
     // TODO: Only replace the widget if the surface format changes
     GLWidget* new_gl_widget = new GLWidget(this);
-    layout()->replaceWidget(m_gl_widget, new_gl_widget);
+    layout()->replaceWidget( m_gl_widget, new_gl_widget );
     delete m_gl_widget;
     m_gl_widget = new_gl_widget;
 
-    // Attempt to load the file
-    assert( m_gl_widget != nullptr );
-    unsigned fps;
-    bool render_at_fps;
-    bool lock_camera;
-    const bool loaded{ m_gl_widget->openScene( scene_file_name, render_on_load, fps, render_at_fps, lock_camera ) };
-
-    // If the load was successful
-    if( loaded )
+    // Load the simulation
+    SimSettings sim_settings;
+    RenderSettings render_settings;
+    const bool loaded{ Ball2DSceneParser::parseXMLSceneFile( scene_file_name.toStdString(), sim_settings, render_settings ) };
+    if( !loaded )
     {
-      // Make sure the simulation isn't running when we start
-      assert( m_simulate_checkbox != nullptr );
-      if( m_simulate_checkbox->isChecked() )
-      {
-        toggleSimulationCheckbox();
-      }
-
-      // Update UI elements
-      assert( m_fps_spin_box != nullptr );
-      m_fps_spin_box->setValue( fps );
-      assert( m_render_at_fps_checkbox != nullptr );
-      m_render_at_fps_checkbox->setCheckState( render_at_fps ? Qt::Checked : Qt::Unchecked );
-      assert( m_lock_camera_button != nullptr );
-      m_lock_camera_button->setCheckState( lock_camera ? Qt::Checked : Qt::Unchecked );
-
-      m_xml_file_name = scene_file_name;
-
-      disableMovieExport();
+      qWarning() << "Failed to load file: " << scene_file_name;
+      return;
     }
+
+    // Initialize the simulation
+    unsigned fps = render_settings.fps;
+    bool render_at_fps = render_settings.render_at_fps;
+    bool lock_camera = render_settings.lock_camera;
+    m_gl_widget->initializeSimulation( scene_file_name, render_on_load, sim_settings, render_settings );
+
+    // Make sure the simulation is not running when we start
+    assert( m_simulate_checkbox != nullptr );
+    if( m_simulate_checkbox->isChecked() )
+    {
+      toggleSimulationCheckbox();
+    }
+
+    // Update UI elements
+    assert( m_fps_spin_box != nullptr );
+    m_fps_spin_box->setValue( fps );
+    assert( m_render_at_fps_checkbox != nullptr );
+    m_render_at_fps_checkbox->setCheckState( render_at_fps ? Qt::Checked : Qt::Unchecked );
+    assert( m_lock_camera_button != nullptr );
+    m_lock_camera_button->setCheckState( lock_camera ? Qt::Checked : Qt::Unchecked );
+
+    m_xml_file_name = scene_file_name;
+
+    disableMovieExport();
   }
   else
   {

@@ -72,7 +72,8 @@ int main( int argc, char** argv )
   const QStringList arguments{ app.arguments() };
   if( arguments.count() > 2 )
   {
-    qFatal( "Error, must provide a valid configuration file name or no argument. Exiting." );
+    qWarning( "Error, must provide a valid configuration file name or no argument. Exiting." );
+    return EXIT_FAILURE;
   }
 
   Window window{ arguments.count() == 2 ? arguments[1] : "" };

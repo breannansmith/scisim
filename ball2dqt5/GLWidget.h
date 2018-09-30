@@ -43,8 +43,7 @@ public:
   virtual QSize minimumSizeHint() const override;
   virtual QSize sizeHint() const override;
 
-
-  bool openScene( const QString& xml_scene_file_name, const bool& render_on_load, unsigned& fps, bool& render_at_fps, bool& lock_camera );
+  void initializeSimulation( const QString& xml_scene_file_name, const bool& render_on_load, SimSettings& sim_settings, RenderSettings& render_settings );
 
   void stepSystem();
 
