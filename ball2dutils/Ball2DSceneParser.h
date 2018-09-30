@@ -67,6 +67,7 @@ struct RenderSettings final
 
   int num_ball_subdivs = 32;
   int num_drum_subdivs = 32;
+  int num_aa_samples = -16;
 
   std::vector<PlaneRenderSettings> plane_render_settings;
   std::vector<DrumRenderSettings> drum_render_settings;

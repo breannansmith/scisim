@@ -74,14 +74,17 @@ GLWidget::GLWidget( QWidget* parent )
 
 GLWidget::~GLWidget()
 {
-  // makeCurrent();
-  m_axis_shader.cleanup();
-  m_circle_shader.cleanup();
-  m_plane_shader.cleanup();
-  m_annulus_shader.cleanup();
-  m_rectangle_shader.cleanup();
-  // doneCurrent();
-  assert( checkGLErrors() );
+  if( m_f != nullptr )
+  {
+    // makeCurrent();
+    m_axis_shader.cleanup();
+    m_circle_shader.cleanup();
+    m_plane_shader.cleanup();
+    m_annulus_shader.cleanup();
+    m_rectangle_shader.cleanup();
+    // doneCurrent();
+    assert( checkGLErrors() );
+  }
 }
 
 QSize GLWidget::minimumSizeHint() const
@@ -205,6 +208,11 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
     return false;
   }
 
+  // TODO: Move this to the parent class, pass in format to constructor
+  QSurfaceFormat format = QSurfaceFormat::defaultFormat();
+  format.setSamples( render_settings.num_aa_samples );
+  this->setFormat( format );
+
   // Ensure we have a correct combination of maps.
   assert( ( new_unconstrained_map != nullptr && new_impact_operator == nullptr &&
             new_friction_solver == nullptr && new_if_map == nullptr && new_imap == nullptr ) ||
@@ -316,7 +324,7 @@ bool GLWidget::openScene( const QString& xml_scene_file_name, const bool& render
   m_num_circle_subdivs = render_settings.num_ball_subdivs;
   m_num_drum_subdivs = render_settings.num_drum_subdivs;
 
-  if( render_on_load )
+  if( m_f != nullptr && render_on_load )
   {
     // Update the global render settings
     m_circle_shader.cleanup();

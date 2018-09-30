@@ -153,6 +153,12 @@ void ContentWidget::openScene( const QString& scene_file_name, const bool render
   // If the user provided a valid file
   if( QFile::exists( scene_file_name ) )
   {
+    // TODO: Only replace the widget if the surface format changes
+    GLWidget* new_gl_widget = new GLWidget(this);
+    layout()->replaceWidget(m_gl_widget, new_gl_widget);
+    delete m_gl_widget;
+    m_gl_widget = new_gl_widget;
+
     // Attempt to load the file
     assert( m_gl_widget != nullptr );
     unsigned fps;

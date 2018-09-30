@@ -186,7 +186,7 @@ static bool loadCameraSettings( const rapidxml::xml_node<>& node, Eigen::Vector2
   return true;
 }
 
-static bool loadGlobalRenderSettings( const rapidxml::xml_node<>& node, int& num_ball_subdivs, int& num_drum_subdivs )
+static bool loadGlobalRenderSettings( const rapidxml::xml_node<>& node, int& num_ball_subdivs, int& num_drum_subdivs, int& num_aa_samples )
 {
   // Attempt to parse the ball subdivision setting
   {
@@ -214,6 +214,21 @@ static bool loadGlobalRenderSettings( const rapidxml::xml_node<>& node, int& num
     if( !StringUtilities::extractFromString( attrib->value(), num_drum_subdivs ) || num_drum_subdivs <= 0 )
     {
       std::cerr << "Failed to parse num_drum_subdivs attribute for global_render_settings. Value must be a positive integer." << std::endl;
+      return false;
+    }
+  }
+
+  // Attempt to parse the drum subdivision setting
+  {
+    const rapidxml::xml_attribute<>* attrib{ node.first_attribute( "num_aa_samples" ) };
+    if( attrib == nullptr )
+    {
+      std::cerr << "Failed to locate num_aa_samples attribute for global_render_settings" << std::endl;
+      return false;
+    }
+    if( !StringUtilities::extractFromString( attrib->value(), num_aa_samples ) )
+    {
+      std::cerr << "Failed to parse num_aa_samples attribute for global_render_settings." << std::endl;
       return false;
     }
   }
@@ -2000,7 +2015,7 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::st
   // Attempt to load the optional global render settings
   if( root_node.first_node( "global_render_settings" ) != nullptr )
   {
-    if( !loadGlobalRenderSettings( *root_node.first_node( "global_render_settings" ), new_render_settings.num_ball_subdivs, new_render_settings.num_drum_subdivs ) )
+    if( !loadGlobalRenderSettings( *root_node.first_node( "global_render_settings" ), new_render_settings.num_ball_subdivs, new_render_settings.num_drum_subdivs, new_render_settings.num_aa_samples ) )
     {
       std::cerr << "Failed to parse global render settings: " << file_name << std::endl;
       return false;
