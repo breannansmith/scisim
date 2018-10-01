@@ -1,8 +1,3 @@
-// RigidBody2DSceneParser.cpp
-//
-// Breannan Smith
-// Last updated: 12/08/2015
-
 #include "RigidBody2DSceneParser.h"
 
 #include <iostream>
@@ -559,7 +554,11 @@ static bool loadIntegrator( const rapidxml::xml_node<>& node, std::unique_ptr<Un
   return true;
 }
 
+#if defined(QL_FOUND) || defined(IPOPT_FOUND)
 static bool loadLCPSolver( const rapidxml::xml_node<>& node, std::unique_ptr<ImpactOperator>& impact_operator )
+#else
+static bool loadLCPSolver( const rapidxml::xml_node<>& node, std::unique_ptr<ImpactOperator>& /*impact_operator*/ )
+#endif
 {
   const rapidxml::xml_attribute<>* const nd{ node.first_attribute( "name" ) };
 
@@ -845,7 +844,7 @@ static bool loadImpactOperator( const rapidxml::xml_node<>& node, std::unique_pt
 //  return true;
 //}
 
-static bool loadMDPOperator( const rapidxml::xml_node<>& node, std::unique_ptr<FrictionOperator>& friction_operator )
+static bool loadMDPOperator( const rapidxml::xml_node<>& /*node*/, std::unique_ptr<FrictionOperator>& /*friction_operator*/ )
 {
   std::cerr << "2D rigid body loadMDPOperator not coded up." << std::endl;
   std::exit( EXIT_FAILURE );
