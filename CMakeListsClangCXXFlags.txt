@@ -7,7 +7,7 @@ if( STRICT_BUILD )
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-conversion -Wno-undefined-func-template -Wno-float-equal -Wno-weak-vtables -Wno-padded -Wno-exit-time-destructors -Wno-global-constructors" )
 
   # Remove warnings that cause issues with the Qt5 front-ends
-  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-redundant-parens" )
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-redundant-parens -Wno-deprecated-declarations" )
 
   # Warnings that cause issues with the FrictionProblem file from So-bogus
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-old-style-cast" )
