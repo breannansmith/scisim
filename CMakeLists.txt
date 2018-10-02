@@ -180,9 +180,9 @@ add_subdirectory( rigidbody2dutils )
 add_subdirectory( rigidbody2dcli )
 
 # Qt5 interface for two dimensional rigid body simulations
-# if( USE_QT5 )
-#   add_subdirectory( rigidbody2dqt4 )
-# endif()
+if( USE_QT5 )
+  add_subdirectory( rigidbody2dqt5 )
+endif()
 
 
 # Core three dimensional rigid body simulation library

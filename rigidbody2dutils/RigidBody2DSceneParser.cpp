@@ -1653,3 +1653,8 @@ bool RigidBody2DSceneParser::parseXMLSceneFile( const std::string& file_name, st
 
   return true;
 }
+
+bool RigidBody2DSceneParser::parseXMLSceneFile( const std::string& /*file_name*/, SimSettings& /*sim_settings*/, RenderSettings& /*render_settings*/ )
+{
+  return true;
+}
