@@ -2018,8 +2018,8 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, SimSett
     return false;
   }
 
-  std::swap(sim_settings, new_sim_settings);
-  std::swap(render_settings, new_render_settings);
+  sim_settings = std::move( new_sim_settings );
+  render_settings = std::move( new_render_settings );
 
   return true;
 }

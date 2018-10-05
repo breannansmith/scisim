@@ -199,11 +199,11 @@ void GLWidget::initializeSimulation( const QString& xml_scene_file_name, const b
             sim_settings.friction_solver != nullptr && sim_settings.if_map != nullptr && sim_settings.impact_map == nullptr ) );
 
   // Set the new maps
-  m_unconstrained_map.swap( sim_settings.unconstrained_map );
-  m_impact_operator.swap( sim_settings.impact_operator );
-  m_friction_solver.swap( sim_settings.friction_solver );
-  m_if_map.swap( sim_settings.if_map );
-  m_imap.swap( sim_settings.impact_map );
+  m_unconstrained_map = std::move( sim_settings.unconstrained_map );
+  m_impact_operator = std::move( sim_settings.impact_operator );
+  m_friction_solver = std::move( sim_settings.friction_solver );
+  m_if_map = std::move( sim_settings.if_map );
+  m_imap = std::move( sim_settings.impact_map );
 
   // Initialize the scripting callback
   {
@@ -216,8 +216,7 @@ void GLWidget::initializeSimulation( const QString& xml_scene_file_name, const b
   m_mu = sim_settings.mu;
 
   // Push the new state to the simulation
-  using std::swap;
-  swap( sim_settings.state, m_sim.state() );
+  m_sim.state() = std::move( sim_settings.state );
   m_sim.clearConstraintCache();
 
   // Cache the new state locally to allow one to reset a simulation
@@ -289,9 +288,9 @@ void GLWidget::initializeSimulation( const QString& xml_scene_file_name, const b
   m_scripting.registerBallInsertCallback( this, &ballInsertCallback );
   m_scripting.registerPlaneDeleteCallback( this, &planeDeleteCallback );
 
-  std::swap( m_plane_render_settings, render_settings.plane_render_settings );
-  std::swap( m_drum_render_settings, render_settings.drum_render_settings );
-  std::swap( m_portal_render_settings, render_settings.portal_render_settings );
+  m_plane_render_settings = std::move( render_settings.plane_render_settings );
+  m_drum_render_settings = std::move( render_settings.drum_render_settings );
+  m_portal_render_settings = std::move( render_settings.portal_render_settings );
 
   m_num_circle_subdivs = render_settings.num_ball_subdivs;
   m_num_drum_subdivs = render_settings.num_drum_subdivs;

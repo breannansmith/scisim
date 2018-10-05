@@ -89,7 +89,7 @@ private:
 
   void paintHUD();
 
-  // Vector3s generateColor();
+  Vector3s generateColor();
 
   QOpenGLFunctions_3_3_Core* m_f;
 
@@ -113,10 +113,10 @@ private:
   bool m_left_mouse_button_pressed;
   bool m_right_mouse_button_pressed;
 
-  // Colors to render balls in the scene
-  // VectorXs m_ball_colors;
-  // std::uniform_real_distribution<scalar> m_color_gen;
-  // std::mt19937_64 m_ball_color_gen;
+  // Colors to render bodies in the scene
+  VectorXs m_body_colors;
+  std::uniform_real_distribution<scalar> m_color_gen;
+  std::mt19937_64 m_body_color_gen;
 
   // Number of decimal places to display in time display
   int m_display_precision;

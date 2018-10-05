@@ -1,37 +1,32 @@
-// rigidbody2d_cli.cpp
-//
-// Breannan Smith
-// Last updated: 10/01/2015
-
-#include <iostream>
-#include <iomanip>
 #include <fstream>
+#include <iomanip>
+#include <iostream>
+
 #include <getopt.h>
 
+#include "scisim/CompileDefinitions.h"
+#include "scisim/ConstrainedMaps/ConstrainedMapUtilities.h"
+#include "scisim/ConstrainedMaps/FrictionSolver.h"
+#include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
 #include "scisim/Math/MathDefines.h"
 #include "scisim/Math/MathUtilities.h"
 #include "scisim/Math/Rational.h"
-#include "scisim/StringUtilities.h"
-#include "scisim/CompileDefinitions.h"
-#include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
-#include "scisim/Timer/TimeUtils.h"
-#include "scisim/ConstrainedMaps/ConstrainedMapUtilities.h"
-#include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
-#include "scisim/ConstrainedMaps/FrictionSolver.h"
-#include "scisim/Utilities.h"
 #include "scisim/PythonTools.h"
+#include "scisim/StringUtilities.h"
+#include "scisim/Timer/TimeUtils.h"
+#include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
+#include "scisim/Utilities.h"
 
+#include "rigidbody2d/PythonScripting.h"
 #include "rigidbody2d/RigidBody2DSim.h"
 #include "rigidbody2d/RigidBody2DUtilities.h"
-#include "rigidbody2d/PythonScripting.h"
 #include "rigidbody2dutils/RigidBody2DSceneParser.h"
-#include "rigidbody2dutils/CameraSettings2D.h"
 
 #ifdef USE_HDF5
-#include "scisim/HDF5File.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactSolution.h"
+#include "scisim/HDF5File.h"
 #endif
 
 static RigidBody2DSim g_sim;
@@ -119,23 +114,28 @@ static std::string xmlFilePath( const std::string& xml_file_name )
 
 static bool loadXMLScene( const std::string& xml_file_name )
 {
-  std::string scripting_callback_name;
-  std::string dt_string;
-  CameraSettings2D unused_camera_settings;
-  RigidBody2DState new_state;
-
-  const bool loaded_successfully{ RigidBody2DSceneParser::parseXMLSceneFile( xml_file_name, scripting_callback_name, new_state, g_unconstrained_map, dt_string, g_dt, g_end_time, g_impact_operator, g_impact_map, g_CoR, g_friction_solver, g_mu, g_impact_friction_map, unused_camera_settings ) };
-
-  if( !loaded_successfully )
+  SimSettings sim_settings;
+  if( !RigidBody2DSceneParser::parseXMLSceneFile( xml_file_name, sim_settings ) )
   {
     return false;
   }
 
-  g_sim.state() = std::move( new_state );
-  g_dt_string_precision = computeTimestepDisplayPrecision( g_dt, dt_string );
+  g_sim.state() = std::move( sim_settings.state );
+  g_dt_string_precision = computeTimestepDisplayPrecision( sim_settings.dt, sim_settings.dt_string );
+
+  g_unconstrained_map = std::move( sim_settings.unconstrained_map );
+  g_impact_operator = std::move( sim_settings.impact_operator );
+  g_impact_map = std::move( sim_settings.impact_map );
+  g_friction_solver = std::move( sim_settings.friction_solver );
+  g_impact_friction_map = std::move( sim_settings.if_map );
+
+  g_dt = sim_settings.dt;
+  g_end_time = sim_settings.end_time;
+  g_CoR = sim_settings.CoR;
+  g_mu = sim_settings.mu;
 
   // Configure the scripting
-  PythonScripting new_scripting{ xmlFilePath( xml_file_name ), scripting_callback_name };
+  PythonScripting new_scripting{ xmlFilePath( xml_file_name ), sim_settings.scripting_callback_name };
   swap( g_scripting, new_scripting );
 
   // User-provided start of simulation python callback

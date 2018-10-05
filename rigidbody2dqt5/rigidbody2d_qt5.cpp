@@ -2,6 +2,10 @@
 #include <QDesktopWidget>
 #include <QSurfaceFormat>
 
+#ifdef USE_MACOS
+#include <QRegularExpression>
+#endif
+
 #include <cassert>
 
 #include "Window.h"
@@ -12,6 +16,14 @@
 #include <Python.h>
 #include "rigidbody2d/PythonScripting.cpp"
 #include "scisim/PythonTools.h"
+#endif
+
+#ifdef USE_MACOS
+static bool isProcessSerialNumber( char* text )
+{
+  QRegularExpression psnPattern("^-psn_\\d+_\\d+$");
+  return psnPattern.match(text).hasMatch();
+}
 #endif
 
 static void centerWindow( Window& window )
@@ -49,7 +61,11 @@ int main( int argc, char** argv )
 
   SimSettings sim_settings;
   RenderSettings render_settings;
+  #ifdef USE_MACOS
+  if( argc == 2 && !isProcessSerialNumber( argv[1] ) )
+  #else
   if( argc == 2 )
+  #endif
   {
     const bool loaded{ RigidBody2DSceneParser::parseXMLSceneFile( argv[1], sim_settings, render_settings ) };
     if( !loaded )

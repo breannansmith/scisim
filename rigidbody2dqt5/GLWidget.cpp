@@ -16,8 +16,6 @@
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
 #include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
 
-// #include "ball2d/Ball2DState.h"
-
 GLWidget::GLWidget( QWidget* parent, const QSurfaceFormat& format )
 : QOpenGLWidget( parent )
 , m_f( nullptr )
@@ -36,9 +34,9 @@ GLWidget::GLWidget( QWidget* parent, const QSurfaceFormat& format )
 , m_last_pos()
 , m_left_mouse_button_pressed( false )
 , m_right_mouse_button_pressed( false )
-// , m_ball_colors()
-// , m_color_gen( 0.0, 1.0 )
-// , m_ball_color_gen( 1337 )
+, m_body_colors()
+, m_color_gen( 0.0, 1.0 )
+, m_body_color_gen( 1337 )
 , m_display_precision( 0 )
 , m_display_HUD( true )
 , m_movie_dir_name()
@@ -105,53 +103,53 @@ int GLWidget::sampleCount() const
   return m_num_aa_samples;
 }
 
-// static int computeTimestepDisplayPrecision( const Rational<std::intmax_t>& dt, const std::string& dt_string )
-// {
-//   if( dt_string.find( '.' ) != std::string::npos )
-//   {
-//     return int( StringUtilities::computeNumCharactersToRight( dt_string, '.' ) );
-//   }
-//   else
-//   {
-//     std::string converted_dt_string;
-//     std::stringstream ss;
-//     ss << std::fixed << scalar( dt );
-//     ss >> converted_dt_string;
-//     return int( StringUtilities::computeNumCharactersToRight( converted_dt_string, '.' ) );
-//   }
-// }
+static int computeTimestepDisplayPrecision( const Rational<std::intmax_t>& dt, const std::string& dt_string )
+{
+  if( dt_string.find( '.' ) != std::string::npos )
+  {
+    return int( StringUtilities::computeNumCharactersToRight( dt_string, '.' ) );
+  }
+  else
+  {
+    std::string converted_dt_string;
+    std::stringstream ss;
+    ss << std::fixed << scalar( dt );
+    ss >> converted_dt_string;
+    return int( StringUtilities::computeNumCharactersToRight( converted_dt_string, '.' ) );
+  }
+}
 
-// static std::string xmlFilePath( const std::string& xml_file_name )
-// {
-//   std::string path;
-//   std::string file_name;
-//   StringUtilities::splitAtLastCharacterOccurence( xml_file_name, path, file_name, '/' );
-//   if( file_name.empty() )
-//   {
-//     using std::swap;
-//     swap( path, file_name );
-//   }
-//   return path;
-// }
+static std::string xmlFilePath( const std::string& xml_file_name )
+{
+  std::string path;
+  std::string file_name;
+  StringUtilities::splitAtLastCharacterOccurence( xml_file_name, path, file_name, '/' );
+  if( file_name.empty() )
+  {
+    using std::swap;
+    swap( path, file_name );
+  }
+  return path;
+}
 
-// Vector3s GLWidget::generateColor()
-// {
-  // Vector3s color( 1.0, 1.0, 1.0 );
-  // // Generate colors until we get one with a luminance in [0.1, 0.9]
-  // while( ( 0.2126 * color.x() + 0.7152 * color.y() + 0.0722 * color.z() ) > 0.9 ||
-  //        ( 0.2126 * color.x() + 0.7152 * color.y() + 0.0722 * color.z() ) < 0.1 )
-  // {
-  //   color.x() = m_color_gen( m_ball_color_gen );
-  //   color.y() = m_color_gen( m_ball_color_gen );
-  //   color.z() = m_color_gen( m_ball_color_gen );
-  // }
-  // return color;
-// }
+Vector3s GLWidget::generateColor()
+{
+  Vector3s color( 1.0, 1.0, 1.0 );
+  // Generate colors until we get one with a luminance in [0.1, 0.9]
+  while( ( 0.2126 * color.x() + 0.7152 * color.y() + 0.0722 * color.z() ) > 0.9 ||
+         ( 0.2126 * color.x() + 0.7152 * color.y() + 0.0722 * color.z() ) < 0.1 )
+  {
+    color.x() = m_color_gen( m_body_color_gen );
+    color.y() = m_color_gen( m_body_color_gen );
+    color.z() = m_color_gen( m_body_color_gen );
+  }
+  return color;
+}
 
 // void GLWidget::insertBallCallback( const int num_balls )
 // {
-//   m_ball_colors.conservativeResize( 3 * num_balls );
-//   m_ball_colors.segment<3>( 3 * num_balls - 3) = generateColor();
+//   m_body_colors.conservativeResize( 3 * num_balls );
+//   m_body_colors.segment<3>( 3 * num_balls - 3) = generateColor();
 // }
 
 // static void ballInsertCallback( void* context, int num_balls )
@@ -188,107 +186,107 @@ int GLWidget::sampleCount() const
 //   static_cast<GLWidget*>(context)->deletePlaneCallback(plane_idx);
 // }
 
-void GLWidget::initializeSimulation( const QString& /*xml_scene_file_name*/, const bool& /*render_on_load*/, SimSettings& /*sim_settings*/, RenderSettings& /*render_settings*/ )
+void GLWidget::initializeSimulation( const QString& xml_scene_file_name, const bool& render_on_load, SimSettings& sim_settings, RenderSettings& render_settings )
 {
-  // // Ensure we have a correct combination of maps.
-  // assert( ( sim_settings.unconstrained_map != nullptr && sim_settings.impact_operator == nullptr &&
-  //           sim_settings.friction_solver == nullptr && sim_settings.if_map == nullptr && sim_settings.impact_map == nullptr ) ||
-  //         ( sim_settings.unconstrained_map != nullptr && sim_settings.impact_operator != nullptr &&
-  //           sim_settings.friction_solver == nullptr && sim_settings.if_map == nullptr && sim_settings.impact_map != nullptr ) ||
-  //         ( sim_settings.unconstrained_map != nullptr && sim_settings.impact_operator == nullptr &&
-  //           sim_settings.friction_solver != nullptr && sim_settings.if_map != nullptr && sim_settings.impact_map == nullptr ) );
+  // Ensure we have a correct combination of maps.
+  assert( ( sim_settings.unconstrained_map != nullptr && sim_settings.impact_operator == nullptr &&
+            sim_settings.friction_solver == nullptr && sim_settings.if_map == nullptr && sim_settings.impact_map == nullptr ) ||
+          ( sim_settings.unconstrained_map != nullptr && sim_settings.impact_operator != nullptr &&
+            sim_settings.friction_solver == nullptr && sim_settings.if_map == nullptr && sim_settings.impact_map != nullptr ) ||
+          ( sim_settings.unconstrained_map != nullptr && sim_settings.impact_operator == nullptr &&
+            sim_settings.friction_solver != nullptr && sim_settings.if_map != nullptr && sim_settings.impact_map == nullptr ) );
 
-  // // Set the new maps
-  // m_unconstrained_map.swap( sim_settings.unconstrained_map );
-  // m_impact_operator.swap( sim_settings.impact_operator );
-  // m_friction_solver.swap( sim_settings.friction_solver );
-  // m_if_map.swap( sim_settings.if_map );
-  // m_imap.swap( sim_settings.impact_map );
+  // Set the new maps
+  m_unconstrained_map = std::move( sim_settings.unconstrained_map );
+  m_impact_operator = std::move( sim_settings.impact_operator );
+  m_friction_solver = std::move( sim_settings.friction_solver );
+  m_if_map = std::move( sim_settings.if_map );
+  m_imap = std::move( sim_settings.impact_map );
 
-  // // Initialize the scripting callback
-  // {
-  //   PythonScripting new_scripting{ xmlFilePath( xml_scene_file_name.toStdString() ), sim_settings.scripting_callback_name };
-  //   swap( m_scripting, new_scripting );
-  // }
+  // Initialize the scripting callback
+  {
+    PythonScripting new_scripting{ xmlFilePath( xml_scene_file_name.toStdString() ), sim_settings.scripting_callback_name };
+    swap( m_scripting, new_scripting );
+  }
 
-  // // Save the coefficient of restitution and the coefficient of friction
-  // m_CoR = sim_settings.CoR;
-  // m_mu = sim_settings.mu;
+  // Save the coefficient of restitution and the coefficient of friction
+  m_CoR = sim_settings.CoR;
+  m_mu = sim_settings.mu;
 
-  // // Push the new state to the simulation
-  // using std::swap;
-  // swap( sim_settings.state, m_sim.state() );
-  // m_sim.clearConstraintCache();
+  // Push the new state to the simulation
+  m_sim.state() = std::move( sim_settings.state );
+  m_sim.clearConstraintCache();
 
-  // // Cache the new state locally to allow one to reset a simulation
-  // m_sim0 = m_sim;
+  // Cache the new state locally to allow one to reset a simulation
+  m_sim0 = m_sim;
 
-  // // Save the timestep and compute related quantities
-  // m_dt = sim_settings.dt;
-  // assert( m_dt.positive() );
-  // m_iteration = 0;
-  // m_end_time = sim_settings.end_time;
-  // assert( m_end_time > 0.0 );
+  // Save the timestep and compute related quantities
+  m_dt = sim_settings.dt;
+  assert( m_dt.positive() );
+  m_iteration = 0;
+  m_end_time = sim_settings.end_time;
+  assert( m_end_time > 0.0 );
 
-  // // Update the FPS setting
-  // if( render_settings.camera_set )
-  // {
-  //   m_render_at_fps = render_settings.render_at_fps;
-  //   m_output_fps = render_settings.fps;
-  //   m_lock_camera = render_settings.lock_camera;
-  // }
-  // assert( m_output_fps > 0 );
-  // setMovieFPS( m_output_fps );
+  // Update the FPS setting
+  if( render_settings.camera_set )
+  {
+    m_render_at_fps = render_settings.render_at_fps;
+    m_output_fps = render_settings.fps;
+    m_lock_camera = render_settings.lock_camera;
+  }
+  assert( m_output_fps > 0 );
+  setMovieFPS( m_output_fps );
 
-  // // Compute the initial energy, momentum, and angular momentum
-  // m_H0 = m_sim.state().computeTotalEnergy();
-  // m_p0 = m_sim.state().computeMomentum();
-  // m_L0 = m_sim.state().computeAngularMomentum();
-  // // Trivially there is no change in energy, momentum, and angular momentum until we take a timestep
-  // m_delta_H0 = 0.0;
-  // m_delta_p0 = Vector2s::Zero();
-  // m_delta_L0 = 0.0;
+  // Compute the initial energy, momentum, and angular momentum
+  m_H0 = m_sim.computeTotalEnergy();
+  m_p0 = m_sim.computeTotalMomentum();
+  m_L0 = m_sim.computeTotalAngularMomentum();
+  // Trivially there is no change in energy, momentum, and angular momentum until we take a timestep
+  m_delta_H0 = 0.0;
+  m_delta_p0 = Vector2s::Zero();
+  m_delta_L0 = 0.0;
 
-  // // Compute the number of characters after the decimal point in the timestep string
-  // m_display_precision = computeTimestepDisplayPrecision( m_dt, sim_settings.dt_string );
+  // Compute the number of characters after the decimal point in the timestep string
+  m_display_precision = computeTimestepDisplayPrecision( m_dt, sim_settings.dt_string );
 
-  // // Generate a random color for each ball
-  // m_ball_color_gen = std::mt19937_64( 1337 );
-  // m_ball_colors.resize( 3 * m_sim.state().nballs() );
-  // for( int i = 0; i < m_ball_colors.size(); i += 3 )
-  // {
-  //   m_ball_colors.segment<3>( i ) = generateColor();
-  // }
+  // Generate a random color for each body
+  m_body_color_gen = std::mt19937_64( 1337 );
+  m_body_colors.resize( 3 * m_sim.state().nbodies() );
+  for( int i = 0; i < m_body_colors.size(); i += 3 )
+  {
+    m_body_colors.segment<3>( i ) = generateColor();
+  }
 
-  // // Reset the output movie option
-  // m_movie_dir_name = QString{};
-  // m_movie_dir = QDir{};
+  // Reset the output movie option
+  m_movie_dir_name = QString{};
+  m_movie_dir = QDir{};
 
-  // const bool lock_backup{ m_lock_camera };
-  // m_lock_camera = false;
+  const bool lock_backup{ m_lock_camera };
+  m_lock_camera = false;
 
-  // if( !render_settings.camera_set )
-  // {
-  //   centerCamera( false );
-  // }
-  // else
-  // {
-  //   m_center_x = float(render_settings.camera_center.x());
-  //   m_center_y = float(render_settings.camera_center.y());
-  //   m_display_scale = float(render_settings.camera_scale_factor);
-  // }
+  if( !render_settings.camera_set )
+  {
+    centerCamera( false );
+  }
+  else
+  {
+    m_center_x = float(render_settings.camera_center.x());
+    m_center_y = float(render_settings.camera_center.y());
+    m_display_scale = float(render_settings.camera_scale_factor);
+  }
 
-  // m_lock_camera = lock_backup;
+  m_lock_camera = lock_backup;
 
-  // // User-provided start of simulation python callback
-  // m_scripting.setState( m_sim.state() );
-  // m_scripting.startOfSimCallback();
-  // m_scripting.forgetState();
+  // User-provided start of simulation python callback
+  m_scripting.setState( m_sim.state() );
+  m_scripting.startOfSimCallback();
+  m_scripting.forgetState();
 
-  // // Register UI callbacks for Python scripting
+  // Register UI callbacks for Python scripting
   // m_scripting.registerBallInsertCallback( this, &ballInsertCallback );
   // m_scripting.registerPlaneDeleteCallback( this, &planeDeleteCallback );
 
+  // using std::swap;
   // std::swap( m_plane_render_settings, render_settings.plane_render_settings );
   // std::swap( m_drum_render_settings, render_settings.drum_render_settings );
   // std::swap( m_portal_render_settings, render_settings.portal_render_settings );
@@ -296,8 +294,8 @@ void GLWidget::initializeSimulation( const QString& /*xml_scene_file_name*/, con
   // m_num_circle_subdivs = render_settings.num_ball_subdivs;
   // m_num_drum_subdivs = render_settings.num_drum_subdivs;
 
-  // if( m_f != nullptr && render_on_load )
-  // {
+  if( m_f != nullptr && render_on_load )
+  {
   //   // Update the global render settings
   //   m_circle_shader.cleanup();
   //   m_circle_shader.initialize( m_num_circle_subdivs, m_f );
@@ -305,12 +303,12 @@ void GLWidget::initializeSimulation( const QString& /*xml_scene_file_name*/, con
   //   m_annulus_shader.cleanup();
   //   m_annulus_shader.initialize( m_num_drum_subdivs, m_f );
 
-  //   // Draw the scene
-  //   resizeGL( m_w, m_h );
-  //   update();
-  // }
+    // Draw the scene
+    resizeGL( m_w, m_h );
+    update();
+  }
 
-  // copyRenderState();
+  copyRenderState();
 }
 
 void GLWidget::copyRenderState()
@@ -352,7 +350,7 @@ void GLWidget::copyRenderState()
   //     // Center of mass, radius, and color
   //     cd.segment<2>( 6 * ball_idx ) = q.segment<2>( 2 * ball_idx ).cast<GLfloat>();
   //     cd( 6 * ball_idx + 2 ) = GLfloat( r( ball_idx ) );
-  //     cd.segment<3>( 6 * ball_idx + 3 ) = m_ball_colors.segment<3>( 3 * ball_idx ).cast<GLfloat>();
+  //     cd.segment<3>( 6 * ball_idx + 3 ) = m_body_colors.segment<3>( 3 * ball_idx ).cast<GLfloat>();
   //   }
 
   //   // Copy over the teleported balls
@@ -361,7 +359,7 @@ void GLWidget::copyRenderState()
   //     // Center of mass, radius, and color
   //     cd.segment<2>( 6 * m_sim.state().nballs() + 6 * tlprtd_idx ) = teleported_centers[tlprtd_idx].cast<GLfloat>();
   //     cd( 6 * m_sim.state().nballs() + 6 * tlprtd_idx + 2 ) = GLfloat( r( teleported_indices[tlprtd_idx] ) );
-  //     cd.segment<3>( 6 * m_sim.state().nballs() + 6 * tlprtd_idx + 3 ) = m_ball_colors.segment<3>( 3 * teleported_indices[tlprtd_idx] ).cast<GLfloat>();
+  //     cd.segment<3>( 6 * m_sim.state().nballs() + 6 * tlprtd_idx + 3 ) = m_body_colors.segment<3>( 3 * teleported_indices[tlprtd_idx] ).cast<GLfloat>();
   //   }
   // }
 
@@ -570,13 +568,13 @@ void GLWidget::resetSystem()
   m_movie_dir = QDir{};
   m_output_frame = 0;
 
-  // Reset ball colors, in case the number of balls changed
-  // m_ball_color_gen = std::mt19937_64( 1337 );
-  // m_ball_colors.resize( 3 * m_sim.state().nballs() );
-  // for( int i = 0; i < m_ball_colors.size(); i += 3 )
-  // {
-  //   m_ball_colors.segment<3>( i ) = generateColor();
-  // }
+  // Reset body colors, in case the number of bodies changed
+  m_body_color_gen = std::mt19937_64( 1337 );
+  m_body_colors.resize( 3 * m_sim.state().nbodies() );
+  for( int i = 0; i < m_body_colors.size(); i += 3 )
+  {
+    m_body_colors.segment<3>( i ) = generateColor();
+  }
 
   // User-provided start of simulation python callback
   m_scripting.setState( m_sim.state() );

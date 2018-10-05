@@ -5,7 +5,6 @@
 
 #include "rapidxml.hpp"
 
-#include "rigidbody2d/RigidBody2DState.h"
 #include "rigidbody2d/RigidBody2DGeometry.h"
 #include "rigidbody2d/CircleGeometry.h"
 #include "rigidbody2d/BoxGeometry.h"
@@ -16,16 +15,12 @@
 #include "rigidbody2d/RigidBody2DStaticPlane.h"
 #include "rigidbody2d/PlanarPortal.h"
 
-#include "scisim/Math/Rational.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
 #include "scisim/ConstrainedMaps/GeometricImpactFrictionMap.h"
 #include "scisim/ConstrainedMaps/StabilizedImpactFrictionMap.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/GaussSeidelOperator.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/JacobiOperator.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/GROperator.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/GRROperator.h"
-#include "scisim/ConstrainedMaps/FrictionSolver.h"
 #include "scisim/ConstrainedMaps/StaggeredProjections.h"
 #include "scisim/ConstrainedMaps/Sobogus.h"
 #include "scisim/ConstrainedMaps/FrictionMaps/FrictionOperator.h"
@@ -38,8 +33,6 @@
 #include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorQL.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/LCPOperatorQLVP.h"
 #endif
-
-#include "CameraSettings2D.h"
 
 static bool loadTextFileIntoVector( const std::string& filename, std::vector<char>& xmlchars )
 {
@@ -89,16 +82,17 @@ static bool loadXMLFile( const std::string& filename, std::vector<char>& xmlchar
   return true;
 }
 
-static bool loadCameraSettings( const rapidxml::xml_node<>& node, CameraSettings2D& camera_settings )
+static bool loadRenderSettings( const rapidxml::xml_node<>& node, RenderSettings& render_settings )
 {
   // If the camera is not specified, we are done
   const rapidxml::xml_node<>* camera_node{ node.first_node( "camera" ) };
   if( camera_node == nullptr )
   {
+    render_settings.camera_set = false;
     return true;
   }
 
-  camera_settings.set = true;
+  render_settings.camera_set = true;
 
   // Attempt to read the center setting
   {
@@ -108,7 +102,7 @@ static bool loadCameraSettings( const rapidxml::xml_node<>& node, CameraSettings
       std::cerr << "Failed to locate center attribute for camera node." << std::endl;
       return false;
     }
-    if( !StringUtilities::readScalarList( center_attrib->value(), 2, ' ', camera_settings.center ) )
+    if( !StringUtilities::readScalarList( center_attrib->value(), 2, ' ', render_settings.camera_center ) )
     {
       std::cerr << "Failed to load center attribute for camera node, must provide 2 scalars." << std::endl;
       return false;
@@ -123,7 +117,7 @@ static bool loadCameraSettings( const rapidxml::xml_node<>& node, CameraSettings
       std::cerr << "Failed to locate scale attribute for camera node." << std::endl;
       return false;
     }
-    if( !StringUtilities::extractFromString( scale_attrib->value(), camera_settings.scale ) || camera_settings.scale <= 0.0 )
+    if( !StringUtilities::extractFromString( scale_attrib->value(), render_settings.camera_scale_factor ) || render_settings.camera_scale_factor <= 0.0 )
     {
       std::cerr << "Failed to load scale attribute for camera node, must provide a single positive scalar." << std::endl;
       return false;
@@ -144,7 +138,7 @@ static bool loadCameraSettings( const rapidxml::xml_node<>& node, CameraSettings
       std::cerr << "Failed to parse fps attribute for camera node, must provide a non-negative integer." << std::endl;
       return false;
     }
-    camera_settings.fps = unsigned( fps );
+    render_settings.fps = unsigned( fps );
   }
 
   // Attempt to read the render_at_fps setting
@@ -155,7 +149,7 @@ static bool loadCameraSettings( const rapidxml::xml_node<>& node, CameraSettings
       std::cerr << "Failed to locate render_at_fps attribute for camera node." << std::endl;
       return false;
     }
-    if( !StringUtilities::extractFromString( render_at_fps_attrib->value(), camera_settings.render_at_fps ) )
+    if( !StringUtilities::extractFromString( render_at_fps_attrib->value(), render_settings.render_at_fps ) )
     {
       std::cerr << "Failed to parse render_at_fps attribute for camera node, must provide a boolean." << std::endl;
       return false;
@@ -170,7 +164,7 @@ static bool loadCameraSettings( const rapidxml::xml_node<>& node, CameraSettings
       std::cerr << "Failed to locate locked attribute for camera node." << std::endl;
       return false;
     }
-    if( !StringUtilities::extractFromString( locked_attrib->value(), camera_settings.locked ) )
+    if( !StringUtilities::extractFromString( locked_attrib->value(), render_settings.lock_camera ) )
     {
       std::cerr << "Failed to parse locked attribute for camera node, must provide a boolean." << std::endl;
       return false;
@@ -1505,7 +1499,7 @@ static bool loadBodies( const rapidxml::xml_node<>& node, const std::vector<std:
   return true;
 }
 
-bool RigidBody2DSceneParser::parseXMLSceneFile( const std::string& file_name, std::string& scripting_callback, RigidBody2DState& sim_state, std::unique_ptr<UnconstrainedMap>& unconstrained_map, std::string& dt_string, Rational<std::intmax_t>& dt, scalar& end_time, std::unique_ptr<ImpactOperator>& impact_operator, std::unique_ptr<ImpactMap>& impact_map, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, scalar& mu, std::unique_ptr<ImpactFrictionMap>& if_map, CameraSettings2D& camera_settings )
+static bool parseXMLSceneFile( const std::string& file_name, std::string& scripting_callback, RigidBody2DState& sim_state, std::unique_ptr<UnconstrainedMap>& unconstrained_map, std::string& dt_string, Rational<std::intmax_t>& dt, scalar& end_time, std::unique_ptr<ImpactOperator>& impact_operator, std::unique_ptr<ImpactMap>& impact_map, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, scalar& mu, std::unique_ptr<ImpactFrictionMap>& if_map, RenderSettings& render_settings )
 {
   // Attempt to load the xml document
   std::vector<char> xmlchars;
@@ -1536,7 +1530,7 @@ bool RigidBody2DSceneParser::parseXMLSceneFile( const std::string& file_name, st
   }
 
   // Attempt to load the optional camera settings, if present
-  if( !loadCameraSettings( root_node, camera_settings ) )
+  if( !loadRenderSettings( root_node, render_settings ) )
   {
     return false;
   }
@@ -1654,7 +1648,24 @@ bool RigidBody2DSceneParser::parseXMLSceneFile( const std::string& file_name, st
   return true;
 }
 
-bool RigidBody2DSceneParser::parseXMLSceneFile( const std::string& /*file_name*/, SimSettings& /*sim_settings*/, RenderSettings& /*render_settings*/ )
+bool RigidBody2DSceneParser::parseXMLSceneFile( const std::string& file_name, SimSettings& sim_settings )
 {
-  return true;
+  RenderSettings render_settings;
+  return parseXMLSceneFile( file_name, sim_settings, render_settings );
+}
+
+bool RigidBody2DSceneParser::parseXMLSceneFile( const std::string& file_name, SimSettings& sim_settings, RenderSettings& render_settings )
+{
+  SimSettings nss;
+  RenderSettings nrs;
+  bool success = parseXMLSceneFile( file_name, nss.scripting_callback_name, nss.state, nss.unconstrained_map, nss.dt_string, nss.dt, nss.end_time,
+                                    nss.impact_operator, nss.impact_map, nss.CoR, nss.friction_solver, nss.mu, nss.if_map, nrs );
+
+  if( success )
+  {
+    sim_settings = std::move( nss );
+    render_settings = std::move( nrs );
+  }
+
+  return success;
 }
