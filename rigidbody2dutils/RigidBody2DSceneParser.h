@@ -37,12 +37,12 @@ struct SimSettings final
 
 struct RenderSettings final
 {
-  bool camera_set;
-  Eigen::Vector2d camera_center;
-  double camera_scale_factor;
-  unsigned fps;
-  bool render_at_fps;
-  bool lock_camera;
+  bool camera_set = false;
+  Eigen::Vector2d camera_center = Eigen::Vector2d::Zero();
+  double camera_scale_factor = 1.0;
+  unsigned fps = 30;
+  bool render_at_fps = false;
+  bool lock_camera = false;
 
   // int num_ball_subdivs = 64;
   // int num_drum_subdivs = 64;
