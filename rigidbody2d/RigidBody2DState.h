@@ -24,6 +24,9 @@ public:
   unsigned nbodies() const;
   unsigned nportals() const;
 
+  int ncircles() const;
+  int nboxes() const;
+
   VectorXs& q();
   const VectorXs& q() const;
 
@@ -94,6 +97,9 @@ private:
   std::vector<std::unique_ptr<RigidBody2DForce>> m_forces;
   std::vector<RigidBody2DStaticPlane> m_planes;
   std::vector<PlanarPortal> m_planar_portals;
+
+  int m_num_circles;
+  int m_num_boxes;
 
 };
 

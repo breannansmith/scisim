@@ -15,9 +15,9 @@
 
 // #include "AnnulusShader.h"
 #include "AxisShader.h"
-// #include "CircleShader.h"
+#include "CircleShader.h"
 // #include "PlaneShader.h"
-// #include "RectangleShader.h"
+#include "RectangleShader.h"
 
 class QWheelEvent;
 class QOpenGLFunctions_3_3_Core;
@@ -94,11 +94,11 @@ private:
   QOpenGLFunctions_3_3_Core* m_f;
 
   AxisShader m_axis_shader;
-  // CircleShader m_circle_shader;
+  CircleShader m_circle_shader;
   // TODO: Roll the plane rendering into the rectangle shader
   // PlaneShader m_plane_shader;
   // AnnulusShader m_annulus_shader;
-  // RectangleShader m_rectangle_shader;
+  RectangleShader m_rectangle_shader;
 
   // TODO: Pull these into a separate class
   int m_w;
@@ -172,7 +172,7 @@ private:
   // std::vector<PortalRenderSettings> m_portal_render_settings;
 
   // Global render settings
-  // int m_num_circle_subdivs;
+  int m_num_circle_subdivs;
   // int m_num_drum_subdivs;
   int m_num_aa_samples;
 

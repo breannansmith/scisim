@@ -44,7 +44,7 @@ struct RenderSettings final
   bool render_at_fps = false;
   bool lock_camera = false;
 
-  // int num_ball_subdivs = 64;
+  int num_ball_subdivs = 64;
   // int num_drum_subdivs = 64;
   int num_aa_samples = 4;
 

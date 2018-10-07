@@ -1,24 +1,24 @@
 set( Sources
   AxisShader.cpp
+  CircleShader.cpp
   ContentWidget.cpp
   GLWidget.cpp
   OpenGLShader.cpp
+  RectangleShader.cpp
   rigidbody2d_qt5.cpp
   Window.cpp
 )
 # AnnulusShader.cpp
-# CircleShader.cpp
 # PlaneShader.cpp
-# RectangleShader.cpp
 
 set( Headers
   AxisShader.h
+  CircleShader.h
   ContentWidget.h
   GLWidget.h
   OpenGLShader.h
+  RectangleShader.h
   Window.h
 )
 # AnnulusShader.h
-# CircleShader.h
 # PlaneShader.h
-# RectangleShader.h

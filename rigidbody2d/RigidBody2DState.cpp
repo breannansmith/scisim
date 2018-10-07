@@ -71,6 +71,8 @@ void RigidBody2DState::checkStateConsistency()
   assert( ( m_geometry_indices.array() < unsigned( m_geometry.size() ) ).all() );
 
   assert( static_cast<int>( m_fixed.size() ) == m_q.size() / 3 );
+
+  assert( m_num_circles + m_num_boxes == m_q.size() / 3 );
 }
 #endif
 
@@ -85,7 +87,27 @@ RigidBody2DState::RigidBody2DState( const VectorXs& q, const VectorXs& v, const 
 , m_forces( Utilities::clone( forces ) )
 , m_planes( planes )
 , m_planar_portals( planar_portals )
+, m_num_circles( 0 )
+, m_num_boxes( 0 )
 {
+  // Compute the geometry counts
+  for( int bdyIdx = 0; bdyIdx < m_geometry_indices.size(); bdyIdx++ )
+  {
+    switch( m_geometry[bdyIdx]->type() )
+    {
+      case RigidBody2DGeometryType::CIRCLE:
+      {
+        m_num_circles++;
+        break;
+      }
+      case RigidBody2DGeometryType::BOX:
+      {
+        m_num_boxes++;
+        break;
+      }
+    }
+  }
+
   #ifndef NDEBUG
   checkStateConsistency();
   #endif
@@ -102,6 +124,8 @@ RigidBody2DState::RigidBody2DState( const RigidBody2DState& rhs )
 , m_forces( Utilities::clone( rhs.m_forces ) )
 , m_planes( rhs.m_planes )
 , m_planar_portals( rhs.m_planar_portals )
+, m_num_circles( rhs.m_num_circles )
+, m_num_boxes( rhs.m_num_boxes )
 {
   #ifndef NDEBUG
   checkStateConsistency();
@@ -125,6 +149,16 @@ unsigned RigidBody2DState::nbodies() const
 unsigned RigidBody2DState::nportals() const
 {
   return static_cast<unsigned>( m_planar_portals.size() );
+}
+
+int RigidBody2DState::ncircles() const
+{
+  return m_num_circles;
+}
+
+int RigidBody2DState::nboxes() const
+{
+  return m_num_boxes;
 }
 
 VectorXs& RigidBody2DState::q()
@@ -183,6 +217,21 @@ void RigidBody2DState::addBody( const Vector2s& x, const scalar& theta, const Ve
 {
   assert( rho > 0.0 );
   assert( geo_idx < m_geometry.size() );
+
+  // Update geometry counts
+  switch( m_geometry[geo_idx]->type() )
+  {
+    case RigidBody2DGeometryType::CIRCLE:
+    {
+      m_num_circles++;
+      break;
+    }
+    case RigidBody2DGeometryType::BOX:
+    {
+      m_num_boxes++;
+      break;
+    }
+  }
 
   assert( m_q.size() % 3 == 0 );
   const unsigned original_num_bodies{ unsigned( m_q.size() / 3 ) };
@@ -260,6 +309,26 @@ void RigidBody2DState::removeBodies( const Eigen::Ref<const VectorXu>& indices )
   if( indices.size() == 0 )
   {
     return;
+  }
+
+  // Update geometry counts
+  for( int idx = 0; idx < indices.size(); idx++ )
+  {
+    const unsigned bdy_idx = indices(idx);
+    const unsigned geo_idx = m_geometry_indices(bdy_idx);
+    switch( m_geometry[geo_idx]->type() )
+    {
+      case RigidBody2DGeometryType::CIRCLE:
+      {
+        m_num_circles--;
+        break;
+      }
+      case RigidBody2DGeometryType::BOX:
+      {
+        m_num_boxes--;
+        break;
+      }
+    }
   }
 
   // Use q to mark dofs for deletion
@@ -490,6 +559,8 @@ void RigidBody2DState::serialize( std::ostream& output_stream ) const
   Utilities::serialize( m_forces, output_stream );
   Utilities::serialize( m_planes, output_stream );
   Utilities::serialize( m_planar_portals, output_stream );
+  Utilities::serialize( m_num_circles, output_stream );
+  Utilities::serialize( m_num_boxes, output_stream );
 }
 
 static void deserializeGeo( std::istream& input_stream, std::vector<std::unique_ptr<RigidBody2DGeometry>>& geo )
@@ -548,4 +619,6 @@ void RigidBody2DState::deserialize( std::istream& input_stream )
   deserializeForces( input_stream, m_forces );
   m_planes = Utilities::deserialize<std::vector<RigidBody2DStaticPlane>>( input_stream );
   m_planar_portals = Utilities::deserialize<std::vector<PlanarPortal>>( input_stream );
+  m_num_circles = Utilities::deserialize<int>( input_stream );
+  m_num_boxes = Utilities::deserialize<int>( input_stream );
 }
