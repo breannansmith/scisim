@@ -17,11 +17,12 @@ static const char* const vertex_shader_source = {
   "layout (location = 2) in float radius;\n"
   "layout (location = 3) in vec3 circle_color;\n"
   "uniform mat4 projection_view;\n"
+  "uniform int vert_half_count;\n"
   "out vec3 render_color;\n"
   "void main()\n"
   "{\n"
   "  gl_Position = projection_view * vec4(radius * position.x + center_of_mass.x, radius * position.y + center_of_mass.y, 0.0f, 1.0f);\n"
-  "  render_color = circle_color;\n"
+  "  render_color = (gl_VertexID / vert_half_count) * circle_color;\n"
   "}\n"
 };
 
@@ -64,10 +65,10 @@ static std::vector<GLfloat> tesselateCircle( const GLuint num_subdivs )
   return vertices;
 }
 
-void CircleShader::initialize( const int num_subdivs, QOpenGLFunctions_3_3_Core* f )
+void CircleShader::initialize( const int half_num_subdivs, QOpenGLFunctions_3_3_Core* f )
 {
-  assert( num_subdivs > 0 );
-  m_num_subdivs = num_subdivs;
+  assert( half_num_subdivs > 0 );
+  m_num_subdivs = 2 * half_num_subdivs;
 
   assert( f != nullptr );
   assert( m_f == nullptr );
@@ -159,6 +160,15 @@ void CircleShader::initialize( const int num_subdivs, QOpenGLFunctions_3_3_Core*
   {
     qFatal( "Error, failed to get unfirom location for 'projection_view'." );
   }
+
+  // Copy the half-count of the vertices over
+  m_f->glUseProgram( m_program );
+  GLint half_count_loc = m_f->glGetUniformLocation( m_program, "vert_half_count" );
+  if( half_count_loc < 0 )
+  {
+    qFatal( "Error, failed to get unfirom location for 'vert_half_count'." );
+  }
+  m_f->glUniform1i( half_count_loc, 3 * half_num_subdivs );
 }
 
 void CircleShader::cleanup()

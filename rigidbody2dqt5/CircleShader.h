@@ -18,7 +18,7 @@ public:
   CircleShader& operator=( const CircleShader& ) = delete;
   CircleShader& operator=( CircleShader&& ) = delete;
 
-  void initialize( const int num_subdivs, QOpenGLFunctions_3_3_Core* f );
+  void initialize( const int half_num_subdivs, QOpenGLFunctions_3_3_Core* f );
   void cleanup();
 
   void setTransform( const QMatrix4x4& pv );
