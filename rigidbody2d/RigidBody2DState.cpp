@@ -93,7 +93,7 @@ RigidBody2DState::RigidBody2DState( const VectorXs& q, const VectorXs& v, const 
   // Compute the geometry counts
   for( int bdyIdx = 0; bdyIdx < m_geometry_indices.size(); bdyIdx++ )
   {
-    switch( m_geometry[bdyIdx]->type() )
+    switch( m_geometry[m_geometry_indices(bdyIdx)]->type() )
     {
       case RigidBody2DGeometryType::CIRCLE:
       {
