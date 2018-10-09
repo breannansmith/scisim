@@ -40,8 +40,8 @@ private:
   GLint m_pv_mat_loc;
 
   // Storage for the circles to render
-  // Size is: 6 * num_circles
-  // center_of_mass radius color ...
+  // Size is: 7 * num_circles
+  // center_of_mass theta radius color ...
   Eigen::Matrix<GLfloat,Eigen::Dynamic,1> m_circle_data;
 
   bool m_data_buffered;

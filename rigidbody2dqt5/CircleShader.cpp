@@ -14,14 +14,21 @@ static const char* const vertex_shader_source = {
   "#version 330 core\n"
   "layout (location = 0) in vec2 position;\n"
   "layout (location = 1) in vec2 center_of_mass;\n"
-  "layout (location = 2) in float radius;\n"
-  "layout (location = 3) in vec3 circle_color;\n"
+  "layout (location = 2) in float theta;\n"
+  "layout (location = 3) in float radius;\n"
+  "layout (location = 4) in vec3 circle_color;\n"
   "uniform mat4 projection_view;\n"
   "uniform int vert_half_count;\n"
   "out vec3 render_color;\n"
   "void main()\n"
   "{\n"
-  "  gl_Position = projection_view * vec4(radius * position.x + center_of_mass.x, radius * position.y + center_of_mass.y, 0.0f, 1.0f);\n"
+  "  float sx = radius * position.x;\n"
+  "  float sy = radius * position.y;\n"
+  "  float c = cos(theta);\n"
+  "  float s = sin(theta);\n"
+  "  float x = c * sx - s * sy;\n"
+  "  float y = s * sx + c * sy;\n"
+  "  gl_Position = projection_view * vec4(x + center_of_mass.x, y + center_of_mass.y, 0.0f, 1.0f);\n"
   "  render_color = (gl_VertexID / vert_half_count) * circle_color;\n"
   "}\n"
 };
@@ -134,20 +141,26 @@ void CircleShader::initialize( const int half_num_subdivs, QOpenGLFunctions_3_3_
     // The circle centers of mass
     m_f->glEnableVertexAttribArray( 1 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
-    m_f->glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), static_cast<GLvoid*>(nullptr) );
+    m_f->glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), static_cast<GLvoid*>(nullptr) );
     m_f->glVertexAttribDivisor( 1, 1 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
-    // The circle radii
+    // The circle orientations
     m_f->glEnableVertexAttribArray( 2 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
-    m_f->glVertexAttribPointer( 2, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)( 2 * sizeof(GLfloat) ) );
+    m_f->glVertexAttribPointer( 2, 1, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (GLvoid*)( 2 * sizeof(GLfloat) ) );
     m_f->glVertexAttribDivisor( 2, 1 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
-    // The circle colors
+    // The circle radii
     m_f->glEnableVertexAttribArray( 3 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
-    m_f->glVertexAttribPointer( 3, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)( 3 * sizeof(GLfloat) ) );
+    m_f->glVertexAttribPointer( 3, 1, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (GLvoid*)( 3 * sizeof(GLfloat) ) );
     m_f->glVertexAttribDivisor( 3, 1 );
+    m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
+    // The circle colors
+    m_f->glEnableVertexAttribArray( 4 );
+    m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
+    m_f->glVertexAttribPointer( 4, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (GLvoid*)( 4 * sizeof(GLfloat) ) );
+    m_f->glVertexAttribDivisor( 4, 1 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
   m_f->glBindVertexArray( 0 );
 
@@ -204,8 +217,8 @@ void CircleShader::draw()
   assert( m_program > 0 );
   assert( m_VAO > 0 );
 
-  assert( m_circle_data.size() % 6 == 0 );
-  const long num_circles{ m_circle_data.size() / 6 };
+  assert( m_circle_data.size() % 7 == 0 );
+  const long num_circles{ m_circle_data.size() / 7 };
 
   if( !m_data_buffered )
   {

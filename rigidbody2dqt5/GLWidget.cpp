@@ -319,7 +319,7 @@ void GLWidget::copyRenderState()
   // Copy the body state over
   {
     Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& circle_data{ m_circle_shader.circleData() };
-    circle_data.resize( 6 * m_sim.state().ncircles() );
+    circle_data.resize( 7 * m_sim.state().ncircles() );
 
     Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& rectangle_data{ m_rectangle_shader.data() };
     rectangle_data.resize( 8 * m_sim.state().nboxes() );
@@ -334,10 +334,10 @@ void GLWidget::copyRenderState()
         case RigidBody2DGeometryType::CIRCLE:
         {
           const CircleGeometry& circle = static_cast<const CircleGeometry&>( *geo.get() );
-          // center_of_mass radius color ...
-          circle_data.segment<2>( 6 * curCircle ) = m_sim.state().q().segment<2>( 3 * bdyIdx ).cast<GLfloat>();
-          circle_data( 6 * curCircle + 2 ) = GLfloat( circle.r() );
-          circle_data.segment<3>( 6 * curCircle + 3 ) = m_body_colors.segment<3>( 3 * bdyIdx ).cast<GLfloat>();
+          // center_of_mass theta radius color ...
+          circle_data.segment<3>( 7 * curCircle ) = m_sim.state().q().segment<3>( 3 * bdyIdx ).cast<GLfloat>();
+          circle_data( 7 * curCircle + 3 ) = GLfloat( circle.r() );
+          circle_data.segment<3>( 7 * curCircle + 4 ) = m_body_colors.segment<3>( 3 * bdyIdx ).cast<GLfloat>();
           curCircle++;
           break;
         }
