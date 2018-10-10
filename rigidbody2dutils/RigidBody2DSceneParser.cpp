@@ -1499,6 +1499,69 @@ static bool loadBodies( const rapidxml::xml_node<>& node, const std::vector<std:
   return true;
 }
 
+static bool loadPlaneRendererSettings( const rapidxml::xml_node<>& node, const int plane_count, std::vector<PlaneRenderSettings>& plane_render_settings )
+{
+  for( rapidxml::xml_node<>* nd = node.first_node( "static_plane_renderer" ); nd; nd = nd->next_sibling( "static_plane_renderer" ) )
+  {
+    // Read the index of plane to render
+    int idx;
+    {
+      const rapidxml::xml_attribute<>* const attrib{ nd->first_attribute( "plane" ) };
+      if( !attrib )
+      {
+        std::cerr << "Failed to locate plane attribute for static_plane_renderer." << std::endl;
+        return false;
+      }
+      std::stringstream ss;
+      ss << attrib->value();
+      if( !( ss >> idx ) )
+      {
+        std::cerr << "Failed to load plane attribute for static_plane_renderer. Must provide a non-negative integer." << std::endl;
+        return false;
+      }
+      if( idx < 0 || idx >= plane_count )
+      {
+        std::cerr << "Failed to load plane attribute for static_plane_renderer. Invalid plane index specified." << std::endl;
+        return false;
+      }
+    }
+    // Read the rendering widths
+    VectorXs r;
+    {
+      const rapidxml::xml_attribute<>* const attrib{ nd->first_attribute( "r" ) };
+      if( !attrib )
+      {
+        std::cerr << "Failed to locate r attribute for static_plane_renderer." << std::endl;
+        return false;
+      }
+      if( !StringUtilities::readScalarList( attrib->value(), 2, ' ', r ) || !( r.array() > 0.0 ).all() )
+      {
+        std::cerr << "Failed to load r attribute for static_plane_renderer. Must provide 2 positive scalars." << std::endl;
+        return false;
+      }
+    }
+    // Read the color
+    VectorXs color;
+    {
+      const rapidxml::xml_attribute<>* const attrib{ nd->first_attribute( "color" ) };
+      if( !attrib )
+      {
+        std::cerr << "Failed to locate color attribute for static_plane_renderer." << std::endl;
+        return false;
+      }
+      if( !StringUtilities::readScalarList( attrib->value(), 3, ' ', color ) || !( color.array() >= 0.0 ).all() || !( color.array() <= 1.0 ).all() )
+      {
+        std::cerr << "Failed to load color attribute for static_plane_renderer. Must provide 3 scalars in [0, 1]." << std::endl;
+        return false;
+      }
+    }
+    // Create the renderer
+    plane_render_settings.emplace_back( idx, r.cast<float>(), color.cast<float>() );
+  }
+
+  return true;
+}
+
 static bool parseXMLSceneFile( const std::string& file_name, std::string& scripting_callback, RigidBody2DState& sim_state, std::unique_ptr<UnconstrainedMap>& unconstrained_map, std::string& dt_string, Rational<std::intmax_t>& dt, scalar& end_time, std::unique_ptr<ImpactOperator>& impact_operator, std::unique_ptr<ImpactMap>& impact_map, scalar& CoR, std::unique_ptr<FrictionSolver>& friction_solver, scalar& mu, std::unique_ptr<ImpactFrictionMap>& if_map, RenderSettings& render_settings )
 {
   // Attempt to load the xml document
@@ -1627,6 +1690,11 @@ static bool parseXMLSceneFile( const std::string& file_name, std::string& script
   // Load geometry to attatch to bodies
   std::vector<std::unique_ptr<RigidBody2DGeometry>> geometry;
   if( !loadGeometry( root_node, geometry ) )
+  {
+    return false;
+  }
+
+  if( !loadPlaneRendererSettings( root_node, int(planes.size()), render_settings.plane_render_settings ) )
   {
     return false;
   }

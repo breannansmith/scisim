@@ -4,12 +4,12 @@ set( Sources
   ContentWidget.cpp
   GLWidget.cpp
   OpenGLShader.cpp
+  PlaneShader.cpp
   RectangleShader.cpp
   rigidbody2d_qt5.cpp
   Window.cpp
 )
 # AnnulusShader.cpp
-# PlaneShader.cpp
 
 set( Headers
   AxisShader.h
@@ -17,8 +17,8 @@ set( Headers
   ContentWidget.h
   GLWidget.h
   OpenGLShader.h
+  PlaneShader.h
   RectangleShader.h
   Window.h
 )
 # AnnulusShader.h
-# PlaneShader.h

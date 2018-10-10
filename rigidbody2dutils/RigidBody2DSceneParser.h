@@ -15,6 +15,19 @@
 #include <iosfwd>
 #include <memory>
 
+struct PlaneRenderSettings final
+{
+  PlaneRenderSettings( const int idx_in, const Eigen::Vector2f& r_in, const Eigen::Vector3f& color_in )
+  : idx( idx_in )
+  , r( r_in )
+  , color( color_in )
+  {}
+
+  int idx;
+  Eigen::Vector2f r;
+  Eigen::Vector3f color;
+};
+
 struct SimSettings final
 {
   std::string scripting_callback_name;
@@ -44,11 +57,11 @@ struct RenderSettings final
   bool render_at_fps = false;
   bool lock_camera = false;
 
-  int num_ball_subdivs = 64;
+  int half_num_circle_subdivs = 32;
   // int num_drum_subdivs = 64;
   int num_aa_samples = 4;
 
-  // std::vector<PlaneRenderSettings> plane_render_settings;
+  std::vector<PlaneRenderSettings> plane_render_settings;
   // std::vector<DrumRenderSettings> drum_render_settings;
   // std::vector<PortalRenderSettings> portal_render_settings;
 };

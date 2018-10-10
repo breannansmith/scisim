@@ -8,6 +8,8 @@
 
   <static_plane x="5 5" n="-1 -1"/>
 
+  <static_plane_renderer plane="0" r="0.1 5.85" color="0 0 0"/>
+
   <geometry type="circle" r="0.5"/>
   <geometry type="circle" r="0.33"/>
 

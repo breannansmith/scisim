@@ -16,7 +16,7 @@
 // #include "AnnulusShader.h"
 #include "AxisShader.h"
 #include "CircleShader.h"
-// #include "PlaneShader.h"
+#include "PlaneShader.h"
 #include "RectangleShader.h"
 
 class QWheelEvent;
@@ -96,7 +96,7 @@ private:
   AxisShader m_axis_shader;
   CircleShader m_circle_shader;
   // TODO: Roll the plane rendering into the rectangle shader
-  // PlaneShader m_plane_shader;
+  PlaneShader m_plane_shader;
   // AnnulusShader m_annulus_shader;
   RectangleShader m_rectangle_shader;
 
@@ -167,12 +167,12 @@ private:
   scalar m_delta_L0;
 
   // Static geometry render settings
-  // std::vector<PlaneRenderSettings> m_plane_render_settings;
+  std::vector<PlaneRenderSettings> m_plane_render_settings;
   // std::vector<DrumRenderSettings> m_drum_render_settings;
   // std::vector<PortalRenderSettings> m_portal_render_settings;
 
   // Global render settings
-  int m_num_circle_subdivs;
+  int m_half_num_circle_subdivs;
   // int m_num_drum_subdivs;
   int m_num_aa_samples;
 

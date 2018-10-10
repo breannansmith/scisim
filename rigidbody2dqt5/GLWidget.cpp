@@ -24,7 +24,7 @@ GLWidget::GLWidget( QWidget* parent, const QSurfaceFormat& format )
 , m_f( nullptr )
 , m_axis_shader()
 , m_circle_shader()
-// , m_plane_shader()
+, m_plane_shader()
 // , m_annulus_shader()
 , m_rectangle_shader()
 , m_w( 1280 )
@@ -66,10 +66,10 @@ GLWidget::GLWidget( QWidget* parent, const QSurfaceFormat& format )
 , m_delta_H0( 0.0 )
 , m_delta_p0( Vector2s::Zero() )
 , m_delta_L0( 0.0 )
-// , m_plane_render_settings()
+, m_plane_render_settings()
 // , m_drum_render_settings()
 // , m_portal_render_settings()
-, m_num_circle_subdivs( 32 )
+, m_half_num_circle_subdivs( 32 )
 // , m_num_drum_subdivs( 32 )
 , m_num_aa_samples( format.samples() )
 {
@@ -83,7 +83,7 @@ GLWidget::~GLWidget()
     // makeCurrent();
     m_axis_shader.cleanup();
     m_circle_shader.cleanup();
-    // m_plane_shader.cleanup();
+    m_plane_shader.cleanup();
     // m_annulus_shader.cleanup();
     m_rectangle_shader.cleanup();
     // doneCurrent();
@@ -255,9 +255,16 @@ void GLWidget::initializeSimulation( const QString& xml_scene_file_name, const b
   // Generate a random color for each body
   m_body_color_gen = std::mt19937_64( 1337 );
   m_body_colors.resize( 3 * m_sim.state().nbodies() );
-  for( int i = 0; i < m_body_colors.size(); i += 3 )
+  for( int bdy_idx = 0; bdy_idx < int(m_sim.state().nbodies()); bdy_idx++ )
   {
-    m_body_colors.segment<3>( i ) = generateColor();
+    if( !m_sim.state().fixed( bdy_idx ) )
+    {
+      m_body_colors.segment<3>( 3 * bdy_idx ) = generateColor();
+    }
+    else
+    {
+      m_body_colors.segment<3>( 3 * bdy_idx ) << 0.2, 0.2, 0.2;
+    }
   }
 
   // Reset the output movie option
@@ -289,19 +296,18 @@ void GLWidget::initializeSimulation( const QString& xml_scene_file_name, const b
   // m_scripting.registerBallInsertCallback( this, &ballInsertCallback );
   // m_scripting.registerPlaneDeleteCallback( this, &planeDeleteCallback );
 
-  // using std::swap;
-  // std::swap( m_plane_render_settings, render_settings.plane_render_settings );
-  // std::swap( m_drum_render_settings, render_settings.drum_render_settings );
-  // std::swap( m_portal_render_settings, render_settings.portal_render_settings );
+  m_plane_render_settings = std::move( render_settings.plane_render_settings );
+  // m_drum_render_settings = std::move( render_settings.drum_render_settings );
+  // m_portal_render_settings = std::move( render_settings.portal_render_settings );
 
-  m_num_circle_subdivs = render_settings.num_ball_subdivs;
+  m_half_num_circle_subdivs = render_settings.half_num_circle_subdivs;
   // m_num_drum_subdivs = render_settings.num_drum_subdivs;
 
   if( m_f != nullptr && render_on_load )
   {
     // Update the global render settings
     m_circle_shader.cleanup();
-    m_circle_shader.initialize( m_num_circle_subdivs, m_f );
+    m_circle_shader.initialize( m_half_num_circle_subdivs, m_f );
 
   //   m_annulus_shader.cleanup();
   //   m_annulus_shader.initialize( m_num_drum_subdivs, m_f );
@@ -487,21 +493,21 @@ void GLWidget::copyRenderState()
   //   }
   // }
 
-  // // Planes
-  // {
-  //   Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& plane_data{ m_plane_shader.planeData() };
-  //   plane_data.resize( 6 * m_plane_render_settings.size() );
-  //   for( int renderer_num = 0; renderer_num < int(m_plane_render_settings.size()); renderer_num++ )
-  //   {
-  //     const int plane_idx = m_plane_render_settings[renderer_num].idx;
-  //     const StaticPlane& plane = m_sim.state().staticPlanes()[plane_idx];
+  // Planes
+  {
+    Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& plane_data{ m_plane_shader.planeData() };
+    plane_data.resize( 6 * m_plane_render_settings.size() );
+    for( int renderer_num = 0; renderer_num < int(m_plane_render_settings.size()); renderer_num++ )
+    {
+      const int plane_idx = m_plane_render_settings[renderer_num].idx;
+      const RigidBody2DStaticPlane& plane = m_sim.state().planes()[plane_idx];
 
-  //     plane_data.segment<2>( 6 * plane_idx ) = plane.x().cast<GLfloat>();
-  //     plane_data.segment<2>( 6 * plane_idx + 2 ) = plane.n().cast<GLfloat>();
-  //     plane_data( 6 * plane_idx + 4 ) = m_plane_render_settings[renderer_num].r(0);
-  //     plane_data( 6 * plane_idx + 5 ) = m_plane_render_settings[renderer_num].r(1);
-  //   }
-  // }
+      plane_data.segment<2>( 6 * plane_idx ) = plane.x().cast<GLfloat>();
+      plane_data.segment<2>( 6 * plane_idx + 2 ) = plane.n().cast<GLfloat>();
+      plane_data( 6 * plane_idx + 4 ) = m_plane_render_settings[renderer_num].r(0);
+      plane_data( 6 * plane_idx + 5 ) = m_plane_render_settings[renderer_num].r(1);
+    }
+  }
 
   // // Annuli
   // {
@@ -610,9 +616,16 @@ void GLWidget::resetSystem()
   // Reset body colors, in case the number of bodies changed
   m_body_color_gen = std::mt19937_64( 1337 );
   m_body_colors.resize( 3 * m_sim.state().nbodies() );
-  for( int i = 0; i < m_body_colors.size(); i += 3 )
+  for( int bdy_idx = 0; bdy_idx < int(m_sim.state().nbodies()); bdy_idx++ )
   {
-    m_body_colors.segment<3>( i ) = generateColor();
+    if( !m_sim.state().fixed( bdy_idx ) )
+    {
+      m_body_colors.segment<3>( 3 * bdy_idx ) = generateColor();
+    }
+    else
+    {
+      m_body_colors.segment<3>( 3 * bdy_idx ) << 0.2, 0.2, 0.2;
+    }
   }
 
   // User-provided start of simulation python callback
@@ -640,8 +653,8 @@ void GLWidget::initializeGL()
   m_f->glClearColor( 1.0, 1.0, 1.0, 1.0 );
 
   m_axis_shader.initialize( m_f );
-  m_circle_shader.initialize( 32, m_f );
-  // m_plane_shader.initialize( m_f );
+  m_circle_shader.initialize( m_half_num_circle_subdivs, m_f );
+  m_plane_shader.initialize( m_f );
   // m_annulus_shader.initialize( m_num_drum_subdivs, m_f );
   m_rectangle_shader.initialize( m_f );
 }
@@ -665,7 +678,7 @@ void GLWidget::resizeGL( int width, int height )
   }
 
   m_circle_shader.setTransform( pv );
-  // m_plane_shader.setTransform( pv );
+  m_plane_shader.setTransform( pv );
   // m_annulus_shader.setTransform( pv );
   m_rectangle_shader.setTransform( pv );
 
@@ -684,7 +697,7 @@ void GLWidget::paintGL()
     m_axis_shader.draw();
   }
 
-  // m_plane_shader.draw();
+  m_plane_shader.draw();
   // m_annulus_shader.draw();
   m_rectangle_shader.draw();
   m_circle_shader.draw();

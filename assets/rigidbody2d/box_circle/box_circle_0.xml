@@ -1,5 +1,9 @@
 <rigidbody2d_scene>
 
+  <!-- <global_render_settings num_ball_subdivs="256" num_drum_subdivs="256" num_aa_samples="8"/> -->
+
+  <camera center="0 0" scale="1.8" fps="50" render_at_fps="0" locked="0"/>
+
   <integrator type="symplectic_euler" dt="0.01"/>
 
   <sobogus_friction_solver mu="0.0" CoR="1.0" max_iters="50000" eval_every="25" tol="9.0e-5" staggering="geometric" cache_impulses="normal_and_friction"/>
