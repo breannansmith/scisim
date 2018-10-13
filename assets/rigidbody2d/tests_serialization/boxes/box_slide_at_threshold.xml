@@ -12,6 +12,8 @@
 
   <static_plane x="-0.28734788556634541779 -0.95782628522115139264" n="0.28734788556634541779 0.95782628522115139264"/>
 
+  <static_plane_renderer plane="0" r="0.1 9.0" color="0 0 0"/>
+
   <geometry type="box" r="1 1"/>
 
   <rigid_body x="0 0" theta="-0.29145679447786709200" v="0 0" omega="0" rho="1" geo_idx="0"/>

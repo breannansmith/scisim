@@ -11,6 +11,11 @@
   <static_plane x="0 -2" n="0 1"/>
   <static_plane x="0 2" n="0 -1"/>
 
+  <static_plane_renderer plane="0" r="0.06 4.12" color="0 0 0"/>
+  <static_plane_renderer plane="1" r="0.06 4.12" color="0 0 0"/>
+  <static_plane_renderer plane="2" r="0.06 4.12" color="0 0 0"/>
+  <static_plane_renderer plane="3" r="0.06 4.12" color="0 0 0"/>
+
   <geometry type="box" r="0.6 1.32"/>
 
   <rigid_body x="0 0" theta="2" v="1 2" omega="-2.2" rho="2.1" geo_idx="0"/>

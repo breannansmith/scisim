@@ -11,6 +11,9 @@
   <static_plane x="-2 0" n="1 0"/>
   <static_plane x="2 -4" n="0 1"/>
 
+  <static_plane_renderer plane="0" r="0.06 4.1" color="0 0 0"/>
+  <static_plane_renderer plane="1" r="0.06 10.0" color="0 0 0"/>
+
   <geometry type="circle" r="0.500000001"/>
 
   <rigid_body x="1.5 0.0" theta="0.0" v="0.0 0.0" omega="0.0" rho="1.0" geo_idx="0"/>
