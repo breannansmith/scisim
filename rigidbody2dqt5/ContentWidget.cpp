@@ -184,7 +184,7 @@ void ContentWidget::initializeSimulation( const QString& scene_file_name, const 
 
     GLWidget* new_gl_widget = new GLWidget( this, format );
     layout()->replaceWidget( m_gl_widget, new_gl_widget );
-    delete m_gl_widget;
+    m_gl_widget->deleteLater();
     m_gl_widget = new_gl_widget;
   }
 
