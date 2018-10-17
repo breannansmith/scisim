@@ -1,10 +1,7 @@
-// ImpactMap.h
-//
-// Breannan Smith
-// Last updated: 09/21/2015
-
 #ifndef IMPACT_MAP_H
 #define IMPACT_MAP_H
+
+#include <memory>
 
 #include "scisim/Math/MathDefines.h"
 
@@ -33,6 +30,8 @@ public:
   #ifdef USE_HDF5
   void exportForcesNextStep( ImpactSolution& impact_solution );
   #endif
+
+  std::unique_ptr<ImpactMap> clone() const;
 
 private:
 

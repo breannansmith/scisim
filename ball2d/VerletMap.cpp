@@ -44,3 +44,9 @@ void VerletMap::serialize( std::ostream& /*output_stream*/ ) const
 {
   // No state to serialize
 }
+
+std::unique_ptr<UnconstrainedMap> VerletMap::clone() const
+{
+  // No state to clone
+  return std::make_unique<VerletMap>();
+}

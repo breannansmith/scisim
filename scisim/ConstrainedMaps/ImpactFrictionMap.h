@@ -41,6 +41,8 @@ public:
   virtual void exportForcesNextStep( HDF5File& output_file ) = 0;
   #endif
 
+  virtual std::unique_ptr<ImpactFrictionMap> clone() const = 0;
+
 protected:
 
   ImpactFrictionMap() = default;

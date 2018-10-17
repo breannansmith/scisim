@@ -1,14 +1,11 @@
-// UnconstrainedMap.h
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
 #ifndef UNCONSTRAINED_MAP_H
 #define UNCONSTRAINED_MAP_H
 
-class FlowableSystem;
+#include <memory>
 
 #include "scisim/Math/MathDefines.h"
+
+class FlowableSystem;
 
 class UnconstrainedMap
 {
@@ -35,6 +32,8 @@ public:
   virtual std::string name() const = 0;
 
   virtual void serialize( std::ostream& output_stream ) const = 0;
+
+  virtual std::unique_ptr<UnconstrainedMap> clone() const = 0;
 
 protected:
 

@@ -1101,6 +1101,11 @@ void Sobogus::serialize( std::ostream& output_stream ) const
   Utilities::serialize( m_eval_every, output_stream );
 }
 
+std::unique_ptr<FrictionSolver> Sobogus::clone() const
+{
+  return std::make_unique<Sobogus>( m_solver_type, m_eval_every );
+}
+
 std::string Sobogus::name() const
 {
   return "sobogus";

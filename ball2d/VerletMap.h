@@ -18,6 +18,8 @@ public:
 
   virtual void serialize( std::ostream& output_stream ) const override;
 
+  virtual std::unique_ptr<UnconstrainedMap> clone() const override;
+
 };
 
 #endif

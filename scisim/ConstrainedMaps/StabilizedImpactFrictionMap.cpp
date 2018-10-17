@@ -1,8 +1,3 @@
-// StabilizedImpactFrictionMap.cpp
-//
-// Breannan Smith
-// Last updated: 11/16/2015
-
 #include "StabilizedImpactFrictionMap.h"
 
 #include <memory>
@@ -19,6 +14,20 @@
 
 StabilizedImpactFrictionMap::StabilizedImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters, const bool external_warm_start_alpha, const bool external_warm_start_beta )
 : m_f( VectorXs::Zero( 0 ) )
+, m_abs_tol( abs_tol )
+, m_max_iters( max_iters )
+, m_external_warm_start_alpha( external_warm_start_alpha )
+, m_external_warm_start_beta( external_warm_start_beta )
+#ifdef USE_HDF5
+, m_write_constraint_forces( false )
+, m_constraint_force_stream( nullptr )
+#endif
+{
+  assert( m_abs_tol >= 0.0 );
+}
+
+StabilizedImpactFrictionMap::StabilizedImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters, const bool external_warm_start_alpha, const bool external_warm_start_beta, const VectorXs& f )
+: m_f( f )
 , m_abs_tol( abs_tol )
 , m_max_iters( max_iters )
 , m_external_warm_start_alpha( external_warm_start_alpha )
@@ -222,3 +231,11 @@ void StabilizedImpactFrictionMap::exportForcesNextStep( HDF5File& output_file )
   m_constraint_force_stream = &output_file;
 }
 #endif
+
+std::unique_ptr<ImpactFrictionMap> StabilizedImpactFrictionMap::clone() const
+{
+  assert( m_write_constraint_forces == false );
+  assert( m_constraint_force_stream == nullptr );
+
+  return std::make_unique<StabilizedImpactFrictionMap>( m_abs_tol, m_max_iters, m_external_warm_start_alpha, m_external_warm_start_beta, m_f );
+}

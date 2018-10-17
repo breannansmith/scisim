@@ -1,8 +1,3 @@
-// ImpactMap.cpp
-//
-// Breannan Smith
-// Last updated: 09/03/2015
-
 #include "ImpactMap.h"
 
 #include <memory>
@@ -204,3 +199,10 @@ void ImpactMap::exportForcesNextStep( ImpactSolution& impact_solution )
   m_impact_solution = &impact_solution;
 }
 #endif
+
+std::unique_ptr<ImpactMap> ImpactMap::clone() const
+{
+  assert( m_write_constraint_forces == false );
+  assert( m_impact_solution == nullptr );
+  return std::make_unique<ImpactMap>( m_warm_start );
+}

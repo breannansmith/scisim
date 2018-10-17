@@ -1,8 +1,3 @@
-// GeometricImpactFrictionMap.h
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
 #ifndef GEOMETRIC_IMPACT_FRICTION_MAP_H
 #define GEOMETRIC_IMPACT_FRICTION_MAP_H
 
@@ -23,6 +18,7 @@ class GeometricImpactFrictionMap final : public ImpactFrictionMap
 public:
 
   GeometricImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters, const ImpulsesToCache impulses_to_cache );
+  GeometricImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters, const ImpulsesToCache impulses_to_cache, const VectorXs& f );
   explicit GeometricImpactFrictionMap( std::istream& input_stream );
 
   GeometricImpactFrictionMap( const GeometricImpactFrictionMap& ) = delete;
@@ -43,6 +39,8 @@ public:
   #ifdef USE_HDF5
   virtual void exportForcesNextStep( HDF5File& output_file ) override;
   #endif
+
+  virtual std::unique_ptr<ImpactFrictionMap> clone() const override;
 
 private:
 

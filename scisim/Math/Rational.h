@@ -3,6 +3,7 @@
 #ifndef RATIONAL_H
 #define RATIONAL_H
 
+#include <algorithm>
 #include <cassert>
 #include <ostream>
 #include <string>

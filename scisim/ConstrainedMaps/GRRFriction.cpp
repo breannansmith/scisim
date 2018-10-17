@@ -93,6 +93,11 @@ void GRRFriction::serialize( std::ostream& output_stream ) const
   ConstrainedMapUtilities::serialize( m_friction_operator, output_stream );
 }
 
+std::unique_ptr<FrictionSolver> GRRFriction::clone() const
+{
+  return std::make_unique<GRRFriction>( *m_impact_operator, *m_friction_operator );
+}
+
 std::string GRRFriction::name() const
 {
   return "grr_friction";

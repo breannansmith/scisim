@@ -27,6 +27,8 @@ public:
 
   virtual void serialize( std::ostream& output_stream ) const override;
 
+  virtual std::unique_ptr<FrictionSolver> clone() const override;
+
   virtual std::string name() const override;
 
 private:

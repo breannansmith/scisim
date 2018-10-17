@@ -325,6 +325,11 @@ void StaggeredProjections::serialize( std::ostream& output_stream ) const
   ConstrainedMapUtilities::serialize( m_friction_operator, output_stream );
 }
 
+std::unique_ptr<FrictionSolver> StaggeredProjections::clone() const
+{
+  return std::make_unique<StaggeredProjections>( m_warm_start_alpha, m_warm_start_beta, *m_impact_operator, *m_friction_operator );
+}
+
 std::string StaggeredProjections::name() const
 {
   return "staggered_projections";

@@ -41,3 +41,9 @@ void SymplecticEulerMap::serialize( std::ostream& /*output_stream*/ ) const
 {
   // No state to serialize
 }
+
+std::unique_ptr<UnconstrainedMap> SymplecticEulerMap::clone() const
+{
+  // No state to copy
+  return std::make_unique<SymplecticEulerMap>();
+}

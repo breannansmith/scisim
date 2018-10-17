@@ -18,6 +18,7 @@ class SymplecticEulerImpactFrictionMap final : public ImpactFrictionMap
 public:
 
   SymplecticEulerImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters, const ImpulsesToCache impulses_to_cache, const bool stabilize, const scalar& penetration_threshold );
+  SymplecticEulerImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters, const ImpulsesToCache impulses_to_cache, const bool stabilize, const scalar& penetration_threshold, const VectorXs& f );
   explicit SymplecticEulerImpactFrictionMap( std::istream& input_stream );
 
   SymplecticEulerImpactFrictionMap( const SymplecticEulerImpactFrictionMap& ) = delete;
@@ -38,6 +39,8 @@ public:
   #ifdef USE_HDF5
   virtual void exportForcesNextStep( HDF5File& output_file ) override;
   #endif
+
+  virtual std::unique_ptr<ImpactFrictionMap> clone() const override;
 
 private:
 

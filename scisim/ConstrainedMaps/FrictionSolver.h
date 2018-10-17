@@ -1,8 +1,3 @@
-// FrictionSolver.h
-//
-// Breannan Smith
-// Last updated: 09/03/2015
-
 #ifndef FRICTION_SOLVER_H
 #define FRICTION_SOLVER_H
 
@@ -30,6 +25,8 @@ public:
   virtual unsigned numFrictionImpulsesPerNormal( const unsigned ambient_space_dimensions ) const = 0;
 
   virtual void serialize( std::ostream& output_stream ) const = 0;
+
+  virtual std::unique_ptr<FrictionSolver> clone() const = 0;
 
   virtual std::string name() const = 0;
 

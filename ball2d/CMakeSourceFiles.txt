@@ -1,41 +1,43 @@
 set( Sources
+  Ball2DSim.cpp
+  Ball2DState.cpp
+  Ball2DUtilities.cpp
   ConstraintCache.cpp
   Constraints/BallBallConstraint.cpp
   Constraints/BallStaticDrumConstraint.cpp
   Constraints/BallStaticPlaneConstraint.cpp
   Constraints/KinematicKickBallBallConstraint.cpp
-  Forces/PenaltyForce.cpp
   Forces/Ball2DForce.cpp
   Forces/Ball2DGravityForce.cpp
-  PythonScripting.cpp
+  Forces/PenaltyForce.cpp
+  Integrator.cpp
   Portals/PlanarPortal.cpp
+  PythonScripting.cpp
+  SpatialGridDetector.cpp
   StaticGeometry/StaticDrum.cpp
   StaticGeometry/StaticPlane.cpp
-  Ball2DState.cpp
-  SpatialGridDetector.cpp
   SymplecticEulerMap.cpp
-  Ball2DSim.cpp
-  Ball2DUtilities.cpp
   VerletMap.cpp
 )
 
 set( Headers
+  Ball2DSim.h
+  Ball2DState.h
+  Ball2DUtilities.h
   ConstraintCache.h
   Constraints/BallBallConstraint.h
   Constraints/BallStaticDrumConstraint.h
   Constraints/BallStaticPlaneConstraint.h
   Constraints/KinematicKickBallBallConstraint.h
-  Forces/PenaltyForce.h
   Forces/Ball2DForce.h
   Forces/Ball2DGravityForce.h
-  PythonScripting.h
+  Forces/PenaltyForce.h
+  Integrator.h
   Portals/PlanarPortal.h
+  PythonScripting.h
+  SpatialGridDetector.h
   StaticGeometry/StaticDrum.h
   StaticGeometry/StaticPlane.h
-  Ball2DState.h
-  SpatialGridDetector.h
   SymplecticEulerMap.h
-  Ball2DSim.h
-  Ball2DUtilities.h
   VerletMap.h
 )

@@ -29,6 +29,22 @@ SymplecticEulerImpactFrictionMap::SymplecticEulerImpactFrictionMap( const scalar
   assert( m_penetration_threshold >= 0.0 );
 }
 
+SymplecticEulerImpactFrictionMap::SymplecticEulerImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters, const ImpulsesToCache impulses_to_cache, const bool stabilize, const scalar& penetration_threshold, const VectorXs& f )
+: m_f( f )
+, m_abs_tol( abs_tol )
+, m_max_iters( max_iters )
+, m_stabilize( stabilize )
+, m_penetration_threshold( penetration_threshold )
+, m_impulses_to_cache( impulses_to_cache )
+#ifdef USE_HDF5
+, m_write_constraint_forces( false )
+, m_constraint_force_stream( nullptr )
+#endif
+{
+  assert( m_abs_tol >= 0.0 );
+  assert( m_penetration_threshold >= 0.0 );
+}
+
 SymplecticEulerImpactFrictionMap::SymplecticEulerImpactFrictionMap( std::istream& input_stream )
 : m_f( MathUtilities::deserialize<VectorXs>( input_stream ) )
 , m_abs_tol( Utilities::deserialize<scalar>( input_stream ) )
@@ -447,3 +463,11 @@ void SymplecticEulerImpactFrictionMap::exportForcesNextStep( HDF5File& output_fi
   m_constraint_force_stream = &output_file;
 }
 #endif
+
+std::unique_ptr<ImpactFrictionMap> SymplecticEulerImpactFrictionMap::clone() const
+{
+  assert( m_write_constraint_forces == false );
+  assert( m_constraint_force_stream == nullptr );
+
+  return std::make_unique<SymplecticEulerImpactFrictionMap>( m_abs_tol, m_max_iters, m_impulses_to_cache, m_stabilize, m_penetration_threshold, m_f );
+}

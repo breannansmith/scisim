@@ -1,8 +1,3 @@
-// StabilizedImpactFrictionMap.h
-//
-// Breannan Smith
-// Last updated: 11/16/2015
-
 #ifndef STABILIZED_IMPACT_FRICTION_MAP_H
 #define STABILIZED_IMPACT_FRICTION_MAP_H
 
@@ -21,6 +16,7 @@ class StabilizedImpactFrictionMap final : public ImpactFrictionMap
 public:
 
   StabilizedImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters, const bool external_warm_start_alpha, const bool external_warm_start_beta );
+  StabilizedImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters, const bool external_warm_start_alpha, const bool external_warm_start_beta, const VectorXs& f );
   explicit StabilizedImpactFrictionMap( std::istream& input_stream );
 
   StabilizedImpactFrictionMap( const StabilizedImpactFrictionMap& ) = delete;
@@ -42,6 +38,8 @@ public:
   #ifdef USE_HDF5
   virtual void exportForcesNextStep( HDF5File& output_file ) override;
   #endif
+
+  virtual std::unique_ptr<ImpactFrictionMap> clone() const override;
 
 private:
 

@@ -1,8 +1,3 @@
-// GeometricImpactFrictionMap.cpp
-//
-// Breannan Smith
-// Last updated: 09/22/2015
-
 #include "GeometricImpactFrictionMap.h"
 
 #include <memory>
@@ -19,6 +14,19 @@
 
 GeometricImpactFrictionMap::GeometricImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters, const ImpulsesToCache impulses_to_cache )
 : m_f( VectorXs::Zero( 0 ) )
+, m_abs_tol( abs_tol )
+, m_max_iters( max_iters )
+, m_impulses_to_cache( impulses_to_cache )
+#ifdef USE_HDF5
+, m_write_constraint_forces( false )
+, m_constraint_force_stream( nullptr )
+#endif
+{
+  assert( m_abs_tol >= 0.0 );
+}
+
+GeometricImpactFrictionMap::GeometricImpactFrictionMap( const scalar& abs_tol, const unsigned max_iters, const ImpulsesToCache impulses_to_cache, const VectorXs& f )
+: m_f( f )
 , m_abs_tol( abs_tol )
 , m_max_iters( max_iters )
 , m_impulses_to_cache( impulses_to_cache )
@@ -480,3 +488,11 @@ void GeometricImpactFrictionMap::exportForcesNextStep( HDF5File& output_file )
   m_constraint_force_stream = &output_file;
 }
 #endif
+
+std::unique_ptr<ImpactFrictionMap> GeometricImpactFrictionMap::clone() const
+{
+  assert( m_write_constraint_forces == false );
+  assert( m_constraint_force_stream == nullptr );
+
+  return std::make_unique<GeometricImpactFrictionMap>( m_abs_tol, m_max_iters, m_impulses_to_cache, m_f );
+}
