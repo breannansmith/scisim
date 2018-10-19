@@ -1705,12 +1705,26 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, SimSett
   }
   const rapidxml::xml_node<>& root_node{ *doc.first_node( "ball2d_scene" ) };
 
+  Rational<std::intmax_t> dt;
+  scalar cor = 1.0;
+  scalar mu = 0.0;
+
+  std::unique_ptr<UnconstrainedMap> unconstrained_map = nullptr;
+  std::unique_ptr<ImpactOperator> impact_operator = nullptr;
+  std::unique_ptr<ImpactMap> impact_map = nullptr;
+  std::unique_ptr<FrictionSolver> friction_solver = nullptr;
+  std::unique_ptr<ImpactFrictionMap> if_map = nullptr;
+
   // Attempt to load the state
-  const bool loaded{ loadSimulationState( root_node, file_name, sim_settings.scripting_callback_name, sim_settings.state, sim_settings.unconstrained_map, sim_settings.dt_string, sim_settings.dt, sim_settings.end_time, sim_settings.impact_operator, sim_settings.impact_map, sim_settings.CoR, sim_settings.friction_solver, sim_settings.mu, sim_settings.if_map ) };
+  const bool loaded{ loadSimulationState( root_node, file_name, sim_settings.scripting_callback_name, sim_settings.state, unconstrained_map,
+                                          sim_settings.dt_string, dt, sim_settings.end_time, impact_operator, impact_map,
+                                          cor, friction_solver, mu, if_map ) };
   if( !loaded )
   {
     return false;
   }
+
+  sim_settings.integrator = Integrator( dt, unconstrained_map, impact_operator, friction_solver, impact_map, if_map, cor, mu );
 
   return true;
 }
@@ -1974,12 +1988,26 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, SimSett
 
   SimSettings new_sim_settings;
 
+  Rational<std::intmax_t> dt;
+  scalar cor = 1.0;
+  scalar mu = 0.0;
+
+  std::unique_ptr<UnconstrainedMap> unconstrained_map = nullptr;
+  std::unique_ptr<ImpactOperator> impact_operator = nullptr;
+  std::unique_ptr<ImpactMap> impact_map = nullptr;
+  std::unique_ptr<FrictionSolver> friction_solver = nullptr;
+  std::unique_ptr<ImpactFrictionMap> if_map = nullptr;
+
   // Attempt to load the state
-  const bool loaded{ loadSimulationState( root_node, file_name, new_sim_settings.scripting_callback_name, new_sim_settings.state, new_sim_settings.unconstrained_map, new_sim_settings.dt_string, new_sim_settings.dt, new_sim_settings.end_time, new_sim_settings.impact_operator, new_sim_settings.impact_map, new_sim_settings.CoR, new_sim_settings.friction_solver, new_sim_settings.mu, new_sim_settings.if_map ) };
+  const bool loaded{ loadSimulationState( root_node, file_name, new_sim_settings.scripting_callback_name, new_sim_settings.state, unconstrained_map,
+                                          new_sim_settings.dt_string, dt, new_sim_settings.end_time, impact_operator, impact_map,
+                                          cor, friction_solver, mu, if_map ) };
   if( !loaded )
   {
     return false;
   }
+
+  new_sim_settings.integrator = Integrator( dt, unconstrained_map, impact_operator, friction_solver, impact_map, if_map, cor, mu );
 
   RenderSettings new_render_settings;
 

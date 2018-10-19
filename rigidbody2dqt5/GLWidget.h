@@ -167,6 +167,10 @@ private:
   scalar m_delta_L0;
 
   // Static geometry render settings
+  std::vector<PlaneRenderSettings> m_plane_render_settings0;
+  // std::vector<DrumRenderSettings> m_drum_render_settings0;
+  // std::vector<PortalRenderSettings> m_portal_render_settings0;
+
   std::vector<PlaneRenderSettings> m_plane_render_settings;
   // std::vector<DrumRenderSettings> m_drum_render_settings;
   // std::vector<PortalRenderSettings> m_portal_render_settings;

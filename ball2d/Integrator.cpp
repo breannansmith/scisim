@@ -2,28 +2,27 @@
 
 #include "Ball2DSim.h"
 
-// #include "rigidbody3d/PythonScripting.h"
-// #include "rigidbody3d/RigidBody3DSim.h"
-// #include "rigidbody3d/RigidBody3DUtilities.h"
+#include "scisim/ConstrainedMaps/ConstrainedMapUtilities.h"
+#include "scisim/Utilities.h"
 
-// #include "scisim/ConstrainedMaps/ConstrainedMapUtilities.h"
+#ifdef USE_HDF5
+#include "scisim/ConstrainedMaps/ImpactMaps/ImpactSolution.h"
+#include "scisim/HDF5File.h"
+#endif
 
-// #include <iostream>
-// #include "scisim/ConstrainedMaps/NullFrictionSolver.h"
-// #include "scisim/UnconstrainedMaps/NullUnconstrainedMap.h"
+#include "ball2d/Ball2DUtilities.h"
 
-// Integrator::DiscreteIntegrator()
-// : m_iteration( 0 )
-// , m_dt( 0, 1 )
-// , m_unconstrained_map( nullptr )
-// , m_impact_operator( nullptr )
-// , m_friction_solver( nullptr )
-// , m_impact_friction_map( nullptr )
-// , m_cor( 0.0 )
-// , m_mu( 0.0 )
-// , m_reduce_bandwidth( false )
-// , m_python_scripting()
-// {}
+Integrator::Integrator()
+: m_dt( 0, 1 )
+, m_unconstrained_map( nullptr )
+, m_impact_operator( nullptr )
+, m_friction_solver( nullptr )
+, m_impact_map( nullptr )
+, m_impact_friction_map( nullptr )
+, m_cor( 0.0 )
+, m_mu( 0.0 )
+, m_style( Style::None )
+{}
 
 template<typename T>
 T nullAwareClone( const T& other )
@@ -31,8 +30,37 @@ T nullAwareClone( const T& other )
   return other == nullptr ? T() : other->clone();
 }
 
-Integrator::Integrator( const Rational<std::intmax_t>& dt, const std::unique_ptr<UnconstrainedMap>& unconstrained_map, const std::unique_ptr<ImpactOperator>& impact_operator,
-                        const std::unique_ptr<FrictionSolver>& friction_solver, const std::unique_ptr<ImpactMap>& impact_map, const std::unique_ptr<ImpactFrictionMap>& impact_friction_map,
+static Integrator::Style determineStyle( const std::unique_ptr<UnconstrainedMap>& unconstrained_map, const std::unique_ptr<ImpactOperator>& impact_operator,
+                                         const std::unique_ptr<FrictionSolver>& friction_solver, const std::unique_ptr<ImpactMap>& impact_map,
+                                         const std::unique_ptr<ImpactFrictionMap>& impact_friction_map )
+{
+  if( unconstrained_map == nullptr && impact_operator == nullptr && impact_map == nullptr && friction_solver == nullptr && impact_friction_map == nullptr )
+  {
+    return Integrator::Style::None;
+  }
+  else if( unconstrained_map != nullptr && impact_operator == nullptr && impact_map == nullptr && friction_solver == nullptr && impact_friction_map == nullptr )
+  {
+    return Integrator::Style::Unconstrained;
+  }
+  else if( unconstrained_map != nullptr && impact_operator != nullptr && impact_map != nullptr && friction_solver == nullptr && impact_friction_map == nullptr )
+  {
+    return Integrator::Style::Impact;
+  }
+  else if( unconstrained_map != nullptr && impact_operator == nullptr && impact_map == nullptr && friction_solver != nullptr && impact_friction_map != nullptr )
+  {
+    return Integrator::Style::ImpactFriction;
+  }
+  else
+  {
+    // Should not be possible, but check for it.
+    assert(false);
+    return Integrator::Style::None;
+  }
+}
+
+Integrator::Integrator( const Rational<std::intmax_t>& dt, const std::unique_ptr<UnconstrainedMap>& unconstrained_map,
+                        const std::unique_ptr<ImpactOperator>& impact_operator, const std::unique_ptr<FrictionSolver>& friction_solver,
+                        const std::unique_ptr<ImpactMap>& impact_map, const std::unique_ptr<ImpactFrictionMap>& impact_friction_map,
                         const scalar& cor, const scalar& mu )
 : m_dt( dt )
 , m_unconstrained_map( nullAwareClone(unconstrained_map) )
@@ -42,148 +70,140 @@ Integrator::Integrator( const Rational<std::intmax_t>& dt, const std::unique_ptr
 , m_impact_friction_map( nullAwareClone(impact_friction_map) )
 , m_cor( cor )
 , m_mu( mu )
-, m_scripting()
+, m_style( determineStyle( unconstrained_map, impact_operator, friction_solver, impact_map, impact_friction_map ) )
 {
   assert( m_dt.positive() );
-  // TODO: Assert proper combination of maps here
 }
 
-// DiscreteIntegrator::DiscreteIntegrator( const DiscreteIntegrator& other )
-// : m_iteration( 0 )
-// , m_dt( other.m_dt )
-// , m_unconstrained_map( nullAwareClone(other.m_unconstrained_map) )
-// , m_impact_operator( nullAwareClone(other.m_impact_operator) )
-// , m_friction_solver( nullAwareClone(other.m_friction_solver) )
-// , m_impact_friction_map( nullAwareClone(other.m_impact_friction_map) )
-// , m_cor( other.m_cor )
-// , m_mu( other.m_mu )
-// , m_reduce_bandwidth( other.m_reduce_bandwidth )
-// , m_python_scripting()
-// {
-//   PythonScripting new_scripting{ other.m_python_scripting.path(), other.m_python_scripting.name() };
-//   using std::swap;
-//   swap( m_python_scripting, new_scripting );
-// }
+Integrator::Integrator( const Integrator& other )
+: m_dt( other.m_dt )
+, m_unconstrained_map( nullAwareClone(other.m_unconstrained_map) )
+, m_impact_operator( nullAwareClone(other.m_impact_operator) )
+, m_friction_solver( nullAwareClone(other.m_friction_solver) )
+, m_impact_map( nullAwareClone(other.m_impact_map) )
+, m_impact_friction_map( nullAwareClone(other.m_impact_friction_map) )
+, m_cor( other.m_cor )
+, m_mu( other.m_mu )
+, m_style( other.m_style )
+{}
 
-// DiscreteIntegrator& DiscreteIntegrator::operator=( DiscreteIntegrator other )
-// {
-//   using std::swap;
-
-//   swap( m_iteration, other.m_iteration );
-//   swap( m_dt, other.m_dt );
-//   swap( m_unconstrained_map, other.m_unconstrained_map );
-//   swap( m_impact_operator, other.m_impact_operator );
-//   swap( m_friction_solver, other.m_friction_solver );
-//   swap( m_impact_friction_map, other.m_impact_friction_map );
-//   swap( m_cor, other.m_cor );
-//   swap( m_mu, other.m_mu );
-//   swap( m_reduce_bandwidth, other.m_reduce_bandwidth );
-//   swap( m_python_scripting, other.m_python_scripting );
-
-//   return *this;
-// }
-
-// void DiscreteIntegrator::setPythonCallback( const std::string& path, const std::string& module_name )
-// {
-//   PythonScripting new_scripting{ path, module_name };
-//   using std::swap;
-//   swap( m_python_scripting, new_scripting );
-// }
-
-// void DiscreteIntegrator::pythonStartOfSim( RigidBody3DSim& sim )
-// {
-//   m_python_scripting.setState( sim.getState() );
-//   m_python_scripting.setInitialIterate( m_iteration );
-//   m_python_scripting.startOfSimCallback();
-//   m_python_scripting.forgetState();
-// }
-
-// void DiscreteIntegrator::pythonEndOfSim( RigidBody3DSim& sim )
-// {
-//   m_python_scripting.setState( sim.getState() );
-//   m_python_scripting.endOfSimCallback();
-//   m_python_scripting.forgetState();
-// }
-
-// const Rational<std::intmax_t>& DiscreteIntegrator::timestep() const
-// {
-//   return m_dt;
-// }
-
-void Integrator::step( const int next_iter, Ball2DSim& sim )
+Integrator& Integrator::operator=( Integrator other )
 {
-  // TODO: Precompute which thing we will call
-  if( m_unconstrained_map == nullptr && m_impact_operator == nullptr && m_impact_map == nullptr && m_friction_solver == nullptr && m_impact_friction_map == nullptr )
+  using std::swap;
+  swap( m_dt, other.m_dt );
+  swap( m_unconstrained_map, other.m_unconstrained_map );
+  swap( m_impact_operator, other.m_impact_operator );
+  swap( m_friction_solver, other.m_friction_solver );
+  swap( m_impact_map, other.m_impact_map );
+  swap( m_impact_friction_map, other.m_impact_friction_map );
+  swap( m_cor, other.m_cor );
+  swap( m_mu, other.m_mu );
+  swap( m_style, other.m_style );
+  return *this;
+}
+
+void Integrator::step( const int next_iter, PythonScripting& scripting, Ball2DSim& sim )
+{
+  switch( m_style )
   {
-    return;
-  }
-  else if( m_unconstrained_map != nullptr && m_impact_operator == nullptr && m_impact_map == nullptr && m_friction_solver == nullptr && m_impact_friction_map == nullptr )
-  {
-    sim.flow( m_scripting, next_iter, m_dt, *m_unconstrained_map );
-  }
-  else if( m_unconstrained_map != nullptr && m_impact_operator != nullptr && m_impact_map != nullptr && m_friction_solver == nullptr && m_impact_friction_map == nullptr )
-  {
-    sim.flow( m_scripting, next_iter, m_dt, *m_unconstrained_map, *m_impact_operator, m_cor, *m_impact_map );
-  }
-  else if( m_unconstrained_map != nullptr && m_impact_operator == nullptr && m_impact_map == nullptr && m_friction_solver != nullptr && m_impact_friction_map != nullptr )
-  {
-    sim.flow( m_scripting, next_iter, m_dt, *m_unconstrained_map, m_cor, m_mu, *m_friction_solver, *m_impact_friction_map );
+    case Style::None:
+    {
+      break;
+    }
+    case Style::Unconstrained:
+    {
+      sim.flow( scripting, next_iter, m_dt, *m_unconstrained_map );
+      break;
+    }
+    case Style::Impact:
+    {
+      sim.flow( scripting, next_iter, m_dt, *m_unconstrained_map, *m_impact_operator, m_cor, *m_impact_map );
+      break;
+    }
+    case Style::ImpactFriction:
+    {
+      sim.flow( scripting, next_iter, m_dt, *m_unconstrained_map, m_cor, m_mu, *m_friction_solver, *m_impact_friction_map );
+      break;
+    }
   }
 }
 
-// scalar DiscreteIntegrator::computeTime() const
-// {
-//   return scalar(std::intmax_t(m_iteration) * m_dt);
-// }
+#ifdef USE_HDF5
+void Integrator::stepWithForceOutput( const int next_iter, PythonScripting& scripting, Ball2DSim& sim, HDF5File& force_file )
+{
+  switch( m_style )
+  {
+    case Style::None:
+    {
+      break;
+    }
+    case Style::Unconstrained:
+    {
+      sim.flow( scripting, next_iter, m_dt, *m_unconstrained_map );
+      break;
+    }
+    case Style::Impact:
+    {
+      ImpactSolution impact_solution;
+      if( force_file.is_open() )
+      {
+        m_impact_map->exportForcesNextStep( impact_solution );
+      }
+      sim.flow( scripting, next_iter, m_dt, *m_unconstrained_map, *m_impact_operator, m_cor, *m_impact_map );
+      if( force_file.is_open() )
+      {
+        impact_solution.writeSolution( force_file );
+      }
+      break;
+    }
+    case Style::ImpactFriction:
+    {
+      if( force_file.is_open() )
+      {
+        m_impact_friction_map->exportForcesNextStep( force_file );
+      }
+      sim.flow( scripting, next_iter, m_dt, *m_unconstrained_map, m_cor, m_mu, *m_friction_solver, *m_impact_friction_map );
+      break;
+    }
+  }
+}
+#endif
 
-// bool DiscreteIntegrator::frictionIsEnabled() const
-// {
-//   return m_impact_friction_map != nullptr;
-// }
+void Integrator::serialize( std::ostream& output_stream ) const
+{
+  Utilities::serialize( m_dt, output_stream );
+  Ball2DUtilities::serialize( m_unconstrained_map, output_stream );
+  ConstrainedMapUtilities::serialize( m_impact_operator, output_stream );
+  ConstrainedMapUtilities::serialize( m_friction_solver, output_stream );
+  ConstrainedMapUtilities::serialize( m_impact_map, output_stream );
+  ConstrainedMapUtilities::serialize( m_impact_friction_map, output_stream );
+  Utilities::serialize( m_cor, output_stream );
+  Utilities::serialize( m_mu, output_stream );
+  Utilities::serialize( m_style, output_stream );
+}
 
-// //ImpactFrictionMap& DiscreteIntegrator::impactFrictionMap()
-// //{
-// //  assert(m_impact_friction_map != nullptr);
-// //  return *m_impact_friction_map;
-// //}
+void Integrator::deserialize( std::istream& input_stream )
+{
+  m_dt = Utilities::deserialize<Rational<std::intmax_t>>( input_stream );
+  assert( m_dt.positive() );
+  m_unconstrained_map = Ball2DUtilities::deserializeUnconstrainedMap( input_stream );
+  m_impact_operator = ConstrainedMapUtilities::deserializeImpactOperator( input_stream );
+  m_friction_solver = ConstrainedMapUtilities::deserializeFrictionSolver( input_stream );
+  m_impact_map = ConstrainedMapUtilities::deserializeImpactMap( input_stream );
+  m_impact_friction_map = ConstrainedMapUtilities::deserializeImpactFrictionMap( input_stream );
+  m_cor = Utilities::deserialize<scalar>( input_stream );
+  assert( m_cor >= 0.0 ); assert( m_cor <= 1.0 );
+  m_mu = Utilities::deserialize<scalar>( input_stream );
+  assert( m_mu >= 0.0 );
+  m_style = Utilities::deserialize<Style>( input_stream );
+}
 
-// std::unique_ptr<ImpactFrictionMap>& DiscreteIntegrator::impactFrictionMap()
-// {
-//   return m_impact_friction_map;
-// }
+const Rational<std::intmax_t>& Integrator::dt() const
+{
+  return m_dt;
+}
 
-// ImpactFrictionMap* DiscreteIntegrator::impactFrictionMapPointer()
-// {
-//   return m_impact_friction_map.get();
-// }
-
-// void DiscreteIntegrator::serialize( std::ostream& output_stream ) const
-// {
-//   Utilities::serializeBuiltInType( m_iteration, output_stream );
-//   RationalTools::serialize( m_dt, output_stream );
-//   RigidBody3DUtilities::serialize( m_unconstrained_map, output_stream );
-//   ConstrainedMapUtilities::serialize( m_impact_operator, output_stream );
-//   ConstrainedMapUtilities::serialize( m_friction_solver, output_stream );
-//   ConstrainedMapUtilities::serialize( m_impact_friction_map, output_stream );
-//   Utilities::serializeBuiltInType( m_cor, output_stream );
-//   Utilities::serializeBuiltInType( m_mu, output_stream );
-//   Utilities::serializeBuiltInType( m_reduce_bandwidth, output_stream );
-//   m_python_scripting.serialize( output_stream );
-// }
-
-// void DiscreteIntegrator::deserialize( std::istream& input_stream )
-// {
-//   m_iteration = Utilities::deserialize<unsigned>( input_stream );
-//   RationalTools::deserialize( m_dt, input_stream );
-//   m_unconstrained_map = RigidBody3DUtilities::deserializeUnconstrainedMap( input_stream );
-//   m_impact_operator = ConstrainedMapUtilities::deserializeImpactOperator( input_stream );
-//   m_friction_solver = ConstrainedMapUtilities::deserializeFrictionSolver( input_stream );
-//   m_impact_friction_map = ConstrainedMapUtilities::deserializeImpactFrictionMap( input_stream, "" );
-//   m_cor = Utilities::deserialize<scalar>( input_stream );
-//   m_mu = Utilities::deserialize<scalar>( input_stream );
-//   m_reduce_bandwidth = Utilities::deserialize<bool>( input_stream );
-//   {
-//     PythonScripting new_scripting{ input_stream };
-//     swap( m_python_scripting, new_scripting );
-//   }
-// }
+const Integrator::Style& Integrator::style() const
+{
+  return m_style;
+}

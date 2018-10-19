@@ -11,46 +11,52 @@
 #include "scisim/Math/Rational.h"
 #include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
 
-#include "rigidbody3d/PythonScripting.h"
+#include "ball2d/PythonScripting.h"
 
 class Ball2DSim;
+class PythonScripting;
+
+#ifdef USE_HDF5
+class HDF5File;
+#endif
 
 class Integrator final
 {
 
 public:
 
-  Integrator( const Rational<std::intmax_t>& dt, const std::unique_ptr<UnconstrainedMap>& unconstrained_map, const std::unique_ptr<ImpactOperator>& impact_operator,
-              const std::unique_ptr<FrictionSolver>& friction_solver, const std::unique_ptr<ImpactMap>& impact_map, const std::unique_ptr<ImpactFrictionMap>& impact_friction_map,
+  enum class Style
+  {
+    None,
+    Unconstrained,
+    Impact,
+    ImpactFriction
+  };
+
+  Integrator();
+
+  Integrator( const Rational<std::intmax_t>& dt, const std::unique_ptr<UnconstrainedMap>& unconstrained_map,
+              const std::unique_ptr<ImpactOperator>& impact_operator, const std::unique_ptr<FrictionSolver>& friction_solver,
+              const std::unique_ptr<ImpactMap>& impact_map, const std::unique_ptr<ImpactFrictionMap>& impact_friction_map,
               const scalar& cor, const scalar& mu );
 
-//   DiscreteIntegrator(const DiscreteIntegrator& other);
-//   DiscreteIntegrator( DiscreteIntegrator&& ) = default;
+  Integrator( const Integrator& other );
+  Integrator( Integrator&& ) = default;
 
-//   DiscreteIntegrator& operator=( DiscreteIntegrator other );
-//   DiscreteIntegrator& operator=( DiscreteIntegrator&& ) = default;
+  Integrator& operator=( Integrator other );
 
-//   ~DiscreteIntegrator() = default;
+  void step( const int next_iter, PythonScripting& scripting, Ball2DSim& sim );
 
-//   void setPythonCallback( const std::string& path, const std::string& module_name );
-//   void pythonStartOfSim( RigidBody3DSim& sim );
-//   void pythonEndOfSim( RigidBody3DSim& sim );
+  #ifdef USE_HDF5
+  void stepWithForceOutput( const int next_iter, PythonScripting& scripting, Ball2DSim& sim, HDF5File& force_file );
+  #endif
 
-//   const Rational<std::intmax_t>& timestep() const;
+  void serialize( std::ostream& output_stream ) const;
+  void deserialize( std::istream& input_stream );
 
-  void step( const int next_iter, Ball2DSim& sim );
+  const Rational<std::intmax_t>& dt() const;
 
-//   scalar computeTime() const;
-  
-//   std::unique_ptr<ImpactFrictionMap>& impactFrictionMap();
-//   ImpactFrictionMap* impactFrictionMapPointer();
-  
-//   bool frictionIsEnabled() const;
-
-//   //ImpactFrictionMap& impactFrictionMap();
-
-//   void serialize( std::ostream& output_stream ) const;
-//   void deserialize( std::istream& input_stream );
+  const Style& style() const;
 
 private:
 
@@ -62,7 +68,7 @@ private:
   std::unique_ptr<ImpactFrictionMap> m_impact_friction_map;
   scalar m_cor;
   scalar m_mu;
-  PythonScripting m_scripting;
+  Style m_style;
 
 };
 

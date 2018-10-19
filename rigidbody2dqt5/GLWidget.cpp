@@ -66,6 +66,9 @@ GLWidget::GLWidget( QWidget* parent, const QSurfaceFormat& format )
 , m_delta_H0( 0.0 )
 , m_delta_p0( Vector2s::Zero() )
 , m_delta_L0( 0.0 )
+, m_plane_render_settings0()
+// , m_drum_render_settings0()
+// , m_portal_render_settings0()
 , m_plane_render_settings()
 // , m_drum_render_settings()
 // , m_portal_render_settings()
@@ -297,8 +300,11 @@ void GLWidget::initializeSimulation( const QString& xml_scene_file_name, const b
   // m_scripting.registerPlaneDeleteCallback( this, &planeDeleteCallback );
 
   m_plane_render_settings = std::move( render_settings.plane_render_settings );
+  m_plane_render_settings0 = m_plane_render_settings;
   // m_drum_render_settings = std::move( render_settings.drum_render_settings );
+  // m_drum_render_settings0 = m_drum_render_settings;
   // m_portal_render_settings = std::move( render_settings.portal_render_settings );
+  // m_portal_render_settings0 = m_portal_render_settings;
 
   m_half_num_circle_subdivs = render_settings.half_num_circle_subdivs;
   // m_num_drum_subdivs = render_settings.num_drum_subdivs;
@@ -627,6 +633,10 @@ void GLWidget::resetSystem()
       m_body_colors.segment<3>( 3 * bdy_idx ) << 0.2, 0.2, 0.2;
     }
   }
+
+  m_plane_render_settings = m_plane_render_settings0;
+  // m_drum_render_settings = m_drum_render_settings0;
+  // m_portal_render_settings = m_portal_render_settings0;
 
   // User-provided start of simulation python callback
   m_scripting.setState( m_sim.state() );

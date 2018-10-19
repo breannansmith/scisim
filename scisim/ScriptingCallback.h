@@ -1,8 +1,3 @@
-// ScriptingCallback.h
-//
-// Breannan Smith
-// Last updated: 09/03/2015
-
 #ifndef SCRIPTING_CALLBACK_H
 #define SCRIPTING_CALLBACK_H
 
@@ -37,6 +32,10 @@ public:
 
   void endOfStepCallback( const unsigned next_iteration, const Rational<std::intmax_t>& dt );
 
+  virtual std::string moduleName() const = 0;
+
+  virtual std::string modulePath() const = 0;
+
 protected:
 
   ScriptingCallback() = default;
@@ -54,8 +53,6 @@ private:
   virtual void startOfStep( const unsigned next_iteration, const Rational<std::intmax_t>& dt ) = 0;
 
   virtual void endOfStep( const unsigned next_iteration, const Rational<std::intmax_t>& dt ) = 0;
-
-  virtual std::string name() const = 0;
 
 };
 

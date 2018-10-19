@@ -46,25 +46,22 @@ GLWidget::GLWidget( QWidget* parent, const QSurfaceFormat& format )
 , m_output_frame( 0 )
 , m_output_fps()
 , m_steps_per_frame()
-, m_unconstrained_map( nullptr )
-, m_impact_operator( nullptr )
-, m_friction_solver( nullptr )
-, m_if_map( nullptr )
-, m_imap( nullptr )
-, m_scripting()
 , m_iteration( 0 )
-, m_dt( 0, 1 )
 , m_end_time( SCALAR_INFINITY )
-, m_CoR( 1.0 )
-, m_mu( 0.0 )
 , m_sim0()
 , m_sim()
+, m_integrator0()
+, m_integrator()
+, m_scripting()
 , m_H0( 0.0 )
 , m_p0( Vector2s::Zero() )
 , m_L0( 0.0 )
 , m_delta_H0( 0.0 )
 , m_delta_p0( Vector2s::Zero() )
 , m_delta_L0( 0.0 )
+, m_plane_render_settings0()
+, m_drum_render_settings0()
+, m_portal_render_settings0()
 , m_plane_render_settings()
 , m_drum_render_settings()
 , m_portal_render_settings()
@@ -190,20 +187,14 @@ static void planeDeleteCallback( void* context, int plane_idx )
 
 void GLWidget::initializeSimulation( const QString& xml_scene_file_name, const bool& render_on_load, SimSettings& sim_settings, RenderSettings& render_settings )
 {
-  // Ensure we have a correct combination of maps.
-  assert( ( sim_settings.unconstrained_map != nullptr && sim_settings.impact_operator == nullptr &&
-            sim_settings.friction_solver == nullptr && sim_settings.if_map == nullptr && sim_settings.impact_map == nullptr ) ||
-          ( sim_settings.unconstrained_map != nullptr && sim_settings.impact_operator != nullptr &&
-            sim_settings.friction_solver == nullptr && sim_settings.if_map == nullptr && sim_settings.impact_map != nullptr ) ||
-          ( sim_settings.unconstrained_map != nullptr && sim_settings.impact_operator == nullptr &&
-            sim_settings.friction_solver != nullptr && sim_settings.if_map != nullptr && sim_settings.impact_map == nullptr ) );
+  // Push the initial state and cache it to allow resets
+  m_sim.state() = std::move( sim_settings.state );
+  m_sim.clearConstraintCache();
+  m_sim0 = m_sim;
 
-  // Set the new maps
-  m_unconstrained_map = std::move( sim_settings.unconstrained_map );
-  m_impact_operator = std::move( sim_settings.impact_operator );
-  m_friction_solver = std::move( sim_settings.friction_solver );
-  m_if_map = std::move( sim_settings.if_map );
-  m_imap = std::move( sim_settings.impact_map );
+  // Push the initial integrator state and cache it to allow resets
+  m_integrator0 = sim_settings.integrator;
+  m_integrator = m_integrator0;
 
   // Initialize the scripting callback
   {
@@ -211,20 +202,7 @@ void GLWidget::initializeSimulation( const QString& xml_scene_file_name, const b
     swap( m_scripting, new_scripting );
   }
 
-  // Save the coefficient of restitution and the coefficient of friction
-  m_CoR = sim_settings.CoR;
-  m_mu = sim_settings.mu;
-
-  // Push the new state to the simulation
-  m_sim.state() = std::move( sim_settings.state );
-  m_sim.clearConstraintCache();
-
-  // Cache the new state locally to allow one to reset a simulation
-  m_sim0 = m_sim;
-
-  // Save the timestep and compute related quantities
-  m_dt = sim_settings.dt;
-  assert( m_dt.positive() );
+  // Save the time and iteration related quantities
   m_iteration = 0;
   m_end_time = sim_settings.end_time;
   assert( m_end_time > 0.0 );
@@ -249,7 +227,7 @@ void GLWidget::initializeSimulation( const QString& xml_scene_file_name, const b
   m_delta_L0 = 0.0;
 
   // Compute the number of characters after the decimal point in the timestep string
-  m_display_precision = computeTimestepDisplayPrecision( m_dt, sim_settings.dt_string );
+  m_display_precision = computeTimestepDisplayPrecision( m_integrator.dt(), sim_settings.dt_string );
 
   // Generate a random color for each ball
   m_ball_color_gen = std::mt19937_64( 1337 );
@@ -289,8 +267,11 @@ void GLWidget::initializeSimulation( const QString& xml_scene_file_name, const b
   m_scripting.registerPlaneDeleteCallback( this, &planeDeleteCallback );
 
   m_plane_render_settings = std::move( render_settings.plane_render_settings );
+  m_plane_render_settings0 = m_plane_render_settings;
   m_drum_render_settings = std::move( render_settings.drum_render_settings );
+  m_drum_render_settings0 = m_drum_render_settings;
   m_portal_render_settings = std::move( render_settings.portal_render_settings );
+  m_portal_render_settings0 = m_portal_render_settings;
 
   m_num_circle_subdivs = render_settings.num_ball_subdivs;
   m_num_drum_subdivs = render_settings.num_drum_subdivs;
@@ -483,7 +464,7 @@ void GLWidget::copyRenderState()
 
 void GLWidget::stepSystem()
 {
-  if( m_iteration * scalar( m_dt ) >= m_end_time )
+  if( m_iteration * scalar( m_integrator.dt() ) >= m_end_time )
   {
     // User-provided end of simulation python callback
     m_scripting.setState( m_sim.state() );
@@ -495,26 +476,7 @@ void GLWidget::stepSystem()
 
   const unsigned next_iter{ m_iteration + 1 };
 
-  if( m_unconstrained_map == nullptr && m_impact_operator == nullptr && m_imap == nullptr && m_friction_solver == nullptr && m_if_map == nullptr )
-  {
-    return;
-  }
-  else if( m_unconstrained_map != nullptr && m_impact_operator == nullptr && m_imap == nullptr && m_friction_solver == nullptr && m_if_map == nullptr )
-  {
-    m_sim.flow( m_scripting, next_iter, m_dt, *m_unconstrained_map );
-  }
-  else if( m_unconstrained_map != nullptr && m_impact_operator != nullptr && m_imap != nullptr && m_friction_solver == nullptr && m_if_map == nullptr )
-  {
-    m_sim.flow( m_scripting, next_iter, m_dt, *m_unconstrained_map, *m_impact_operator, m_CoR, *m_imap );
-  }
-  else if( m_unconstrained_map != nullptr && m_impact_operator == nullptr && m_imap == nullptr && m_friction_solver != nullptr && m_if_map != nullptr )
-  {
-    m_sim.flow( m_scripting, next_iter, m_dt, *m_unconstrained_map, m_CoR, m_mu, *m_friction_solver, *m_if_map );
-  }
-  else
-  {
-    qFatal( "Impossible code path hit. Exiting." );
-  }
+  m_integrator.step( next_iter, m_scripting, m_sim );
 
   m_iteration++;
 
@@ -549,12 +511,8 @@ void GLWidget::stepSystem()
 
 void GLWidget::resetSystem()
 {
-  if( m_if_map != nullptr )
-  {
-    m_if_map->resetCachedData();
-  }
-
   m_sim = m_sim0;
+  m_integrator = m_integrator0;
 
   m_iteration = 0;
 
@@ -577,6 +535,10 @@ void GLWidget::resetSystem()
   {
     m_ball_colors.segment<3>( i ) = generateColor();
   }
+
+  m_plane_render_settings = m_plane_render_settings0;
+  m_drum_render_settings = m_drum_render_settings0;
+  m_portal_render_settings = m_portal_render_settings0;
 
   // User-provided start of simulation python callback
   m_scripting.setState( m_sim.state() );
@@ -720,7 +682,7 @@ void GLWidget::saveScreenshot( const QString& file_name )
 {
   std::stringstream ss;
   ss << "Saving screenshot of time " << std::fixed << std::setprecision( m_display_precision )
-     << m_iteration * scalar( m_dt ) << " to " << file_name.toStdString();
+     << m_iteration * scalar( m_integrator.dt() ) << " to " << file_name.toStdString();
   qInfo( "%s", ss.str().c_str() );
   const QImage frame_buffer{ grabFramebuffer() };
   frame_buffer.save( file_name );
@@ -748,17 +710,17 @@ void GLWidget::setMovieFPS( const unsigned fps )
   assert( fps > 0 );
   m_output_fps = fps;
   m_output_frame = 0;
-  if( 1.0 < scalar( m_dt * std::intmax_t( m_output_fps ) ) )
+  if( 1.0 < scalar( m_integrator.dt() * std::intmax_t( m_output_fps ) ) )
   {
     qWarning() << "Warning, requested movie frame rate faster than timestep. Dumping at timestep rate.";
     m_steps_per_frame = 1;
   }
   else
   {
-    const Rational<std::intmax_t> potential_steps_per_frame{ std::intmax_t( 1 ) / ( m_dt * std::intmax_t( m_output_fps ) ) };
+    const Rational<std::intmax_t> potential_steps_per_frame{ std::intmax_t( 1 ) / ( m_integrator.dt() * std::intmax_t( m_output_fps ) ) };
     if( !potential_steps_per_frame.isInteger() )
     {
-      if( m_dt != Rational<std::intmax_t>{ 0 } )
+      if( m_integrator.dt() != Rational<std::intmax_t>{ 0 } )
       {
         qWarning() << "Warning, timestep and output frequency do not yield an integer number of timesteps for data output. Dumping at timestep rate.";
       }
@@ -798,7 +760,7 @@ static QString generateNumericString( const std::string& label, const scalar& nu
 
 void GLWidget::paintHUD()
 {
-  const QString time_string{ generateTimeString( m_iteration, m_dt, m_display_precision, m_end_time ) };
+  const QString time_string{ generateTimeString( m_iteration, m_integrator.dt(), m_display_precision, m_end_time ) };
   const QString delta_H{ generateNumericString( " dH: ", m_delta_H0 ) };
   const QString delta_px{ generateNumericString( "dpx: ", m_delta_p0.x() ) };
   const QString delta_py{ generateNumericString( "dpy: ", m_delta_p0.y() ) };

@@ -2,50 +2,39 @@
 #include <Python.h>
 #endif
 
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <string>
-#include <cstdlib>
 #include <cstdint>
+#include <cstdlib>
+#include <fstream>
 #include <getopt.h>
+#include <iomanip>
+#include <iostream>
+#include <string>
 
+#include "scisim/CompileDefinitions.h"
 #include "scisim/Math/MathUtilities.h"
 #include "scisim/Math/Rational.h"
-#include "scisim/StringUtilities.h"
-#include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
-#include "scisim/CompileDefinitions.h"
-#include "scisim/Timer/TimeUtils.h"
-#include "scisim/ConstrainedMaps/ConstrainedMapUtilities.h"
-#include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
-#include "scisim/ConstrainedMaps/FrictionSolver.h"
-#include "scisim/Utilities.h"
 #include "scisim/PythonTools.h"
+#include "scisim/StringUtilities.h"
+#include "scisim/Timer/TimeUtils.h"
+#include "scisim/Utilities.h"
 
-#include "ball2d/Ball2DUtilities.h"
 #include "ball2d/Ball2DSim.h"
+#include "ball2d/Ball2DUtilities.h"
+#include "ball2d/Integrator.h"
 #include "ball2d/PythonScripting.h"
 
 #include "ball2dutils/Ball2DSceneParser.h"
 
 #ifdef USE_HDF5
 #include "scisim/HDF5File.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/ImpactSolution.h"
 #endif
 
 static Ball2DSim g_sim;
 static unsigned g_iteration{ 0 };
-static std::unique_ptr<UnconstrainedMap> g_unconstrained_map;
-static Rational<std::intmax_t> g_dt;
 static scalar g_end_time;
-static std::unique_ptr<ImpactOperator> g_impact_operator;
-static scalar g_CoR;
-static std::unique_ptr<FrictionSolver> g_friction_solver;
-static scalar g_mu;
-static std::unique_ptr<ImpactMap> g_impact_map;
-static std::unique_ptr<ImpactFrictionMap> g_impact_friction_map;
+
+static Integrator g_integrator;
+
 static PythonScripting g_scripting;
 
 #ifdef USE_HDF5
@@ -127,21 +116,14 @@ static bool loadXMLScene( const std::string& xml_file_name )
     return false;
   }
 
-  using std::swap;
-  swap( g_dt, sim_settings.dt );
-  swap( g_end_time, sim_settings.end_time );
-  swap( g_unconstrained_map, sim_settings.unconstrained_map );
-  swap( g_impact_operator, sim_settings.impact_operator );
-  swap( g_CoR, sim_settings.CoR );
-  swap( g_impact_map, sim_settings.impact_map );
-  swap( g_friction_solver, sim_settings.friction_solver );
-  swap( g_mu, sim_settings.mu );
-  swap( g_impact_friction_map, sim_settings.if_map );
+  g_end_time = sim_settings.end_time;
 
-  g_dt_string_precision = computeTimestepDisplayPrecision( g_dt, sim_settings.dt_string );
+  g_integrator = sim_settings.integrator;
+
+  g_dt_string_precision = computeTimestepDisplayPrecision( g_integrator.dt(), sim_settings.dt_string );
 
   // Move the new state over to the simulation
-  swap( sim_settings.state, g_sim.state() );
+  g_sim.state() = std::move( sim_settings.state );
   g_sim.clearConstraintCache();
 
   // Configure the scripting
@@ -159,7 +141,7 @@ static bool loadXMLScene( const std::string& xml_file_name )
 static std::string generateSimulationTimeString()
 {
   std::stringstream time_stream;
-  time_stream << std::fixed << std::setprecision( g_dt_string_precision ) << g_iteration * scalar( g_dt );
+  time_stream << std::fixed << std::setprecision( g_dt_string_precision ) << g_iteration * scalar( g_integrator.dt() );
   return time_stream.str();
 }
 
@@ -178,9 +160,9 @@ static int saveState()
   {
     HDF5File output_file{ output_file_name, HDF5AccessType::READ_WRITE };
     // Save the iteration and time step and time
-    output_file.write( "timestep", scalar( g_dt ) );
+    output_file.write( "timestep", scalar( g_integrator.dt() ) );
     output_file.write( "iteration", g_iteration );
-    output_file.write( "time", scalar( g_dt ) * g_iteration );
+    output_file.write( "time", scalar( g_integrator.dt() ) * g_iteration );
     // Save out the git hash
     output_file.write( "git_hash", CompileDefinitions::GitSHA1 );
     // Save the real time
@@ -227,15 +209,8 @@ static int serializeSystem()
   // Write the actual state
   g_sim.serialize( serial_stream );
   Utilities::serialize( g_iteration, serial_stream );
-  Ball2DUtilities::serialize( g_unconstrained_map, serial_stream );
-  Utilities::serialize( g_dt, serial_stream );
   Utilities::serialize( g_end_time, serial_stream );
-  ConstrainedMapUtilities::serialize( g_impact_operator, serial_stream );
-  Utilities::serialize( g_CoR, serial_stream );
-  ConstrainedMapUtilities::serialize( g_friction_solver, serial_stream );
-  Utilities::serialize( g_mu, serial_stream );
-  ConstrainedMapUtilities::serialize( g_impact_map, serial_stream );
-  ConstrainedMapUtilities::serialize( g_impact_friction_map, serial_stream );
+  g_integrator.serialize( serial_stream );
   g_scripting.serialize( serial_stream );
   #ifdef USE_HDF5
   StringUtilities::serialize( g_output_dir_name, serial_stream );
@@ -285,19 +260,9 @@ static int deserializeSystem( const std::string& file_name )
 
   g_sim.deserialize( serial_stream );
   g_iteration = Utilities::deserialize<unsigned>( serial_stream );
-  g_unconstrained_map = Ball2DUtilities::deserializeUnconstrainedMap( serial_stream );
-  g_dt = Utilities::deserialize<Rational<std::intmax_t>>( serial_stream );
-  assert( g_dt.positive() );
   g_end_time = Utilities::deserialize<scalar>( serial_stream );
   assert( g_end_time > 0.0 );
-  g_impact_operator = ConstrainedMapUtilities::deserializeImpactOperator( serial_stream );
-  g_CoR = Utilities::deserialize<scalar>( serial_stream );
-  assert( g_CoR >= 0.0 ); assert( g_CoR <= 1.0 );
-  g_friction_solver = ConstrainedMapUtilities::deserializeFrictionSolver( serial_stream );
-  g_mu = Utilities::deserialize<scalar>( serial_stream );
-  assert( g_mu >= 0.0 );
-  g_impact_map = ConstrainedMapUtilities::deserializeImpactMap( serial_stream );
-  g_impact_friction_map = ConstrainedMapUtilities::deserializeImpactFrictionMap( serial_stream );
+  g_integrator.deserialize( serial_stream );
   {
     PythonScripting new_scripting{ serial_stream };
     swap( g_scripting, new_scripting );
@@ -368,9 +333,9 @@ static int stepSystem()
     {
       force_file.open( constraint_force_file_name, HDF5AccessType::READ_WRITE );
       // Save the iteration and time step and time
-      force_file.write( "timestep", scalar( g_dt ) );
+      force_file.write( "timestep", scalar( g_integrator.dt() ) );
       force_file.write( "iteration", g_iteration );
-      force_file.write( "time", scalar( g_dt ) * g_iteration );
+      force_file.write( "time", scalar( g_integrator.dt() ) * g_iteration );
       // Save out the git hash
       force_file.write( "git_hash", CompileDefinitions::GitSHA1 );
       // Save the real time
@@ -384,57 +349,20 @@ static int stepSystem()
   }
   #endif
 
-  if( g_unconstrained_map == nullptr && g_impact_operator == nullptr && g_impact_map == nullptr && g_friction_solver == nullptr && g_impact_friction_map == nullptr )
+  #ifndef USE_HDF5
+  g_integrator.step( next_iter, g_scripting, g_sim );
+  #else
+  if( g_integrator.style() == Integrator::Style::Impact || g_integrator.style() == Integrator::Style::ImpactFriction )
   {
-    // Nothing to do
-  }
-  else if( g_unconstrained_map != nullptr && g_impact_operator == nullptr && g_impact_map == nullptr && g_friction_solver == nullptr && g_impact_friction_map == nullptr )
-  {
-    g_sim.flow( g_scripting, next_iter, g_dt, *g_unconstrained_map );
-  }
-  else if( g_unconstrained_map != nullptr && g_impact_operator != nullptr && g_impact_map != nullptr && g_friction_solver == nullptr && g_impact_friction_map == nullptr )
-  {
-    assert( g_impact_map != nullptr );
-    #ifdef USE_HDF5
-    ImpactSolution impact_solution;
-    if( force_file.is_open() )
-    {
-      g_impact_map->exportForcesNextStep( impact_solution );
-    }
-    #endif
-    g_sim.flow( g_scripting, next_iter, g_dt, *g_unconstrained_map, *g_impact_operator, g_CoR, *g_impact_map );
-    #ifdef USE_HDF5
-    if( force_file.is_open() )
-    {
-      try
-      {
-        impact_solution.writeSolution( force_file );
-      }
-      catch( const std::string& error )
-      {
-        std::cerr << error << std::endl;
-        return EXIT_FAILURE;
-      }
-    }
-    #endif
-  }
-  else if( g_unconstrained_map != nullptr && g_impact_operator == nullptr && g_impact_map == nullptr && g_friction_solver != nullptr && g_impact_friction_map != nullptr )
-  {
-    #ifdef USE_HDF5
-    if( force_file.is_open() )
-    {
-      g_impact_friction_map->exportForcesNextStep( force_file );
-    }
-    #endif
-    g_sim.flow( g_scripting, next_iter, g_dt, *g_unconstrained_map, g_CoR, g_mu, *g_friction_solver, *g_impact_friction_map );
+    g_integrator.stepWithForceOutput( next_iter, g_scripting, g_sim, force_file );
   }
   else
   {
-    std::cerr << "Impossible code path hit in stepSystem. This is a bug. Exiting." << std::endl;
-    return EXIT_FAILURE;
+    g_integrator.step( next_iter, g_scripting, g_sim );
   }
+  #endif
 
-  ++g_iteration;
+  g_iteration++;
 
   return exportConfigurationData();
 }
@@ -449,7 +377,7 @@ static int executeSimLoop()
   while( true )
   {
     // N.B. this will ocassionaly not trigger at the *exact* equal time due to floating point errors
-    if( g_iteration * scalar( g_dt ) >= g_end_time )
+    if( g_iteration * scalar( g_integrator.dt() ) >= g_end_time )
     {
       #ifdef USE_HDF5
       // Take one final step to ensure we have force data for end time
@@ -465,7 +393,7 @@ static int executeSimLoop()
       g_scripting.setState( g_sim.state() );
       g_scripting.endOfSimCallback();
       g_scripting.forgetState();
-      std::cout << "Simulation complete at time " << g_iteration * scalar( g_dt ) << ". Exiting." << std::endl;
+      std::cout << "Simulation complete at time " << g_iteration * scalar( g_integrator.dt() ) << ". Exiting." << std::endl;
       return EXIT_SUCCESS;
     }
 
@@ -678,11 +606,11 @@ int main( int argc, char** argv )
   }
 
   // Compute the data output rate
-  assert( g_dt.positive() );
+  assert( g_integrator.dt().positive() );
   // If the user provided an output frequency
   if( output_frequency != 0 )
   {
-    const Rational<std::intmax_t> potential_steps_per_frame = std::intmax_t( 1 ) / ( g_dt * std::intmax_t( output_frequency ) );
+    const Rational<std::intmax_t> potential_steps_per_frame = std::intmax_t( 1 ) / ( g_integrator.dt() * std::intmax_t( output_frequency ) );
     if( !potential_steps_per_frame.isInteger() )
     {
       std::cerr << "Timestep and output frequency do not yield an integer number of timesteps for data output. Exiting." << std::endl;
@@ -696,7 +624,7 @@ int main( int argc, char** argv )
     g_steps_per_save = 1;
   }
   assert( g_end_time > 0.0 );
-  g_save_number_width = MathUtilities::computeNumDigits( 1 + unsigned( ceil( g_end_time / scalar( g_dt ) ) ) / g_steps_per_save );
+  g_save_number_width = MathUtilities::computeNumDigits( 1 + unsigned( ceil( g_end_time / scalar( g_integrator.dt() ) ) ) / g_steps_per_save );
 
   printCompileInfo( std::cout );
   std::cout << "Body count: " << g_sim.state().nballs() << std::endl;

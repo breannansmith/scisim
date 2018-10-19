@@ -30,7 +30,11 @@ public:
   void setState( RigidBody2DState& state );
   void forgetState();
 
-  void serialize( std::ostream& output_stream );
+  void serialize( std::ostream& output_stream ) const;
+
+  virtual std::string moduleName() const override;
+
+  virtual std::string modulePath() const override;
 
 private:
 
@@ -47,8 +51,6 @@ private:
   virtual void startOfStep( const unsigned next_iteration, const Rational<std::intmax_t>& dt ) override;
 
   virtual void endOfStep( const unsigned next_iteration, const Rational<std::intmax_t>& dt ) override;
-
-  virtual std::string name() const override;
 
   std::string m_path;
   std::string m_module_name;

@@ -320,9 +320,14 @@ void PythonScripting::endOfStep( const unsigned /*next_iteration*/, const Ration
   #endif
 }
 
-std::string PythonScripting::name() const
+std::string PythonScripting::moduleName() const
 {
   return m_module_name;
+}
+
+std::string PythonScripting::modulePath() const
+{
+  return m_path;
 }
 
 #ifdef USE_PYTHON
@@ -369,7 +374,7 @@ void PythonScripting::forgetState()
   // No need to handle state cache if scripting is disabled
 }
 
-void PythonScripting::serialize( std::ostream& output_stream )
+void PythonScripting::serialize( std::ostream& output_stream ) const
 {
   StringUtilities::serialize( m_path, output_stream );
   StringUtilities::serialize( m_module_name, output_stream );

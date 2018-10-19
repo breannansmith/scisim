@@ -10,6 +10,7 @@
 #include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
 
 #include "ball2d/Ball2DState.h"
+#include "ball2d/Integrator.h"
 
 #include <iosfwd>
 #include <memory>
@@ -59,22 +60,11 @@ struct PortalRenderSettings final
 
 struct SimSettings final
 {
-  std::string scripting_callback_name;
-
   Ball2DState state;
-
+  Integrator integrator;
+  std::string scripting_callback_name;
   std::string dt_string;
-  Rational<std::intmax_t> dt;
   scalar end_time = SCALAR_INFINITY;
-
-  scalar CoR = 1.0;
-  scalar mu = 0.0;
-
-  std::unique_ptr<UnconstrainedMap> unconstrained_map = nullptr;
-  std::unique_ptr<ImpactOperator> impact_operator = nullptr;
-  std::unique_ptr<ImpactMap> impact_map = nullptr;
-  std::unique_ptr<FrictionSolver> friction_solver = nullptr;
-  std::unique_ptr<ImpactFrictionMap> if_map = nullptr;
 };
 
 struct RenderSettings final

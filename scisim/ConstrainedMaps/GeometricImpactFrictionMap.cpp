@@ -491,8 +491,9 @@ void GeometricImpactFrictionMap::exportForcesNextStep( HDF5File& output_file )
 
 std::unique_ptr<ImpactFrictionMap> GeometricImpactFrictionMap::clone() const
 {
+  #ifdef USE_HDF5
   assert( m_write_constraint_forces == false );
   assert( m_constraint_force_stream == nullptr );
-
+  #endif
   return std::make_unique<GeometricImpactFrictionMap>( m_abs_tol, m_max_iters, m_impulses_to_cache, m_f );
 }

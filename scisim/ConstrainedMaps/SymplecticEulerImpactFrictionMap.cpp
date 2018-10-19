@@ -466,8 +466,9 @@ void SymplecticEulerImpactFrictionMap::exportForcesNextStep( HDF5File& output_fi
 
 std::unique_ptr<ImpactFrictionMap> SymplecticEulerImpactFrictionMap::clone() const
 {
+  #ifdef USE_HDF5
   assert( m_write_constraint_forces == false );
   assert( m_constraint_force_stream == nullptr );
-
+  #endif
   return std::make_unique<SymplecticEulerImpactFrictionMap>( m_abs_tol, m_max_iters, m_impulses_to_cache, m_stabilize, m_penetration_threshold, m_f );
 }

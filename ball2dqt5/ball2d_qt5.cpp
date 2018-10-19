@@ -14,7 +14,7 @@
 
 #ifdef USE_PYTHON
 #include <Python.h>
-#include "ball2d/PythonScripting.cpp"
+#include "ball2d/PythonScripting.h"
 #include "scisim/PythonTools.h"
 #endif
 

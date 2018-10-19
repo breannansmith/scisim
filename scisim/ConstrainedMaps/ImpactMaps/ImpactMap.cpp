@@ -202,7 +202,9 @@ void ImpactMap::exportForcesNextStep( ImpactSolution& impact_solution )
 
 std::unique_ptr<ImpactMap> ImpactMap::clone() const
 {
+  #ifdef USE_HDF5
   assert( m_write_constraint_forces == false );
   assert( m_impact_solution == nullptr );
+  #endif
   return std::make_unique<ImpactMap>( m_warm_start );
 }

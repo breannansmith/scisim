@@ -234,8 +234,9 @@ void StabilizedImpactFrictionMap::exportForcesNextStep( HDF5File& output_file )
 
 std::unique_ptr<ImpactFrictionMap> StabilizedImpactFrictionMap::clone() const
 {
+  #ifdef USE_HDF5
   assert( m_write_constraint_forces == false );
   assert( m_constraint_force_stream == nullptr );
-
+  #endif
   return std::make_unique<StabilizedImpactFrictionMap>( m_abs_tol, m_max_iters, m_external_warm_start_alpha, m_external_warm_start_beta, m_f );
 }

@@ -9,7 +9,7 @@
 #include "scisim/Math/Rational.h"
 
 #include "ball2d/Ball2DSim.h"
-#include "ball2d/PythonScripting.h"
+#include "ball2d/Integrator.h"
 
 #include "ball2dutils/Ball2DSceneParser.h"
 
@@ -133,28 +133,20 @@ private:
   // Number of timesteps between frame outputs
   unsigned m_steps_per_frame;
 
-  // Integrator state
-  std::unique_ptr<UnconstrainedMap> m_unconstrained_map;
-  std::unique_ptr<ImpactOperator> m_impact_operator;
-  std::unique_ptr<FrictionSolver> m_friction_solver;
-  std::unique_ptr<ImpactFrictionMap> m_if_map;
-  std::unique_ptr<ImpactMap> m_imap;
-  PythonScripting m_scripting;
-
   // Current iteration of the solver
   unsigned m_iteration;
-  // Current timestep
-  Rational<std::intmax_t> m_dt;
   // End time of the simulation
   scalar m_end_time;
 
-  scalar m_CoR;
-  scalar m_mu;
-
-  // Initial state of the simulation
+  // Initial and current state of the simulation
   Ball2DSim m_sim0;
-  // Current state of the simulation
   Ball2DSim m_sim;
+
+  // Initial and current integrators
+  Integrator m_integrator0;
+  Integrator m_integrator;
+
+  PythonScripting m_scripting;
 
   // Initial energy, momentum, and angular momentum of the simulation
   scalar m_H0;
@@ -167,6 +159,10 @@ private:
   scalar m_delta_L0;
 
   // Static geometry render settings
+  std::vector<PlaneRenderSettings> m_plane_render_settings0;
+  std::vector<DrumRenderSettings> m_drum_render_settings0;
+  std::vector<PortalRenderSettings> m_portal_render_settings0;
+
   std::vector<PlaneRenderSettings> m_plane_render_settings;
   std::vector<DrumRenderSettings> m_drum_render_settings;
   std::vector<PortalRenderSettings> m_portal_render_settings;
