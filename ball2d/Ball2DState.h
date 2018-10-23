@@ -69,6 +69,8 @@ public:
   // NOTE: This is currently quite slow...
   void pushBallBack( const Vector2s& q, const Vector2s& v, const scalar& r, const scalar& m, const bool fixed );
 
+  bool empty() const;
+
 private:
 
   VectorXs m_q;

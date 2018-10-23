@@ -655,7 +655,7 @@ int main( int argc, char** argv )
     }
   }
 
-  if( g_end_time == SCALAR_INFINITY )
+  if( g_end_time == std::numeric_limits<scalar>::max() )
   {
     std::cout << "No end time specified. Simulation will run indefinitely." << std::endl;
   }

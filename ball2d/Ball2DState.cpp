@@ -362,3 +362,8 @@ void Ball2DState::pushBallBack( const Vector2s& q, const Vector2s& v, const scal
     m_Minv.swap( Minv );
   }
 }
+
+bool Ball2DState::empty() const
+{
+  return m_q.size() == 0;
+}

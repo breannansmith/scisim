@@ -1,6 +1,5 @@
 #include "GLWidget.h"
 
-#include <QApplication>
 #include <QFontDatabase>
 #include <QMatrix4x4>
 #include <QOpenGLFunctions_3_3_Core>
@@ -9,12 +8,6 @@
 
 #include <cassert>
 #include <iomanip>
-
-#include "scisim/ConstrainedMaps/FrictionSolver.h"
-#include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
-#include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
 
 #include "ball2d/Ball2DState.h"
 
@@ -31,40 +24,17 @@ GLWidget::GLWidget( QWidget* parent, const QSurfaceFormat& format )
 , m_display_scale( 1.0 )
 , m_center_x( 0.0 )
 , m_center_y( 0.0 )
-, m_render_at_fps( false )
 , m_lock_camera( false )
 , m_last_pos()
 , m_left_mouse_button_pressed( false )
 , m_right_mouse_button_pressed( false )
-, m_ball_colors()
-, m_color_gen( 0.0, 1.0 )
-, m_ball_color_gen( 1337 )
 , m_display_precision( 0 )
 , m_display_HUD( true )
-, m_movie_dir_name()
-, m_movie_dir()
-, m_output_frame( 0 )
-, m_output_fps()
-, m_steps_per_frame()
-, m_iteration( 0 )
-, m_end_time( SCALAR_INFINITY )
-, m_sim0()
-, m_sim()
-, m_integrator0()
-, m_integrator()
-, m_scripting()
-, m_H0( 0.0 )
-, m_p0( Vector2s::Zero() )
-, m_L0( 0.0 )
-, m_delta_H0( 0.0 )
-, m_delta_p0( Vector2s::Zero() )
-, m_delta_L0( 0.0 )
-, m_plane_render_settings0()
-, m_drum_render_settings0()
-, m_portal_render_settings0()
-, m_plane_render_settings()
-, m_drum_render_settings()
-, m_portal_render_settings()
+, m_time( 0.0 )
+, m_end_time( std::numeric_limits<scalar>::max() )
+, m_delta_H( 0.0 )
+, m_delta_p( Vector2s::Zero() )
+, m_delta_L( 0.0 )
 , m_num_circle_subdivs( 32 )
 , m_num_drum_subdivs( 32 )
 , m_num_aa_samples( format.samples() )
@@ -102,151 +72,30 @@ int GLWidget::sampleCount() const
   return m_num_aa_samples;
 }
 
-static int computeTimestepDisplayPrecision( const Rational<std::intmax_t>& dt, const std::string& dt_string )
+void GLWidget::initialize( const bool& render_on_load, const RenderSettings& render_settings, const int dt_display_precision,
+                           const Ball2DState& state, const VectorXs& body_colors, const std::vector<PlaneRenderSettings>& plane_settings,
+                           const std::vector<DrumRenderSettings>& drum_settings, const std::vector<PortalRenderSettings>& portal_settings,
+                           const scalar& end_time )
 {
-  if( dt_string.find( '.' ) != std::string::npos )
-  {
-    return int( StringUtilities::computeNumCharactersToRight( dt_string, '.' ) );
-  }
-  else
-  {
-    std::string converted_dt_string;
-    std::stringstream ss;
-    ss << std::fixed << scalar( dt );
-    ss >> converted_dt_string;
-    return int( StringUtilities::computeNumCharactersToRight( converted_dt_string, '.' ) );
-  }
-}
-
-static std::string xmlFilePath( const std::string& xml_file_name )
-{
-  std::string path;
-  std::string file_name;
-  StringUtilities::splitAtLastCharacterOccurence( xml_file_name, path, file_name, '/' );
-  if( file_name.empty() )
-  {
-    using std::swap;
-    swap( path, file_name );
-  }
-  return path;
-}
-
-Vector3s GLWidget::generateColor()
-{
-  Vector3s color( 1.0, 1.0, 1.0 );
-  // Generate colors until we get one with a luminance in [0.1, 0.9]
-  while( ( 0.2126 * color.x() + 0.7152 * color.y() + 0.0722 * color.z() ) > 0.9 ||
-         ( 0.2126 * color.x() + 0.7152 * color.y() + 0.0722 * color.z() ) < 0.1 )
-  {
-    color.x() = m_color_gen( m_ball_color_gen );
-    color.y() = m_color_gen( m_ball_color_gen );
-    color.z() = m_color_gen( m_ball_color_gen );
-  }
-  return color;
-}
-
-void GLWidget::insertBallCallback( const int num_balls )
-{
-  m_ball_colors.conservativeResize( 3 * num_balls );
-  m_ball_colors.segment<3>( 3 * num_balls - 3) = generateColor();
-}
-
-static void ballInsertCallback( void* context, int num_balls )
-{
-  static_cast<GLWidget*>(context)->insertBallCallback(num_balls);
-}
-
-void GLWidget::deletePlaneCallback( const int plane_idx )
-{
-  // For each plane renderer
-  for( int rndr_idx = 0; rndr_idx < int(m_plane_render_settings.size()); rndr_idx++ )
-  {
-    PlaneRenderSettings& settings = m_plane_render_settings[rndr_idx];
-    // Flag the renderer for deletion if it matches the marked plane
-    if( settings.idx == plane_idx )
-    {
-      settings.idx = -1;
-    }
-    // Otherwise, if the index is greater than the marked plane, decrement the index
-    else if( settings.idx > plane_idx )
-    {
-      settings.idx--;
-    }
-  }
-  // Delete any flagged renderers
-  m_plane_render_settings.erase(
-    std::remove_if( m_plane_render_settings.begin(), m_plane_render_settings.end(),
-      []( const PlaneRenderSettings& settings ){ return settings.idx == -1; } ),
-    m_plane_render_settings.end() );
-}
-
-static void planeDeleteCallback( void* context, int plane_idx )
-{
-  static_cast<GLWidget*>(context)->deletePlaneCallback(plane_idx);
-}
-
-void GLWidget::initializeSimulation( const QString& xml_scene_file_name, const bool& render_on_load, SimSettings& sim_settings, RenderSettings& render_settings )
-{
-  // Push the initial state and cache it to allow resets
-  m_sim.state() = std::move( sim_settings.state );
-  m_sim.clearConstraintCache();
-  m_sim0 = m_sim;
-
-  // Push the initial integrator state and cache it to allow resets
-  m_integrator0 = sim_settings.integrator;
-  m_integrator = m_integrator0;
-
-  // Initialize the scripting callback
-  {
-    PythonScripting new_scripting{ xmlFilePath( xml_scene_file_name.toStdString() ), sim_settings.scripting_callback_name };
-    swap( m_scripting, new_scripting );
-  }
-
-  // Save the time and iteration related quantities
-  m_iteration = 0;
-  m_end_time = sim_settings.end_time;
-  assert( m_end_time > 0.0 );
-
-  // Update the FPS setting
   if( render_settings.camera_set )
   {
-    m_render_at_fps = render_settings.render_at_fps;
-    m_output_fps = render_settings.fps;
     m_lock_camera = render_settings.lock_camera;
   }
-  assert( m_output_fps > 0 );
-  setMovieFPS( m_output_fps );
 
-  // Compute the initial energy, momentum, and angular momentum
-  m_H0 = m_sim.state().computeTotalEnergy();
-  m_p0 = m_sim.state().computeMomentum();
-  m_L0 = m_sim.state().computeAngularMomentum();
   // Trivially there is no change in energy, momentum, and angular momentum until we take a timestep
-  m_delta_H0 = 0.0;
-  m_delta_p0 = Vector2s::Zero();
-  m_delta_L0 = 0.0;
+  m_delta_H = 0.0;
+  m_delta_p = Vector2s::Zero();
+  m_delta_L = 0.0;
 
   // Compute the number of characters after the decimal point in the timestep string
-  m_display_precision = computeTimestepDisplayPrecision( m_integrator.dt(), sim_settings.dt_string );
-
-  // Generate a random color for each ball
-  m_ball_color_gen = std::mt19937_64( 1337 );
-  m_ball_colors.resize( 3 * m_sim.state().nballs() );
-  for( int i = 0; i < m_ball_colors.size(); i += 3 )
-  {
-    m_ball_colors.segment<3>( i ) = generateColor();
-  }
-
-  // Reset the output movie option
-  m_movie_dir_name = QString{};
-  m_movie_dir = QDir{};
+  m_display_precision = dt_display_precision;
 
   const bool lock_backup{ m_lock_camera };
   m_lock_camera = false;
 
   if( !render_settings.camera_set )
   {
-    centerCamera( false );
+    centerCamera( false, state );
   }
   else
   {
@@ -256,22 +105,6 @@ void GLWidget::initializeSimulation( const QString& xml_scene_file_name, const b
   }
 
   m_lock_camera = lock_backup;
-
-  // User-provided start of simulation python callback
-  m_scripting.setState( m_sim.state() );
-  m_scripting.startOfSimCallback();
-  m_scripting.forgetState();
-
-  // Register UI callbacks for Python scripting
-  m_scripting.registerBallInsertCallback( this, &ballInsertCallback );
-  m_scripting.registerPlaneDeleteCallback( this, &planeDeleteCallback );
-
-  m_plane_render_settings = std::move( render_settings.plane_render_settings );
-  m_plane_render_settings0 = m_plane_render_settings;
-  m_drum_render_settings = std::move( render_settings.drum_render_settings );
-  m_drum_render_settings0 = m_drum_render_settings;
-  m_portal_render_settings = std::move( render_settings.portal_render_settings );
-  m_portal_render_settings0 = m_portal_render_settings;
 
   m_num_circle_subdivs = render_settings.num_ball_subdivs;
   m_num_drum_subdivs = render_settings.num_drum_subdivs;
@@ -290,20 +123,22 @@ void GLWidget::initializeSimulation( const QString& xml_scene_file_name, const b
     update();
   }
 
-  copyRenderState();
+  copyRenderState( state, body_colors, plane_settings, drum_settings, portal_settings, 0.0, end_time, 0.0, Vector2s::Zero(), 0.0 );
 }
 
-void GLWidget::copyRenderState()
+void GLWidget::copyRenderState( const Ball2DState& state, const VectorXs& body_colors, const std::vector<PlaneRenderSettings>& plane_settings,
+                                const std::vector<DrumRenderSettings>& drum_settings, const std::vector<PortalRenderSettings>& portal_settings,
+                                const scalar& time, const scalar& end_time, const scalar& delta_H, const Vector2s& delta_p, const scalar& delta_L )
 {
   {
-    const VectorXs& q{ m_sim.state().q() };
-    const VectorXs& r{ m_sim.state().r() };
+    const VectorXs& q{ state.q() };
+    const VectorXs& r{ state.r() };
 
     // Find teleported versions of each ball
     std::vector<Vector2s> teleported_centers;
     std::vector<int> teleported_indices;
     // For each periodic boundary
-    const std::vector<PlanarPortal>& planar_portals{ m_sim.state().planarPortals() };
+    const std::vector<PlanarPortal>& planar_portals{ state.planarPortals() };
     for( const PlanarPortal& planar_portal : planar_portals )
     {
       // For each ball
@@ -324,72 +159,72 @@ void GLWidget::copyRenderState()
     }
 
     Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& cd{ m_circle_shader.circleData() };
-    cd.resize( 6 * ( m_sim.state().nballs() + teleported_centers.size() ) );
+    cd.resize( 6 * ( state.nballs() + teleported_centers.size() ) );
 
     // Copy over the non-teleported balls
-    for( unsigned ball_idx = 0; ball_idx < m_sim.state().nballs(); ball_idx++ )
+    for( unsigned ball_idx = 0; ball_idx < state.nballs(); ball_idx++ )
     {
       // Center of mass, radius, and color
       cd.segment<2>( 6 * ball_idx ) = q.segment<2>( 2 * ball_idx ).cast<GLfloat>();
       cd( 6 * ball_idx + 2 ) = GLfloat( r( ball_idx ) );
-      cd.segment<3>( 6 * ball_idx + 3 ) = m_ball_colors.segment<3>( 3 * ball_idx ).cast<GLfloat>();
+      cd.segment<3>( 6 * ball_idx + 3 ) = body_colors.segment<3>( 3 * ball_idx ).cast<GLfloat>();
     }
 
     // Copy over the teleported balls
     for( int tlprtd_idx = 0; tlprtd_idx < int(teleported_centers.size()); tlprtd_idx++ )
     {
       // Center of mass, radius, and color
-      cd.segment<2>( 6 * m_sim.state().nballs() + 6 * tlprtd_idx ) = teleported_centers[tlprtd_idx].cast<GLfloat>();
-      cd( 6 * m_sim.state().nballs() + 6 * tlprtd_idx + 2 ) = GLfloat( r( teleported_indices[tlprtd_idx] ) );
-      cd.segment<3>( 6 * m_sim.state().nballs() + 6 * tlprtd_idx + 3 ) = m_ball_colors.segment<3>( 3 * teleported_indices[tlprtd_idx] ).cast<GLfloat>();
+      cd.segment<2>( 6 * state.nballs() + 6 * tlprtd_idx ) = teleported_centers[tlprtd_idx].cast<GLfloat>();
+      cd( 6 * state.nballs() + 6 * tlprtd_idx + 2 ) = GLfloat( r( teleported_indices[tlprtd_idx] ) );
+      cd.segment<3>( 6 * state.nballs() + 6 * tlprtd_idx + 3 ) = body_colors.segment<3>( 3 * teleported_indices[tlprtd_idx] ).cast<GLfloat>();
     }
   }
 
   // Planes
   {
     Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& plane_data{ m_plane_shader.planeData() };
-    plane_data.resize( 6 * m_plane_render_settings.size() );
-    for( int renderer_num = 0; renderer_num < int(m_plane_render_settings.size()); renderer_num++ )
+    plane_data.resize( 6 * plane_settings.size() );
+    for( int renderer_num = 0; renderer_num < int(plane_settings.size()); renderer_num++ )
     {
-      const int plane_idx = m_plane_render_settings[renderer_num].idx;
-      const StaticPlane& plane = m_sim.state().staticPlanes()[plane_idx];
+      const int plane_idx = plane_settings[renderer_num].idx;
+      const StaticPlane& plane = state.staticPlanes()[plane_idx];
 
       plane_data.segment<2>( 6 * plane_idx ) = plane.x().cast<GLfloat>();
       plane_data.segment<2>( 6 * plane_idx + 2 ) = plane.n().cast<GLfloat>();
-      plane_data( 6 * plane_idx + 4 ) = m_plane_render_settings[renderer_num].r(0);
-      plane_data( 6 * plane_idx + 5 ) = m_plane_render_settings[renderer_num].r(1);
+      plane_data( 6 * plane_idx + 4 ) = plane_settings[renderer_num].r(0);
+      plane_data( 6 * plane_idx + 5 ) = plane_settings[renderer_num].r(1);
     }
   }
 
   // Annuli
   {
     Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& annulus_data{ m_annulus_shader.annulusData() };
-    annulus_data.resize( 4 * m_sim.state().staticDrums().size() );
-    for( int renderer_num = 0; renderer_num < int(m_drum_render_settings.size()); renderer_num++ )
+    annulus_data.resize( 4 * state.staticDrums().size() );
+    for( int renderer_num = 0; renderer_num < int(drum_settings.size()); renderer_num++ )
     {
-      const int drum_idx = m_drum_render_settings[renderer_num].idx;
-      const StaticDrum& drum = m_sim.state().staticDrums()[drum_idx];
+      const int drum_idx = drum_settings[renderer_num].idx;
+      const StaticDrum& drum = state.staticDrums()[drum_idx];
 
       annulus_data.segment<2>( 4 * drum_idx ) = drum.x().cast<GLfloat>();
       annulus_data( 4 * drum_idx + 2 ) = GLfloat(drum.r());
-      annulus_data( 4 * drum_idx + 3 ) = GLfloat(drum.r()) + m_drum_render_settings[renderer_num].r;
+      annulus_data( 4 * drum_idx + 3 ) = GLfloat(drum.r()) + drum_settings[renderer_num].r;
     }
   }
 
   // Portals
   {
-    const std::vector<PlanarPortal>& planar_portals{ m_sim.state().planarPortals() };
+    const std::vector<PlanarPortal>& planar_portals{ state.planarPortals() };
 
     Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& rectangle_data{ m_rectangle_shader.data() };
-    rectangle_data.resize( 32 * m_portal_render_settings.size() );
+    rectangle_data.resize( 32 * portal_settings.size() );
 
-    for( int render_num = 0; render_num < int(m_portal_render_settings.size()); render_num++ )
+    for( int render_num = 0; render_num < int(portal_settings.size()); render_num++ )
     {
-      const int portal_idx = m_portal_render_settings[render_num].idx;
-      const float& r0 = m_portal_render_settings[render_num].thickness;
-      const float& r1 = m_portal_render_settings[render_num].half_width;
-      const float& iw = m_portal_render_settings[render_num].indicator_half_width;
-      const Eigen::Vector3f& portal_color = m_portal_render_settings[render_num].color;
+      const int portal_idx = portal_settings[render_num].idx;
+      const float& r0 = portal_settings[render_num].thickness;
+      const float& r1 = portal_settings[render_num].half_width;
+      const float& iw = portal_settings[render_num].indicator_half_width;
+      const Eigen::Vector3f& portal_color = portal_settings[render_num].color;
 
       // Top portal
       // Center of mass
@@ -460,97 +295,13 @@ void GLWidget::copyRenderState()
       rectangle_data(32 * render_num + 31) = portal_color.z();
     }
   }
-}
 
-void GLWidget::stepSystem()
-{
-  if( m_iteration * scalar( m_integrator.dt() ) >= m_end_time )
-  {
-    // User-provided end of simulation python callback
-    m_scripting.setState( m_sim.state() );
-    m_scripting.endOfSimCallback();
-    m_scripting.forgetState();
-    qInfo( "Simulation complete. Exiting." );
-    QApplication::quit();
-  }
+  m_time = time;
+  m_end_time = end_time;
 
-  const unsigned next_iter{ m_iteration + 1 };
-
-  m_integrator.step( next_iter, m_scripting, m_sim );
-
-  m_iteration++;
-
-  {
-    const Ball2DState& state{ m_sim.state() };
-    m_delta_H0 = std::max( m_delta_H0, fabs( m_H0 - state.computeTotalEnergy() ) );
-    const Vector2s p{ state.computeMomentum() };
-    m_delta_p0.x() = std::max( m_delta_p0.x(), fabs( m_p0.x() - p.x() ) );
-    m_delta_p0.y() = std::max( m_delta_p0.y(), fabs( m_p0.y() - p.y() ) );
-    m_delta_L0 = std::max( m_delta_L0, fabs( m_L0 - state.computeAngularMomentum() ) );
-  }
-
-  copyRenderState();
-
-  if( !m_render_at_fps || m_iteration % m_steps_per_frame == 0 )
-  {
-    update();
-  }
-
-  if( !m_movie_dir_name.isEmpty() )
-  {
-    assert( m_steps_per_frame > 0 );
-    if( m_iteration % m_steps_per_frame == 0 )
-    {
-      // Save a screenshot of the current state
-      QString output_image_name{ QString{ tr( "frame%1.png" ) }.arg( m_output_frame, 10, 10, QLatin1Char('0') ) };
-      saveScreenshot( m_movie_dir.filePath( output_image_name ) );
-      ++m_output_frame;
-    }
-  }
-}
-
-void GLWidget::resetSystem()
-{
-  m_sim = m_sim0;
-  m_integrator = m_integrator0;
-
-  m_iteration = 0;
-
-  m_H0 = m_sim.state().computeTotalEnergy();
-  m_p0 = m_sim.state().computeMomentum();
-  m_L0 = m_sim.state().computeAngularMomentum();
-  m_delta_H0 = 0.0;
-  m_delta_p0.setZero();
-  m_delta_L0 = 0.0;
-
-  // Reset the output movie option
-  m_movie_dir_name = QString{};
-  m_movie_dir = QDir{};
-  m_output_frame = 0;
-
-  // Reset ball colors, in case the number of balls changed
-  m_ball_color_gen = std::mt19937_64( 1337 );
-  m_ball_colors.resize( 3 * m_sim.state().nballs() );
-  for( int i = 0; i < m_ball_colors.size(); i += 3 )
-  {
-    m_ball_colors.segment<3>( i ) = generateColor();
-  }
-
-  m_plane_render_settings = m_plane_render_settings0;
-  m_drum_render_settings = m_drum_render_settings0;
-  m_portal_render_settings = m_portal_render_settings0;
-
-  // User-provided start of simulation python callback
-  m_scripting.setState( m_sim.state() );
-  m_scripting.startOfSimCallback();
-  m_scripting.forgetState();
-
-  // Register UI callbacks for Python scripting
-  m_scripting.registerBallInsertCallback( this, &ballInsertCallback );
-  m_scripting.registerPlaneDeleteCallback( this, &planeDeleteCallback );
-
-  copyRenderState();
-  update();
+  m_delta_H = delta_H;
+  m_delta_p = delta_p;
+  m_delta_L = delta_L;
 }
 
 void GLWidget::initializeGL()
@@ -622,11 +373,6 @@ void GLWidget::paintGL()
   assert( checkGLErrors() );
 }
 
-void GLWidget::renderAtFPS( const bool render_at_fps )
-{
-  m_render_at_fps = render_at_fps;
-}
-
 void GLWidget::lockCamera( const bool lock_camera )
 {
   m_lock_camera = lock_camera;
@@ -638,14 +384,14 @@ void GLWidget::toggleHUD()
   update();
 }
 
-void GLWidget::centerCamera( const bool update_gl )
+void GLWidget::centerCamera( const bool update_gl, const Ball2DState& state )
 {
   if( m_lock_camera )
   {
     return;
   }
 
-  if( m_sim.empty() )
+  if( state.empty() )
   {
     m_display_scale = 1.0;
     m_center_x = 0.0;
@@ -653,7 +399,7 @@ void GLWidget::centerCamera( const bool update_gl )
     return;
   }
 
-  const Vector4s bbox{ m_sim.state().computeBoundingBox() };
+  const Vector4s bbox{ state.computeBoundingBox() };
   const scalar& minx{ bbox( 0 ) };
   const scalar& maxx{ bbox( 1 ) };
   const scalar& miny{ bbox( 2 ) };
@@ -682,70 +428,25 @@ void GLWidget::saveScreenshot( const QString& file_name )
 {
   std::stringstream ss;
   ss << "Saving screenshot of time " << std::fixed << std::setprecision( m_display_precision )
-     << m_iteration * scalar( m_integrator.dt() ) << " to " << file_name.toStdString();
+     << m_time << " to " << file_name.toStdString();
   qInfo( "%s", ss.str().c_str() );
   const QImage frame_buffer{ grabFramebuffer() };
   frame_buffer.save( file_name );
 }
 
-void GLWidget::setMovieDir( const QString& dir_name )
-{
-  m_movie_dir_name = dir_name;
-  m_output_frame = 0;
-
-  // Save a screenshot of the current state
-  if( !m_movie_dir_name.isEmpty() )
-  {
-    m_movie_dir.setPath( m_movie_dir_name );
-    assert( m_movie_dir.exists() );
-
-    const QString output_image_name{ QString{ tr( "frame%1.png" ) }.arg( m_output_frame, 10, 10, QLatin1Char{ '0' } ) };
-    saveScreenshot( m_movie_dir.filePath( output_image_name ) );
-    m_output_frame++;
-  }
-}
-
-void GLWidget::setMovieFPS( const unsigned fps )
-{
-  assert( fps > 0 );
-  m_output_fps = fps;
-  m_output_frame = 0;
-  if( 1.0 < scalar( m_integrator.dt() * std::intmax_t( m_output_fps ) ) )
-  {
-    qWarning() << "Warning, requested movie frame rate faster than timestep. Dumping at timestep rate.";
-    m_steps_per_frame = 1;
-  }
-  else
-  {
-    const Rational<std::intmax_t> potential_steps_per_frame{ std::intmax_t( 1 ) / ( m_integrator.dt() * std::intmax_t( m_output_fps ) ) };
-    if( !potential_steps_per_frame.isInteger() )
-    {
-      if( m_integrator.dt() != Rational<std::intmax_t>{ 0 } )
-      {
-        qWarning() << "Warning, timestep and output frequency do not yield an integer number of timesteps for data output. Dumping at timestep rate.";
-      }
-      m_steps_per_frame = 1;
-    }
-    else
-    {
-      m_steps_per_frame = unsigned( potential_steps_per_frame.numerator() );
-    }
-  }
-}
-
-void GLWidget::exportCameraSettings()
+void GLWidget::exportCameraSettings( const int output_fps, const bool render_at_fps )
 {
   std::stringstream ss;
-  ss << "<camera cx=\"" << m_center_x << "\" cy=\"" << m_center_y << "\" scale_factor=\"" << m_display_scale << "\" fps=\"" << m_output_fps
-     << "\" render_at_fps=\"" << m_render_at_fps << "\" locked=\"" << m_lock_camera << "\"/>";
+  ss << "<camera cx=\"" << m_center_x << "\" cy=\"" << m_center_y << "\" scale_factor=\"" << m_display_scale
+     << "\" fps=\"" << output_fps << "\" render_at_fps=\"" << render_at_fps << "\" locked=\"" << m_lock_camera << "\"/>";
   qInfo( "%s", ss.str().c_str() );
 }
 
-static QString generateTimeString( const unsigned iteration, const Rational<std::intmax_t>& dt, const int display_precision, const scalar& end_time )
+static QString generateTimeString( const scalar& time, const int display_precision, const scalar& end_time )
 {
   QString time_string{ QObject::tr( "  t: " ) };
-  time_string += QString::number( iteration * scalar( dt ), 'f', display_precision );
-  if( end_time != SCALAR_INFINITY )
+  time_string += QString::number( time, 'f', display_precision );
+  if( end_time != std::numeric_limits<scalar>::max() )
   {
     time_string += QString{ QObject::tr( " / " ) };
     time_string += QString::number( end_time );
@@ -760,11 +461,11 @@ static QString generateNumericString( const std::string& label, const scalar& nu
 
 void GLWidget::paintHUD()
 {
-  const QString time_string{ generateTimeString( m_iteration, m_integrator.dt(), m_display_precision, m_end_time ) };
-  const QString delta_H{ generateNumericString( " dH: ", m_delta_H0 ) };
-  const QString delta_px{ generateNumericString( "dpx: ", m_delta_p0.x() ) };
-  const QString delta_py{ generateNumericString( "dpy: ", m_delta_p0.y() ) };
-  const QString delta_L{ generateNumericString( " dL: ", m_delta_L0 ) };
+  const QString time_string{ generateTimeString( m_time, m_display_precision, m_end_time ) };
+  const QString delta_H{ generateNumericString( " dH: ", m_delta_H ) };
+  const QString delta_px{ generateNumericString( "dpx: ", m_delta_p.x() ) };
+  const QString delta_py{ generateNumericString( "dpy: ", m_delta_p.y() ) };
+  const QString delta_L{ generateNumericString( " dL: ", m_delta_L ) };
 
   QFont fixedFont{ QFontDatabase::systemFont(QFontDatabase::FixedFont) };
   fixedFont.setPointSize( 12 );

@@ -2,14 +2,8 @@
 #define GLWIDGET_H
 
 #include <QOpenGLWidget>
-#include <QDir>
 
-#include <random>
-
-#include "scisim/Math/Rational.h"
-
-#include "ball2d/Ball2DSim.h"
-#include "ball2d/Integrator.h"
+#include "scisim/Math/MathDefines.h"
 
 #include "ball2dutils/Ball2DSceneParser.h"
 
@@ -19,14 +13,10 @@
 #include "PlaneShader.h"
 #include "RectangleShader.h"
 
-class QWheelEvent;
 class QOpenGLFunctions_3_3_Core;
+class QWheelEvent;
 
-class UnconstrainedMap;
-class ImpactMap;
-class ImpactOperator;
-class FrictionSolver;
-class ImpactFrictionMap;
+class Ball2DState;
 
 class GLWidget final : public QOpenGLWidget
 {
@@ -45,30 +35,24 @@ public:
 
   int sampleCount() const;
 
-  void initializeSimulation( const QString& xml_scene_file_name, const bool& render_on_load, SimSettings& sim_settings, RenderSettings& render_settings );
-
-  void stepSystem();
-
-  void resetSystem();
-
-  void renderAtFPS( const bool render_at_fps );
+  void initialize( const bool& render_on_load, const RenderSettings& render_settings, const int dt_display_precision,
+                   const Ball2DState& state, const VectorXs& body_colors, const std::vector<PlaneRenderSettings>& plane_settings,
+                   const std::vector<DrumRenderSettings>& drum_settings, const std::vector<PortalRenderSettings>& portal_settings,
+                   const scalar& end_time );
 
   void lockCamera( const bool lock_camera );
 
   void toggleHUD();
 
-  void centerCamera( const bool update_gl = true );
+  void centerCamera( const bool update_gl, const Ball2DState& state );
 
   void saveScreenshot( const QString& file_name );
 
-  void setMovieDir( const QString& dir_name );
+  void exportCameraSettings( const int output_fps, const bool render_at_fps );
 
-  void setMovieFPS( const unsigned fps );
-
-  void exportCameraSettings();
-
-  void insertBallCallback( const int num_balls );
-  void deletePlaneCallback( const int plane_idx );
+  void copyRenderState( const Ball2DState& state, const VectorXs& body_colors, const std::vector<PlaneRenderSettings>& plane_settings,
+                        const std::vector<DrumRenderSettings>& drum_settings, const std::vector<PortalRenderSettings>& portal_settings,
+                        const scalar& time, const scalar& end_time, const scalar& delta_H, const Vector2s& delta_p, const scalar& delta_L );
 
 protected:
 
@@ -83,13 +67,9 @@ protected:
 
 private:
 
-  void copyRenderState();
-
   bool checkGLErrors() const;
 
   void paintHUD();
-
-  Vector3s generateColor();
 
   QOpenGLFunctions_3_3_Core* m_f;
 
@@ -100,72 +80,29 @@ private:
   AnnulusShader m_annulus_shader;
   RectangleShader m_rectangle_shader;
 
-  // TODO: Pull these into a separate class
   int m_w;
   int m_h;
   float m_display_scale;
   float m_center_x;
   float m_center_y;
 
-  bool m_render_at_fps;
   bool m_lock_camera;
   QPoint m_last_pos;
   bool m_left_mouse_button_pressed;
   bool m_right_mouse_button_pressed;
-
-  // Colors to render balls in the scene
-  VectorXs m_ball_colors;
-  std::uniform_real_distribution<scalar> m_color_gen;
-  std::mt19937_64 m_ball_color_gen;
 
   // Number of decimal places to display in time display
   int m_display_precision;
 
   bool m_display_HUD;
 
-  // Directory to save periodic screenshots of the simulation into
-  QString m_movie_dir_name;
-  QDir m_movie_dir;
-  // Number of frames that have been saved in the movie directory
-  unsigned m_output_frame;
-  // Rate at which to output movie frames
-  unsigned m_output_fps;
-  // Number of timesteps between frame outputs
-  unsigned m_steps_per_frame;
-
-  // Current iteration of the solver
-  unsigned m_iteration;
-  // End time of the simulation
+  scalar m_time;
   scalar m_end_time;
 
-  // Initial and current state of the simulation
-  Ball2DSim m_sim0;
-  Ball2DSim m_sim;
-
-  // Initial and current integrators
-  Integrator m_integrator0;
-  Integrator m_integrator;
-
-  PythonScripting m_scripting;
-
-  // Initial energy, momentum, and angular momentum of the simulation
-  scalar m_H0;
-  Vector2s m_p0;
-  scalar m_L0;
-
   // Max change in energy, momentum, and angular momentum
-  scalar m_delta_H0;
-  Vector2s m_delta_p0;
-  scalar m_delta_L0;
-
-  // Static geometry render settings
-  std::vector<PlaneRenderSettings> m_plane_render_settings0;
-  std::vector<DrumRenderSettings> m_drum_render_settings0;
-  std::vector<PortalRenderSettings> m_portal_render_settings0;
-
-  std::vector<PlaneRenderSettings> m_plane_render_settings;
-  std::vector<DrumRenderSettings> m_drum_render_settings;
-  std::vector<PortalRenderSettings> m_portal_render_settings;
+  scalar m_delta_H;
+  Vector2s m_delta_p;
+  scalar m_delta_L;
 
   // Global render settings
   int m_num_circle_subdivs;

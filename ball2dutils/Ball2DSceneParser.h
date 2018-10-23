@@ -64,7 +64,7 @@ struct SimSettings final
   Integrator integrator;
   std::string scripting_callback_name;
   std::string dt_string;
-  scalar end_time = SCALAR_INFINITY;
+  scalar end_time = std::numeric_limits<scalar>::max();
 };
 
 struct RenderSettings final

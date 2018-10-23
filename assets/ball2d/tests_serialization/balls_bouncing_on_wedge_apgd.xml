@@ -6,6 +6,8 @@
 
   <integrator type="verlet" dt="0.0001"/>
 
+  <end_time t="200.0"/>
+
   <impact_operator type="grr" CoR="1.0" cache_impulses="0">
     <elastic_operator type="gr" CoR="1.0" v_tol="1.0e-6">
       <solver name="apgd" tol="1.0e-7" max_iters="5000"/>
