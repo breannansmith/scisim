@@ -106,7 +106,7 @@ int main( int argc, char** argv )
 
   Window window{ argc == 2 ? argv[1] : "", sim_settings, render_settings };
   window.resize( window.sizeHint() );
-  window.setWindowTitle( QObject::tr("2D Ball Simulation") );
+  window.setWindowTitle( QObject::tr("SCISim 2D Ball Simulation") );
   centerWindow( window );
   window.show();
   window.raise();
