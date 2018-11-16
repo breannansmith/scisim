@@ -116,8 +116,6 @@ private:
 
   QString m_xml_file_name;
 
-  bool m_simulate_toggled;
-
   bool m_render_at_fps;
 
   // Colors to render balls in the scene

@@ -32,7 +32,6 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_sim_thread()
 , m_sim_worker( nullptr )
 , m_xml_file_name()
-, m_simulate_toggled( false )
 , m_render_at_fps( false )
 , m_ball_colors()
 , m_color_gen( 0.0, 1.0 )
@@ -266,7 +265,7 @@ void ContentWidget::copyStepResults( const bool was_reset, const bool fps_multip
     m_gl_widget->update();
   }
 
-  if( m_simulate_toggled )
+  if( m_simulate_checkbox->isChecked() )
   {
     emit stepSimulation();
   }
@@ -403,8 +402,7 @@ void ContentWidget::reloadScene()
 
 void ContentWidget::simulateToggled( const bool state )
 {
-  m_simulate_toggled = state;
-  if( m_simulate_toggled )
+  if( state )
   {
     emit stepSimulation();
   }
