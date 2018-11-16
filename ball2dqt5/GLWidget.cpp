@@ -531,10 +531,11 @@ void GLWidget::mousePressEvent( QMouseEvent* event )
 
 void GLWidget::mouseReleaseEvent( QMouseEvent* event )
 {
-  if( m_lock_camera )
-  {
-    return;
-  }
+  // NB: If locked, still need to allow for mouse release events to disable the axis display
+  // if( m_lock_camera )
+  // {
+  //   return;
+  // }
 
   bool repaint_needed{ false };
 
@@ -569,7 +570,6 @@ void GLWidget::mouseMoveEvent( QMouseEvent* event )
 
   if( event->buttons() & Qt::LeftButton )
   {
-    assert( m_left_mouse_button_pressed );
     const float scale{ 2.0f * m_display_scale / float( m_h ) };
     const float translate_x{ scale * float(dx) };
     const float translate_y{ scale * float(dy) };
@@ -582,7 +582,6 @@ void GLWidget::mouseMoveEvent( QMouseEvent* event )
 
   if( event->buttons() & Qt::RightButton )
   {
-    assert( m_right_mouse_button_pressed );
     // makeCurrent();
     const float new_val{ 0.02f * m_display_scale * float(dy) };
     m_display_scale = std::max( 0.1f, m_display_scale + new_val );
