@@ -31,7 +31,7 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
     QMenu* view{ menuBar()->addMenu( tr( "View" ) ) };
     assert( view != nullptr );
     view->addAction( tr( "Togge HUD" ), content_widget, SLOT( toggleHUD() ), tr( "h" ) );
-    view->addSeparator();
     view->addAction( tr( "Center Camera" ), content_widget, SLOT( centerCamera() ), tr( "c" ) );
+    view->addAction( tr( "Toggle Camera Lock" ), content_widget, SLOT( toggleCameraLock() ), tr( "l" ) );
   }
 }

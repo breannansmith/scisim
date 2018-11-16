@@ -3,6 +3,7 @@
 #include <QApplication>
 #include <QCheckBox>
 #include <QFileDialog>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
 #include <QSpinBox>
@@ -19,6 +20,7 @@
 ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settings, RenderSettings& render_settings, QWidget* parent )
 : QWidget( parent )
 , m_gl_widget( new GLWidget( this, QSurfaceFormat::defaultFormat() ) )
+, m_controls_widget( nullptr )
 , m_simulate_checkbox( nullptr )
 , m_render_at_fps_checkbox( nullptr )
 , m_lock_camera_button( nullptr )
@@ -36,61 +38,67 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_empty( true )
 , m_bbox()
 {
-  QVBoxLayout* mainLayout{ new QVBoxLayout };
+  QHBoxLayout* mainLayout{ new QHBoxLayout };
   setLayout( mainLayout );
+  mainLayout->setMargin(0);
+  mainLayout->setSpacing(0);
 
   // Add the OpenGL display
   mainLayout->addWidget( m_gl_widget );
 
   // Add the layout for controls
   {
-    QGridLayout* controls_layout{ new QGridLayout };
-    mainLayout->addLayout( controls_layout );
-
-    // Solver buttons
-    m_simulate_checkbox = new QCheckBox{ tr( "Simulate" ) };
-    controls_layout->addWidget( m_simulate_checkbox, 0, 0 );
-    m_simulate_checkbox->setChecked( false );
-    connect( m_simulate_checkbox, &QCheckBox::toggled, this, &ContentWidget::simulateToggled );
+    m_controls_widget = new QWidget();
+    QVBoxLayout* controls_layout{ new QVBoxLayout( m_controls_widget ) };
+    mainLayout->addWidget( m_controls_widget );
+    controls_layout->setMargin(0);
 
     // Button for taking a single time step
     m_step_button = new QPushButton{ tr( "Step" ), this };
-    controls_layout->addWidget( m_step_button, 0, 1 );
+    controls_layout->addWidget( m_step_button );
 
     // Button for resetting the simulation
     m_reset_button = new QPushButton{ tr( "Reset" ), this };
-    controls_layout->addWidget( m_reset_button, 0, 2 );
+    controls_layout->addWidget( m_reset_button );
 
-    // Button for rendering at the specified FPS
-    m_render_at_fps_checkbox = new QCheckBox{ tr( "Render FPS" ) };
-    controls_layout->addWidget( m_render_at_fps_checkbox, 0, 3 );
-    connect( m_render_at_fps_checkbox, &QCheckBox::toggled, this, &ContentWidget::renderAtFPSToggled );
+    // Solver buttons
+    m_simulate_checkbox = new QCheckBox{ tr( "Simulate" ) };
+    controls_layout->addWidget( m_simulate_checkbox );
+    m_simulate_checkbox->setChecked( false );
+    connect( m_simulate_checkbox, &QCheckBox::toggled, this, &ContentWidget::simulateToggled );
 
     // Buttons for locking the camera controls
     m_lock_camera_button = new QCheckBox{ tr( "Lock Camera" ) };
-    controls_layout->addWidget( m_lock_camera_button, 1, 0 );
+    controls_layout->addWidget( m_lock_camera_button );
     connect( m_lock_camera_button, &QCheckBox::toggled, this, &ContentWidget::lockCameraToggled );
 
     // Movie export controls
     m_export_movie_checkbox = new QCheckBox{ tr( "Export Movie" ) };
-    controls_layout->addWidget( m_export_movie_checkbox, 1, 2 );
+    controls_layout->addWidget( m_export_movie_checkbox );
     m_export_movie_checkbox->setChecked( false );
     connect( m_export_movie_checkbox, &QCheckBox::toggled, this, &ContentWidget::exportMovieToggled );
+
+    // Button for rendering at the specified FPS
+    m_render_at_fps_checkbox = new QCheckBox{ tr( "Render FPS" ) };
+    controls_layout->addWidget( m_render_at_fps_checkbox );
+    connect( m_render_at_fps_checkbox, &QCheckBox::toggled, this, &ContentWidget::renderAtFPSToggled );
 
     // Label for movie output FPS
     {
       QLabel* fps_label{ new QLabel{ this } };
-      controls_layout->addWidget( fps_label, 1, 3 );
-      fps_label->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
-      fps_label->setText( tr( "FPS:" ) );
+      controls_layout->addWidget( fps_label );
+      // fps_label->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
+      fps_label->setText( tr( "Frame Rate:" ) );
     }
 
     // Input for movie output FPS
     m_fps_spin_box = new QSpinBox{ this };
-    controls_layout->addWidget( m_fps_spin_box, 1, 4 );
+    controls_layout->addWidget( m_fps_spin_box );
     m_fps_spin_box->setRange( 1, 1000 );
     m_fps_spin_box->setValue( 30 );
     connect( m_fps_spin_box, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &ContentWidget::setMovieFPS );
+
+    controls_layout->addStretch();
   }
 
   if( !scene_name.isEmpty() )
@@ -157,6 +165,17 @@ void ContentWidget::keyPressEvent( QKeyEvent* event )
   else if( event->key() == Qt::Key_S )
   {
     emit stepSimulation();
+  }
+  else if( event->key() == Qt::Key_U )
+  {
+    if( m_controls_widget->isVisible() )
+    {
+      m_controls_widget->hide();
+    }
+    else
+    {
+      m_controls_widget->show();
+    }
   }
 }
 
@@ -380,6 +399,12 @@ void ContentWidget::toggleHUD()
 {
   assert( m_gl_widget != nullptr );
   m_gl_widget->toggleHUD();
+}
+
+void ContentWidget::toggleCameraLock()
+{
+  assert( m_lock_camera_button != nullptr );
+  m_lock_camera_button->toggle();
 }
 
 void ContentWidget::centerCamera()

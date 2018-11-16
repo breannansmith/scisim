@@ -46,6 +46,7 @@ public slots:
   void exportMovieToggled( const bool checked );
 
   void toggleHUD();
+  void toggleCameraLock();
   void centerCamera();
 
   void exportImage();
@@ -84,6 +85,8 @@ private:
   // Qt state
 
   GLWidget* m_gl_widget;
+
+  QWidget* m_controls_widget;
 
   QCheckBox* m_simulate_checkbox;
 
