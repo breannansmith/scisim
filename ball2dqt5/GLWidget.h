@@ -38,13 +38,13 @@ public:
   void initialize( const bool& render_on_load, const RenderSettings& render_settings, const int dt_display_precision,
                    const Ball2DState& state, const VectorXs& body_colors, const std::vector<PlaneRenderSettings>& plane_settings,
                    const std::vector<DrumRenderSettings>& drum_settings, const std::vector<PortalRenderSettings>& portal_settings,
-                   const scalar& end_time );
+                   const scalar& end_time, const bool empty, const Vector4s& bbox );
 
   void lockCamera( const bool lock_camera );
 
   void toggleHUD();
 
-  void centerCamera( const bool update_gl, const Ball2DState& state );
+  void centerCamera( const bool update_gl, const bool empty, const Vector4s& bbox );
 
   void saveScreenshot( const QString& file_name );
 

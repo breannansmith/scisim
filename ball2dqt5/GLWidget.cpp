@@ -75,7 +75,7 @@ int GLWidget::sampleCount() const
 void GLWidget::initialize( const bool& render_on_load, const RenderSettings& render_settings, const int dt_display_precision,
                            const Ball2DState& state, const VectorXs& body_colors, const std::vector<PlaneRenderSettings>& plane_settings,
                            const std::vector<DrumRenderSettings>& drum_settings, const std::vector<PortalRenderSettings>& portal_settings,
-                           const scalar& end_time )
+                           const scalar& end_time, const bool empty, const Vector4s& bbox )
 {
   if( render_settings.camera_set )
   {
@@ -95,7 +95,7 @@ void GLWidget::initialize( const bool& render_on_load, const RenderSettings& ren
 
   if( !render_settings.camera_set )
   {
-    centerCamera( false, state );
+    centerCamera( false, empty, bbox );
   }
   else
   {
@@ -384,14 +384,14 @@ void GLWidget::toggleHUD()
   update();
 }
 
-void GLWidget::centerCamera( const bool update_gl, const Ball2DState& state )
+void GLWidget::centerCamera( const bool update_gl, const bool empty, const Vector4s& bbox )
 {
   if( m_lock_camera )
   {
     return;
   }
 
-  if( state.empty() )
+  if( empty )
   {
     m_display_scale = 1.0;
     m_center_x = 0.0;
@@ -399,7 +399,6 @@ void GLWidget::centerCamera( const bool update_gl, const Ball2DState& state )
     return;
   }
 
-  const Vector4s bbox{ state.computeBoundingBox() };
   const scalar& minx{ bbox( 0 ) };
   const scalar& maxx{ bbox( 1 ) };
   const scalar& miny{ bbox( 2 ) };

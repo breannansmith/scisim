@@ -8,6 +8,7 @@ set( Sources
   OpenGLShader.cpp
   PlaneShader.cpp
   RectangleShader.cpp
+  SimWorker.cpp
   Window.cpp
 )
 
@@ -20,5 +21,6 @@ set( Headers
   OpenGLShader.h
   PlaneShader.h
   RectangleShader.h
+  SimWorker.h
   Window.h
 )

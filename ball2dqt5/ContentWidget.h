@@ -1,22 +1,22 @@
 #ifndef CONTENT_WIDGET_H
 #define CONTENT_WIDGET_H
 
-#include <QWidget>
 #include <QDir>
+#include <QThread>
+#include <QWidget>
 
 #include <random>
 
 #include "scisim/Math/MathDefines.h"
 
-#include "ball2d/Ball2DSim.h"
-#include "ball2d/Integrator.h"
-#include "ball2d/PythonScripting.h"
-
 #include "ball2dutils/Ball2DSceneParser.h"
 
 class QCheckBox;
+class QPushButton;
 class QSpinBox;
+
 class GLWidget;
+class SimWorker;
 
 class ContentWidget final : public QWidget
 {
@@ -26,14 +26,11 @@ class ContentWidget final : public QWidget
 public:
 
   ContentWidget( const QString& scene_name, SimSettings& sim_settings, RenderSettings& render_settings, QWidget* parent = nullptr );
-  virtual ~ContentWidget() override = default;
+  virtual ~ContentWidget() override;
   ContentWidget( ContentWidget& ) = delete;
   ContentWidget( ContentWidget&& ) = delete;
   ContentWidget& operator=( const ContentWidget& ) = delete;
   ContentWidget& operator=( ContentWidget&& ) = delete;
-
-  void toggleSimulationCheckbox();
-  void disableMovieExport();
 
   virtual void keyPressEvent( QKeyEvent* event ) override;
 
@@ -41,9 +38,6 @@ public:
   void deletePlaneCallback( const int plane_idx );
 
 public slots:
-
-  void takeStep();
-  void resetSystem();
 
   void openScene();
   void reloadScene();
@@ -61,22 +55,34 @@ public slots:
 
   void exportImage();
   void exportMovie();
-  void movieFPSChanged( int fps );
+  void setMovieFPS( const int fps );
 
   void exportCameraSettings();
 
+  void copyStepResults( const bool was_reset, const bool fps_multiple, const int output_num );
+
+signals:
+
+  void resetSimulation();
+  void stepSimulation();
+
+  void outputFPSChanged( const int fps );
+  void exportEnabled();
+
 private:
+
+  void wireSimWorker();
+
+  void disableMovieExport();
 
   void openScene( const QString& scene_file_name, const bool render_on_load );
 
-  void initializeSimulation( const QString& xml_scene_file_name, SimSettings& sim_settings, RenderSettings& render_settings );
-  void initializeSimAndGL( const QString& scene_file_name, const bool render_on_load, SimSettings& sim_settings, RenderSettings& render_settings );
+  void initializeSimulation( const QString& xml_scene_file_name, SimSettings& sim_settings, RenderSettings& render_settings, SimWorker& sim_worker );
+  void initializeSimAndGL( const QString& scene_file_name, const bool render_on_load, SimSettings& sim_settings, RenderSettings& render_settings, SimWorker& sim_worker );
 
   QString getOpenFileNameFromUser( const QString& prompt );
   QString getSaveFileNameFromUser( const QString& prompt );
   QString getDirectoryNameFromUser( const QString& prompt );
-
-  void setMovieFPS( const int fps );
 
   Vector3s generateColor();
 
@@ -96,6 +102,16 @@ private:
 
   QSpinBox* m_fps_spin_box;
 
+  QPushButton* m_step_button;
+
+  QPushButton* m_reset_button;
+
+  // Threading state
+
+  QThread m_sim_thread;
+
+  SimWorker* m_sim_worker;
+
   // Sim and rendering state
 
   QString m_xml_file_name;
@@ -112,37 +128,8 @@ private:
   // Directory to save periodic screenshots of the simulation into
   QString m_movie_dir_name;
   QDir m_movie_dir;
-  // Number of frames that have been saved in the movie directory
-  unsigned m_output_frame;
   // Rate at which to output movie frames
   unsigned m_output_fps;
-  // Number of timesteps between frame outputs
-  unsigned m_steps_per_frame;
-
-  // Current iteration of the solver
-  unsigned m_iteration;
-  // End time of the simulation
-  scalar m_end_time;
-
-  // Initial and current state of the simulation
-  Ball2DSim m_sim0;
-  Ball2DSim m_sim;
-
-  // Initial and current integrators
-  Integrator m_integrator0;
-  Integrator m_integrator;
-
-  PythonScripting m_scripting;
-
-  // Initial energy, momentum, and angular momentum of the simulation
-  scalar m_H0;
-  Vector2s m_p0;
-  scalar m_L0;
-
-  // Max change in energy, momentum, and angular momentum
-  scalar m_delta_H0;
-  Vector2s m_delta_p0;
-  scalar m_delta_L0;
 
   // Static geometry render instances
   std::vector<PlaneRenderSettings> m_plane_render_settings0;
@@ -152,6 +139,10 @@ private:
   std::vector<PlaneRenderSettings> m_plane_render_settings;
   std::vector<DrumRenderSettings> m_drum_render_settings;
   std::vector<PortalRenderSettings> m_portal_render_settings;
+
+  // Cached state for centering the camera
+  bool m_empty;
+  Vector4s m_bbox;
 
 };
 

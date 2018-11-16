@@ -14,6 +14,10 @@
 #include "ball2dutils/Ball2DSceneParser.h"
 
 #include "GLWidget.h"
+#include "SimWorker.h"
+
+// !!!! TODO: DELETE THESE AFTER TESTING
+#include <iostream>
 
 ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settings, RenderSettings& render_settings, QWidget* parent )
 : QWidget( parent )
@@ -23,6 +27,10 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_lock_camera_button( nullptr )
 , m_export_movie_checkbox( nullptr )
 , m_fps_spin_box( nullptr )
+, m_step_button( nullptr )
+, m_reset_button( nullptr )
+, m_sim_thread()
+, m_sim_worker( nullptr )
 , m_xml_file_name()
 , m_simulate_toggled( false )
 , m_render_at_fps( false )
@@ -31,28 +39,15 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_ball_color_gen( 1337 )
 , m_movie_dir_name()
 , m_movie_dir()
-, m_output_frame( 0 )
 , m_output_fps( 30 )
-, m_steps_per_frame()
-, m_iteration( 0 )
-, m_end_time( std::numeric_limits<scalar>::max() )
-, m_sim0()
-, m_sim()
-, m_integrator0()
-, m_integrator()
-, m_scripting()
-, m_H0( 0.0 )
-, m_p0( Vector2s::Zero() )
-, m_L0( 0.0 )
-, m_delta_H0( 0.0 )
-, m_delta_p0( Vector2s::Zero() )
-, m_delta_L0( 0.0 )
 , m_plane_render_settings0()
 , m_drum_render_settings0()
 , m_portal_render_settings0()
 , m_plane_render_settings()
 , m_drum_render_settings()
 , m_portal_render_settings()
+, m_empty( true )
+, m_bbox()
 {
   QVBoxLayout* mainLayout{ new QVBoxLayout };
   setLayout( mainLayout );
@@ -72,18 +67,12 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     connect( m_simulate_checkbox, &QCheckBox::toggled, this, &ContentWidget::simulateToggled );
 
     // Button for taking a single time step
-    {
-      QPushButton* step_button{ new QPushButton{ tr( "Step" ), this } };
-      controls_layout->addWidget( step_button, 0, 1 );
-      connect( step_button, &QPushButton::clicked, this, &ContentWidget::takeStep );
-    }
+    m_step_button = new QPushButton{ tr( "Step" ), this };
+    controls_layout->addWidget( m_step_button, 0, 1 );
 
     // Button for resetting the simulation
-    {
-      QPushButton* reset_button{ new QPushButton{ tr( "Reset" ), this } };
-      controls_layout->addWidget( reset_button, 0, 2 );
-      connect( reset_button, &QPushButton::clicked, this, &ContentWidget::resetSystem );
-    }
+    m_reset_button = new QPushButton{ tr( "Reset" ), this };
+    controls_layout->addWidget( m_reset_button, 0, 2 );
 
     // Button for rendering at the specified FPS
     m_render_at_fps_checkbox = new QCheckBox{ tr( "Render FPS" ) };
@@ -114,17 +103,53 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     controls_layout->addWidget( m_fps_spin_box, 1, 4 );
     m_fps_spin_box->setRange( 1, 1000 );
     m_fps_spin_box->setValue( 30 );
-    connect( m_fps_spin_box, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &ContentWidget::movieFPSChanged );
-    setMovieFPS( m_fps_spin_box->value() );
+    connect( m_fps_spin_box, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &ContentWidget::setMovieFPS );
   }
 
+  m_sim_worker = new SimWorker();
+  // TODO: Make SimWorker take the init stuff as parameters
   if( !scene_name.isEmpty() )
   {
-    initializeSimAndGL( scene_name, false, sim_settings, render_settings );
+    initializeSimAndGL( scene_name, false, sim_settings, render_settings, *m_sim_worker );
   }
+
+  m_sim_thread.start();
+
+  m_sim_worker->moveToThread( &m_sim_thread );
+
+  wireSimWorker();
+
+  setMovieFPS( m_fps_spin_box->value() );
 
   this->setFocusPolicy( Qt::StrongFocus );
   this->setFocus();
+}
+
+void ContentWidget::wireSimWorker()
+{
+  connect( &m_sim_thread, &QThread::finished, m_sim_worker, &QObject::deleteLater );
+  connect( this, &ContentWidget::stepSimulation, m_sim_worker, &SimWorker::takeStep );
+  connect( m_step_button, &QPushButton::clicked, m_sim_worker, &SimWorker::takeStep );
+  connect( this, &ContentWidget::resetSimulation, m_sim_worker, &SimWorker::reset );
+  connect( m_reset_button, &QPushButton::clicked, m_sim_worker, &SimWorker::reset );
+  connect( this, &ContentWidget::outputFPSChanged, m_sim_worker, &SimWorker::setOutputFPS );
+  connect( m_sim_worker, &SimWorker::postStep, this, &ContentWidget::copyStepResults, Qt::BlockingQueuedConnection );
+  connect( this, &ContentWidget::exportEnabled, m_sim_worker, &SimWorker::exportMovieInit );
+}
+
+ContentWidget::~ContentWidget()
+{
+  // The worker could still be running, so stop it from sending any new events to this object
+  m_sim_worker->disconnect();
+  // If, in the vanishingly rare case that the worker posted an event after event processing ceased
+  // but before disconnect, just flush the event queue
+  QCoreApplication::removePostedEvents( this );
+  // The worker thread could have pending step events, which we no longer care about,
+  // so flush them
+  QCoreApplication::removePostedEvents( m_sim_worker );
+  // Tell the sim thread to exit and wait for all running tasks to complete
+  m_sim_thread.quit();
+  m_sim_thread.wait();
 }
 
 void ContentWidget::keyPressEvent( QKeyEvent* event )
@@ -133,81 +158,23 @@ void ContentWidget::keyPressEvent( QKeyEvent* event )
 
   if( event->key() == Qt::Key_Space )
   {
-    toggleSimulationCheckbox();
+    m_simulate_checkbox->toggle();
   }
   else if( event->key() == Qt::Key_R )
   {
-    resetSystem();
+    emit resetSimulation();
   }
   else if( event->key() == Qt::Key_S )
   {
-    takeStep();
+    emit stepSimulation();
   }
-}
-
-void ContentWidget::toggleSimulationCheckbox()
-{
-  assert( m_simulate_checkbox != nullptr );
-  m_simulate_checkbox->toggle();
 }
 
 void ContentWidget::disableMovieExport()
 {
   assert( m_export_movie_checkbox != nullptr );
   m_export_movie_checkbox->setCheckState( Qt::Unchecked );
-}
-
-void ContentWidget::takeStep()
-{
-  if( m_iteration * scalar( m_integrator.dt() ) >= m_end_time )
-  {
-    // User-provided end of simulation python callback
-    m_scripting.setState( m_sim.state() );
-    m_scripting.endOfSimCallback();
-    m_scripting.forgetState();
-    qInfo( "Simulation complete. Exiting." );
-    QApplication::quit();
-  }
-
-  const unsigned next_iter{ m_iteration + 1 };
-
-  m_integrator.step( next_iter, m_scripting, m_sim );
-
-  m_iteration++;
-
-  {
-    const Ball2DState& state{ m_sim.state() };
-    m_delta_H0 = std::max( m_delta_H0, fabs( m_H0 - state.computeTotalEnergy() ) );
-    const Vector2s p{ state.computeMomentum() };
-    m_delta_p0.x() = std::max( m_delta_p0.x(), fabs( m_p0.x() - p.x() ) );
-    m_delta_p0.y() = std::max( m_delta_p0.y(), fabs( m_p0.y() - p.y() ) );
-    m_delta_L0 = std::max( m_delta_L0, fabs( m_L0 - state.computeAngularMomentum() ) );
-  }
-
-  if( !m_render_at_fps || m_iteration % m_steps_per_frame == 0 )
-  {
-    m_gl_widget->copyRenderState( m_sim.state(), m_ball_colors, m_plane_render_settings, m_drum_render_settings,
-                                  m_portal_render_settings, scalar(m_integrator.dt()) * m_iteration, m_end_time,
-                                  m_delta_H0, m_delta_p0, m_delta_L0 );
-    m_gl_widget->update();
-  }
-
-  if( !m_movie_dir_name.isEmpty() )
-  {
-    assert( m_steps_per_frame > 0 );
-    if( m_iteration % m_steps_per_frame == 0 )
-    {
-      // Save a screenshot of the current state
-      QString output_image_name{ QString{ tr( "frame%1.png" ) }.arg( m_output_frame, 10, 10, QLatin1Char('0') ) };
-      m_gl_widget->saveScreenshot( m_movie_dir.filePath( output_image_name ) );
-      ++m_output_frame;
-    }
-  }
-
-  if( m_simulate_toggled )
-  {
-    QMetaObject::invokeMethod( this, "takeStep", Qt::QueuedConnection );
-  }
+  setMovieDir( tr( "" ) );
 }
 
 void ContentWidget::insertBallCallback( const int num_balls )
@@ -250,52 +217,59 @@ static void planeDeleteCallback( void* context, int plane_idx )
   static_cast<ContentWidget*>(context)->deletePlaneCallback(plane_idx);
 }
 
-void ContentWidget::resetSystem()
+void ContentWidget::copyStepResults( const bool was_reset, const bool fps_multiple, const int output_num )
 {
-  m_sim = m_sim0;
-  m_integrator = m_integrator0;
-
-  m_iteration = 0;
-
-  m_H0 = m_sim.state().computeTotalEnergy();
-  m_p0 = m_sim.state().computeMomentum();
-  m_L0 = m_sim.state().computeAngularMomentum();
-  m_delta_H0 = 0.0;
-  m_delta_p0.setZero();
-  m_delta_L0 = 0.0;
-
-  // Reset the output movie option
-  m_movie_dir_name = QString{};
-  m_movie_dir = QDir{};
-  m_output_frame = 0;
-
-  // Reset ball colors, in case the number of balls changed
-  m_ball_color_gen = std::mt19937_64( 1337 );
-  m_ball_colors.resize( 3 * m_sim.state().nballs() );
-  for( int i = 0; i < m_ball_colors.size(); i += 3 )
+  if( !was_reset )
   {
-    m_ball_colors.segment<3>( i ) = generateColor();
+    if( !m_render_at_fps || fps_multiple )
+    {
+      m_empty = m_sim_worker->sim().state().empty();
+      m_bbox = m_sim_worker->sim().state().computeBoundingBox();
+      m_gl_widget->copyRenderState( m_sim_worker->sim().state(), m_ball_colors, m_plane_render_settings, m_drum_render_settings,
+                                    m_portal_render_settings, scalar(m_sim_worker->integrator().dt()) * m_sim_worker->iteration(),
+                                    m_sim_worker->endTime(), m_sim_worker->deltaH0(), m_sim_worker->deltap0(), m_sim_worker->deltaL0() );
+      m_gl_widget->update();
+    }
+
+    if( !m_movie_dir_name.isEmpty() && fps_multiple )
+    {
+      QString output_image_name{ QString{ tr( "frame%1.png" ) }.arg( output_num, 10, 10, QLatin1Char('0') ) };
+      m_gl_widget->saveScreenshot( m_movie_dir.filePath( output_image_name ) );
+    }
+  }
+  else
+  {
+    // Reset the output movie option
+    disableMovieExport();
+
+    // Register UI callbacks for Python scripting
+    m_sim_worker->scripting().registerBallInsertCallback( this, &ballInsertCallback );
+    m_sim_worker->scripting().registerPlaneDeleteCallback( this, &planeDeleteCallback );
+
+    m_plane_render_settings = m_plane_render_settings0;
+    m_drum_render_settings = m_drum_render_settings0;
+    m_portal_render_settings = m_portal_render_settings0;
+
+    // Reset ball colors, in case the number of balls changed
+    m_ball_color_gen = std::mt19937_64( 1337 );
+    m_ball_colors.resize( 3 * m_sim_worker->sim().state().nballs() );
+    for( int i = 0; i < m_ball_colors.size(); i += 3 )
+    {
+      m_ball_colors.segment<3>( i ) = generateColor();
+    }
+
+    m_empty = m_sim_worker->sim().state().empty();
+    m_bbox = m_sim_worker->sim().state().computeBoundingBox();
+    m_gl_widget->copyRenderState( m_sim_worker->sim().state(), m_ball_colors, m_plane_render_settings, m_drum_render_settings,
+                                  m_portal_render_settings, scalar(m_sim_worker->integrator().dt()) * m_sim_worker->iteration(),
+                                  m_sim_worker->endTime(), m_sim_worker->deltaH0(), m_sim_worker->deltap0(), m_sim_worker->deltaL0() );
+    m_gl_widget->update();
   }
 
-  m_plane_render_settings = m_plane_render_settings0;
-  m_drum_render_settings = m_drum_render_settings0;
-  m_portal_render_settings = m_portal_render_settings0;
-
-  // User-provided start of simulation python callback
-  m_scripting.setState( m_sim.state() );
-  m_scripting.startOfSimCallback();
-  m_scripting.forgetState();
-
-  // Register UI callbacks for Python scripting
-  m_scripting.registerBallInsertCallback( this, &ballInsertCallback );
-  m_scripting.registerPlaneDeleteCallback( this, &planeDeleteCallback );
-
-  m_gl_widget->copyRenderState( m_sim.state(), m_ball_colors, m_plane_render_settings, m_drum_render_settings,
-                                m_portal_render_settings, scalar(m_integrator.dt()) * m_iteration, m_end_time,
-                                m_delta_H0, m_delta_p0, m_delta_L0 );
-  m_gl_widget->update();
-
-  disableMovieExport();
+  if( m_simulate_toggled )
+  {
+    emit stepSimulation();
+  }
 }
 
 void ContentWidget::openScene()
@@ -304,7 +278,10 @@ void ContentWidget::openScene()
   const QString xml_scene_file_name{ getOpenFileNameFromUser( tr( "Please Select a Scene File" ) ) };
 
   // Try to load the file
-  openScene( xml_scene_file_name, true );
+  if( !xml_scene_file_name.isEmpty() )
+  {
+    openScene( xml_scene_file_name, true );
+  }
 }
 
 void ContentWidget::openScene( const QString& scene_file_name, const bool render_on_load )
@@ -312,6 +289,7 @@ void ContentWidget::openScene( const QString& scene_file_name, const bool render
   // If the user provided a valid file
   if( QFile::exists( scene_file_name ) )
   {
+    // Attempt to load the file
     SimSettings sim_settings;
     RenderSettings render_settings;
     const bool loaded{ Ball2DSceneParser::parseXMLSceneFile( scene_file_name.toStdString(), sim_settings, render_settings ) };
@@ -321,7 +299,29 @@ void ContentWidget::openScene( const QString& scene_file_name, const bool render
       return;
     }
 
-    initializeSimAndGL( scene_file_name, render_on_load, sim_settings, render_settings );
+    std::cout << "Swapping worker..." << std::endl;
+    // Ignore any signals sent from the old sim worker
+    std::cout << "   Disconnecting slots" << std::endl;
+    m_sim_worker->disconnect();
+    // Don't deliver any new signals to the old sim worker
+    std::cout << "   Disconnecting signals" << std::endl;
+    this->disconnect( m_sim_worker );
+    // Clear any queued events on the worker we are deleting
+    std::cout << "   Flushing step queue" << std::endl;
+    QCoreApplication::removePostedEvents( m_sim_worker );
+    // Schedule the old sim worker for deletion
+    std::cout << "   Scheduling deletion" << std::endl;
+    QMetaObject::invokeMethod( m_sim_worker, "deleteLater", Qt::QueuedConnection );
+
+    std::cout << "   Creating a new worker" << std::endl;
+    m_sim_worker = new SimWorker();
+    initializeSimAndGL( scene_file_name, render_on_load, sim_settings, render_settings, *m_sim_worker );
+    m_sim_worker->moveToThread( &m_sim_thread );
+
+    wireSimWorker();
+
+    setMovieFPS( m_fps_spin_box->value() );
+    std::cout << "   done!" << std::endl;
   }
   else
   {
@@ -347,7 +347,9 @@ static int computeTimestepDisplayPrecision( const Rational<std::intmax_t>& dt, c
   }
 }
 
-void ContentWidget::initializeSimAndGL( const QString& scene_file_name, const bool render_on_load, SimSettings& sim_settings, RenderSettings& render_settings )
+// TODO: Rename this to initialize UI and GL
+void ContentWidget::initializeSimAndGL( const QString& scene_file_name, const bool render_on_load, SimSettings& sim_settings,
+                                        RenderSettings& render_settings, SimWorker& sim_worker )
 {
   // If the sample count changed, update the GL widget with a new format
   if( m_gl_widget->sampleCount() != render_settings.num_aa_samples )
@@ -361,30 +363,30 @@ void ContentWidget::initializeSimAndGL( const QString& scene_file_name, const bo
     m_gl_widget = new_gl_widget;
   }
 
-  // Initialize the simulation
-  unsigned fps = render_settings.fps;
-  bool render_at_fps = render_settings.render_at_fps;
-  bool lock_camera = render_settings.lock_camera;
-  {
-    initializeSimulation( scene_file_name, sim_settings, render_settings );
-    const int dt_display_precision = computeTimestepDisplayPrecision( m_integrator.dt(), sim_settings.dt_string );
-    m_gl_widget->initialize( render_on_load, render_settings, dt_display_precision, m_sim.state(), m_ball_colors, m_plane_render_settings, m_drum_render_settings, m_portal_render_settings, m_end_time );
-  }
+  initializeSimulation( scene_file_name, sim_settings, render_settings, sim_worker );
+
+  const int dt_display_precision = computeTimestepDisplayPrecision( sim_worker.integrator().dt(), sim_settings.dt_string );
+
+  m_empty = sim_worker.sim().state().empty();
+  m_bbox = sim_worker.sim().state().computeBoundingBox();
+  m_gl_widget->initialize( render_on_load, render_settings, dt_display_precision, sim_worker.sim().state(), m_ball_colors,
+                            m_plane_render_settings, m_drum_render_settings, m_portal_render_settings, sim_worker.endTime(),
+                            m_empty, m_bbox );
 
   // Make sure the simulation is not running when we start
   assert( m_simulate_checkbox != nullptr );
   if( m_simulate_checkbox->isChecked() )
   {
-    toggleSimulationCheckbox();
+    m_simulate_checkbox->toggle();
   }
 
   // Update UI elements
   assert( m_fps_spin_box != nullptr );
-  m_fps_spin_box->setValue( fps );
+  m_fps_spin_box->setValue( render_settings.fps );
   assert( m_render_at_fps_checkbox != nullptr );
-  m_render_at_fps_checkbox->setCheckState( render_at_fps ? Qt::Checked : Qt::Unchecked );
+  m_render_at_fps_checkbox->setCheckState( render_settings.render_at_fps ? Qt::Checked : Qt::Unchecked );
   assert( m_lock_camera_button != nullptr );
-  m_lock_camera_button->setCheckState( lock_camera ? Qt::Checked : Qt::Unchecked );
+  m_lock_camera_button->setCheckState( render_settings.lock_camera ? Qt::Checked : Qt::Unchecked );
 
   m_xml_file_name = scene_file_name;
 
@@ -404,7 +406,7 @@ void ContentWidget::simulateToggled( const bool state )
   m_simulate_toggled = state;
   if( m_simulate_toggled )
   {
-    QMetaObject::invokeMethod( this, "takeStep", Qt::QueuedConnection );
+    emit stepSimulation();
   }
 }
 
@@ -452,7 +454,7 @@ void ContentWidget::toggleHUD()
 void ContentWidget::centerCamera()
 {
   assert( m_gl_widget != nullptr );
-  m_gl_widget->centerCamera( true, m_sim.state() );
+  m_gl_widget->centerCamera( true, m_empty, m_bbox );
 }
 
 void ContentWidget::exportImage()
@@ -470,11 +472,6 @@ void ContentWidget::exportMovie()
   assert( m_export_movie_checkbox != nullptr );
   m_export_movie_checkbox->setChecked( false );
   m_export_movie_checkbox->setChecked( true );
-}
-
-void ContentWidget::movieFPSChanged( int fps )
-{
-  setMovieFPS( fps );
 }
 
 void ContentWidget::exportCameraSettings()
@@ -504,28 +501,15 @@ void ContentWidget::setMovieFPS( const int fps )
 {
   assert( fps > 0 );
   m_output_fps = fps;
-  m_output_frame = 0;
-  if( 1.0 < scalar( m_integrator.dt() * std::intmax_t( m_output_fps ) ) )
+
+  disableMovieExport();
+
+  if( m_simulate_checkbox->isChecked() )
   {
-    qWarning() << "Warning, requested movie frame rate faster than timestep. Dumping at timestep rate.";
-    m_steps_per_frame = 1;
+    m_simulate_checkbox->toggle();
   }
-  else
-  {
-    const Rational<std::intmax_t> potential_steps_per_frame{ std::intmax_t( 1 ) / ( m_integrator.dt() * std::intmax_t( m_output_fps ) ) };
-    if( !potential_steps_per_frame.isInteger() )
-    {
-      if( m_integrator.dt() != Rational<std::intmax_t>{ 0 } )
-      {
-        qWarning() << "Warning, timestep and output frequency do not yield an integer number of timesteps for data output. Dumping at timestep rate.";
-      }
-      m_steps_per_frame = 1;
-    }
-    else
-    {
-      m_steps_per_frame = unsigned( potential_steps_per_frame.numerator() );
-    }
-  }
+
+  emit outputFPSChanged( m_output_fps );
 }
 
 Vector3s ContentWidget::generateColor()
@@ -555,27 +539,28 @@ static std::string xmlFilePath( const std::string& xml_file_name )
   return path;
 }
 
-void ContentWidget::initializeSimulation( const QString& xml_scene_file_name, SimSettings& sim_settings, RenderSettings& render_settings )
+// TODO: Move this into SimWorker and rename it
+void ContentWidget::initializeSimulation( const QString& xml_scene_file_name, SimSettings& sim_settings, RenderSettings& render_settings, SimWorker& sim_worker )
 {
   // Push the initial state and cache it to allow resets
-  m_sim.state() = std::move( sim_settings.state );
-  m_sim.clearConstraintCache();
-  m_sim0 = m_sim;
+  sim_worker.sim().state() = std::move( sim_settings.state );
+  sim_worker.sim().clearConstraintCache();
+  sim_worker.sim0() = sim_worker.sim();
 
   // Push the initial integrator state and cache it to allow resets
-  m_integrator0 = sim_settings.integrator;
-  m_integrator = m_integrator0;
+  sim_worker.integrator0() = sim_settings.integrator;
+  sim_worker.integrator() = sim_worker.integrator0();
 
   // Initialize the scripting callback
   {
     PythonScripting new_scripting{ xmlFilePath( xml_scene_file_name.toStdString() ), sim_settings.scripting_callback_name };
-    swap( m_scripting, new_scripting );
+    swap( sim_worker.scripting(), new_scripting );
   }
 
   // Save the time and iteration related quantities
-  m_iteration = 0;
-  m_end_time = sim_settings.end_time;
-  assert( m_end_time > 0.0 );
+  sim_worker.iteration() = 0;
+  sim_worker.endTime() = sim_settings.end_time;
+  assert( sim_worker.endTime() > 0.0 );
 
   // Update the FPS setting
   if( render_settings.camera_set )
@@ -587,17 +572,17 @@ void ContentWidget::initializeSimulation( const QString& xml_scene_file_name, Si
   setMovieFPS( m_output_fps );
 
   // Compute the initial energy, momentum, and angular momentum
-  m_H0 = m_sim.state().computeTotalEnergy();
-  m_p0 = m_sim.state().computeMomentum();
-  m_L0 = m_sim.state().computeAngularMomentum();
+  sim_worker.H0() = sim_worker.sim().state().computeTotalEnergy();
+  sim_worker.p0() = sim_worker.sim().state().computeMomentum();
+  sim_worker.L0() = sim_worker.sim().state().computeAngularMomentum();
   // Trivially there is no change in energy, momentum, and angular momentum until we take a timestep
-  m_delta_H0 = 0.0;
-  m_delta_p0 = Vector2s::Zero();
-  m_delta_L0 = 0.0;
+  sim_worker.deltaH0() = 0.0;
+  sim_worker.deltap0() = Vector2s::Zero();
+  sim_worker.deltaL0() = 0.0;
 
   // Generate a random color for each ball
   m_ball_color_gen = std::mt19937_64( 1337 );
-  m_ball_colors.resize( 3 * m_sim.state().nballs() );
+  m_ball_colors.resize( 3 * sim_worker.sim().state().nballs() );
   for( int i = 0; i < m_ball_colors.size(); i += 3 )
   {
     m_ball_colors.segment<3>( i ) = generateColor();
@@ -608,13 +593,13 @@ void ContentWidget::initializeSimulation( const QString& xml_scene_file_name, Si
   m_movie_dir = QDir{};
 
   // User-provided start of simulation python callback
-  m_scripting.setState( m_sim.state() );
-  m_scripting.startOfSimCallback();
-  m_scripting.forgetState();
+  sim_worker.scripting().setState( sim_worker.sim().state() );
+  sim_worker.scripting().startOfSimCallback();
+  sim_worker.scripting().forgetState();
 
   // Register UI callbacks for Python scripting
-  m_scripting.registerBallInsertCallback( this, &ballInsertCallback );
-  m_scripting.registerPlaneDeleteCallback( this, &planeDeleteCallback );
+  sim_worker.scripting().registerBallInsertCallback( this, &ballInsertCallback );
+  sim_worker.scripting().registerPlaneDeleteCallback( this, &planeDeleteCallback );
 
   m_plane_render_settings = std::move( render_settings.plane_render_settings );
   m_plane_render_settings0 = m_plane_render_settings;
@@ -627,16 +612,15 @@ void ContentWidget::initializeSimulation( const QString& xml_scene_file_name, Si
 void ContentWidget::setMovieDir( const QString& dir_name )
 {
   m_movie_dir_name = dir_name;
-  m_output_frame = 0;
 
-  // Save a screenshot of the current state
   if( !m_movie_dir_name.isEmpty() )
   {
     m_movie_dir.setPath( m_movie_dir_name );
     assert( m_movie_dir.exists() );
-
-    const QString output_image_name{ QString{ tr( "frame%1.png" ) }.arg( m_output_frame, 10, 10, QLatin1Char{ '0' } ) };
-    m_gl_widget->saveScreenshot( m_movie_dir.filePath( output_image_name ) );
-    m_output_frame++;
+    emit exportEnabled();
+  }
+  else
+  {
+    m_movie_dir = QDir{};
   }
 }
