@@ -93,12 +93,14 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     connect( m_fps_spin_box, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &ContentWidget::setMovieFPS );
   }
 
-  m_sim_worker = new SimWorker();
-  // TODO: Make SimWorker take the init stuff as parameters
   if( !scene_name.isEmpty() )
   {
-    m_sim_worker->initialize( scene_name, sim_settings, render_settings );
+    m_sim_worker = new SimWorker( scene_name, sim_settings, render_settings );
     initializeUIAndGL( scene_name, false, sim_settings, render_settings, *m_sim_worker );
+  }
+  else
+  {
+    m_sim_worker = new SimWorker();
   }
 
   m_sim_thread.start();
@@ -241,8 +243,7 @@ void ContentWidget::openScene( const QString& scene_file_name, const bool render
     // Schedule the old sim worker for deletion
     QMetaObject::invokeMethod( m_sim_worker, "deleteLater", Qt::QueuedConnection );
 
-    m_sim_worker = new SimWorker();
-    m_sim_worker->initialize( scene_file_name, sim_settings, render_settings );
+    m_sim_worker = new SimWorker( scene_file_name, sim_settings, render_settings );
     initializeUIAndGL( scene_file_name, render_on_load, sim_settings, render_settings, *m_sim_worker );
     m_sim_worker->moveToThread( &m_sim_thread );
 

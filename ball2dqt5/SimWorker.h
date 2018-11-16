@@ -2,8 +2,6 @@
 #define SIM_WORKER_H
 
 #include <QObject>
-#include <QApplication>
-#include <QDebug>
 
 #include <random>
 
@@ -21,141 +19,44 @@ class SimWorker : public QObject
 public:
 
   SimWorker();
-
-  // TODO: This will become a constructor
-  void initialize( const QString& xml_scene_file_name, SimSettings& sim_settings, RenderSettings& render_settings );
-
+  SimWorker( const QString& xml_scene_file_name, SimSettings& sim_settings, RenderSettings& render_settings );
   virtual ~SimWorker() override = default;
 
   void insertBallCallback( const int num_balls );
 
   void deletePlaneCallback( const int plane_idx );
 
-  unsigned iteration() const
-  {
-    return m_iteration;
-  }
+  unsigned iteration() const;
 
-  const scalar& endTime() const
-  {
-    return m_end_time;
-  }
+  const scalar& endTime() const;
 
-  const Integrator& integrator() const
-  {
-    return m_integrator;
-  }
+  const Integrator& integrator() const;
 
-  const Ball2DSim& sim() const
-  {
-    return m_sim;
-  }
+  const Ball2DSim& sim() const;
 
-  const scalar& deltaH0() const
-  {
-    return m_delta_H0;
-  }
+  const scalar& deltaH0() const;
 
-  const Vector2s& deltap0() const
-  {
-    return m_delta_p0;
-  }
+  const Vector2s& deltap0() const;
 
-  const scalar& deltaL0() const
-  {
-    return m_delta_L0;
-  }
+  const scalar& deltaL0() const;
+
+  const VectorXs& ballColors() const;
+
+  const std::vector<PlaneRenderSettings>& planeRenderSettings() const;
+
+  const std::vector<DrumRenderSettings>& drumRenderSettings() const;
+
+  const std::vector<PortalRenderSettings>& portalRenderSettings() const;
 
 public slots:
 
-  void takeStep()
-  {
-    if( m_iteration * scalar( m_integrator.dt() ) >= m_end_time )
-    {
-      // User-provided end of simulation python callback
-      m_scripting.setState( m_sim.state() );
-      m_scripting.endOfSimCallback();
-      m_scripting.forgetState();
-      qInfo( "Simulation complete. Exiting." );
-      QApplication::quit();
-    }
-
-    const unsigned next_iter{ m_iteration + 1 };
-
-    m_integrator.step( next_iter, m_scripting, m_sim );
-
-    m_iteration++;
-
-    {
-      const Ball2DState& state{ m_sim.state() };
-      m_delta_H0 = std::max( m_delta_H0, fabs( m_H0 - state.computeTotalEnergy() ) );
-      const Vector2s p{ state.computeMomentum() };
-      m_delta_p0.x() = std::max( m_delta_p0.x(), fabs( m_p0.x() - p.x() ) );
-      m_delta_p0.y() = std::max( m_delta_p0.y(), fabs( m_p0.y() - p.y() ) );
-      m_delta_L0 = std::max( m_delta_L0, fabs( m_L0 - state.computeAngularMomentum() ) );
-    }
-
-    constexpr bool was_reset = false;
-    const bool fps_multiple = m_iteration % m_steps_per_frame == 0;
-    const int output_num = m_iteration / m_steps_per_frame;
-    emit postStep( was_reset, fps_multiple, output_num );
-  }
-
   void reset();
 
-  void exportMovieInit()
-  {
-    constexpr bool was_reset = false;
-    const bool fps_multiple = m_iteration == 0;
-    const int output_num = m_iteration / m_steps_per_frame;
-    emit postStep( was_reset, fps_multiple, output_num );
-  }
+  void takeStep();
 
-  // TODO: Rename this
-  void setOutputFPS( const int fps )
-  {
-    if( 1.0 < scalar( m_integrator.dt() * std::intmax_t( fps ) ) )
-    {
-      qWarning() << "Warning, requested movie frame rate faster than timestep. Dumping at timestep rate.";
-      m_steps_per_frame = 1;
-    }
-    else
-    {
-      const Rational<std::intmax_t> potential_steps_per_frame{ std::intmax_t( 1 ) / ( m_integrator.dt() * std::intmax_t( fps ) ) };
-      if( !potential_steps_per_frame.isInteger() )
-      {
-        if( m_integrator.dt() != Rational<std::intmax_t>{ 0 } )
-        {
-          qWarning() << "Warning, timestep and output frequency do not yield an integer number of timesteps for data output. Dumping at timestep rate.";
-        }
-        m_steps_per_frame = 1;
-      }
-      else
-      {
-        m_steps_per_frame = unsigned( potential_steps_per_frame.numerator() );
-      }
-    }
-  }
+  void exportMovieInit();
 
-  const VectorXs& ballColors() const
-  {
-    return m_ball_colors;
-  }
-
-  const std::vector<PlaneRenderSettings>& planeRenderSettings() const
-  {
-    return m_plane_render_settings;
-  }
-
-  const std::vector<DrumRenderSettings>& drumRenderSettings() const
-  {
-    return m_drum_render_settings;
-  }
-
-  const std::vector<PortalRenderSettings>& portalRenderSettings() const
-  {
-    return m_portal_render_settings;
-  }
+  void setOutputFPS( const int fps );
 
 signals:
 
@@ -163,19 +64,7 @@ signals:
 
 private:
 
-  Vector3s generateColor()
-  {
-    Vector3s color( 1.0, 1.0, 1.0 );
-    // Generate colors until we get one with a luminance in [0.1, 0.9]
-    while( ( 0.2126 * color.x() + 0.7152 * color.y() + 0.0722 * color.z() ) > 0.9 ||
-          ( 0.2126 * color.x() + 0.7152 * color.y() + 0.0722 * color.z() ) < 0.1 )
-    {
-      color.x() = m_color_gen( m_ball_color_gen );
-      color.y() = m_color_gen( m_ball_color_gen );
-      color.z() = m_color_gen( m_ball_color_gen );
-    }
-    return color;
-  }
+  Vector3s generateColor();
 
   // Initial and current state of the simulation
   Ball2DSim m_sim0;
