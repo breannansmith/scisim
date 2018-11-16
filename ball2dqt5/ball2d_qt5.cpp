@@ -2,6 +2,10 @@
 #include <QDesktopWidget>
 #include <QSurfaceFormat>
 
+#ifdef USE_APPLE_CLANG
+#include "CocoaBridge.h"
+#endif
+
 #ifdef USE_MACOS
 #include <QRegularExpression>
 #endif
@@ -53,6 +57,11 @@ static void exitCleanup()
 
 int main( int argc, char** argv )
 {
+  #ifdef USE_APPLE_CLANG
+  // Disable unused, automatic tabbing
+  CocoaBridge::setAllowsAutomaticWindowTabbing( false );
+  #endif
+
   if( argc > 2 )
   {
     qWarning( "Error, must provide a valid configuration file name or no argument. Exiting." );

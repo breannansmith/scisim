@@ -12,6 +12,10 @@ set( Sources
   Window.cpp
 )
 
+if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" )
+  list( APPEND Sources CocoaBridge.mm )
+endif()
+
 set( Headers
   AnnulusShader.h
   AxisShader.h
@@ -24,3 +28,7 @@ set( Headers
   SimWorker.h
   Window.h
 )
+
+if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" )
+  list( APPEND Headers CocoaBridge.h )
+endif()
