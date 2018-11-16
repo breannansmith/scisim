@@ -125,21 +125,24 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     controls_layout->addWidget( m_render_at_fps_checkbox );
     connect( m_render_at_fps_checkbox, &QCheckBox::toggled, this, &ContentWidget::renderAtFPSToggled );
 
+    // HBox for the FPS label and spin box
+    QHBoxLayout* fps_hbox{ new QHBoxLayout };
+
     // Label for movie output FPS
-    {
-      QLabel* fps_label{ new QLabel{ this } };
-      controls_layout->addWidget( fps_label );
-      // fps_label->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
-      fps_label->setText( tr( "Frame Rate:" ) );
-    }
+    QLabel* fps_label{ new QLabel{ this } };
+    // fps_label->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
+    fps_label->setText( tr( "Output FPS:" ) );
+    fps_hbox->addWidget( fps_label );
 
     // Input for movie output FPS
     m_fps_spin_box = new QSpinBox{ this };
     m_fps_spin_box->setButtonSymbols( QAbstractSpinBox::NoButtons );
-    controls_layout->addWidget( m_fps_spin_box );
     m_fps_spin_box->setRange( 1, 1000 );
     m_fps_spin_box->setValue( 30 );
     connect( m_fps_spin_box, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &ContentWidget::setMovieFPS );
+    fps_hbox->addWidget( m_fps_spin_box );
+
+    controls_layout->addLayout( fps_hbox );
 
     controls_layout->addStretch();
   }
