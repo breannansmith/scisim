@@ -17,13 +17,13 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
   {
     QMenu* file{ menuBar()->addMenu( tr( "File" ) ) };
     assert( file != nullptr );
-    file->addAction( tr( "Open..." ), content_widget, SLOT( openUserScene() ), tr( "Ctrl+o" ) );
-    file->addAction( tr( "Reload" ), content_widget, SLOT( reloadScene() ), tr( "Ctrl+r" ) );
+    file->addAction( tr( "Open Sim..." ), content_widget, SLOT( openUserScene() ), tr( "Ctrl+o" ) );
+    file->addAction( tr( "Reload Sim" ), content_widget, SLOT( reloadScene() ), tr( "Ctrl+r" ) );
     file->addSeparator();
-    file->addAction( tr( "Export Image..." ), content_widget, SLOT( exportImage() ), tr( "Ctrl+i" ) );
-    file->addAction( tr( "Export Movie..." ), content_widget, SLOT( exportMovie() ), tr( "Ctrl+m" ) );
+    file->addAction( tr( "Save Image..." ), content_widget, SLOT( exportImage() ), tr( "Ctrl+i" ) );
+    file->addAction( tr( "Save Movie..." ), content_widget, SLOT( exportMovie() ), tr( "Ctrl+m" ) );
     file->addSeparator();
-    file->addAction( tr( "Export Camera" ), content_widget, SLOT( exportCameraSettings() ), tr( "Ctrl+c" ) );
+    file->addAction( tr( "Print Camera" ), content_widget, SLOT( exportCameraSettings() ), tr( "Ctrl+c" ) );
   }
 
   // View menu actions
@@ -31,7 +31,7 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
     QMenu* view{ menuBar()->addMenu( tr( "View" ) ) };
     assert( view != nullptr );
     view->addAction( tr( "Show/Hide Controls" ), content_widget, SLOT( toggleControls() ), tr( "u" ) );
-    view->addAction( tr( "Show/Hide HUD" ), content_widget, SLOT( toggleHUD() ), tr( "h" ) );
+    view->addAction( tr( "Show/Hide HUD" ), content_widget, SLOT( toggleHUDCheckbox() ), tr( "h" ) );
     view->addSeparator();
     view->addAction( tr( "Center Camera" ), content_widget, SLOT( centerCamera() ), tr( "c" ) );
     view->addAction( tr( "Toggle Camera Lock" ), content_widget, SLOT( toggleCameraLock() ), tr( "l" ) );

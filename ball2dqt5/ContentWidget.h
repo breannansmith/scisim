@@ -44,6 +44,7 @@ public slots:
   void exportMovieToggled( const bool checked );
 
   void toggleHUD();
+  void toggleHUDCheckbox();
   void toggleCameraLock();
   void centerCamera();
   void toggleControls();
@@ -100,15 +101,13 @@ private:
 
   QCheckBox* m_export_movie_checkbox;
 
+  QCheckBox* m_display_hud_checkbox;
+
   QSpinBox* m_fps_spin_box;
 
   QPushButton* m_step_button;
 
   QPushButton* m_reset_button;
-
-  QPushButton* m_reload_button;
-
-  QPushButton* m_open_button;
 
   // Threading state
 

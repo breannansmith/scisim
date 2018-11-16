@@ -25,11 +25,10 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_render_at_fps_checkbox( nullptr )
 , m_lock_camera_button( nullptr )
 , m_export_movie_checkbox( nullptr )
+, m_display_hud_checkbox( nullptr )
 , m_fps_spin_box( nullptr )
 , m_step_button( nullptr )
 , m_reset_button( nullptr )
-, m_reload_button( nullptr )
-, m_open_button( nullptr )
 , m_sim_thread()
 , m_sim_worker( nullptr )
 , m_xml_file_name()
@@ -56,41 +55,57 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     controls_layout->setMargin(0);
 
     // Button for opening a simulation
-    m_open_button = new QPushButton{ tr( "Open" ), this };
-    controls_layout->addWidget( m_open_button );
-    connect( m_open_button, &QPushButton::clicked, this, &ContentWidget::openUserScene );
+    QPushButton* open_button = new QPushButton{ tr( "Open Sim..." ), this };
+    controls_layout->addWidget( open_button );
+    connect( open_button, &QPushButton::clicked, this, &ContentWidget::openUserScene );
 
     // Button for reloading the simulation
-    m_reload_button = new QPushButton{ tr( "Reload" ), this };
-    controls_layout->addWidget( m_reload_button );
-    connect( m_reload_button, &QPushButton::clicked, this, &ContentWidget::reloadScene );
+    QPushButton* reload_button = new QPushButton{ tr( "Reload Sim" ), this };
+    controls_layout->addWidget( reload_button );
+    connect( reload_button, &QPushButton::clicked, this, &ContentWidget::reloadScene );
 
     // Button for resetting the simulation
-    m_reset_button = new QPushButton{ tr( "Reset" ), this };
+    m_reset_button = new QPushButton{ tr( "Reset Sim" ), this };
     controls_layout->addWidget( m_reset_button );
 
     // Button for taking a single time step
-    m_step_button = new QPushButton{ tr( "Step" ), this };
+    m_step_button = new QPushButton{ tr( "Step Sim" ), this };
     controls_layout->addWidget( m_step_button );
 
-    // Solver buttons
-    m_simulate_checkbox = new QCheckBox{ tr( "Run" ) };
+    // Button to print camera settings
+    QPushButton* print_camera_button = new QPushButton{ tr( "Print Camera" ), this };
+    controls_layout->addWidget( print_camera_button );
+    connect( print_camera_button, &QPushButton::clicked, this, &ContentWidget::exportCameraSettings );
+
+    // Button to export screenshot
+    QPushButton* save_image_button = new QPushButton{ tr( "Save Image" ), this };
+    controls_layout->addWidget( save_image_button );
+    connect( save_image_button, &QPushButton::clicked, this, &ContentWidget::exportImage );
+
+    // Toggle for running/pausing the simulation
+    m_simulate_checkbox = new QCheckBox{ tr( "Run Sim" ) };
     controls_layout->addWidget( m_simulate_checkbox );
     m_simulate_checkbox->setChecked( false );
     connect( m_simulate_checkbox, &QCheckBox::toggled, this, &ContentWidget::simulateToggled );
 
-    // Buttons for locking the camera controls
+    // Toggle for locking the camera controls
     m_lock_camera_button = new QCheckBox{ tr( "Lock Camera" ) };
     controls_layout->addWidget( m_lock_camera_button );
     connect( m_lock_camera_button, &QCheckBox::toggled, this, &ContentWidget::lockCameraToggled );
 
-    // Movie export controls
-    m_export_movie_checkbox = new QCheckBox{ tr( "Export Movie" ) };
+    // Toggle for displaying the OpenGL HUD
+    m_display_hud_checkbox = new QCheckBox{ tr( "Show HUD" ) };
+    m_display_hud_checkbox->setChecked( true );
+    controls_layout->addWidget( m_display_hud_checkbox );
+    connect( m_display_hud_checkbox, &QCheckBox::toggled, this, &ContentWidget::toggleHUD );
+
+    // Toggle for enabling/disabling movie export
+    m_export_movie_checkbox = new QCheckBox{ tr( "Save Movie..." ) };
     controls_layout->addWidget( m_export_movie_checkbox );
     m_export_movie_checkbox->setChecked( false );
     connect( m_export_movie_checkbox, &QCheckBox::toggled, this, &ContentWidget::exportMovieToggled );
 
-    // Button for rendering at the specified FPS
+    // Toggle for rendering at the specified FPS
     m_render_at_fps_checkbox = new QCheckBox{ tr( "Lock Render FPS" ) };
     controls_layout->addWidget( m_render_at_fps_checkbox );
     connect( m_render_at_fps_checkbox, &QCheckBox::toggled, this, &ContentWidget::renderAtFPSToggled );
@@ -382,6 +397,19 @@ void ContentWidget::toggleHUD()
 {
   assert( m_gl_widget != nullptr );
   m_gl_widget->toggleHUD();
+}
+
+void ContentWidget::toggleHUDCheckbox()
+{
+  assert( m_display_hud_checkbox != nullptr );
+  if( m_display_hud_checkbox->isChecked() )
+  {
+    m_display_hud_checkbox->setChecked( false );
+  }
+  else
+  {
+    m_display_hud_checkbox->setChecked( true );
+  }
 }
 
 void ContentWidget::toggleCameraLock()
