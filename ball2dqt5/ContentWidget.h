@@ -30,11 +30,9 @@ public:
   ContentWidget& operator=( const ContentWidget& ) = delete;
   ContentWidget& operator=( ContentWidget&& ) = delete;
 
-  virtual void keyPressEvent( QKeyEvent* event ) override;
-
 public slots:
 
-  void openScene();
+  void openUserScene();
   void reloadScene();
 
   void simulateToggled( const bool state );
@@ -48,6 +46,12 @@ public slots:
   void toggleHUD();
   void toggleCameraLock();
   void centerCamera();
+  void toggleControls();
+  void toggleFPSLock();
+
+  void toggleSimulating();
+  void callReset();
+  void callStep();
 
   void exportImage();
   void exportMovie();
@@ -101,6 +105,10 @@ private:
   QPushButton* m_step_button;
 
   QPushButton* m_reset_button;
+
+  QPushButton* m_reload_button;
+
+  QPushButton* m_open_button;
 
   // Threading state
 

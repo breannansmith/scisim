@@ -28,6 +28,8 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_fps_spin_box( nullptr )
 , m_step_button( nullptr )
 , m_reset_button( nullptr )
+, m_reload_button( nullptr )
+, m_open_button( nullptr )
 , m_sim_thread()
 , m_sim_worker( nullptr )
 , m_xml_file_name()
@@ -53,16 +55,26 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     mainLayout->addWidget( m_controls_widget );
     controls_layout->setMargin(0);
 
-    // Button for taking a single time step
-    m_step_button = new QPushButton{ tr( "Step" ), this };
-    controls_layout->addWidget( m_step_button );
+    // Button for opening a simulation
+    m_open_button = new QPushButton{ tr( "Open" ), this };
+    controls_layout->addWidget( m_open_button );
+    connect( m_open_button, &QPushButton::clicked, this, &ContentWidget::openUserScene );
+
+    // Button for reloading the simulation
+    m_reload_button = new QPushButton{ tr( "Reload" ), this };
+    controls_layout->addWidget( m_reload_button );
+    connect( m_reload_button, &QPushButton::clicked, this, &ContentWidget::reloadScene );
 
     // Button for resetting the simulation
     m_reset_button = new QPushButton{ tr( "Reset" ), this };
     controls_layout->addWidget( m_reset_button );
 
+    // Button for taking a single time step
+    m_step_button = new QPushButton{ tr( "Step" ), this };
+    controls_layout->addWidget( m_step_button );
+
     // Solver buttons
-    m_simulate_checkbox = new QCheckBox{ tr( "Simulate" ) };
+    m_simulate_checkbox = new QCheckBox{ tr( "Running" ) };
     controls_layout->addWidget( m_simulate_checkbox );
     m_simulate_checkbox->setChecked( false );
     connect( m_simulate_checkbox, &QCheckBox::toggled, this, &ContentWidget::simulateToggled );
@@ -79,7 +91,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     connect( m_export_movie_checkbox, &QCheckBox::toggled, this, &ContentWidget::exportMovieToggled );
 
     // Button for rendering at the specified FPS
-    m_render_at_fps_checkbox = new QCheckBox{ tr( "Render FPS" ) };
+    m_render_at_fps_checkbox = new QCheckBox{ tr( "Lock Render FPS" ) };
     controls_layout->addWidget( m_render_at_fps_checkbox );
     connect( m_render_at_fps_checkbox, &QCheckBox::toggled, this, &ContentWidget::renderAtFPSToggled );
 
@@ -150,35 +162,6 @@ ContentWidget::~ContentWidget()
   m_sim_thread.wait();
 }
 
-void ContentWidget::keyPressEvent( QKeyEvent* event )
-{
-  assert( event != nullptr );
-
-  if( event->key() == Qt::Key_Space )
-  {
-    m_simulate_checkbox->toggle();
-  }
-  else if( event->key() == Qt::Key_R )
-  {
-    emit resetSimulation();
-  }
-  else if( event->key() == Qt::Key_S )
-  {
-    emit stepSimulation();
-  }
-  else if( event->key() == Qt::Key_U )
-  {
-    if( m_controls_widget->isVisible() )
-    {
-      m_controls_widget->hide();
-    }
-    else
-    {
-      m_controls_widget->show();
-    }
-  }
-}
-
 void ContentWidget::disableMovieExport()
 {
   assert( m_export_movie_checkbox != nullptr );
@@ -226,7 +209,7 @@ void ContentWidget::copyStepResults( const bool was_reset, const bool fps_multip
   }
 }
 
-void ContentWidget::openScene()
+void ContentWidget::openUserScene()
 {
   // Obtain a file name from the user
   const QString xml_scene_file_name{ getOpenFileNameFromUser( tr( "Please Select a Scene File" ) ) };
@@ -411,6 +394,41 @@ void ContentWidget::centerCamera()
 {
   assert( m_gl_widget != nullptr );
   m_gl_widget->centerCamera( true, m_empty, m_bbox );
+}
+
+void ContentWidget::toggleControls()
+{
+  assert( m_controls_widget != nullptr );
+  if( m_controls_widget->isVisible() )
+  {
+    m_controls_widget->hide();
+  }
+  else
+  {
+    m_controls_widget->show();
+  }
+}
+
+void ContentWidget::toggleFPSLock()
+{
+  assert( m_render_at_fps_checkbox != nullptr );
+  m_render_at_fps_checkbox->toggle();
+}
+
+void ContentWidget::toggleSimulating()
+{
+  assert( m_simulate_checkbox != nullptr );
+  m_simulate_checkbox->toggle();
+}
+
+void ContentWidget::callReset()
+{
+  emit resetSimulation();
+}
+
+void ContentWidget::callStep()
+{
+  emit stepSimulation();
 }
 
 void ContentWidget::exportImage()
