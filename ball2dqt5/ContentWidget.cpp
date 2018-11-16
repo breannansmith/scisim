@@ -33,18 +33,9 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_sim_worker( nullptr )
 , m_xml_file_name()
 , m_render_at_fps( false )
-, m_ball_colors()
-, m_color_gen( 0.0, 1.0 )
-, m_ball_color_gen( 1337 )
 , m_movie_dir_name()
 , m_movie_dir()
 , m_output_fps( 30 )
-, m_plane_render_settings0()
-, m_drum_render_settings0()
-, m_portal_render_settings0()
-, m_plane_render_settings()
-, m_drum_render_settings()
-, m_portal_render_settings()
 , m_empty( true )
 , m_bbox()
 {
@@ -109,7 +100,8 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
   // TODO: Make SimWorker take the init stuff as parameters
   if( !scene_name.isEmpty() )
   {
-    initializeSimAndGL( scene_name, false, sim_settings, render_settings, *m_sim_worker );
+    m_sim_worker->initialize( scene_name, sim_settings, render_settings );
+    initializeUIAndGL( scene_name, false, sim_settings, render_settings, *m_sim_worker );
   }
 
   m_sim_thread.start();
@@ -176,46 +168,6 @@ void ContentWidget::disableMovieExport()
   setMovieDir( tr( "" ) );
 }
 
-void ContentWidget::insertBallCallback( const int num_balls )
-{
-  m_ball_colors.conservativeResize( 3 * num_balls );
-  m_ball_colors.segment<3>( 3 * num_balls - 3) = generateColor();
-}
-
-static void ballInsertCallback( void* context, int num_balls )
-{
-  static_cast<ContentWidget*>(context)->insertBallCallback(num_balls);
-}
-
-void ContentWidget::deletePlaneCallback( const int plane_idx )
-{
-  // For each plane renderer
-  for( int rndr_idx = 0; rndr_idx < int(m_plane_render_settings.size()); rndr_idx++ )
-  {
-    PlaneRenderSettings& settings = m_plane_render_settings[rndr_idx];
-    // Flag the renderer for deletion if it matches the marked plane
-    if( settings.idx == plane_idx )
-    {
-      settings.idx = -1;
-    }
-    // Otherwise, if the index is greater than the marked plane, decrement the index
-    else if( settings.idx > plane_idx )
-    {
-      settings.idx--;
-    }
-  }
-  // Delete any flagged renderers
-  m_plane_render_settings.erase(
-    std::remove_if( m_plane_render_settings.begin(), m_plane_render_settings.end(),
-      []( const PlaneRenderSettings& settings ){ return settings.idx == -1; } ),
-    m_plane_render_settings.end() );
-}
-
-static void planeDeleteCallback( void* context, int plane_idx )
-{
-  static_cast<ContentWidget*>(context)->deletePlaneCallback(plane_idx);
-}
-
 void ContentWidget::copyStepResults( const bool was_reset, const bool fps_multiple, const int output_num )
 {
   if( !was_reset )
@@ -224,8 +176,9 @@ void ContentWidget::copyStepResults( const bool was_reset, const bool fps_multip
     {
       m_empty = m_sim_worker->sim().state().empty();
       m_bbox = m_sim_worker->sim().state().computeBoundingBox();
-      m_gl_widget->copyRenderState( m_sim_worker->sim().state(), m_ball_colors, m_plane_render_settings, m_drum_render_settings,
-                                    m_portal_render_settings, scalar(m_sim_worker->integrator().dt()) * m_sim_worker->iteration(),
+      m_gl_widget->copyRenderState( m_sim_worker->sim().state(), m_sim_worker->ballColors(), m_sim_worker->planeRenderSettings(),
+                                    m_sim_worker->drumRenderSettings(), m_sim_worker->portalRenderSettings(),
+                                    scalar(m_sim_worker->integrator().dt()) * m_sim_worker->iteration(),
                                     m_sim_worker->endTime(), m_sim_worker->deltaH0(), m_sim_worker->deltap0(), m_sim_worker->deltaL0() );
       m_gl_widget->update();
     }
@@ -238,29 +191,13 @@ void ContentWidget::copyStepResults( const bool was_reset, const bool fps_multip
   }
   else
   {
-    // Reset the output movie option
     disableMovieExport();
-
-    // Register UI callbacks for Python scripting
-    m_sim_worker->scripting().registerBallInsertCallback( this, &ballInsertCallback );
-    m_sim_worker->scripting().registerPlaneDeleteCallback( this, &planeDeleteCallback );
-
-    m_plane_render_settings = m_plane_render_settings0;
-    m_drum_render_settings = m_drum_render_settings0;
-    m_portal_render_settings = m_portal_render_settings0;
-
-    // Reset ball colors, in case the number of balls changed
-    m_ball_color_gen = std::mt19937_64( 1337 );
-    m_ball_colors.resize( 3 * m_sim_worker->sim().state().nballs() );
-    for( int i = 0; i < m_ball_colors.size(); i += 3 )
-    {
-      m_ball_colors.segment<3>( i ) = generateColor();
-    }
 
     m_empty = m_sim_worker->sim().state().empty();
     m_bbox = m_sim_worker->sim().state().computeBoundingBox();
-    m_gl_widget->copyRenderState( m_sim_worker->sim().state(), m_ball_colors, m_plane_render_settings, m_drum_render_settings,
-                                  m_portal_render_settings, scalar(m_sim_worker->integrator().dt()) * m_sim_worker->iteration(),
+    m_gl_widget->copyRenderState( m_sim_worker->sim().state(), m_sim_worker->ballColors(), m_sim_worker->planeRenderSettings(),
+                                  m_sim_worker->drumRenderSettings(), m_sim_worker->portalRenderSettings(),
+                                  scalar(m_sim_worker->integrator().dt()) * m_sim_worker->iteration(),
                                   m_sim_worker->endTime(), m_sim_worker->deltaH0(), m_sim_worker->deltap0(), m_sim_worker->deltaL0() );
     m_gl_widget->update();
   }
@@ -314,7 +251,8 @@ void ContentWidget::openScene( const QString& scene_file_name, const bool render
 
     std::cout << "   Creating a new worker" << std::endl;
     m_sim_worker = new SimWorker();
-    initializeSimAndGL( scene_file_name, render_on_load, sim_settings, render_settings, *m_sim_worker );
+    m_sim_worker->initialize( scene_file_name, sim_settings, render_settings );
+    initializeUIAndGL( scene_file_name, render_on_load, sim_settings, render_settings, *m_sim_worker );
     m_sim_worker->moveToThread( &m_sim_thread );
 
     wireSimWorker();
@@ -346,9 +284,8 @@ static int computeTimestepDisplayPrecision( const Rational<std::intmax_t>& dt, c
   }
 }
 
-// TODO: Rename this to initialize UI and GL
-void ContentWidget::initializeSimAndGL( const QString& scene_file_name, const bool render_on_load, SimSettings& sim_settings,
-                                        RenderSettings& render_settings, SimWorker& sim_worker )
+void ContentWidget::initializeUIAndGL( const QString& scene_file_name, const bool render_on_load, const SimSettings& sim_settings,
+                                        const RenderSettings& render_settings, const SimWorker& sim_worker )
 {
   // If the sample count changed, update the GL widget with a new format
   if( m_gl_widget->sampleCount() != render_settings.num_aa_samples )
@@ -362,15 +299,20 @@ void ContentWidget::initializeSimAndGL( const QString& scene_file_name, const bo
     m_gl_widget = new_gl_widget;
   }
 
-  initializeSimulation( scene_file_name, sim_settings, render_settings, sim_worker );
+  if( render_settings.camera_set )
+  {
+    m_render_at_fps = render_settings.render_at_fps;
+    m_output_fps = render_settings.fps;
+  }
+  assert( m_output_fps > 0 );
 
   const int dt_display_precision = computeTimestepDisplayPrecision( sim_worker.integrator().dt(), sim_settings.dt_string );
 
   m_empty = sim_worker.sim().state().empty();
   m_bbox = sim_worker.sim().state().computeBoundingBox();
-  m_gl_widget->initialize( render_on_load, render_settings, dt_display_precision, sim_worker.sim().state(), m_ball_colors,
-                            m_plane_render_settings, m_drum_render_settings, m_portal_render_settings, sim_worker.endTime(),
-                            m_empty, m_bbox );
+  m_gl_widget->initialize( render_on_load, render_settings, dt_display_precision, sim_worker.sim().state(), m_sim_worker->ballColors(),
+                           m_sim_worker->planeRenderSettings(), m_sim_worker->drumRenderSettings(), m_sim_worker->portalRenderSettings(),
+                           sim_worker.endTime(), m_empty, m_bbox );
 
   // Make sure the simulation is not running when we start
   assert( m_simulate_checkbox != nullptr );
@@ -508,103 +450,6 @@ void ContentWidget::setMovieFPS( const int fps )
   }
 
   emit outputFPSChanged( m_output_fps );
-}
-
-Vector3s ContentWidget::generateColor()
-{
-  Vector3s color( 1.0, 1.0, 1.0 );
-  // Generate colors until we get one with a luminance in [0.1, 0.9]
-  while( ( 0.2126 * color.x() + 0.7152 * color.y() + 0.0722 * color.z() ) > 0.9 ||
-         ( 0.2126 * color.x() + 0.7152 * color.y() + 0.0722 * color.z() ) < 0.1 )
-  {
-    color.x() = m_color_gen( m_ball_color_gen );
-    color.y() = m_color_gen( m_ball_color_gen );
-    color.z() = m_color_gen( m_ball_color_gen );
-  }
-  return color;
-}
-
-static std::string xmlFilePath( const std::string& xml_file_name )
-{
-  std::string path;
-  std::string file_name;
-  StringUtilities::splitAtLastCharacterOccurence( xml_file_name, path, file_name, '/' );
-  if( file_name.empty() )
-  {
-    using std::swap;
-    swap( path, file_name );
-  }
-  return path;
-}
-
-// TODO: Move this into SimWorker and rename it
-void ContentWidget::initializeSimulation( const QString& xml_scene_file_name, SimSettings& sim_settings, RenderSettings& render_settings, SimWorker& sim_worker )
-{
-  // Push the initial state and cache it to allow resets
-  sim_worker.sim().state() = std::move( sim_settings.state );
-  sim_worker.sim().clearConstraintCache();
-  sim_worker.sim0() = sim_worker.sim();
-
-  // Push the initial integrator state and cache it to allow resets
-  sim_worker.integrator0() = sim_settings.integrator;
-  sim_worker.integrator() = sim_worker.integrator0();
-
-  // Initialize the scripting callback
-  {
-    PythonScripting new_scripting{ xmlFilePath( xml_scene_file_name.toStdString() ), sim_settings.scripting_callback_name };
-    swap( sim_worker.scripting(), new_scripting );
-  }
-
-  // Save the time and iteration related quantities
-  sim_worker.iteration() = 0;
-  sim_worker.endTime() = sim_settings.end_time;
-  assert( sim_worker.endTime() > 0.0 );
-
-  // Update the FPS setting
-  if( render_settings.camera_set )
-  {
-    m_render_at_fps = render_settings.render_at_fps;
-    m_output_fps = render_settings.fps;
-  }
-  assert( m_output_fps > 0 );
-  setMovieFPS( m_output_fps );
-
-  // Compute the initial energy, momentum, and angular momentum
-  sim_worker.H0() = sim_worker.sim().state().computeTotalEnergy();
-  sim_worker.p0() = sim_worker.sim().state().computeMomentum();
-  sim_worker.L0() = sim_worker.sim().state().computeAngularMomentum();
-  // Trivially there is no change in energy, momentum, and angular momentum until we take a timestep
-  sim_worker.deltaH0() = 0.0;
-  sim_worker.deltap0() = Vector2s::Zero();
-  sim_worker.deltaL0() = 0.0;
-
-  // Generate a random color for each ball
-  m_ball_color_gen = std::mt19937_64( 1337 );
-  m_ball_colors.resize( 3 * sim_worker.sim().state().nballs() );
-  for( int i = 0; i < m_ball_colors.size(); i += 3 )
-  {
-    m_ball_colors.segment<3>( i ) = generateColor();
-  }
-
-  // Reset the output movie option
-  m_movie_dir_name = QString{};
-  m_movie_dir = QDir{};
-
-  // User-provided start of simulation python callback
-  sim_worker.scripting().setState( sim_worker.sim().state() );
-  sim_worker.scripting().startOfSimCallback();
-  sim_worker.scripting().forgetState();
-
-  // Register UI callbacks for Python scripting
-  sim_worker.scripting().registerBallInsertCallback( this, &ballInsertCallback );
-  sim_worker.scripting().registerPlaneDeleteCallback( this, &planeDeleteCallback );
-
-  m_plane_render_settings = std::move( render_settings.plane_render_settings );
-  m_plane_render_settings0 = m_plane_render_settings;
-  m_drum_render_settings = std::move( render_settings.drum_render_settings );
-  m_drum_render_settings0 = m_drum_render_settings;
-  m_portal_render_settings = std::move( render_settings.portal_render_settings );
-  m_portal_render_settings0 = m_portal_render_settings;
 }
 
 void ContentWidget::setMovieDir( const QString& dir_name )

@@ -5,7 +5,12 @@
 #include <QApplication>
 #include <QDebug>
 
+// TODO: iostream is temp here
 #include <iostream>
+
+#include <random>
+
+#include "ball2dutils/Ball2DSceneParser.h"
 
 #include "ball2d/Ball2DSim.h"
 #include "ball2d/Integrator.h"
@@ -18,34 +23,26 @@ class SimWorker : public QObject
 
 public:
 
-  SimWorker()
-  : m_sim0()
-  , m_sim()
-  , m_integrator0()
-  , m_integrator()
-  , m_scripting()
-  , m_iteration( 0 )
-  , m_end_time( std::numeric_limits<scalar>::max() )
-  , m_H0( 0.0 )
-  , m_p0( Vector2s::Zero() )
-  , m_L0( 0.0 )
-  , m_delta_H0( 0.0 )
-  , m_delta_p0( Vector2s::Zero() )
-  , m_delta_L0( 0.0 )
-  , m_steps_per_frame( 1 )
-  {}
+  SimWorker();
+
+  // TODO: This will become a constructor
+  void initialize( const QString& xml_scene_file_name, SimSettings& sim_settings, RenderSettings& render_settings );
 
   virtual ~SimWorker() override
   {
     std::cout << "Destructor for SimWorker: " << std::endl;
   }
 
-  // TODO: Eliminate this
-  unsigned& iteration()
+  void insertBallCallback( const int num_balls );
+
+  void deletePlaneCallback( const int plane_idx );
+
+  unsigned iteration() const
   {
     return m_iteration;
   }
-  scalar& endTime()
+
+  const scalar& endTime() const
   {
     return m_end_time;
   }
@@ -55,60 +52,24 @@ public:
     return m_integrator;
   }
 
-  // TODO: Eliminate these
-  Integrator& integrator()
-  {
-    return m_integrator;
-  }
-  Integrator& integrator0()
-  {
-    return m_integrator0;
-  }
-
   const Ball2DSim& sim() const
   {
     return m_sim;
   }
 
-  // TODO: Eliminate these
-  Ball2DSim& sim()
-  {
-    return m_sim;
-  }
-  Ball2DSim& sim0()
-  {
-    return m_sim0;
-  }
-
-  // TODO: Eliminate these
-  scalar& H0()
-  {
-    return m_H0;
-  }
-  Vector2s& p0()
-  {
-    return m_p0;
-  }
-  scalar& L0()
-  {
-    return m_L0;
-  }
-  scalar& deltaH0()
+  const scalar& deltaH0() const
   {
     return m_delta_H0;
   }
-  Vector2s& deltap0()
+
+  const Vector2s& deltap0() const
   {
     return m_delta_p0;
   }
-  scalar& deltaL0()
+
+  const scalar& deltaL0() const
   {
     return m_delta_L0;
-  }
-
-  PythonScripting& scripting()
-  {
-    return m_scripting;
   }
 
 public slots:
@@ -140,38 +101,13 @@ public slots:
       m_delta_L0 = std::max( m_delta_L0, fabs( m_L0 - state.computeAngularMomentum() ) );
     }
 
-    // const bool was_reset, const bool render, const bool save_image, const int output_num
-
     constexpr bool was_reset = false;
     const bool fps_multiple = m_iteration % m_steps_per_frame == 0;
     const int output_num = m_iteration / m_steps_per_frame;
     emit postStep( was_reset, fps_multiple, output_num );
   }
 
-  void reset()
-  {
-    m_sim = m_sim0;
-    m_integrator = m_integrator0;
-
-    m_iteration = 0;
-
-    // User-provided start of simulation python callback
-    m_scripting.setState( m_sim.state() );
-    m_scripting.startOfSimCallback();
-    m_scripting.forgetState();
-
-    m_H0 = m_sim.state().computeTotalEnergy();
-    m_p0 = m_sim.state().computeMomentum();
-    m_L0 = m_sim.state().computeAngularMomentum();
-    m_delta_H0 = 0.0;
-    m_delta_p0.setZero();
-    m_delta_L0 = 0.0;
-
-    constexpr bool was_reset = true;
-    const bool fps_multiple = true;
-    const int output_num = 0;
-    emit postStep( was_reset, fps_multiple, output_num );
-  }
+  void reset();
 
   void exportMovieInit()
   {
@@ -209,11 +145,45 @@ public slots:
     std::cout << "m_steps_per_frame: " << m_steps_per_frame << std::endl;
   }
 
+  const VectorXs& ballColors() const
+  {
+    return m_ball_colors;
+  }
+
+  const std::vector<PlaneRenderSettings>& planeRenderSettings() const
+  {
+    return m_plane_render_settings;
+  }
+
+  const std::vector<DrumRenderSettings>& drumRenderSettings() const
+  {
+    return m_drum_render_settings;
+  }
+
+  const std::vector<PortalRenderSettings>& portalRenderSettings() const
+  {
+    return m_portal_render_settings;
+  }
+
 signals:
 
   void postStep( const bool was_reset, const bool fps_multiple, const int output_num );
 
 private:
+
+  Vector3s generateColor()
+  {
+    Vector3s color( 1.0, 1.0, 1.0 );
+    // Generate colors until we get one with a luminance in [0.1, 0.9]
+    while( ( 0.2126 * color.x() + 0.7152 * color.y() + 0.0722 * color.z() ) > 0.9 ||
+          ( 0.2126 * color.x() + 0.7152 * color.y() + 0.0722 * color.z() ) < 0.1 )
+    {
+      color.x() = m_color_gen( m_ball_color_gen );
+      color.y() = m_color_gen( m_ball_color_gen );
+      color.z() = m_color_gen( m_ball_color_gen );
+    }
+    return color;
+  }
 
   // Initial and current state of the simulation
   Ball2DSim m_sim0;
@@ -240,6 +210,20 @@ private:
   scalar m_delta_H0;
   Vector2s m_delta_p0;
   scalar m_delta_L0;
+
+  // Colors to render balls in the scene
+  VectorXs m_ball_colors;
+  std::uniform_real_distribution<scalar> m_color_gen;
+  std::mt19937_64 m_ball_color_gen;
+
+  // Static geometry render instances
+  std::vector<PlaneRenderSettings> m_plane_render_settings0;
+  std::vector<DrumRenderSettings> m_drum_render_settings0;
+  std::vector<PortalRenderSettings> m_portal_render_settings0;
+
+  std::vector<PlaneRenderSettings> m_plane_render_settings;
+  std::vector<DrumRenderSettings> m_drum_render_settings;
+  std::vector<PortalRenderSettings> m_portal_render_settings;
 
   // Number of timesteps between frame outputs
   unsigned m_steps_per_frame;

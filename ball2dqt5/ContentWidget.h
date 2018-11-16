@@ -5,8 +5,6 @@
 #include <QThread>
 #include <QWidget>
 
-#include <random>
-
 #include "scisim/Math/MathDefines.h"
 
 #include "ball2dutils/Ball2DSceneParser.h"
@@ -33,9 +31,6 @@ public:
   ContentWidget& operator=( ContentWidget&& ) = delete;
 
   virtual void keyPressEvent( QKeyEvent* event ) override;
-
-  void insertBallCallback( const int num_balls );
-  void deletePlaneCallback( const int plane_idx );
 
 public slots:
 
@@ -77,18 +72,16 @@ private:
 
   void openScene( const QString& scene_file_name, const bool render_on_load );
 
-  void initializeSimulation( const QString& xml_scene_file_name, SimSettings& sim_settings, RenderSettings& render_settings, SimWorker& sim_worker );
-  void initializeSimAndGL( const QString& scene_file_name, const bool render_on_load, SimSettings& sim_settings, RenderSettings& render_settings, SimWorker& sim_worker );
+  void initializeUIAndGL( const QString& scene_file_name, const bool render_on_load, const SimSettings& sim_settings,
+                          const RenderSettings& render_settings, const SimWorker& sim_worker );
 
   QString getOpenFileNameFromUser( const QString& prompt );
   QString getSaveFileNameFromUser( const QString& prompt );
   QString getDirectoryNameFromUser( const QString& prompt );
 
-  Vector3s generateColor();
-
   void setMovieDir( const QString& dir_name );
 
-  // UI state
+  // Qt state
 
   GLWidget* m_gl_widget;
 
@@ -112,31 +105,18 @@ private:
 
   SimWorker* m_sim_worker;
 
-  // Sim and rendering state
+  // UI state
 
   QString m_xml_file_name;
 
   bool m_render_at_fps;
 
-  // Colors to render balls in the scene
-  VectorXs m_ball_colors;
-  std::uniform_real_distribution<scalar> m_color_gen;
-  std::mt19937_64 m_ball_color_gen;
-
   // Directory to save periodic screenshots of the simulation into
   QString m_movie_dir_name;
   QDir m_movie_dir;
+
   // Rate at which to output movie frames
   unsigned m_output_fps;
-
-  // Static geometry render instances
-  std::vector<PlaneRenderSettings> m_plane_render_settings0;
-  std::vector<DrumRenderSettings> m_drum_render_settings0;
-  std::vector<PortalRenderSettings> m_portal_render_settings0;
-
-  std::vector<PlaneRenderSettings> m_plane_render_settings;
-  std::vector<DrumRenderSettings> m_drum_render_settings;
-  std::vector<PortalRenderSettings> m_portal_render_settings;
 
   // Cached state for centering the camera
   bool m_empty;
