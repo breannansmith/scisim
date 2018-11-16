@@ -5,9 +5,6 @@
 #include <QApplication>
 #include <QDebug>
 
-// TODO: iostream is temp here
-#include <iostream>
-
 #include <random>
 
 #include "ball2dutils/Ball2DSceneParser.h"
@@ -28,10 +25,7 @@ public:
   // TODO: This will become a constructor
   void initialize( const QString& xml_scene_file_name, SimSettings& sim_settings, RenderSettings& render_settings );
 
-  virtual ~SimWorker() override
-  {
-    std::cout << "Destructor for SimWorker: " << std::endl;
-  }
+  virtual ~SimWorker() override = default;
 
   void insertBallCallback( const int num_balls );
 
@@ -141,8 +135,6 @@ public slots:
         m_steps_per_frame = unsigned( potential_steps_per_frame.numerator() );
       }
     }
-
-    std::cout << "m_steps_per_frame: " << m_steps_per_frame << std::endl;
   }
 
   const VectorXs& ballColors() const

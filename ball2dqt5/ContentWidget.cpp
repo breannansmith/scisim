@@ -16,9 +16,6 @@
 #include "GLWidget.h"
 #include "SimWorker.h"
 
-// !!!! TODO: DELETE THESE AFTER TESTING
-#include <iostream>
-
 ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settings, RenderSettings& render_settings, QWidget* parent )
 : QWidget( parent )
 , m_gl_widget( new GLWidget( this, QSurfaceFormat::defaultFormat() ) )
@@ -235,21 +232,15 @@ void ContentWidget::openScene( const QString& scene_file_name, const bool render
       return;
     }
 
-    std::cout << "Swapping worker..." << std::endl;
     // Ignore any signals sent from the old sim worker
-    std::cout << "   Disconnecting slots" << std::endl;
     m_sim_worker->disconnect();
     // Don't deliver any new signals to the old sim worker
-    std::cout << "   Disconnecting signals" << std::endl;
     this->disconnect( m_sim_worker );
     // Clear any queued events on the worker we are deleting
-    std::cout << "   Flushing step queue" << std::endl;
     QCoreApplication::removePostedEvents( m_sim_worker );
     // Schedule the old sim worker for deletion
-    std::cout << "   Scheduling deletion" << std::endl;
     QMetaObject::invokeMethod( m_sim_worker, "deleteLater", Qt::QueuedConnection );
 
-    std::cout << "   Creating a new worker" << std::endl;
     m_sim_worker = new SimWorker();
     m_sim_worker->initialize( scene_file_name, sim_settings, render_settings );
     initializeUIAndGL( scene_file_name, render_on_load, sim_settings, render_settings, *m_sim_worker );
@@ -258,7 +249,6 @@ void ContentWidget::openScene( const QString& scene_file_name, const bool render
     wireSimWorker();
 
     setMovieFPS( m_fps_spin_box->value() );
-    std::cout << "   done!" << std::endl;
   }
   else
   {
