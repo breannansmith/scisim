@@ -43,7 +43,7 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
   {
     QMenu* sim{ menuBar()->addMenu( tr( "Simulation" ) ) };
     assert( sim != nullptr );
-    sim->addAction( tr( "Toggle Running" ), content_widget, SLOT( toggleSimulating() ), QKeySequence(Qt::Key_Space) );
+    sim->addAction( tr( "Run/Pause" ), content_widget, SLOT( toggleSimulating() ), QKeySequence(Qt::Key_Space) );
     sim->addAction( tr( "Reset" ), content_widget, SLOT( callReset() ), tr( "r" ) );
     sim->addAction( tr( "Step" ), content_widget, SLOT( callStep() ), tr( "s" ) );
   }

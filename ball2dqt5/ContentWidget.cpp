@@ -74,7 +74,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     controls_layout->addWidget( m_step_button );
 
     // Solver buttons
-    m_simulate_checkbox = new QCheckBox{ tr( "Running" ) };
+    m_simulate_checkbox = new QCheckBox{ tr( "Run" ) };
     controls_layout->addWidget( m_simulate_checkbox );
     m_simulate_checkbox->setChecked( false );
     connect( m_simulate_checkbox, &QCheckBox::toggled, this, &ContentWidget::simulateToggled );
