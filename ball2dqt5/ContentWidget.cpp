@@ -49,7 +49,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 
   // Add the layout for controls
   {
-    m_controls_widget = new QWidget();
+    m_controls_widget = new QWidget( this );
     QVBoxLayout* controls_layout{ new QVBoxLayout( m_controls_widget ) };
     mainLayout->addWidget( m_controls_widget );
     controls_layout->setMargin(0);
@@ -64,6 +64,27 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     controls_layout->addWidget( reload_button );
     connect( reload_button, &QPushButton::clicked, this, &ContentWidget::reloadScene );
 
+    // Button to export screenshot
+    QPushButton* save_image_button = new QPushButton{ tr( "Save Image..." ), this };
+    controls_layout->addWidget( save_image_button );
+    connect( save_image_button, &QPushButton::clicked, this, &ContentWidget::exportImage );
+
+    // Button to print camera settings
+    QPushButton* print_camera_button = new QPushButton{ tr( "Print Camera" ), this };
+    controls_layout->addWidget( print_camera_button );
+    connect( print_camera_button, &QPushButton::clicked, this, &ContentWidget::exportCameraSettings );
+
+    // Toggle for enabling/disabling movie export
+    m_export_movie_checkbox = new QCheckBox{ tr( "Save Movie..." ), this };
+    controls_layout->addWidget( m_export_movie_checkbox );
+    m_export_movie_checkbox->setChecked( false );
+    connect( m_export_movie_checkbox, &QCheckBox::toggled, this, &ContentWidget::exportMovieToggled );
+
+    QFrame* line0 = new QFrame( this );
+    line0->setFrameShape( QFrame::HLine );
+    line0->setFrameShadow( QFrame::Sunken );
+    controls_layout->addWidget( line0 );
+
     // Button for resetting the simulation
     m_reset_button = new QPushButton{ tr( "Reset Sim" ), this };
     controls_layout->addWidget( m_reset_button );
@@ -72,41 +93,35 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     m_step_button = new QPushButton{ tr( "Step Sim" ), this };
     controls_layout->addWidget( m_step_button );
 
-    // Button to print camera settings
-    QPushButton* print_camera_button = new QPushButton{ tr( "Print Camera" ), this };
-    controls_layout->addWidget( print_camera_button );
-    connect( print_camera_button, &QPushButton::clicked, this, &ContentWidget::exportCameraSettings );
-
-    // Button to export screenshot
-    QPushButton* save_image_button = new QPushButton{ tr( "Save Image" ), this };
-    controls_layout->addWidget( save_image_button );
-    connect( save_image_button, &QPushButton::clicked, this, &ContentWidget::exportImage );
-
     // Toggle for running/pausing the simulation
-    m_simulate_checkbox = new QCheckBox{ tr( "Run Sim" ) };
+    m_simulate_checkbox = new QCheckBox{ tr( "Run Sim" ), this };
     controls_layout->addWidget( m_simulate_checkbox );
     m_simulate_checkbox->setChecked( false );
     connect( m_simulate_checkbox, &QCheckBox::toggled, this, &ContentWidget::simulateToggled );
 
-    // Toggle for locking the camera controls
-    m_lock_camera_button = new QCheckBox{ tr( "Lock Camera" ) };
-    controls_layout->addWidget( m_lock_camera_button );
-    connect( m_lock_camera_button, &QCheckBox::toggled, this, &ContentWidget::lockCameraToggled );
+    QFrame* line1 = new QFrame( this );
+    line1->setFrameShape( QFrame::HLine );
+    line1->setFrameShadow( QFrame::Sunken );
+    controls_layout->addWidget( line1 );
+
+    // Button to center the camera
+    QPushButton* center_camera_button = new QPushButton{ tr( "Center Camera" ), this };
+    controls_layout->addWidget( center_camera_button );
+    connect( center_camera_button, &QPushButton::clicked, this, &ContentWidget::centerCamera );
 
     // Toggle for displaying the OpenGL HUD
-    m_display_hud_checkbox = new QCheckBox{ tr( "Show HUD" ) };
+    m_display_hud_checkbox = new QCheckBox{ tr( "Show HUD" ), this };
     m_display_hud_checkbox->setChecked( true );
     controls_layout->addWidget( m_display_hud_checkbox );
     connect( m_display_hud_checkbox, &QCheckBox::toggled, this, &ContentWidget::toggleHUD );
 
-    // Toggle for enabling/disabling movie export
-    m_export_movie_checkbox = new QCheckBox{ tr( "Save Movie..." ) };
-    controls_layout->addWidget( m_export_movie_checkbox );
-    m_export_movie_checkbox->setChecked( false );
-    connect( m_export_movie_checkbox, &QCheckBox::toggled, this, &ContentWidget::exportMovieToggled );
+    // Toggle for locking the camera controls
+    m_lock_camera_button = new QCheckBox{ tr( "Lock Camera" ), this };
+    controls_layout->addWidget( m_lock_camera_button );
+    connect( m_lock_camera_button, &QCheckBox::toggled, this, &ContentWidget::lockCameraToggled );
 
     // Toggle for rendering at the specified FPS
-    m_render_at_fps_checkbox = new QCheckBox{ tr( "Lock Render FPS" ) };
+    m_render_at_fps_checkbox = new QCheckBox{ tr( "Lock Render FPS" ), this };
     controls_layout->addWidget( m_render_at_fps_checkbox );
     connect( m_render_at_fps_checkbox, &QCheckBox::toggled, this, &ContentWidget::renderAtFPSToggled );
 
@@ -120,6 +135,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 
     // Input for movie output FPS
     m_fps_spin_box = new QSpinBox{ this };
+    m_fps_spin_box->setButtonSymbols( QAbstractSpinBox::NoButtons );
     controls_layout->addWidget( m_fps_spin_box );
     m_fps_spin_box->setRange( 1, 1000 );
     m_fps_spin_box->setValue( 30 );
