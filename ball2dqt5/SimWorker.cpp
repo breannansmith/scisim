@@ -240,7 +240,7 @@ void SimWorker::setOutputFPS( const int fps )
 {
   if( 1.0 < scalar( m_integrator.dt() * std::intmax_t( fps ) ) )
   {
-    qWarning() << "Warning, requested movie frame rate faster than timestep. Dumping at timestep rate.";
+    emit errorMessage( tr("Requested movie frame rate faster than timestep. Dumping at timestep rate.") );
     m_steps_per_frame = 1;
   }
   else
@@ -250,7 +250,7 @@ void SimWorker::setOutputFPS( const int fps )
     {
       if( m_integrator.dt() != Rational<std::intmax_t>{ 0 } )
       {
-        qWarning() << "Warning, timestep and output frequency do not yield an integer number of timesteps for data output. Dumping at timestep rate.";
+        emit errorMessage( tr("Warning, timestep and output frequency do not yield an integer number of timesteps for data output. Dumping at timestep rate.") );
       }
       m_steps_per_frame = 1;
     }

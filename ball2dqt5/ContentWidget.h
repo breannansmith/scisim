@@ -30,6 +30,19 @@ public:
   ContentWidget& operator=( const ContentWidget& ) = delete;
   ContentWidget& operator=( ContentWidget&& ) = delete;
 
+  // TODO: This is kind of hacky, but it works for now. Needed because failing to load a directory can force a retoggle.
+  void wireMovieAction( QAction* movie_action );
+
+  void wireToggleHUD( QAction* hud ) const;
+
+  bool isCameraLocked() const;
+  void wireCameraLocked( QAction* locked ) const;
+
+  bool isFPSLocked() const;
+  void wireFPSLocked( QAction* locked ) const;
+
+  void wireRunSim( QAction* run ) const;
+
 public slots:
 
   void openUserScene();
@@ -61,6 +74,8 @@ public slots:
   void exportCameraSettings();
 
   void copyStepResults( const bool was_reset, const bool fps_multiple, const int output_num );
+
+  void workerErrorMessage( const QString& message );
 
 signals:
 
@@ -97,7 +112,7 @@ private:
 
   QCheckBox* m_render_at_fps_checkbox;
 
-  QCheckBox* m_lock_camera_button;
+  QCheckBox* m_lock_camera_checkbox;
 
   QCheckBox* m_export_movie_checkbox;
 

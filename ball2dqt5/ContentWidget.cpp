@@ -1,10 +1,12 @@
 #include "ContentWidget.h"
 
+#include <QAction>
 #include <QApplication>
 #include <QCheckBox>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QSpinBox>
 #include <QtGui>
@@ -23,7 +25,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_controls_widget( nullptr )
 , m_simulate_checkbox( nullptr )
 , m_render_at_fps_checkbox( nullptr )
-, m_lock_camera_button( nullptr )
+, m_lock_camera_checkbox( nullptr )
 , m_export_movie_checkbox( nullptr )
 , m_display_hud_checkbox( nullptr )
 , m_fps_spin_box( nullptr )
@@ -116,9 +118,9 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     connect( m_display_hud_checkbox, &QCheckBox::toggled, this, &ContentWidget::toggleHUD );
 
     // Toggle for locking the camera controls
-    m_lock_camera_button = new QCheckBox{ tr( "Lock Camera" ), this };
-    controls_layout->addWidget( m_lock_camera_button );
-    connect( m_lock_camera_button, &QCheckBox::toggled, this, &ContentWidget::lockCameraToggled );
+    m_lock_camera_checkbox = new QCheckBox{ tr( "Lock Camera" ), this };
+    controls_layout->addWidget( m_lock_camera_checkbox );
+    connect( m_lock_camera_checkbox, &QCheckBox::toggled, this, &ContentWidget::lockCameraToggled );
 
     // Toggle for rendering at the specified FPS
     m_render_at_fps_checkbox = new QCheckBox{ tr( "Lock Render FPS" ), this };
@@ -136,6 +138,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 
     // Input for movie output FPS
     m_fps_spin_box = new QSpinBox{ this };
+    m_fps_spin_box->setKeyboardTracking( false );
     m_fps_spin_box->setButtonSymbols( QAbstractSpinBox::NoButtons );
     m_fps_spin_box->setRange( 1, 1000 );
     m_fps_spin_box->setValue( 30 );
@@ -169,6 +172,43 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
   this->setFocus();
 }
 
+void ContentWidget::wireMovieAction( QAction* movie_action )
+{
+  connect( m_export_movie_checkbox, &QAbstractButton::toggled,
+      [movie_action, this](){movie_action->setChecked(this->m_export_movie_checkbox->isChecked());}
+    );
+}
+
+void ContentWidget::wireToggleHUD( QAction* hud ) const
+{
+  connect( m_display_hud_checkbox, &QAbstractButton::toggled, hud, &QAction::setChecked );
+}
+
+bool ContentWidget::isCameraLocked() const
+{
+  return m_lock_camera_checkbox->isChecked();
+}
+
+void ContentWidget::wireCameraLocked( QAction* locked ) const
+{
+  connect( m_lock_camera_checkbox, &QAbstractButton::toggled, locked, &QAction::setChecked );
+}
+
+bool ContentWidget::isFPSLocked() const
+{
+  return m_render_at_fps_checkbox->isChecked();
+}
+
+void ContentWidget::wireFPSLocked( QAction* locked ) const
+{
+  connect( m_render_at_fps_checkbox, &QAbstractButton::toggled, locked, &QAction::setChecked );
+}
+
+void ContentWidget::wireRunSim( QAction* run ) const
+{
+  connect( m_simulate_checkbox, &QAbstractButton::toggled, run, &QAction::setChecked );
+}
+
 void ContentWidget::wireSimWorker()
 {
   connect( &m_sim_thread, &QThread::finished, m_sim_worker, &QObject::deleteLater );
@@ -179,6 +219,7 @@ void ContentWidget::wireSimWorker()
   connect( this, &ContentWidget::outputFPSChanged, m_sim_worker, &SimWorker::setOutputFPS );
   connect( m_sim_worker, &SimWorker::postStep, this, &ContentWidget::copyStepResults, Qt::BlockingQueuedConnection );
   connect( this, &ContentWidget::exportEnabled, m_sim_worker, &SimWorker::exportMovieInit );
+  connect( m_sim_worker, &SimWorker::errorMessage, this, &ContentWidget::workerErrorMessage );
 }
 
 ContentWidget::~ContentWidget()
@@ -243,6 +284,11 @@ void ContentWidget::copyStepResults( const bool was_reset, const bool fps_multip
   }
 }
 
+void ContentWidget::workerErrorMessage( const QString& message )
+{
+  QMessageBox::warning( this, tr("SCISim 2D Ball Simulation"), message );
+}
+
 void ContentWidget::openUserScene()
 {
   // Obtain a file name from the user
@@ -266,7 +312,8 @@ void ContentWidget::openScene( const QString& scene_file_name, const bool render
     const bool loaded{ Ball2DSceneParser::parseXMLSceneFile( scene_file_name.toStdString(), sim_settings, render_settings ) };
     if( !loaded )
     {
-      qWarning() << "Failed to load file: " << scene_file_name;
+      // TODO: Get the error message out of the parser, use it as informative text.
+      QMessageBox::warning( this, tr("SCISim 2D Ball Simulation"), tr("Failed to load requested file: ") + scene_file_name );
       return;
     }
 
@@ -289,9 +336,7 @@ void ContentWidget::openScene( const QString& scene_file_name, const bool render
   }
   else
   {
-    using str = std::string;
-    str msg{ str{"Warning, requested file '"} + scene_file_name.toStdString() + str{"' does not exist."} };
-    qWarning( "%s", msg.c_str() );
+    QMessageBox::warning( this, tr("SCISim 2D Ball Simulation"), tr("Warning, requested file '") + scene_file_name + tr("' does not exist.") );
   }
 }
 
@@ -353,8 +398,8 @@ void ContentWidget::initializeUIAndGL( const QString& scene_file_name, const boo
   m_fps_spin_box->setValue( render_settings.fps );
   assert( m_render_at_fps_checkbox != nullptr );
   m_render_at_fps_checkbox->setCheckState( render_settings.render_at_fps ? Qt::Checked : Qt::Unchecked );
-  assert( m_lock_camera_button != nullptr );
-  m_lock_camera_button->setCheckState( render_settings.lock_camera ? Qt::Checked : Qt::Unchecked );
+  assert( m_lock_camera_checkbox != nullptr );
+  m_lock_camera_checkbox->setCheckState( render_settings.lock_camera ? Qt::Checked : Qt::Unchecked );
 
   m_xml_file_name = scene_file_name;
 
@@ -433,8 +478,8 @@ void ContentWidget::toggleHUDCheckbox()
 
 void ContentWidget::toggleCameraLock()
 {
-  assert( m_lock_camera_button != nullptr );
-  m_lock_camera_button->toggle();
+  assert( m_lock_camera_checkbox != nullptr );
+  m_lock_camera_checkbox->toggle();
 }
 
 void ContentWidget::centerCamera()

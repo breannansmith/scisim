@@ -62,6 +62,8 @@ signals:
 
   void postStep( const bool was_reset, const bool fps_multiple, const int output_num );
 
+  void errorMessage( const QString& message );
+
 private:
 
   Vector3s generateColor();
