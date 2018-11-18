@@ -210,7 +210,7 @@ void SimWorker::takeStep()
     QApplication::quit();
   }
 
-  const unsigned next_iter{ m_iteration + 1 };
+  const int next_iter{ m_iteration + 1 };
 
   m_integrator.step( next_iter, m_scripting, m_sim );
 
@@ -259,12 +259,12 @@ void SimWorker::setOutputFPS( const int fps )
     }
     else
     {
-      m_steps_per_frame = unsigned( potential_steps_per_frame.numerator() );
+      m_steps_per_frame = int( potential_steps_per_frame.numerator() );
     }
   }
 }
 
-unsigned SimWorker::iteration() const
+int SimWorker::iteration() const
 {
   return m_iteration;
 }

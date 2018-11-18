@@ -141,7 +141,7 @@ private:
   QDir m_movie_dir;
 
   // Rate at which to output movie frames
-  unsigned m_output_fps;
+  int m_output_fps;
 
   // Cached state for centering the camera
   bool m_empty;

@@ -142,7 +142,7 @@ void GLWidget::copyRenderState( const Ball2DState& state, const VectorXs& body_c
     for( const PlanarPortal& planar_portal : planar_portals )
     {
       // For each ball
-      for( unsigned ball_idx = 0; ball_idx < r.size(); ball_idx++ )
+      for( int ball_idx = 0; ball_idx < r.size(); ball_idx++ )
       {
           const Vector2s pos{ q.segment<2>( 2 * ball_idx ) };
           const scalar rad{ r( ball_idx ) };

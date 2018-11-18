@@ -26,7 +26,7 @@ public:
 
   void deletePlaneCallback( const int plane_idx );
 
-  unsigned iteration() const;
+  int iteration() const;
 
   const scalar& endTime() const;
 
@@ -81,7 +81,7 @@ private:
   PythonScripting m_scripting;
 
   // Current iteration of the solver
-  unsigned m_iteration;
+  int m_iteration;
 
   // End time of the simulation
   scalar m_end_time;
@@ -111,7 +111,7 @@ private:
   std::vector<PortalRenderSettings> m_portal_render_settings;
 
   // Number of timesteps between frame outputs
-  unsigned m_steps_per_frame;
+  int m_steps_per_frame;
 
 };
 
