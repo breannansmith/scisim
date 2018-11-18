@@ -91,7 +91,7 @@ private:
 
   void disableMovieExport();
 
-  void openScene( const QString& scene_file_name, const bool render_on_load );
+  void openScene( const QString& scene_file_name );
 
   void initializeUIAndGL( const QString& scene_file_name, const bool render_on_load,
                           const SimSettings& sim_settings, const RenderSettings& render_settings );

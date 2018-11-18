@@ -295,11 +295,11 @@ void ContentWidget::openUserScene()
   // Try to load the file
   if( !xml_scene_file_name.isEmpty() )
   {
-    openScene( xml_scene_file_name, true );
+    openScene( xml_scene_file_name );
   }
 }
 
-void ContentWidget::openScene( const QString& scene_file_name, const bool render_on_load )
+void ContentWidget::openScene( const QString& scene_file_name )
 {
   // If the user provided a valid file
   if( QFile::exists( scene_file_name ) )
@@ -325,7 +325,7 @@ void ContentWidget::openScene( const QString& scene_file_name, const bool render
     QMetaObject::invokeMethod( m_sim_worker, "deleteLater", Qt::QueuedConnection );
 
     m_sim_worker = new SimWorker( scene_file_name, sim_settings, render_settings );
-    initializeUIAndGL( scene_file_name, render_on_load, sim_settings, render_settings );
+    initializeUIAndGL( scene_file_name, true, sim_settings, render_settings );
     m_sim_worker->moveToThread( &m_sim_thread );
 
     wireSimWorker();
@@ -407,7 +407,7 @@ void ContentWidget::reloadScene()
 {
   if( !m_xml_file_name.isEmpty() )
   {
-    openScene( m_xml_file_name, true );
+    openScene( m_xml_file_name );
   }
 }
 
