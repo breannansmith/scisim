@@ -2061,6 +2061,14 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, SimSett
       return false;
     }
   }
+  // Check for an impossible combo of render and output locks
+  if( !new_render_settings.output_at_fps && new_render_settings.render_at_fps )
+  {
+    std::cerr << "Error, unable disable output_at_fps and enable render_at_fps at the same. Plese toggle one of the options." << std::endl;
+    return false;
+  }
+
+
 
   // Attempt to load the optional global render settings
   if( root_node.first_node( "global_render_settings" ) != nullptr )

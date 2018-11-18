@@ -82,7 +82,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     // Toggle for locking the data output FPS
     m_lock_output_fps_checkbox = new QCheckBox{ tr( "Lock Output FPS" ), this };
     controls_layout->addWidget( m_lock_output_fps_checkbox );
-    m_lock_output_fps_checkbox->setChecked( false );
+    m_lock_output_fps_checkbox->setChecked( true );
     connect( m_lock_output_fps_checkbox, &QCheckBox::toggled, this, &ContentWidget::outputFPSToggled );
 
     QFrame* line0 = new QFrame( this );
@@ -132,6 +132,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 
     // Toggle for rendering at the specified FPS
     m_lock_render_fps_checkbox = new QCheckBox{ tr( "Lock Render FPS" ), this };
+    m_lock_render_fps_checkbox->setChecked( false );
     controls_layout->addWidget( m_lock_render_fps_checkbox );
     connect( m_lock_render_fps_checkbox, &QCheckBox::toggled, this, &ContentWidget::lockRenderFPSToggled );
 
