@@ -26,8 +26,6 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
     QAction* movie_action = file->addAction( tr( "Save Movie..." ), content_widget, &ContentWidget::exportMovie, Qt::CTRL + Qt::Key_M );
     movie_action->setCheckable( true );
     content_widget->wireMovieAction( movie_action );
-    file->addSeparator();
-    file->addAction( tr( "Print Camera" ), content_widget, &ContentWidget::exportCameraSettings, Qt::CTRL + Qt::Key_C );
   }
 
   // View menu actions
@@ -52,6 +50,8 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
     toggle_fps_lock->setCheckable( true );
     toggle_fps_lock->setChecked( content_widget->isFPSLocked() );
     content_widget->wireFPSLocked( toggle_fps_lock );
+    view->addSeparator();
+    view->addAction( tr( "Display Camera" ), content_widget, &ContentWidget::exportCameraSettings, Qt::Key_D );
   }
 
   // Simulation menu actions

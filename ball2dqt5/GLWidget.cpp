@@ -432,12 +432,12 @@ void GLWidget::saveScreenshot( const QString& file_name )
   frame_buffer.save( file_name );
 }
 
-void GLWidget::exportCameraSettings( const int output_fps, const bool render_at_fps )
+std::string GLWidget::exportCameraSettings( const int output_fps, const bool render_at_fps )
 {
   std::stringstream ss;
   ss << "<camera cx=\"" << m_center_x << "\" cy=\"" << m_center_y << "\" scale_factor=\"" << m_display_scale
      << "\" fps=\"" << output_fps << "\" render_at_fps=\"" << render_at_fps << "\" locked=\"" << m_lock_camera << "\"/>";
-  qInfo( "%s", ss.str().c_str() );
+  return ss.str();
 }
 
 static QString generateTimeString( const scalar& time, const int display_precision, const scalar& end_time )

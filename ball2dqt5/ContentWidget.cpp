@@ -71,11 +71,6 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     controls_layout->addWidget( save_image_button );
     connect( save_image_button, &QPushButton::clicked, this, &ContentWidget::exportImage );
 
-    // Button to print camera settings
-    QPushButton* print_camera_button = new QPushButton{ tr( "Print Camera" ), this };
-    controls_layout->addWidget( print_camera_button );
-    connect( print_camera_button, &QPushButton::clicked, this, &ContentWidget::exportCameraSettings );
-
     // Toggle for enabling/disabling movie export
     m_export_movie_checkbox = new QCheckBox{ tr( "Save Movie..." ), this };
     controls_layout->addWidget( m_export_movie_checkbox );
@@ -105,6 +100,11 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     line1->setFrameShape( QFrame::HLine );
     line1->setFrameShadow( QFrame::Sunken );
     controls_layout->addWidget( line1 );
+
+    // Button to print camera settings
+    QPushButton* print_camera_button = new QPushButton{ tr( "Display Camera" ), this };
+    controls_layout->addWidget( print_camera_button );
+    connect( print_camera_button, &QPushButton::clicked, this, &ContentWidget::exportCameraSettings );
 
     // Button to center the camera
     QPushButton* center_camera_button = new QPushButton{ tr( "Center Camera" ), this };
@@ -539,7 +539,8 @@ void ContentWidget::exportMovie()
 
 void ContentWidget::exportCameraSettings()
 {
-  m_gl_widget->exportCameraSettings( m_output_fps, m_render_at_fps );
+  const std::string camera_settings = m_gl_widget->exportCameraSettings( m_output_fps, m_render_at_fps );
+  QMessageBox::information( this, tr("SCISim 2D Ball Simulation"), camera_settings.c_str() );
 }
 
 QString ContentWidget::getOpenFileNameFromUser( const QString& prompt )
