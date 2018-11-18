@@ -24,7 +24,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_gl_widget( new GLWidget( this, QSurfaceFormat::defaultFormat() ) )
 , m_controls_widget( nullptr )
 , m_simulate_checkbox( nullptr )
-, m_render_at_fps_checkbox( nullptr )
+, m_lock_render_fps_checkbox( nullptr )
 , m_lock_camera_checkbox( nullptr )
 , m_export_movie_checkbox( nullptr )
 , m_lock_output_fps_checkbox( nullptr )
@@ -35,10 +35,10 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_sim_thread()
 , m_sim_worker( nullptr )
 , m_xml_file_name()
-, m_render_at_fps( false )
+, m_lock_render_fps( false )
 , m_movie_dir_name()
 , m_movie_dir()
-, m_output_at_fps( false )
+, m_lock_output_fps( false )
 , m_output_fps( 30 )
 , m_empty( true )
 , m_bbox()
@@ -131,9 +131,9 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     connect( m_lock_camera_checkbox, &QCheckBox::toggled, this, &ContentWidget::lockCameraToggled );
 
     // Toggle for rendering at the specified FPS
-    m_render_at_fps_checkbox = new QCheckBox{ tr( "Lock Render FPS" ), this };
-    controls_layout->addWidget( m_render_at_fps_checkbox );
-    connect( m_render_at_fps_checkbox, &QCheckBox::toggled, this, &ContentWidget::renderAtFPSToggled );
+    m_lock_render_fps_checkbox = new QCheckBox{ tr( "Lock Render FPS" ), this };
+    controls_layout->addWidget( m_lock_render_fps_checkbox );
+    connect( m_lock_render_fps_checkbox, &QCheckBox::toggled, this, &ContentWidget::lockRenderFPSToggled );
 
     // HBox for the FPS label and spin box
     QHBoxLayout* fps_hbox{ new QHBoxLayout };
@@ -204,12 +204,12 @@ void ContentWidget::wireCameraLocked( QAction* locked ) const
 
 bool ContentWidget::isFPSLocked() const
 {
-  return m_render_at_fps_checkbox->isChecked();
+  return m_lock_render_fps_checkbox->isChecked();
 }
 
 void ContentWidget::wireFPSLocked( QAction* locked ) const
 {
-  connect( m_render_at_fps_checkbox, &QAbstractButton::toggled, locked, &QAction::setChecked );
+  connect( m_lock_render_fps_checkbox, &QAbstractButton::toggled, locked, &QAction::setChecked );
 }
 
 void ContentWidget::wireRunSim( QAction* run ) const
@@ -389,8 +389,8 @@ void ContentWidget::initializeUIAndGL( const QString& scene_file_name, const boo
 
   if( render_settings.camera_set )
   {
-    m_render_at_fps = render_settings.render_at_fps;
-    m_output_at_fps = render_settings.output_at_fps;
+    m_lock_render_fps = render_settings.render_at_fps;
+    m_lock_output_fps = render_settings.output_at_fps;
     m_output_fps = render_settings.fps;
   }
   assert( m_output_fps > 0 );
@@ -412,8 +412,8 @@ void ContentWidget::initializeUIAndGL( const QString& scene_file_name, const boo
   // Update UI elements
   assert( m_fps_spin_box != nullptr );
   m_fps_spin_box->setValue( render_settings.fps );
-  assert( m_render_at_fps_checkbox != nullptr );
-  m_render_at_fps_checkbox->setCheckState( render_settings.render_at_fps ? Qt::Checked : Qt::Unchecked );
+  assert( m_lock_render_fps_checkbox != nullptr );
+  m_lock_render_fps_checkbox->setCheckState( render_settings.render_at_fps ? Qt::Checked : Qt::Unchecked );
   assert( m_lock_camera_checkbox != nullptr );
   m_lock_camera_checkbox->setCheckState( render_settings.lock_camera ? Qt::Checked : Qt::Unchecked );
   assert( m_lock_output_fps_checkbox != nullptr );
@@ -442,25 +442,25 @@ void ContentWidget::simulateToggled( const bool state )
 
 void ContentWidget::outputFPSToggled()
 {
-  m_output_at_fps = m_lock_output_fps_checkbox->isChecked();
+  m_lock_output_fps = m_lock_output_fps_checkbox->isChecked();
 
   // Avoid output lock off, render lock on by disabling render lock
-  if( !m_lock_output_fps_checkbox->isChecked() && m_render_at_fps_checkbox->isChecked() )
+  if( !m_lock_output_fps_checkbox->isChecked() && m_lock_render_fps_checkbox->isChecked() )
   {
     // TODO: Warning goes here
     QMessageBox::warning( this, tr("SCISim 2D Ball Simulation"), tr("Warning, unable to unlock output FPS while render FPS is locked. Unlocking render FPS.") );
-    m_render_at_fps_checkbox->toggle();
+    m_lock_render_fps_checkbox->toggle();
   }
 
   setFPS( m_output_fps, true );
 }
 
-void ContentWidget::renderAtFPSToggled( const bool render_at_fps )
+void ContentWidget::lockRenderFPSToggled( const bool lock_render_fps )
 {
-  m_render_at_fps = render_at_fps;
+  m_lock_render_fps = lock_render_fps;
 
   // Avoid output lock off, render lock on by enabling output lock
-  if( !m_lock_output_fps_checkbox->isChecked() && m_render_at_fps_checkbox->isChecked() )
+  if( !m_lock_output_fps_checkbox->isChecked() && m_lock_render_fps_checkbox->isChecked() )
   {
     QMessageBox::warning( this, tr("SCISim 2D Ball Simulation"), tr("Warning, unable to lock render FPS while output FPS is unlocked. Locking output FPS and disabing movie output.") );
     m_lock_output_fps_checkbox->toggle();
@@ -545,8 +545,8 @@ void ContentWidget::toggleControls()
 
 void ContentWidget::toggleFPSLock()
 {
-  assert( m_render_at_fps_checkbox != nullptr );
-  m_render_at_fps_checkbox->toggle();
+  assert( m_lock_render_fps_checkbox != nullptr );
+  m_lock_render_fps_checkbox->toggle();
 }
 
 void ContentWidget::toggleOutputFPSLock()
@@ -590,7 +590,7 @@ void ContentWidget::exportMovie()
 
 void ContentWidget::exportCameraSettings()
 {
-  const std::string camera_settings = m_gl_widget->exportCameraSettings( m_output_fps, m_render_at_fps );
+  const std::string camera_settings = m_gl_widget->exportCameraSettings( m_output_fps, m_lock_render_fps );
   QMessageBox::information( this, tr("SCISim 2D Ball Simulation"), camera_settings.c_str() );
 }
 
@@ -632,7 +632,7 @@ void ContentWidget::setFPS( const int fps, const bool disable_output )
     }
   }
 
-  emit outputFPSChanged( m_output_at_fps, m_render_at_fps, m_output_fps );
+  emit outputFPSChanged( m_lock_output_fps, m_lock_render_fps, m_output_fps );
 }
 
 void ContentWidget::setMovieDir( const QString& dir_name )

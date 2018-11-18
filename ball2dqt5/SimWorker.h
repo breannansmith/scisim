@@ -58,7 +58,7 @@ public slots:
 
   void exportMovieInit();
 
-  void setOutputFPS( const bool use_screenshot_fps, const bool use_render_fps, const int fps );
+  void setOutputFPS( const bool lock_output_fps, const bool lock_render_fps, const int fps );
 
 signals:
 
@@ -111,7 +111,7 @@ private:
   std::vector<PortalRenderSettings> m_portal_render_settings;
 
   // Number of timesteps between outputs of various types
-  int m_steps_per_screenshot;
+  int m_steps_per_output;
   int m_steps_per_render;
 
 };

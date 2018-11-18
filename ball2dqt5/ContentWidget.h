@@ -55,7 +55,7 @@ public slots:
 
   void outputFPSToggled();
 
-  void renderAtFPSToggled( const bool render_at_fps );
+  void lockRenderFPSToggled( const bool lock_render_fps );
 
   void lockCameraToggled( const bool lock_camera );
 
@@ -88,7 +88,7 @@ signals:
   void resetSimulation();
   void stepSimulation();
 
-  void outputFPSChanged( const bool use_screenshot_fps, const bool use_render_fps, const int fps );
+  void outputFPSChanged( const bool lock_output_fps, const bool lock_render_fps, const int fps );
   void exportEnabled();
 
 private:
@@ -118,7 +118,7 @@ private:
 
   QCheckBox* m_simulate_checkbox;
 
-  QCheckBox* m_render_at_fps_checkbox;
+  QCheckBox* m_lock_render_fps_checkbox;
 
   QCheckBox* m_lock_camera_checkbox;
 
@@ -144,14 +144,14 @@ private:
 
   QString m_xml_file_name;
 
-  bool m_render_at_fps;
+  bool m_lock_render_fps;
 
   // Directory to save periodic screenshots of the simulation into
   QString m_movie_dir_name;
   QDir m_movie_dir;
 
   // Rate at which to output movie frames
-  bool m_output_at_fps;
+  bool m_lock_output_fps;
   int m_output_fps;
 
   // Cached state for centering the camera

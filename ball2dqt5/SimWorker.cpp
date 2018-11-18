@@ -29,7 +29,7 @@ SimWorker::SimWorker()
 , m_plane_render_settings()
 , m_drum_render_settings()
 , m_portal_render_settings()
-, m_steps_per_screenshot( 1 )
+, m_steps_per_output( 1 )
 , m_steps_per_render( 1 )
 {}
 
@@ -229,8 +229,8 @@ void SimWorker::takeStep()
 
   constexpr bool was_reset = false;
   const bool render_frame = m_iteration % m_steps_per_render == 0;
-  const bool save_screenshot = m_iteration % m_steps_per_screenshot == 0;
-  const int output_num = m_iteration / m_steps_per_screenshot;
+  const bool save_screenshot = m_iteration % m_steps_per_output == 0;
+  const int output_num = m_iteration / m_steps_per_output;
   emit postStep( was_reset, render_frame, save_screenshot, output_num );
 }
 
@@ -243,22 +243,22 @@ void SimWorker::exportMovieInit()
   emit postStep( was_reset, render_frame, save_screenshot, output_num );
 }
 
-void SimWorker::setOutputFPS( const bool use_screenshot_fps, const bool use_render_fps, const int fps )
+void SimWorker::setOutputFPS( const bool lock_output_fps, const bool lock_render_fps, const int fps )
 {
-  assert( !( !use_screenshot_fps && use_render_fps ) );
+  assert( !( !lock_output_fps && lock_render_fps ) );
 
   // TODO: These will be cleaned up significantly when we do validation
 
-  if( !use_screenshot_fps )
+  if( !lock_output_fps )
   {
-    m_steps_per_screenshot = 1;
+    m_steps_per_output = 1;
   }
   else
   {
     if( 1.0 < scalar( m_integrator.dt() * std::intmax_t( fps ) ) )
     {
       emit errorMessage( tr("Requested movie frame rate faster than timestep. Dumping at timestep rate.") );
-      m_steps_per_screenshot = 1;
+      m_steps_per_output = 1;
     }
     else
     {
@@ -269,16 +269,16 @@ void SimWorker::setOutputFPS( const bool use_screenshot_fps, const bool use_rend
         {
           emit errorMessage( tr("Warning, timestep and output frequency do not yield an integer number of timesteps for data output. Dumping at timestep rate.") );
         }
-        m_steps_per_screenshot = 1;
+        m_steps_per_output = 1;
       }
       else
       {
-        m_steps_per_screenshot = int( potential_steps_per_frame.numerator() );
+        m_steps_per_output = int( potential_steps_per_frame.numerator() );
       }
     }
   }
 
-  if( !use_render_fps )
+  if( !lock_render_fps )
   {
     m_steps_per_render = 1;
   }

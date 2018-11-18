@@ -74,7 +74,7 @@ struct RenderSettings final
   double camera_scale_factor = 1.0;
   unsigned fps = 30;
   // TODO: Load this setting
-  bool output_at_fps = false;
+  bool output_at_fps = true;
   bool render_at_fps = false;
   bool lock_camera = false;
 
