@@ -38,7 +38,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_lock_render_fps( false )
 , m_movie_dir_name()
 , m_movie_dir()
-, m_lock_output_fps( false )
+, m_lock_output_fps( true )
 , m_output_fps( 30 )
 , m_empty( true )
 , m_bbox()
