@@ -48,6 +48,8 @@ public:
 
   const std::vector<PortalRenderSettings>& portalRenderSettings() const;
 
+  void computeCameraCenter( bool& sim_empty, Vector4s& bbox ) const;
+
 public slots:
 
   void reset();

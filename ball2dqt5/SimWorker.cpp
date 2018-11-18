@@ -1,5 +1,8 @@
 #include "SimWorker.h"
 
+#include <algorithm>
+#include <array>
+
 #include <QApplication>
 #include <QDebug>
 
@@ -314,4 +317,142 @@ const std::vector<DrumRenderSettings>& SimWorker::drumRenderSettings() const
 const std::vector<PortalRenderSettings>& SimWorker::portalRenderSettings() const
 {
   return m_portal_render_settings;
+}
+
+void SimWorker::computeCameraCenter( bool& sim_empty, Vector4s& bbox ) const
+{
+  sim_empty = m_sim.state().empty();
+  bbox = m_sim.state().computeSimulatedBoundingBox();
+
+  // Expand the bounding box to account for planes
+  {
+    static constexpr std::array<std::pair<scalar,scalar>, 4> ref_points{
+      {{-1.0, 0.5}, {0.0, 0.5}, {0.0, -0.5}, {-1.0, -0.5}}
+    };
+
+    for( const PlaneRenderSettings& plane_renderer : m_plane_render_settings )
+    {
+      const StaticPlane& plane = m_sim.state().staticPlanes()[plane_renderer.idx];
+      const Vector2s& n = plane.n();
+      const Vector2s& cm = plane.x();
+
+      const Vector2s r = plane_renderer.r.cast<scalar>();
+
+      for( const std::pair<scalar,scalar>& val : ref_points )
+      {
+        const scalar sx = r.x() * val.first;
+        const scalar sy = r.y() * val.second;
+
+        const scalar x = (n.x() * sx - n.y() * sy) + cm.x();
+        const scalar y = (n.y() * sx + n.x() * sy) + cm.y();
+
+        bbox(0) = std::min( bbox(0), x );
+        bbox(1) = std::max( bbox(1), x );
+        bbox(2) = std::min( bbox(2), y );
+        bbox(3) = std::max( bbox(3), y );
+      }
+    }
+  }
+
+  // Expand the bounding box to account for all drums
+  for( const DrumRenderSettings& drum_renderer : m_drum_render_settings )
+  {
+    const StaticDrum& drum = m_sim.state().staticDrums()[drum_renderer.idx];
+    const scalar r = scalar(drum_renderer.r) + drum.r();
+    const scalar& x = drum.x().x();
+    const scalar& y = drum.x().y();
+
+    bbox(0) = std::min( bbox(0), x - r );
+    bbox(1) = std::max( bbox(1), x + r );
+    bbox(2) = std::min( bbox(2), y - r );
+    bbox(3) = std::max( bbox(3), y + r );
+  }
+
+  // Expand the boudning box to account for all portals
+  {
+    static constexpr std::array<std::pair<scalar,scalar>, 4> ref_points{
+      {{-1.0, -1.0}, {1.0, -1.0}, {1.0, 1.0}, {-1.0, 1.0}}
+    };
+
+    for( const PortalRenderSettings& portal_renderer : m_portal_render_settings )
+    {
+      const scalar r0 = scalar(portal_renderer.thickness);
+      const scalar r1 = scalar(portal_renderer.half_width);
+      const scalar iw = scalar(portal_renderer.indicator_half_width);
+      const PlanarPortal& portal = m_sim.state().planarPortals()[portal_renderer.idx];
+
+      // Center line, plane A
+      for( const std::pair<scalar,scalar>& val : ref_points )
+      {
+        const scalar sx = r0 * val.first;
+        const scalar sy = r1 * val.second;
+        const scalar c = portal.planeA().n().x();
+        const scalar s = portal.planeA().n().y();
+
+        const Vector2s cm = portal.planeA().x() - r0 * portal.planeA().n();
+
+        const scalar x = (c * sx - s * sy) + cm.x();
+        const scalar y = (s * sx + c * sy) + cm.y();
+
+        bbox(0) = std::min( bbox(0), x );
+        bbox(1) = std::max( bbox(1), x );
+        bbox(2) = std::min( bbox(2), y );
+        bbox(3) = std::max( bbox(3), y );
+      }
+      // Indicator, plane A
+      for( const std::pair<scalar,scalar>& val : ref_points )
+      {
+        const scalar sx = iw * val.first;
+        const scalar sy = r0 * val.second;
+        const scalar c = portal.planeA().n().x();
+        const scalar s = portal.planeA().n().y();
+
+        const Vector2s cm = portal.transformedAx() - (2.0 * r0 + iw) * portal.planeA().n();
+
+        const scalar x = (c * sx - s * sy) + cm.x();
+        const scalar y = (s * sx + c * sy) + cm.y();
+
+        bbox(0) = std::min( bbox(0), x );
+        bbox(1) = std::max( bbox(1), x );
+        bbox(2) = std::min( bbox(2), y );
+        bbox(3) = std::max( bbox(3), y );
+      }
+      // Center line, plane B
+      for( const std::pair<scalar,scalar>& val : ref_points )
+      {
+        const scalar sx = r0 * val.first;
+        const scalar sy = r1 * val.second;
+        const scalar c = portal.planeB().n().x();
+        const scalar s = portal.planeB().n().y();
+
+        const Vector2s cm = portal.planeB().x() - r0 * portal.planeB().n();
+
+        const scalar x = (c * sx - s * sy) + cm.x();
+        const scalar y = (s * sx + c * sy) + cm.y();
+
+        bbox(0) = std::min( bbox(0), x );
+        bbox(1) = std::max( bbox(1), x );
+        bbox(2) = std::min( bbox(2), y );
+        bbox(3) = std::max( bbox(3), y );
+      }
+      // Indicator, plane B
+      for( const std::pair<scalar,scalar>& val : ref_points )
+      {
+        const scalar sx = iw * val.first;
+        const scalar sy = r0 * val.second;
+        const scalar c = portal.planeB().n().x();
+        const scalar s = portal.planeB().n().y();
+
+        const Vector2s cm = portal.transformedBx() - (2.0 * r0 + iw) * portal.planeB().n();
+
+        const scalar x = (c * sx - s * sy) + cm.x();
+        const scalar y = (s * sx + c * sy) + cm.y();
+
+        bbox(0) = std::min( bbox(0), x );
+        bbox(1) = std::max( bbox(1), x );
+        bbox(2) = std::min( bbox(2), y );
+        bbox(3) = std::max( bbox(3), y );
+      }
+    }
+  }
 }

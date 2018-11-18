@@ -59,7 +59,7 @@ public:
   void accumulateForce( const VectorXs& q, const VectorXs& v, VectorXs& force_accm ) const;
 
   // Computes a bounding box around the system
-  Vector4s computeBoundingBox() const;
+  Vector4s computeSimulatedBoundingBox() const;
 
   // Serialization and deserialization
   void serialize( std::ostream& output_stream ) const;

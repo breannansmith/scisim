@@ -93,8 +93,8 @@ private:
 
   void openScene( const QString& scene_file_name, const bool render_on_load );
 
-  void initializeUIAndGL( const QString& scene_file_name, const bool render_on_load, const SimSettings& sim_settings,
-                          const RenderSettings& render_settings, const SimWorker& sim_worker );
+  void initializeUIAndGL( const QString& scene_file_name, const bool render_on_load,
+                          const SimSettings& sim_settings, const RenderSettings& render_settings );
 
   QString getOpenFileNameFromUser( const QString& prompt );
   QString getSaveFileNameFromUser( const QString& prompt );

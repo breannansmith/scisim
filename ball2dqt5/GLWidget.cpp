@@ -226,6 +226,9 @@ void GLWidget::copyRenderState( const Ball2DState& state, const VectorXs& body_c
       const float& iw = portal_settings[render_num].indicator_half_width;
       const Eigen::Vector3f& portal_color = portal_settings[render_num].color;
 
+      const float thetaA = float(std::atan2(planar_portals[portal_idx].planeA().n().y(), planar_portals[portal_idx].planeA().n().x()));
+      const float thetaB = float(std::atan2(planar_portals[portal_idx].planeB().n().y(), planar_portals[portal_idx].planeB().n().x()));
+
       // Top portal
       // Center of mass
       rectangle_data(32 * render_num + 0) = float(planar_portals[portal_idx].planeA().x().x())
@@ -233,8 +236,7 @@ void GLWidget::copyRenderState( const Ball2DState& state, const VectorXs& body_c
       rectangle_data(32 * render_num + 1) = float(planar_portals[portal_idx].planeA().x().y())
                                             - r0 * float(planar_portals[portal_idx].planeA().n().y());
       // Orientation
-      rectangle_data(32 * render_num + 2) = float(std::atan2(planar_portals[portal_idx].planeA().n().y(),
-                                                  planar_portals[portal_idx].planeA().n().x()));
+      rectangle_data(32 * render_num + 2) = thetaA;
       // Radii
       rectangle_data(32 * render_num + 3) = r0;
       rectangle_data(32 * render_num + 4) = r1;
@@ -246,12 +248,11 @@ void GLWidget::copyRenderState( const Ball2DState& state, const VectorXs& body_c
       // Top portal center
       // Center of mass
       rectangle_data(32 * render_num + 8) = float(planar_portals[portal_idx].transformedAx().x())
-                                            - (r0 + iw) * float(planar_portals[portal_idx].planeA().n().x());
+                                            - (2.0f * r0 + iw) * float(planar_portals[portal_idx].planeA().n().x());
       rectangle_data(32 * render_num + 9) = float(planar_portals[portal_idx].transformedAx().y())
-                                            - (r0 + iw) * float(planar_portals[portal_idx].planeA().n().y());
+                                            - (2.0f * r0 + iw) * float(planar_portals[portal_idx].planeA().n().y());
       // Orientation
-      rectangle_data(32 * render_num + 10) = float(std::atan2(planar_portals[portal_idx].planeA().n().y(),
-                                                   planar_portals[portal_idx].planeA().n().x()));
+      rectangle_data(32 * render_num + 10) = thetaA;
       // Radii
       rectangle_data(32 * render_num + 11) = iw;
       rectangle_data(32 * render_num + 12) = r0;
@@ -267,8 +268,7 @@ void GLWidget::copyRenderState( const Ball2DState& state, const VectorXs& body_c
       rectangle_data(32 * render_num + 17) = float(planar_portals[portal_idx].planeB().x().y())
                                              - r0 * float(planar_portals[portal_idx].planeB().n().y());
       // Orientation
-      rectangle_data(32 * render_num + 18) = float(std::atan2(planar_portals[portal_idx].planeB().n().y(),
-                                                   planar_portals[portal_idx].planeB().n().x()));
+      rectangle_data(32 * render_num + 18) = thetaB;
       // Radii
       rectangle_data(32 * render_num + 19) = r0;
       rectangle_data(32 * render_num + 20) = r1;
@@ -280,12 +280,11 @@ void GLWidget::copyRenderState( const Ball2DState& state, const VectorXs& body_c
       // Bottom portal center
       // Center of mass
       rectangle_data(32 * render_num + 24) = float(planar_portals[portal_idx].transformedBx().x())
-                                             - (r0 + iw) * float(planar_portals[portal_idx].planeB().n().x());
+                                             - (2.0f * r0 + iw) * float(planar_portals[portal_idx].planeB().n().x());
       rectangle_data(32 * render_num + 25) = float(planar_portals[portal_idx].transformedBx().y())
-                                             - (r0 + iw) * float(planar_portals[portal_idx].planeB().n().y());
+                                             - (2.0f * r0 + iw) * float(planar_portals[portal_idx].planeB().n().y());
       // Orientation
-      rectangle_data(32 * render_num + 26) = float(std::atan2(planar_portals[portal_idx].planeB().n().y(),
-                                                   planar_portals[portal_idx].planeB().n().x()));
+      rectangle_data(32 * render_num + 26) = thetaB;
       // Radii
       rectangle_data(32 * render_num + 27) = iw;
       rectangle_data(32 * render_num + 28) = r0;

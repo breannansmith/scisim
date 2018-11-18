@@ -209,11 +209,10 @@ scalar Ball2DState::computeAngularMomentum() const
   return L;
 }
 
-Vector4s Ball2DState::computeBoundingBox() const
+Vector4s Ball2DState::computeSimulatedBoundingBox() const
 {
   Vector4s box{ SCALAR_INFINITY, -SCALAR_INFINITY, SCALAR_INFINITY, -SCALAR_INFINITY };
 
-  // Loop over all balls
   for( int i = 0; i < m_r.size(); ++i )
   {
     const scalar& r = m_r( i );
@@ -224,21 +223,6 @@ Vector4s Ball2DState::computeBoundingBox() const
     box(2) = std::min( box(2), y - r );
     box(3) = std::max( box(3), y + r );
   }
-
-  // Loop over all drums
-  for( std::vector<StaticDrum>::size_type i = 0; i < m_static_drums.size(); ++i )
-  {
-    const scalar& r = m_static_drums[i].r();
-    const scalar& x = m_static_drums[i].x().x();
-    const scalar& y = m_static_drums[i].x().y();
-    box(0) = std::min( box(0), x - r );
-    box(1) = std::max( box(1), x + r );
-    box(2) = std::min( box(2), y - r );
-    box(3) = std::max( box(3), y + r );
-  }
-
-  // TODO: Halfplanes?
-  // TODO: Planar portals?
 
   return box;
 }

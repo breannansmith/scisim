@@ -153,7 +153,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
   if( !scene_name.isEmpty() )
   {
     m_sim_worker = new SimWorker( scene_name, sim_settings, render_settings );
-    initializeUIAndGL( scene_name, false, sim_settings, render_settings, *m_sim_worker );
+    initializeUIAndGL( scene_name, false, sim_settings, render_settings );
   }
   else
   {
@@ -250,8 +250,7 @@ void ContentWidget::copyStepResults( const bool was_reset, const bool fps_multip
   {
     if( !m_render_at_fps || fps_multiple )
     {
-      m_empty = m_sim_worker->sim().state().empty();
-      m_bbox = m_sim_worker->sim().state().computeBoundingBox();
+      m_sim_worker->computeCameraCenter( m_empty, m_bbox );
       m_gl_widget->copyRenderState( m_sim_worker->sim().state(), m_sim_worker->ballColors(), m_sim_worker->planeRenderSettings(),
                                     m_sim_worker->drumRenderSettings(), m_sim_worker->portalRenderSettings(),
                                     scalar(m_sim_worker->integrator().dt()) * m_sim_worker->iteration(),
@@ -269,8 +268,7 @@ void ContentWidget::copyStepResults( const bool was_reset, const bool fps_multip
   {
     disableMovieExport();
 
-    m_empty = m_sim_worker->sim().state().empty();
-    m_bbox = m_sim_worker->sim().state().computeBoundingBox();
+    m_sim_worker->computeCameraCenter( m_empty, m_bbox );
     m_gl_widget->copyRenderState( m_sim_worker->sim().state(), m_sim_worker->ballColors(), m_sim_worker->planeRenderSettings(),
                                   m_sim_worker->drumRenderSettings(), m_sim_worker->portalRenderSettings(),
                                   scalar(m_sim_worker->integrator().dt()) * m_sim_worker->iteration(),
@@ -327,7 +325,7 @@ void ContentWidget::openScene( const QString& scene_file_name, const bool render
     QMetaObject::invokeMethod( m_sim_worker, "deleteLater", Qt::QueuedConnection );
 
     m_sim_worker = new SimWorker( scene_file_name, sim_settings, render_settings );
-    initializeUIAndGL( scene_file_name, render_on_load, sim_settings, render_settings, *m_sim_worker );
+    initializeUIAndGL( scene_file_name, render_on_load, sim_settings, render_settings );
     m_sim_worker->moveToThread( &m_sim_thread );
 
     wireSimWorker();
@@ -356,8 +354,8 @@ static int computeTimestepDisplayPrecision( const Rational<std::intmax_t>& dt, c
   }
 }
 
-void ContentWidget::initializeUIAndGL( const QString& scene_file_name, const bool render_on_load, const SimSettings& sim_settings,
-                                        const RenderSettings& render_settings, const SimWorker& sim_worker )
+void ContentWidget::initializeUIAndGL( const QString& scene_file_name, const bool render_on_load,
+                                       const SimSettings& sim_settings, const RenderSettings& render_settings )
 {
   // If the sample count changed, update the GL widget with a new format
   if( m_gl_widget->sampleCount() != render_settings.num_aa_samples )
@@ -378,13 +376,12 @@ void ContentWidget::initializeUIAndGL( const QString& scene_file_name, const boo
   }
   assert( m_output_fps > 0 );
 
-  const int dt_display_precision = computeTimestepDisplayPrecision( sim_worker.integrator().dt(), sim_settings.dt_string );
+  const int dt_display_precision = computeTimestepDisplayPrecision( m_sim_worker->integrator().dt(), sim_settings.dt_string );
 
-  m_empty = sim_worker.sim().state().empty();
-  m_bbox = sim_worker.sim().state().computeBoundingBox();
-  m_gl_widget->initialize( render_on_load, render_settings, dt_display_precision, sim_worker.sim().state(), m_sim_worker->ballColors(),
+  m_sim_worker->computeCameraCenter( m_empty, m_bbox );
+  m_gl_widget->initialize( render_on_load, render_settings, dt_display_precision, m_sim_worker->sim().state(), m_sim_worker->ballColors(),
                            m_sim_worker->planeRenderSettings(), m_sim_worker->drumRenderSettings(), m_sim_worker->portalRenderSettings(),
-                           sim_worker.endTime(), m_empty, m_bbox );
+                           m_sim_worker->endTime(), m_empty, m_bbox );
 
   // Make sure the simulation is not running when we start
   assert( m_simulate_checkbox != nullptr );
