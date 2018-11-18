@@ -1968,6 +1968,29 @@ static bool loadPortalRendererSettings( const rapidxml::xml_node<>& node, const 
   return true;
 }
 
+static bool validateInitialOutputFPS( const int fps, const Rational<std::intmax_t>& dt, const std::string& setting )
+{
+  if( 1.0 < scalar( dt * std::intmax_t( fps ) ) )
+  {
+    std::cerr << "Requested fps faster than timestep. Please disable " << setting << ", modify the timestep, or modify the fps setting." << std::endl;
+    return false;
+  }
+  else
+  {
+    const Rational<std::intmax_t> potential_steps_per_frame{ std::intmax_t( 1 ) / ( dt * std::intmax_t( fps ) ) };
+    if( !potential_steps_per_frame.isInteger() )
+    {
+      if( dt != Rational<std::intmax_t>{ 0 } )
+      {
+        std::cerr << "Warning, timestep and output frequency do not yield an integer number of timesteps.";
+        std::cerr << " Please disable " << setting << ", modify the timestep, or modify the fps setting." << std::endl;
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
 bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, SimSettings& sim_settings, RenderSettings& render_settings )
 {
   // Attempt to load the xml document
@@ -2019,6 +2042,22 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, SimSett
     if( !loadCameraSettings( *root_node.first_node( "camera" ), new_render_settings.camera_center, new_render_settings.camera_scale_factor, new_render_settings.fps, new_render_settings.render_at_fps, new_render_settings.lock_camera ) )
     {
       std::cerr << "Failed to parse camera node: " << file_name << std::endl;
+      return false;
+    }
+  }
+
+  // If the user locked the render or output to FPS, ensure that is possible
+  if( new_render_settings.render_at_fps )
+  {
+    if( !validateInitialOutputFPS( new_render_settings.fps, new_sim_settings.integrator.dt(), "render_at_fps" ) )
+    {
+      return false;
+    }
+  }
+  if( new_render_settings.output_at_fps )
+  {
+    if( !validateInitialOutputFPS( new_render_settings.fps, new_sim_settings.integrator.dt(), "output_at_fps" ) )
+    {
       return false;
     }
   }
