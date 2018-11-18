@@ -150,7 +150,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     m_fps_spin_box->setButtonSymbols( QAbstractSpinBox::NoButtons );
     m_fps_spin_box->setRange( 1, 1000 );
     m_fps_spin_box->setValue( 30 );
-    connect( m_fps_spin_box, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &ContentWidget::setFPS );
+    connect( m_fps_spin_box, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &ContentWidget::fpsChanged );
     fps_hbox->addWidget( m_fps_spin_box );
 
     controls_layout->addLayout( fps_hbox );
@@ -174,7 +174,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 
   wireSimWorker();
 
-  setFPS( m_fps_spin_box->value() );
+  setFPS( m_fps_spin_box->value(), true );
 
   this->setFocusPolicy( Qt::StrongFocus );
   this->setFocus();
@@ -262,11 +262,11 @@ void ContentWidget::disableMovieExport()
   setMovieDir( tr( "" ) );
 }
 
-void ContentWidget::copyStepResults( const bool was_reset, const bool fps_multiple, const int output_num )
+void ContentWidget::copyStepResults( const bool was_reset, const bool render_frame, const bool save_screenshot, const int output_num )
 {
   if( !was_reset )
   {
-    if( !m_render_at_fps || fps_multiple )
+    if( render_frame )
     {
       m_sim_worker->computeCameraCenter( m_empty, m_bbox );
       m_gl_widget->copyRenderState( m_sim_worker->sim().state(), m_sim_worker->ballColors(), m_sim_worker->planeRenderSettings(),
@@ -276,7 +276,7 @@ void ContentWidget::copyStepResults( const bool was_reset, const bool fps_multip
       m_gl_widget->update();
     }
 
-    if( !m_movie_dir_name.isEmpty() && fps_multiple )
+    if( !m_movie_dir_name.isEmpty() && save_screenshot )
     {
       QString output_image_name{ QString{ tr( "frame%1.png" ) }.arg( output_num, 10, 10, QLatin1Char('0') ) };
       m_gl_widget->saveScreenshot( m_movie_dir.filePath( output_image_name ) );
@@ -348,7 +348,7 @@ void ContentWidget::openScene( const QString& scene_file_name )
 
     wireSimWorker();
 
-    setFPS( m_fps_spin_box->value() );
+    setFPS( m_fps_spin_box->value(), true );
   }
   else
   {
@@ -443,12 +443,30 @@ void ContentWidget::simulateToggled( const bool state )
 void ContentWidget::outputFPSToggled()
 {
   m_output_at_fps = m_lock_output_fps_checkbox->isChecked();
-  setFPS( m_output_fps );
+
+  // Avoid output lock off, render lock on by disabling render lock
+  if( !m_lock_output_fps_checkbox->isChecked() && m_render_at_fps_checkbox->isChecked() )
+  {
+    // TODO: Warning goes here
+    QMessageBox::warning( this, tr("SCISim 2D Ball Simulation"), tr("Warning, unable to unlock output FPS while render FPS is locked. Unlocking render FPS.") );
+    m_render_at_fps_checkbox->toggle();
+  }
+
+  setFPS( m_output_fps, true );
 }
 
 void ContentWidget::renderAtFPSToggled( const bool render_at_fps )
 {
   m_render_at_fps = render_at_fps;
+
+  // Avoid output lock off, render lock on by enabling output lock
+  if( !m_lock_output_fps_checkbox->isChecked() && m_render_at_fps_checkbox->isChecked() )
+  {
+    QMessageBox::warning( this, tr("SCISim 2D Ball Simulation"), tr("Warning, unable to lock render FPS while output FPS is unlocked. Locking output FPS and disabing movie output.") );
+    m_lock_output_fps_checkbox->toggle();
+  }
+
+  setFPS( m_output_fps, false );
 }
 
 void ContentWidget::lockCameraToggled( const bool lock_camera )
@@ -594,19 +612,27 @@ QString ContentWidget::getDirectoryNameFromUser( const QString& prompt )
   return file_name;
 }
 
-void ContentWidget::setFPS( const int fps )
+void ContentWidget::fpsChanged( const int fps )
+{
+  setFPS( fps, true );
+}
+
+void ContentWidget::setFPS( const int fps, const bool disable_output )
 {
   assert( fps > 0 );
   m_output_fps = fps;
 
-  disableMovieExport();
-
-  if( m_simulate_checkbox->isChecked() )
+  if( disable_output )
   {
-    m_simulate_checkbox->toggle();
+    disableMovieExport();
+
+    if( m_simulate_checkbox->isChecked() )
+    {
+      m_simulate_checkbox->toggle();
+    }
   }
 
-  emit outputFPSChanged( m_output_at_fps, m_output_fps );
+  emit outputFPSChanged( m_output_at_fps, m_render_at_fps, m_output_fps );
 }
 
 void ContentWidget::setMovieDir( const QString& dir_name )

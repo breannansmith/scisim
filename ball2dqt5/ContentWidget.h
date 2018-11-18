@@ -75,11 +75,11 @@ public slots:
 
   void exportImage();
   void exportMovie();
-  void setFPS( const int fps );
+  void fpsChanged( const int fps );
 
   void exportCameraSettings();
 
-  void copyStepResults( const bool was_reset, const bool fps_multiple, const int output_num );
+  void copyStepResults( const bool was_reset, const bool render_frame, const bool save_screenshot, const int output_num );
 
   void workerErrorMessage( const QString& message );
 
@@ -88,10 +88,12 @@ signals:
   void resetSimulation();
   void stepSimulation();
 
-  void outputFPSChanged( const bool use_fps, const int fps );
+  void outputFPSChanged( const bool use_screenshot_fps, const bool use_render_fps, const int fps );
   void exportEnabled();
 
 private:
+
+  void setFPS( const int fps, const bool disable_output );
 
   void wireSimWorker();
 

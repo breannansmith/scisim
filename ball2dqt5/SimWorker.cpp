@@ -29,7 +29,8 @@ SimWorker::SimWorker()
 , m_plane_render_settings()
 , m_drum_render_settings()
 , m_portal_render_settings()
-, m_steps_per_frame( 1 )
+, m_steps_per_screenshot( 1 )
+, m_steps_per_render( 1 )
 {}
 
 Vector3s SimWorker::generateColor()
@@ -193,9 +194,10 @@ void SimWorker::reset()
   m_scripting.registerPlaneDeleteCallback( this, &planeDeleteCallback );
 
   constexpr bool was_reset = true;
-  const bool fps_multiple = true;
+  const bool render_frame = true;
+  const bool save_screenshot = true;
   const int output_num = 0;
-  emit postStep( was_reset, fps_multiple, output_num );
+  emit postStep( was_reset, render_frame, save_screenshot, output_num );
 }
 
 void SimWorker::takeStep()
@@ -226,46 +228,82 @@ void SimWorker::takeStep()
   }
 
   constexpr bool was_reset = false;
-  const bool fps_multiple = m_iteration % m_steps_per_frame == 0;
-  const int output_num = m_iteration / m_steps_per_frame;
-  emit postStep( was_reset, fps_multiple, output_num );
+  const bool render_frame = m_iteration % m_steps_per_render == 0;
+  const bool save_screenshot = m_iteration % m_steps_per_screenshot == 0;
+  const int output_num = m_iteration / m_steps_per_screenshot;
+  emit postStep( was_reset, render_frame, save_screenshot, output_num );
 }
 
 void SimWorker::exportMovieInit()
 {
   constexpr bool was_reset = false;
-  const bool fps_multiple = m_iteration == 0;
-  const int output_num = m_iteration / m_steps_per_frame;
-  emit postStep( was_reset, fps_multiple, output_num );
+  const bool render_frame = false;
+  const bool save_screenshot = m_iteration == 0;
+  const int output_num = 0;
+  emit postStep( was_reset, render_frame, save_screenshot, output_num );
 }
 
-void SimWorker::setOutputFPS( const bool use_fps, const int fps )
+void SimWorker::setOutputFPS( const bool use_screenshot_fps, const bool use_render_fps, const int fps )
 {
-  if( !use_fps )
-  {
-    m_steps_per_frame = 1;
-    return;
-  }
+  assert( !( !use_screenshot_fps && use_render_fps ) );
 
-  if( 1.0 < scalar( m_integrator.dt() * std::intmax_t( fps ) ) )
+  // TODO: These will be cleaned up significantly when we do validation
+
+  if( !use_screenshot_fps )
   {
-    emit errorMessage( tr("Requested movie frame rate faster than timestep. Dumping at timestep rate.") );
-    m_steps_per_frame = 1;
+    m_steps_per_screenshot = 1;
   }
   else
   {
-    const Rational<std::intmax_t> potential_steps_per_frame{ std::intmax_t( 1 ) / ( m_integrator.dt() * std::intmax_t( fps ) ) };
-    if( !potential_steps_per_frame.isInteger() )
+    if( 1.0 < scalar( m_integrator.dt() * std::intmax_t( fps ) ) )
     {
-      if( m_integrator.dt() != Rational<std::intmax_t>{ 0 } )
-      {
-        emit errorMessage( tr("Warning, timestep and output frequency do not yield an integer number of timesteps for data output. Dumping at timestep rate.") );
-      }
-      m_steps_per_frame = 1;
+      emit errorMessage( tr("Requested movie frame rate faster than timestep. Dumping at timestep rate.") );
+      m_steps_per_screenshot = 1;
     }
     else
     {
-      m_steps_per_frame = int( potential_steps_per_frame.numerator() );
+      const Rational<std::intmax_t> potential_steps_per_frame{ std::intmax_t( 1 ) / ( m_integrator.dt() * std::intmax_t( fps ) ) };
+      if( !potential_steps_per_frame.isInteger() )
+      {
+        if( m_integrator.dt() != Rational<std::intmax_t>{ 0 } )
+        {
+          emit errorMessage( tr("Warning, timestep and output frequency do not yield an integer number of timesteps for data output. Dumping at timestep rate.") );
+        }
+        m_steps_per_screenshot = 1;
+      }
+      else
+      {
+        m_steps_per_screenshot = int( potential_steps_per_frame.numerator() );
+      }
+    }
+  }
+
+  if( !use_render_fps )
+  {
+    m_steps_per_render = 1;
+  }
+  else
+  {
+    if( 1.0 < scalar( m_integrator.dt() * std::intmax_t( fps ) ) )
+    {
+      emit errorMessage( tr("Requested render frame rate faster than timestep. Dumping at timestep rate.") );
+      m_steps_per_render = 1;
+    }
+    else
+    {
+      const Rational<std::intmax_t> potential_steps_per_frame{ std::intmax_t( 1 ) / ( m_integrator.dt() * std::intmax_t( fps ) ) };
+      if( !potential_steps_per_frame.isInteger() )
+      {
+        if( m_integrator.dt() != Rational<std::intmax_t>{ 0 } )
+        {
+          emit errorMessage( tr("Warning, timestep and render frequency do not yield an integer number of timesteps for data render. Rendering at timestep rate.") );
+        }
+        m_steps_per_render = 1;
+      }
+      else
+      {
+        m_steps_per_render = int( potential_steps_per_frame.numerator() );
+      }
     }
   }
 }

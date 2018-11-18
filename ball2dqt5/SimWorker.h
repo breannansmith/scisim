@@ -58,11 +58,11 @@ public slots:
 
   void exportMovieInit();
 
-  void setOutputFPS( const bool use_fps, const int fps );
+  void setOutputFPS( const bool use_screenshot_fps, const bool use_render_fps, const int fps );
 
 signals:
 
-  void postStep( const bool was_reset, const bool fps_multiple, const int output_num );
+  void postStep( const bool was_reset, const bool render_frame, const bool save_screenshot, const int output_num );
 
   void errorMessage( const QString& message );
 
@@ -110,8 +110,9 @@ private:
   std::vector<DrumRenderSettings> m_drum_render_settings;
   std::vector<PortalRenderSettings> m_portal_render_settings;
 
-  // Number of timesteps between frame outputs
-  int m_steps_per_frame;
+  // Number of timesteps between outputs of various types
+  int m_steps_per_screenshot;
+  int m_steps_per_render;
 
 };
 
