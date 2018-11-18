@@ -58,7 +58,7 @@ public slots:
 
   void exportMovieInit();
 
-  void setOutputFPS( const int fps );
+  void setOutputFPS( const bool use_fps, const int fps );
 
 signals:
 

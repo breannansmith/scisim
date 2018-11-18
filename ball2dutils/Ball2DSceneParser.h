@@ -73,6 +73,8 @@ struct RenderSettings final
   Eigen::Vector2d camera_center = Eigen::Vector2d::Zero();
   double camera_scale_factor = 1.0;
   unsigned fps = 30;
+  // TODO: Load this setting
+  bool output_at_fps = false;
   bool render_at_fps = false;
   bool lock_camera = false;
 

@@ -26,6 +26,11 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
     QAction* movie_action = file->addAction( tr( "Save Movie..." ), content_widget, &ContentWidget::exportMovie, Qt::CTRL + Qt::Key_M );
     movie_action->setCheckable( true );
     content_widget->wireMovieAction( movie_action );
+    file->addSeparator();
+    QAction* toggle_output_lock = file->addAction( tr( "Lock Output FPS" ), content_widget, &ContentWidget::toggleOutputFPSLock, Qt::Key_O );
+    toggle_output_lock->setCheckable( true );
+    toggle_output_lock->setChecked( content_widget->isLockOutputFPSChecked() );
+    content_widget->wireLockOutputFPS( toggle_output_lock );
   }
 
   // View menu actions

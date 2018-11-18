@@ -239,8 +239,14 @@ void SimWorker::exportMovieInit()
   emit postStep( was_reset, fps_multiple, output_num );
 }
 
-void SimWorker::setOutputFPS( const int fps )
+void SimWorker::setOutputFPS( const bool use_fps, const int fps )
 {
+  if( !use_fps )
+  {
+    m_steps_per_frame = 1;
+    return;
+  }
+
   if( 1.0 < scalar( m_integrator.dt() * std::intmax_t( fps ) ) )
   {
     emit errorMessage( tr("Requested movie frame rate faster than timestep. Dumping at timestep rate.") );

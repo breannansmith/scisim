@@ -27,6 +27,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_render_at_fps_checkbox( nullptr )
 , m_lock_camera_checkbox( nullptr )
 , m_export_movie_checkbox( nullptr )
+, m_lock_output_fps_checkbox( nullptr )
 , m_display_hud_checkbox( nullptr )
 , m_fps_spin_box( nullptr )
 , m_step_button( nullptr )
@@ -37,6 +38,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_render_at_fps( false )
 , m_movie_dir_name()
 , m_movie_dir()
+, m_output_at_fps( false )
 , m_output_fps( 30 )
 , m_empty( true )
 , m_bbox()
@@ -76,6 +78,12 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     controls_layout->addWidget( m_export_movie_checkbox );
     m_export_movie_checkbox->setChecked( false );
     connect( m_export_movie_checkbox, &QCheckBox::toggled, this, &ContentWidget::exportMovieToggled );
+
+    // Toggle for locking the data output FPS
+    m_lock_output_fps_checkbox = new QCheckBox{ tr( "Lock Output FPS" ), this };
+    controls_layout->addWidget( m_lock_output_fps_checkbox );
+    m_lock_output_fps_checkbox->setChecked( false );
+    connect( m_lock_output_fps_checkbox, &QCheckBox::toggled, this, &ContentWidget::outputFPSToggled );
 
     QFrame* line0 = new QFrame( this );
     line0->setFrameShape( QFrame::HLine );
@@ -142,7 +150,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     m_fps_spin_box->setButtonSymbols( QAbstractSpinBox::NoButtons );
     m_fps_spin_box->setRange( 1, 1000 );
     m_fps_spin_box->setValue( 30 );
-    connect( m_fps_spin_box, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &ContentWidget::setMovieFPS );
+    connect( m_fps_spin_box, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &ContentWidget::setFPS );
     fps_hbox->addWidget( m_fps_spin_box );
 
     controls_layout->addLayout( fps_hbox );
@@ -166,7 +174,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 
   wireSimWorker();
 
-  setMovieFPS( m_fps_spin_box->value() );
+  setFPS( m_fps_spin_box->value() );
 
   this->setFocusPolicy( Qt::StrongFocus );
   this->setFocus();
@@ -207,6 +215,16 @@ void ContentWidget::wireFPSLocked( QAction* locked ) const
 void ContentWidget::wireRunSim( QAction* run ) const
 {
   connect( m_simulate_checkbox, &QAbstractButton::toggled, run, &QAction::setChecked );
+}
+
+bool ContentWidget::isLockOutputFPSChecked() const
+{
+  return m_lock_output_fps_checkbox->isChecked();
+}
+
+void ContentWidget::wireLockOutputFPS( QAction* locked ) const
+{
+  connect( m_lock_output_fps_checkbox, &QAbstractButton::toggled, locked, &QAction::setChecked );
 }
 
 void ContentWidget::wireSimWorker()
@@ -330,7 +348,7 @@ void ContentWidget::openScene( const QString& scene_file_name )
 
     wireSimWorker();
 
-    setMovieFPS( m_fps_spin_box->value() );
+    setFPS( m_fps_spin_box->value() );
   }
   else
   {
@@ -372,6 +390,7 @@ void ContentWidget::initializeUIAndGL( const QString& scene_file_name, const boo
   if( render_settings.camera_set )
   {
     m_render_at_fps = render_settings.render_at_fps;
+    m_output_at_fps = render_settings.output_at_fps;
     m_output_fps = render_settings.fps;
   }
   assert( m_output_fps > 0 );
@@ -397,6 +416,8 @@ void ContentWidget::initializeUIAndGL( const QString& scene_file_name, const boo
   m_render_at_fps_checkbox->setCheckState( render_settings.render_at_fps ? Qt::Checked : Qt::Unchecked );
   assert( m_lock_camera_checkbox != nullptr );
   m_lock_camera_checkbox->setCheckState( render_settings.lock_camera ? Qt::Checked : Qt::Unchecked );
+  assert( m_lock_output_fps_checkbox != nullptr );
+  m_lock_output_fps_checkbox->setCheckState( render_settings.output_at_fps ? Qt::Checked : Qt::Unchecked );
 
   m_xml_file_name = scene_file_name;
 
@@ -417,6 +438,12 @@ void ContentWidget::simulateToggled( const bool state )
   {
     emit stepSimulation();
   }
+}
+
+void ContentWidget::outputFPSToggled()
+{
+  m_output_at_fps = m_lock_output_fps_checkbox->isChecked();
+  setFPS( m_output_fps );
 }
 
 void ContentWidget::renderAtFPSToggled( const bool render_at_fps )
@@ -504,6 +531,12 @@ void ContentWidget::toggleFPSLock()
   m_render_at_fps_checkbox->toggle();
 }
 
+void ContentWidget::toggleOutputFPSLock()
+{
+  assert( m_lock_output_fps_checkbox != nullptr );
+  m_lock_output_fps_checkbox->toggle();
+}
+
 void ContentWidget::toggleSimulating()
 {
   assert( m_simulate_checkbox != nullptr );
@@ -561,7 +594,7 @@ QString ContentWidget::getDirectoryNameFromUser( const QString& prompt )
   return file_name;
 }
 
-void ContentWidget::setMovieFPS( const int fps )
+void ContentWidget::setFPS( const int fps )
 {
   assert( fps > 0 );
   m_output_fps = fps;
@@ -573,7 +606,7 @@ void ContentWidget::setMovieFPS( const int fps )
     m_simulate_checkbox->toggle();
   }
 
-  emit outputFPSChanged( m_output_fps );
+  emit outputFPSChanged( m_output_at_fps, m_output_fps );
 }
 
 void ContentWidget::setMovieDir( const QString& dir_name )

@@ -43,12 +43,17 @@ public:
 
   void wireRunSim( QAction* run ) const;
 
+  bool isLockOutputFPSChecked() const;
+  void wireLockOutputFPS( QAction* locked ) const;
+
 public slots:
 
   void openUserScene();
   void reloadScene();
 
   void simulateToggled( const bool state );
+
+  void outputFPSToggled();
 
   void renderAtFPSToggled( const bool render_at_fps );
 
@@ -62,6 +67,7 @@ public slots:
   void centerCamera();
   void toggleControls();
   void toggleFPSLock();
+  void toggleOutputFPSLock();
 
   void toggleSimulating();
   void callReset();
@@ -69,7 +75,7 @@ public slots:
 
   void exportImage();
   void exportMovie();
-  void setMovieFPS( const int fps );
+  void setFPS( const int fps );
 
   void exportCameraSettings();
 
@@ -82,7 +88,7 @@ signals:
   void resetSimulation();
   void stepSimulation();
 
-  void outputFPSChanged( const int fps );
+  void outputFPSChanged( const bool use_fps, const int fps );
   void exportEnabled();
 
 private:
@@ -116,6 +122,8 @@ private:
 
   QCheckBox* m_export_movie_checkbox;
 
+  QCheckBox* m_lock_output_fps_checkbox;
+
   QCheckBox* m_display_hud_checkbox;
 
   QSpinBox* m_fps_spin_box;
@@ -141,6 +149,7 @@ private:
   QDir m_movie_dir;
 
   // Rate at which to output movie frames
+  bool m_output_at_fps;
   int m_output_fps;
 
   // Cached state for centering the camera
