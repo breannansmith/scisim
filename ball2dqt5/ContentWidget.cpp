@@ -452,7 +452,7 @@ void ContentWidget::outputFPSToggled()
     m_lock_render_fps_checkbox->toggle();
   }
 
-  setFPS( m_output_fps, true );
+  setFPS( m_output_fps, !m_movie_dir_name.isEmpty() );
 }
 
 void ContentWidget::lockRenderFPSToggled( const bool lock_render_fps )
