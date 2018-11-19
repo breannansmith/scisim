@@ -38,12 +38,14 @@ public:
   bool isCameraLocked() const;
   void wireCameraLocked( QAction* locked ) const;
 
-  bool isFPSLocked() const;
-  void wireFPSLocked( QAction* locked ) const;
+  bool isLockRenderFPSChecked() const;
+  bool isLockRenderFPSEnabled() const;
+  void wireLockRenderFPS( QAction* locked ) const;
 
   void wireRunSim( QAction* run ) const;
 
   bool isLockOutputFPSChecked() const;
+  bool isLockOutputFPSEnabled() const;
   void wireLockOutputFPS( QAction* locked ) const;
 
 public slots:
@@ -90,6 +92,9 @@ signals:
 
   void outputFPSChanged( const bool lock_output_fps, const bool lock_render_fps, const int fps );
   void exportEnabled();
+
+  void lockRenderFPSCheckboxEnabled( const bool enabled );
+  void lockOutputFPSCheckboxEnabled( const bool enabled );
 
 private:
 

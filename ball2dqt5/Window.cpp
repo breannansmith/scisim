@@ -30,6 +30,7 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
     QAction* toggle_output_lock = file->addAction( tr( "Lock Output FPS" ), content_widget, &ContentWidget::toggleOutputFPSLock, Qt::Key_O );
     toggle_output_lock->setCheckable( true );
     toggle_output_lock->setChecked( content_widget->isLockOutputFPSChecked() );
+    toggle_output_lock->setEnabled( content_widget->isLockOutputFPSEnabled() );
     content_widget->wireLockOutputFPS( toggle_output_lock );
   }
 
@@ -53,8 +54,9 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
     view->addSeparator();
     QAction* toggle_fps_lock = view->addAction( tr( "Lock Render FPS" ), content_widget, &ContentWidget::toggleFPSLock, Qt::Key_F );
     toggle_fps_lock->setCheckable( true );
-    toggle_fps_lock->setChecked( content_widget->isFPSLocked() );
-    content_widget->wireFPSLocked( toggle_fps_lock );
+    toggle_fps_lock->setChecked( content_widget->isLockRenderFPSChecked() );
+    toggle_fps_lock->setEnabled( content_widget->isLockRenderFPSEnabled() );
+    content_widget->wireLockRenderFPS( toggle_fps_lock );
     view->addSeparator();
     view->addAction( tr( "Display Camera" ), content_widget, &ContentWidget::exportCameraSettings, Qt::Key_D );
   }

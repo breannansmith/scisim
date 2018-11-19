@@ -205,14 +205,20 @@ void ContentWidget::wireCameraLocked( QAction* locked ) const
   connect( m_lock_camera_checkbox, &QAbstractButton::toggled, locked, &QAction::setChecked );
 }
 
-bool ContentWidget::isFPSLocked() const
+bool ContentWidget::isLockRenderFPSChecked() const
 {
   return m_lock_render_fps_checkbox->isChecked();
 }
 
-void ContentWidget::wireFPSLocked( QAction* locked ) const
+bool ContentWidget::isLockRenderFPSEnabled() const
+{
+  return m_lock_render_fps_checkbox->isEnabled();
+}
+
+void ContentWidget::wireLockRenderFPS( QAction* locked ) const
 {
   connect( m_lock_render_fps_checkbox, &QAbstractButton::toggled, locked, &QAction::setChecked );
+  connect( this, &ContentWidget::lockRenderFPSCheckboxEnabled, locked, &QAction::setEnabled );
 }
 
 void ContentWidget::wireRunSim( QAction* run ) const
@@ -225,9 +231,15 @@ bool ContentWidget::isLockOutputFPSChecked() const
   return m_lock_output_fps_checkbox->isChecked();
 }
 
+bool ContentWidget::isLockOutputFPSEnabled() const
+{
+  return m_lock_output_fps_checkbox->isEnabled();
+}
+
 void ContentWidget::wireLockOutputFPS( QAction* locked ) const
 {
   connect( m_lock_output_fps_checkbox, &QAbstractButton::toggled, locked, &QAction::setChecked );
+  connect( this, &ContentWidget::lockOutputFPSCheckboxEnabled, locked, &QAction::setEnabled );
 }
 
 void ContentWidget::wireSimWorker()
@@ -454,10 +466,12 @@ void ContentWidget::outputFPSToggled()
   if( !m_lock_output_fps_checkbox->isChecked() )
   {
     m_lock_render_fps_checkbox->setEnabled( false );
+    emit lockRenderFPSCheckboxEnabled( false );
   }
   else
   {
     m_lock_render_fps_checkbox->setEnabled( true );
+    emit lockRenderFPSCheckboxEnabled( true );
   }
 
   setFPS( m_output_fps );
@@ -473,10 +487,12 @@ void ContentWidget::lockRenderFPSToggled( const bool lock_render_fps )
     if( m_lock_output_fps_checkbox->isChecked() && m_lock_render_fps_checkbox->isChecked() )
     {
       m_lock_output_fps_checkbox->setEnabled( false );
+      emit lockOutputFPSCheckboxEnabled( false );
     }
     else
     {
       m_lock_output_fps_checkbox->setEnabled( true );
+      emit lockOutputFPSCheckboxEnabled( true );
     }
   }
 
@@ -516,6 +532,7 @@ void ContentWidget::exportMovieToggled( const bool checked )
   if( m_export_movie_checkbox->isChecked() )
   {
     m_lock_output_fps_checkbox->setEnabled( false );
+    emit lockOutputFPSCheckboxEnabled( false );
     m_fps_spin_box->setEnabled( false );
   }
   else
@@ -523,6 +540,7 @@ void ContentWidget::exportMovieToggled( const bool checked )
     if( !m_lock_render_fps_checkbox->isChecked() )
     {
       m_lock_output_fps_checkbox->setEnabled( true );
+      emit lockOutputFPSCheckboxEnabled( true );
     }
     m_fps_spin_box->setEnabled( true );
   }
