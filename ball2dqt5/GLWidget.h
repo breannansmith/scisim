@@ -42,6 +42,8 @@ public:
 
   void setBackgroundColor( const Eigen::Matrix<GLfloat, 3, 1>& background_color );
 
+  void setHUDTextColor( const Eigen::Matrix<GLfloat, 3, 1>& text_color );
+
   void lockCamera( const bool lock_camera );
 
   void toggleHUD();
@@ -112,7 +114,7 @@ private:
   int m_num_aa_samples;
 
   Eigen::Matrix<GLfloat, 3, 1> m_bg_color;
-  Vector3i m_hud_text_color;
+  Eigen::Matrix<GLfloat, 3, 1> m_hud_text_color;
 
 };
 

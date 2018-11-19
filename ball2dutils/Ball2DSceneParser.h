@@ -67,6 +67,7 @@ struct RenderSettings final
   bool lock_camera = false;
 
   Eigen::Vector3f background_color = Eigen::Vector3f::Constant(0.098f);
+  Eigen::Vector3f hud_text_color = Eigen::Vector3f::Constant(0.90f);
 
   int num_ball_subdivs = 64;
   int num_drum_subdivs = 64;

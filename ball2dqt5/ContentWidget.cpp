@@ -408,6 +408,7 @@ void ContentWidget::initializeUIAndGL( const QString& scene_file_name, const boo
     m_lock_output_fps = render_settings.output_at_fps;
     m_output_fps = render_settings.fps;
     m_gl_widget->setBackgroundColor( render_settings.background_color );
+    m_gl_widget->setHUDTextColor( render_settings.hud_text_color );
   }
   assert( m_output_fps > 0 );
 

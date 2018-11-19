@@ -39,7 +39,7 @@ GLWidget::GLWidget( QWidget* parent, const QSurfaceFormat& format )
 , m_num_drum_subdivs( 32 )
 , m_num_aa_samples( format.samples() )
 , m_bg_color( 0.098f, 0.098f, 0.098f )
-, m_hud_text_color( 230, 230, 230 )
+, m_hud_text_color( 0.90f, 0.90f, 0.90f )
 {
   this->setFormat( format );
 }
@@ -385,6 +385,11 @@ void GLWidget::setBackgroundColor( const Eigen::Matrix<GLfloat, 3, 1>& backgroun
   m_bg_color = background_color;
 }
 
+void GLWidget::setHUDTextColor( const Eigen::Matrix<GLfloat, 3, 1>& text_color )
+{
+  m_hud_text_color = text_color;
+}
+
 void GLWidget::toggleHUD()
 {
   m_display_HUD = !m_display_HUD;
@@ -496,7 +501,9 @@ void GLWidget::paintHUD()
     //   const QRect rect{ 0, 0, xextent, yextent };
     //   painter.fillRect( rect, QBrush{ QColor{ 0, 0, 0, 128 } } );
     // }
-    painter.setPen( QColor{ m_hud_text_color(0), m_hud_text_color(1), m_hud_text_color(2) } );
+    QColor color;
+    color.setRgbF( qreal(this->m_hud_text_color(0)), qreal(this->m_hud_text_color(1)), qreal(this->m_hud_text_color(2)) );
+    painter.setPen( color );
     painter.setFont( fixedFont );
     painter.drawText( 2, fixedFont.pointSize(), time_string );
     painter.drawText( 2, 2 * fixedFont.pointSize(), delta_H );

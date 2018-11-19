@@ -198,7 +198,7 @@ static bool loadCameraSettings( const rapidxml::xml_node<>& node, Eigen::Vector2
 }
 
 static bool loadGlobalRenderSettings( const rapidxml::xml_node<>& node, int& num_ball_subdivs, int& num_drum_subdivs, int& num_aa_samples,
-                                      Eigen::Vector3f& background_color )
+                                      Eigen::Vector3f& background_color, Eigen::Vector3f& hud_text_color )
 {
   // Attempt to parse the ball subdivision setting
   {
@@ -264,6 +264,27 @@ static bool loadGlobalRenderSettings( const rapidxml::xml_node<>& node, int& num
       return false;
     }
   }
+
+  // Attempt to parse the HUD text color
+  {
+    const rapidxml::xml_attribute<>* attrib{ node.first_attribute( "hud_text_color" ) };
+    if( attrib == nullptr )
+    {
+      std::cerr << "Failed to locate hud_text_color attribute for global_render_settings node." << std::endl;
+      return false;
+    }
+    if( !StringUtilities::readScalarList( attrib->value(), 3, ' ', hud_text_color ) )
+    {
+      std::cerr << "Failed to load hud_text_color attribute for global_render_settings node, must provide 3 scalars." << std::endl;
+      return false;
+    }
+    if( ( hud_text_color.array() < 0.0 ).any() || ( hud_text_color.array() > 1.0 ).any() )
+    {
+      std::cerr << "Failed to load hud_text_color attribute for global_render_settings node, must provide 3 scalars in [0, 1]." << std::endl;
+      return false;
+    }
+  }
+  std::cout << "hud_text_color: " << hud_text_color.transpose() << std::endl;
 
   return true;
 }
@@ -2114,7 +2135,7 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, SimSett
   {
     if( !loadGlobalRenderSettings( *root_node.first_node( "global_render_settings" ), new_render_settings.num_ball_subdivs,
                                    new_render_settings.num_drum_subdivs, new_render_settings.num_aa_samples,
-                                   new_render_settings.background_color ) )
+                                   new_render_settings.background_color, new_render_settings.hud_text_color ) )
     {
       std::cerr << "Failed to parse global render settings: " << file_name << std::endl;
       return false;
