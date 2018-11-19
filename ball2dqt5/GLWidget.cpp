@@ -38,6 +38,8 @@ GLWidget::GLWidget( QWidget* parent, const QSurfaceFormat& format )
 , m_num_circle_subdivs( 32 )
 , m_num_drum_subdivs( 32 )
 , m_num_aa_samples( format.samples() )
+, m_bg_color( 25, 25, 25 )
+, m_hud_text_color( 230, 230, 230 )
 {
   this->setFormat( format );
 }
@@ -312,7 +314,6 @@ void GLWidget::initializeGL()
     qFatal( "Error, failed to obtain correct OpenGL functions." );
   }
   m_f->initializeOpenGLFunctions();
-  m_f->glClearColor( 1.0, 1.0, 1.0, 1.0 );
 
   m_axis_shader.initialize( m_f );
   m_circle_shader.initialize( m_num_circle_subdivs, m_f );
@@ -351,6 +352,8 @@ void GLWidget::resizeGL( int width, int height )
 void GLWidget::paintGL()
 {
   assert( m_f != nullptr );
+
+  m_f->glClearColor( GLfloat(m_bg_color(0)) / 255.0f, GLfloat(m_bg_color(1)) / 255.0f, GLfloat(m_bg_color(2)) / 255.0f, 1.0 );
 
   m_f->glClear( GL_COLOR_BUFFER_BIT );
 
@@ -478,17 +481,17 @@ void GLWidget::paintHUD()
     text_width = std::max( text_width, font_metrics.boundingRect( delta_L ).width() );
   }
 
-  const int xextent{ text_width + 2 + 4 };
-  constexpr int yextent{ 5 * 12 + 4 };
+  // const int xextent{ text_width + 2 + 4 };
+  // constexpr int yextent{ 5 * 12 + 4 };
 
   {
     QPainter painter{ this };
-    painter.setPen( QColor{ 0, 0, 0, 125 } );
-    {
-      const QRect rect{ 0, 0, xextent, yextent };
-      painter.fillRect( rect, QBrush{ QColor{ 0, 0, 0, 128 } } );
-    }
-    painter.setPen( QColor{ 255, 255, 255 } );
+    // painter.setPen( QColor{ 0, 0, 0, 125 } );
+    // {
+    //   const QRect rect{ 0, 0, xextent, yextent };
+    //   painter.fillRect( rect, QBrush{ QColor{ 0, 0, 0, 128 } } );
+    // }
+    painter.setPen( QColor{ m_hud_text_color(0), m_hud_text_color(1), m_hud_text_color(2) } );
     painter.setFont( fixedFont );
     painter.drawText( 2, fixedFont.pointSize(), time_string );
     painter.drawText( 2, 2 * fixedFont.pointSize(), delta_H );

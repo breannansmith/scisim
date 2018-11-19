@@ -109,6 +109,9 @@ private:
   int m_num_drum_subdivs;
   int m_num_aa_samples;
 
+  Vector3i m_bg_color;
+  Vector3i m_hud_text_color;
+
 };
 
 #endif
