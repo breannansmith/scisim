@@ -247,7 +247,7 @@ void SimWorker::setOutputFPS( const bool lock_output_fps, const bool lock_render
 {
   assert( !( !lock_output_fps && lock_render_fps ) );
 
-  if( !lock_output_fps )
+  if( !lock_output_fps || ( m_integrator.dt().numerator() == 0 ) )
   {
     m_steps_per_output = 1;
   }
@@ -258,7 +258,7 @@ void SimWorker::setOutputFPS( const bool lock_output_fps, const bool lock_render
     m_steps_per_output = int( steps_per_frame.numerator() );
   }
 
-  if( !lock_render_fps )
+  if( !lock_render_fps || ( m_integrator.dt().numerator() == 0 ) )
   {
     m_steps_per_render = 1;
   }

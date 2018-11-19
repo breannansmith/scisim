@@ -177,7 +177,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 
   wireSimWorker();
 
-  setFPS( m_fps_spin_box->value(), true );
+  setFPS( m_fps_spin_box->value(), false );
 
   this->setFocusPolicy( Qt::StrongFocus );
   this->setFocus();
@@ -351,7 +351,7 @@ void ContentWidget::openScene( const QString& scene_file_name )
 
     wireSimWorker();
 
-    setFPS( m_fps_spin_box->value(), true );
+    setFPS( m_fps_spin_box->value(), false );
   }
   else
   {
@@ -453,7 +453,6 @@ void ContentWidget::outputFPSToggled()
   // Avoid output lock off, render lock on by disabling render lock
   if( !m_lock_output_fps_checkbox->isChecked() && m_lock_render_fps_checkbox->isChecked() )
   {
-    // TODO: Warning goes here
     QMessageBox::warning( this, tr("SCISim 2D Ball Simulation"), tr("Warning, unable to unlock output FPS while render FPS is locked. Unlocking render FPS.") );
     m_lock_render_fps_checkbox->toggle();
   }
@@ -631,12 +630,13 @@ void ContentWidget::setFPS( const int fps, const bool disable_output )
   if( disable_output )
   {
     disableMovieExport();
-    // TODO: Add a qwarning here
 
     if( m_simulate_checkbox->isChecked() )
     {
       m_simulate_checkbox->toggle();
     }
+
+    QMessageBox::warning( this, tr("SCISim 2D Ball Simulation"), tr("Disabling movie export due to changes in output FPS settings.") );
   }
 
   emit outputFPSChanged( m_lock_output_fps, m_lock_render_fps, m_output_fps );
