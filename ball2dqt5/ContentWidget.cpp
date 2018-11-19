@@ -450,11 +450,13 @@ void ContentWidget::outputFPSToggled()
 {
   m_lock_output_fps = m_lock_output_fps_checkbox->isChecked();
 
-  // Avoid output lock off, render lock on by disabling render lock
-  if( !m_lock_output_fps_checkbox->isChecked() && m_lock_render_fps_checkbox->isChecked() )
+  if( !m_lock_output_fps_checkbox->isChecked() )
   {
-    QMessageBox::warning( this, tr("SCISim 2D Ball Simulation"), tr("Warning, unable to unlock output FPS while render FPS is locked. Unlocking render FPS.") );
-    m_lock_render_fps_checkbox->toggle();
+    m_lock_render_fps_checkbox->setEnabled( false );
+  }
+  else
+  {
+    m_lock_render_fps_checkbox->setEnabled( true );
   }
 
   setFPS( m_output_fps, !m_movie_dir_name.isEmpty() );
@@ -464,11 +466,13 @@ void ContentWidget::lockRenderFPSToggled( const bool lock_render_fps )
 {
   m_lock_render_fps = lock_render_fps;
 
-  // Avoid output lock off, render lock on by enabling output lock
-  if( !m_lock_output_fps_checkbox->isChecked() && m_lock_render_fps_checkbox->isChecked() )
+  if( m_lock_output_fps_checkbox->isChecked() && m_lock_render_fps_checkbox->isChecked() )
   {
-    QMessageBox::warning( this, tr("SCISim 2D Ball Simulation"), tr("Warning, unable to lock render FPS while output FPS is unlocked. Locking output FPS and disabing movie output.") );
-    m_lock_output_fps_checkbox->toggle();
+    m_lock_output_fps_checkbox->setEnabled( false );
+  }
+  else
+  {
+    m_lock_output_fps_checkbox->setEnabled( true );
   }
 
   setFPS( m_output_fps, false );
