@@ -93,7 +93,7 @@ signals:
 
 private:
 
-  void setFPS( const int fps, const bool disable_output );
+  void setFPS( const int fps );
 
   void wireSimWorker();
 

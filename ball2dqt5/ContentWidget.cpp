@@ -177,7 +177,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 
   wireSimWorker();
 
-  setFPS( m_fps_spin_box->value(), false );
+  setFPS( m_fps_spin_box->value() );
 
   this->setFocusPolicy( Qt::StrongFocus );
   this->setFocus();
@@ -351,7 +351,7 @@ void ContentWidget::openScene( const QString& scene_file_name )
 
     wireSimWorker();
 
-    setFPS( m_fps_spin_box->value(), false );
+    setFPS( m_fps_spin_box->value() );
   }
   else
   {
@@ -450,6 +450,7 @@ void ContentWidget::outputFPSToggled()
 {
   m_lock_output_fps = m_lock_output_fps_checkbox->isChecked();
 
+  // 'Grey out' invalid options
   if( !m_lock_output_fps_checkbox->isChecked() )
   {
     m_lock_render_fps_checkbox->setEnabled( false );
@@ -459,23 +460,27 @@ void ContentWidget::outputFPSToggled()
     m_lock_render_fps_checkbox->setEnabled( true );
   }
 
-  setFPS( m_output_fps, !m_movie_dir_name.isEmpty() );
+  setFPS( m_output_fps );
 }
 
 void ContentWidget::lockRenderFPSToggled( const bool lock_render_fps )
 {
   m_lock_render_fps = lock_render_fps;
 
-  if( m_lock_output_fps_checkbox->isChecked() && m_lock_render_fps_checkbox->isChecked() )
+  // 'Grey out' invalid options
+  if( m_movie_dir_name.isEmpty() )
   {
-    m_lock_output_fps_checkbox->setEnabled( false );
-  }
-  else
-  {
-    m_lock_output_fps_checkbox->setEnabled( true );
+    if( m_lock_output_fps_checkbox->isChecked() && m_lock_render_fps_checkbox->isChecked() )
+    {
+      m_lock_output_fps_checkbox->setEnabled( false );
+    }
+    else
+    {
+      m_lock_output_fps_checkbox->setEnabled( true );
+    }
   }
 
-  setFPS( m_output_fps, false );
+  setFPS( m_output_fps );
 }
 
 void ContentWidget::lockCameraToggled( const bool lock_camera )
@@ -505,6 +510,21 @@ void ContentWidget::exportMovieToggled( const bool checked )
   else
   {
     setMovieDir( tr( "" ) );
+  }
+
+  // 'Grey out' invalid options when movie exporting is enabled
+  if( m_export_movie_checkbox->isChecked() )
+  {
+    m_lock_output_fps_checkbox->setEnabled( false );
+    m_fps_spin_box->setEnabled( false );
+  }
+  else
+  {
+    if( !m_lock_render_fps_checkbox->isChecked() )
+    {
+      m_lock_output_fps_checkbox->setEnabled( true );
+    }
+    m_fps_spin_box->setEnabled( true );
   }
 }
 
@@ -623,25 +643,13 @@ QString ContentWidget::getDirectoryNameFromUser( const QString& prompt )
 
 void ContentWidget::fpsChanged( const int fps )
 {
-  setFPS( fps, !m_movie_dir_name.isEmpty() );
+  setFPS( fps );
 }
 
-void ContentWidget::setFPS( const int fps, const bool disable_output )
+void ContentWidget::setFPS( const int fps )
 {
   assert( fps > 0 );
   m_output_fps = fps;
-
-  if( disable_output )
-  {
-    disableMovieExport();
-
-    if( m_simulate_checkbox->isChecked() )
-    {
-      m_simulate_checkbox->toggle();
-    }
-
-    QMessageBox::warning( this, tr("SCISim 2D Ball Simulation"), tr("Disabling movie export due to changes in output FPS settings.") );
-  }
 
   emit outputFPSChanged( m_lock_output_fps, m_lock_render_fps, m_output_fps );
 }
