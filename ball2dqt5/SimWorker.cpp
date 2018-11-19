@@ -20,9 +20,10 @@ SimWorker::SimWorker()
 , m_delta_H0( 0.0 )
 , m_delta_p0( Vector2s::Zero() )
 , m_delta_L0( 0.0 )
-, m_ball_colors()
-, m_color_gen( 0.0, 1.0 )
-, m_ball_color_gen( 1337 )
+, m_body_colors()
+, m_rn_gen( 1337 )
+, m_color_selector()
+, m_template_colors()
 , m_plane_render_settings0()
 , m_drum_render_settings0()
 , m_portal_render_settings0()
@@ -31,20 +32,17 @@ SimWorker::SimWorker()
 , m_portal_render_settings()
 , m_steps_per_output( 1 )
 , m_steps_per_render( 1 )
-{}
+{
+  m_template_colors.emplace_back( Vector3s(214.0, 70.0, 153.0) / 255.0 );
+  m_template_colors.emplace_back( Vector3s(249.0, 243.0, 156.0) / 255.0 );
+  m_template_colors.emplace_back( Vector3s(118.0, 206.0, 220.0) / 255.0 );
+  m_color_selector = std::uniform_int_distribution<int>( 0, int(m_template_colors.size()) - 1 );
+}
 
 Vector3s SimWorker::generateColor()
 {
-  Vector3s color( 1.0, 1.0, 1.0 );
-  // Generate colors until we get one with a luminance in [0.1, 0.9]
-  while( ( 0.2126 * color.x() + 0.7152 * color.y() + 0.0722 * color.z() ) > 0.9 ||
-        ( 0.2126 * color.x() + 0.7152 * color.y() + 0.0722 * color.z() ) < 0.1 )
-  {
-    color.x() = m_color_gen( m_ball_color_gen );
-    color.y() = m_color_gen( m_ball_color_gen );
-    color.z() = m_color_gen( m_ball_color_gen );
-  }
-  return color;
+  const int idx = m_color_selector( m_rn_gen );
+  return m_template_colors[idx];
 }
 
 static void ballInsertCallback( void* context, int num_balls )
@@ -54,8 +52,8 @@ static void ballInsertCallback( void* context, int num_balls )
 
 void SimWorker::insertBallCallback( const int num_balls )
 {
-  m_ball_colors.conservativeResize( 3 * num_balls );
-  m_ball_colors.segment<3>( 3 * num_balls - 3) = generateColor();
+  m_body_colors.conservativeResize( 3 * num_balls );
+  m_body_colors.segment<3>( 3 * num_balls - 3) = generateColor();
 }
 
 static void planeDeleteCallback( void* context, int plane_idx )
@@ -127,11 +125,11 @@ SimWorker::SimWorker( const QString& xml_scene_file_name, SimSettings& sim_setti
   m_delta_L0 = 0.0;
 
   // Generate a random color for each ball
-  m_ball_color_gen = std::mt19937_64( 1337 );
-  m_ball_colors.resize( 3 * m_sim.state().nballs() );
-  for( int i = 0; i < m_ball_colors.size(); i += 3 )
+  m_rn_gen = std::mt19937_64( 1337 );
+  m_body_colors.resize( 3 * m_sim.state().nballs() );
+  for( int i = 0; i < m_body_colors.size(); i += 3 )
   {
-    m_ball_colors.segment<3>( i ) = generateColor();
+    m_body_colors.segment<3>( i ) = generateColor();
   }
 
   m_plane_render_settings = std::move( render_settings.plane_render_settings );
@@ -173,11 +171,11 @@ void SimWorker::reset()
   m_delta_L0 = 0.0;
 
   // Reset ball colors, in case the number of balls changed
-  m_ball_color_gen = std::mt19937_64( 1337 );
-  m_ball_colors.resize( 3 * m_sim.state().nballs() );
-  for( int i = 0; i < m_ball_colors.size(); i += 3 )
+  m_rn_gen = std::mt19937_64( 1337 );
+  m_body_colors.resize( 3 * m_sim.state().nballs() );
+  for( int i = 0; i < m_body_colors.size(); i += 3 )
   {
-    m_ball_colors.segment<3>( i ) = generateColor();
+    m_body_colors.segment<3>( i ) = generateColor();
   }
 
   m_plane_render_settings = m_plane_render_settings0;
@@ -305,9 +303,9 @@ const scalar& SimWorker::deltaL0() const
   return m_delta_L0;
 }
 
-const VectorXs& SimWorker::ballColors() const
+const VectorXs& SimWorker::bodyColors() const
 {
-  return m_ball_colors;
+  return m_body_colors;
 }
 
 const std::vector<PlaneRenderSettings>& SimWorker::planeRenderSettings() const

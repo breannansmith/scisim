@@ -284,7 +284,7 @@ void ContentWidget::copyStepResults( const bool was_reset, const bool render_fra
     if( render_frame )
     {
       m_sim_worker->computeCameraCenter( m_empty, m_bbox );
-      m_gl_widget->copyRenderState( m_sim_worker->sim().state(), m_sim_worker->ballColors(), m_sim_worker->planeRenderSettings(),
+      m_gl_widget->copyRenderState( m_sim_worker->sim().state(), m_sim_worker->bodyColors(), m_sim_worker->planeRenderSettings(),
                                     m_sim_worker->drumRenderSettings(), m_sim_worker->portalRenderSettings(),
                                     scalar(m_sim_worker->integrator().dt()) * m_sim_worker->iteration(),
                                     m_sim_worker->endTime(), m_sim_worker->deltaH0(), m_sim_worker->deltap0(), m_sim_worker->deltaL0() );
@@ -302,7 +302,7 @@ void ContentWidget::copyStepResults( const bool was_reset, const bool render_fra
     disableMovieExport();
 
     m_sim_worker->computeCameraCenter( m_empty, m_bbox );
-    m_gl_widget->copyRenderState( m_sim_worker->sim().state(), m_sim_worker->ballColors(), m_sim_worker->planeRenderSettings(),
+    m_gl_widget->copyRenderState( m_sim_worker->sim().state(), m_sim_worker->bodyColors(), m_sim_worker->planeRenderSettings(),
                                   m_sim_worker->drumRenderSettings(), m_sim_worker->portalRenderSettings(),
                                   scalar(m_sim_worker->integrator().dt()) * m_sim_worker->iteration(),
                                   m_sim_worker->endTime(), m_sim_worker->deltaH0(), m_sim_worker->deltap0(), m_sim_worker->deltaL0() );
@@ -413,7 +413,7 @@ void ContentWidget::initializeUIAndGL( const QString& scene_file_name, const boo
   const int dt_display_precision = computeTimestepDisplayPrecision( m_sim_worker->integrator().dt(), sim_settings.dt_string );
 
   m_sim_worker->computeCameraCenter( m_empty, m_bbox );
-  m_gl_widget->initialize( render_on_load, render_settings, dt_display_precision, m_sim_worker->sim().state(), m_sim_worker->ballColors(),
+  m_gl_widget->initialize( render_on_load, render_settings, dt_display_precision, m_sim_worker->sim().state(), m_sim_worker->bodyColors(),
                            m_sim_worker->planeRenderSettings(), m_sim_worker->drumRenderSettings(), m_sim_worker->portalRenderSettings(),
                            m_sim_worker->endTime(), m_empty, m_bbox );
 

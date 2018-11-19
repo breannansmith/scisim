@@ -40,7 +40,7 @@ public:
 
   const scalar& deltaL0() const;
 
-  const VectorXs& ballColors() const;
+  const VectorXs& bodyColors() const;
 
   const std::vector<PlaneRenderSettings>& planeRenderSettings() const;
 
@@ -96,10 +96,11 @@ private:
   Vector2s m_delta_p0;
   scalar m_delta_L0;
 
-  // Colors to render balls in the scene
-  VectorXs m_ball_colors;
-  std::uniform_real_distribution<scalar> m_color_gen;
-  std::mt19937_64 m_ball_color_gen;
+  // Colors to render bodies in the scene
+  VectorXs m_body_colors;
+  std::mt19937_64 m_rn_gen;
+  std::uniform_int_distribution<int> m_color_selector;
+  std::vector<Vector3s> m_template_colors;
 
   // Static geometry render instances
   std::vector<PlaneRenderSettings> m_plane_render_settings0;
