@@ -25,6 +25,7 @@
 #include "scisim/ConstrainedMaps/StabilizedImpactFrictionMap.h"
 #include "scisim/ConstrainedMaps/StaggeredProjections.h"
 #include "scisim/ConstrainedMaps/SymplecticEulerImpactFrictionMap.h"
+#include "scisim/Math/Rational.h"
 #include "scisim/StringUtilities.h"
 
 #include "rapidxml.hpp"
@@ -87,7 +88,8 @@ static bool loadXMLFile( const std::string& filename, std::vector<char>& xmlchar
   return true;
 }
 
-static bool loadCameraSettings( const rapidxml::xml_node<>& node, Eigen::Vector2d& camera_center, double& camera_scale_factor, unsigned& fps, bool& render_at_fps, bool& lock_camera )
+static bool loadCameraSettings( const rapidxml::xml_node<>& node, Eigen::Vector2d& camera_center, double& camera_scale_factor, unsigned& fps,
+                                bool& render_at_fps, bool& lock_camera, bool& output_at_fps )
 {
   // Attempt to parse the camera's center
   {
@@ -173,6 +175,21 @@ static bool loadCameraSettings( const rapidxml::xml_node<>& node, Eigen::Vector2
     if( !StringUtilities::extractFromString( locked_attrib->value(), lock_camera ) )
     {
       std::cerr << "Failed to parse locked attribute for camera. Value must be a boolean." << std::endl;
+      return false;
+    }
+  }
+
+  // Attempt to parse the output_at_fps setting
+  {
+    const rapidxml::xml_attribute<>* output_at_fps_attrib{ node.first_attribute( "output_at_fps" ) };
+    if( output_at_fps_attrib == nullptr )
+    {
+      std::cerr << "Failed to locate output_at_fps attribute for camera" << std::endl;
+      return false;
+    }
+    if( !StringUtilities::extractFromString( output_at_fps_attrib->value(), output_at_fps ) )
+    {
+      std::cerr << "Failed to parse output_at_fps attribute for camera. Value must be a boolean." << std::endl;
       return false;
     }
   }
@@ -2039,7 +2056,8 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, SimSett
   if( root_node.first_node( "camera" ) != nullptr )
   {
     new_render_settings.camera_set = true;
-    if( !loadCameraSettings( *root_node.first_node( "camera" ), new_render_settings.camera_center, new_render_settings.camera_scale_factor, new_render_settings.fps, new_render_settings.render_at_fps, new_render_settings.lock_camera ) )
+    if( !loadCameraSettings( *root_node.first_node( "camera" ), new_render_settings.camera_center, new_render_settings.camera_scale_factor,
+                             new_render_settings.fps, new_render_settings.render_at_fps, new_render_settings.lock_camera, new_render_settings.output_at_fps ) )
     {
       std::cerr << "Failed to parse camera node: " << file_name << std::endl;
       return false;

@@ -6,8 +6,6 @@
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
 #include "scisim/Math/MathDefines.h"
-// TODO: This doesn't need to be here
-#include "scisim/Math/Rational.h"
 #include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
 
 #include "ball2d/Ball2DState.h"
@@ -74,7 +72,6 @@ struct RenderSettings final
   Eigen::Vector2d camera_center = Eigen::Vector2d::Zero();
   double camera_scale_factor = 1.0;
   unsigned fps = 30;
-  // TODO: Load this setting
   bool output_at_fps = true;
   bool render_at_fps = false;
   bool lock_camera = false;
