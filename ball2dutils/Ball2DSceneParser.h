@@ -6,6 +6,7 @@
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
 #include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
 #include "scisim/Math/MathDefines.h"
+// TODO: This doesn't need to be here
 #include "scisim/Math/Rational.h"
 #include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
 

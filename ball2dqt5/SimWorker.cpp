@@ -247,35 +247,15 @@ void SimWorker::setOutputFPS( const bool lock_output_fps, const bool lock_render
 {
   assert( !( !lock_output_fps && lock_render_fps ) );
 
-  // TODO: These will be cleaned up significantly when we do validation
-
   if( !lock_output_fps )
   {
     m_steps_per_output = 1;
   }
   else
   {
-    if( 1.0 < scalar( m_integrator.dt() * std::intmax_t( fps ) ) )
-    {
-      emit errorMessage( tr("Requested movie frame rate faster than timestep. Dumping at timestep rate.") );
-      m_steps_per_output = 1;
-    }
-    else
-    {
-      const Rational<std::intmax_t> potential_steps_per_frame{ std::intmax_t( 1 ) / ( m_integrator.dt() * std::intmax_t( fps ) ) };
-      if( !potential_steps_per_frame.isInteger() )
-      {
-        if( m_integrator.dt() != Rational<std::intmax_t>{ 0 } )
-        {
-          emit errorMessage( tr("Warning, timestep and output frequency do not yield an integer number of timesteps for data output. Dumping at timestep rate.") );
-        }
-        m_steps_per_output = 1;
-      }
-      else
-      {
-        m_steps_per_output = int( potential_steps_per_frame.numerator() );
-      }
-    }
+    const Rational<std::intmax_t> steps_per_frame{ std::intmax_t( 1 ) / ( m_integrator.dt() * std::intmax_t( fps ) ) };
+    assert( steps_per_frame.isInteger() );
+    m_steps_per_output = int( steps_per_frame.numerator() );
   }
 
   if( !lock_render_fps )
@@ -284,27 +264,9 @@ void SimWorker::setOutputFPS( const bool lock_output_fps, const bool lock_render
   }
   else
   {
-    if( 1.0 < scalar( m_integrator.dt() * std::intmax_t( fps ) ) )
-    {
-      emit errorMessage( tr("Requested render frame rate faster than timestep. Dumping at timestep rate.") );
-      m_steps_per_render = 1;
-    }
-    else
-    {
-      const Rational<std::intmax_t> potential_steps_per_frame{ std::intmax_t( 1 ) / ( m_integrator.dt() * std::intmax_t( fps ) ) };
-      if( !potential_steps_per_frame.isInteger() )
-      {
-        if( m_integrator.dt() != Rational<std::intmax_t>{ 0 } )
-        {
-          emit errorMessage( tr("Warning, timestep and render frequency do not yield an integer number of timesteps for data render. Rendering at timestep rate.") );
-        }
-        m_steps_per_render = 1;
-      }
-      else
-      {
-        m_steps_per_render = int( potential_steps_per_frame.numerator() );
-      }
-    }
+    const Rational<std::intmax_t> steps_per_frame{ std::intmax_t( 1 ) / ( m_integrator.dt() * std::intmax_t( fps ) ) };
+    assert( steps_per_frame.isInteger() );
+    m_steps_per_render = int( steps_per_frame.numerator() );
   }
 }
 

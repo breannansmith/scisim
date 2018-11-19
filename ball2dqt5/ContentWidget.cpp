@@ -8,7 +8,6 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QSpinBox>
 #include <QtGui>
 #include <QVBoxLayout>
 
@@ -18,6 +17,7 @@
 
 #include "GLWidget.h"
 #include "SimWorker.h"
+#include "ValidatingSpinBox.h"
 
 ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settings, RenderSettings& render_settings, QWidget* parent )
 : QWidget( parent )
@@ -142,16 +142,18 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     // Label for movie output FPS
     QLabel* fps_label{ new QLabel{ this } };
     // fps_label->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
-    fps_label->setText( tr( "Output FPS:" ) );
+    fps_label->setText( tr( "FPS:" ) );
     fps_hbox->addWidget( fps_label );
 
     // Input for movie output FPS
-    m_fps_spin_box = new QSpinBox{ this };
+    m_fps_spin_box = new ValidatingSpinBox{ this };
     m_fps_spin_box->setKeyboardTracking( false );
     m_fps_spin_box->setButtonSymbols( QAbstractSpinBox::NoButtons );
     m_fps_spin_box->setRange( 1, 1000 );
     m_fps_spin_box->setValue( 30 );
     connect( m_fps_spin_box, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &ContentWidget::fpsChanged );
+    connect( m_fps_spin_box, &QSpinBox::editingFinished, m_fps_spin_box, &ValidatingSpinBox::displayErrorMessage );
+    connect( m_fps_spin_box, &QSpinBox::editingFinished, [this](){ this->setFocus(); } );
     fps_hbox->addWidget( m_fps_spin_box );
 
     controls_layout->addLayout( fps_hbox );
@@ -420,6 +422,9 @@ void ContentWidget::initializeUIAndGL( const QString& scene_file_name, const boo
   assert( m_lock_output_fps_checkbox != nullptr );
   m_lock_output_fps_checkbox->setCheckState( render_settings.output_at_fps ? Qt::Checked : Qt::Unchecked );
 
+  // NB: This relies on the fact that timesteps are fixed per scene
+  m_fps_spin_box->setTimestep( m_sim_worker->integrator().dt() );
+
   m_xml_file_name = scene_file_name;
 
   disableMovieExport();
@@ -615,7 +620,7 @@ QString ContentWidget::getDirectoryNameFromUser( const QString& prompt )
 
 void ContentWidget::fpsChanged( const int fps )
 {
-  setFPS( fps, true );
+  setFPS( fps, !m_movie_dir_name.isEmpty() );
 }
 
 void ContentWidget::setFPS( const int fps, const bool disable_output )
@@ -626,6 +631,7 @@ void ContentWidget::setFPS( const int fps, const bool disable_output )
   if( disable_output )
   {
     disableMovieExport();
+    // TODO: Add a qwarning here
 
     if( m_simulate_checkbox->isChecked() )
     {

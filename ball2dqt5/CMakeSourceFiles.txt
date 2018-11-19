@@ -9,6 +9,7 @@ set( Sources
   PlaneShader.cpp
   RectangleShader.cpp
   SimWorker.cpp
+  ValidatingSpinBox.cpp
   Window.cpp
 )
 
@@ -26,6 +27,7 @@ set( Headers
   PlaneShader.h
   RectangleShader.h
   SimWorker.h
+  ValidatingSpinBox.h
   Window.h
 )
 

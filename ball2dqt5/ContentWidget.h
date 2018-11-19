@@ -11,10 +11,10 @@
 
 class QCheckBox;
 class QPushButton;
-class QSpinBox;
 
 class GLWidget;
 class SimWorker;
+class ValidatingSpinBox;
 
 class ContentWidget final : public QWidget
 {
@@ -128,7 +128,7 @@ private:
 
   QCheckBox* m_display_hud_checkbox;
 
-  QSpinBox* m_fps_spin_box;
+  ValidatingSpinBox* m_fps_spin_box;
 
   QPushButton* m_step_button;
 
