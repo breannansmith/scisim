@@ -143,7 +143,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     QLabel* fps_label{ new QLabel{ this } };
     // fps_label->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
     fps_label->setText( tr( "FPS:" ) );
-    fps_hbox->addWidget( fps_label );
+    fps_hbox->addWidget( fps_label, 0 );
 
     // Input for movie output FPS
     m_fps_spin_box = new ValidatingSpinBox{ this };
@@ -154,7 +154,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     connect( m_fps_spin_box, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &ContentWidget::fpsChanged );
     connect( m_fps_spin_box, &QSpinBox::editingFinished, m_fps_spin_box, &ValidatingSpinBox::displayErrorMessage );
     connect( m_fps_spin_box, &QSpinBox::editingFinished, [this](){ this->setFocus(); } );
-    fps_hbox->addWidget( m_fps_spin_box );
+    fps_hbox->addWidget( m_fps_spin_box, 1 );
 
     controls_layout->addLayout( fps_hbox );
 
