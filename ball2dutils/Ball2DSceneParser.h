@@ -66,6 +66,8 @@ struct RenderSettings final
   bool render_at_fps = false;
   bool lock_camera = false;
 
+  Eigen::Vector3f background_color = Eigen::Vector3f::Constant(0.098f);
+
   int num_ball_subdivs = 64;
   int num_drum_subdivs = 64;
   int num_aa_samples = 4;

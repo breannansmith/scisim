@@ -38,7 +38,7 @@ GLWidget::GLWidget( QWidget* parent, const QSurfaceFormat& format )
 , m_num_circle_subdivs( 32 )
 , m_num_drum_subdivs( 32 )
 , m_num_aa_samples( format.samples() )
-, m_bg_color( 25, 25, 25 )
+, m_bg_color( 0.098f, 0.098f, 0.098f )
 , m_hud_text_color( 230, 230, 230 )
 {
   this->setFormat( format );
@@ -353,7 +353,7 @@ void GLWidget::paintGL()
 {
   assert( m_f != nullptr );
 
-  m_f->glClearColor( GLfloat(m_bg_color(0)) / 255.0f, GLfloat(m_bg_color(1)) / 255.0f, GLfloat(m_bg_color(2)) / 255.0f, 1.0 );
+  m_f->glClearColor( m_bg_color(0), m_bg_color(1), m_bg_color(2), 1.0 );
 
   m_f->glClear( GL_COLOR_BUFFER_BIT );
 
@@ -378,6 +378,11 @@ void GLWidget::paintGL()
 void GLWidget::lockCamera( const bool lock_camera )
 {
   m_lock_camera = lock_camera;
+}
+
+void GLWidget::setBackgroundColor( const Eigen::Matrix<GLfloat, 3, 1>& background_color )
+{
+  m_bg_color = background_color;
 }
 
 void GLWidget::toggleHUD()

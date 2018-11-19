@@ -40,6 +40,8 @@ public:
                    const std::vector<DrumRenderSettings>& drum_settings, const std::vector<PortalRenderSettings>& portal_settings,
                    const scalar& end_time, const bool empty, const Vector4s& bbox );
 
+  void setBackgroundColor( const Eigen::Matrix<GLfloat, 3, 1>& background_color );
+
   void lockCamera( const bool lock_camera );
 
   void toggleHUD();
@@ -109,7 +111,7 @@ private:
   int m_num_drum_subdivs;
   int m_num_aa_samples;
 
-  Vector3i m_bg_color;
+  Eigen::Matrix<GLfloat, 3, 1> m_bg_color;
   Vector3i m_hud_text_color;
 
 };

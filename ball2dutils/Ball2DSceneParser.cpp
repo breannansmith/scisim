@@ -197,7 +197,8 @@ static bool loadCameraSettings( const rapidxml::xml_node<>& node, Eigen::Vector2
   return true;
 }
 
-static bool loadGlobalRenderSettings( const rapidxml::xml_node<>& node, int& num_ball_subdivs, int& num_drum_subdivs, int& num_aa_samples )
+static bool loadGlobalRenderSettings( const rapidxml::xml_node<>& node, int& num_ball_subdivs, int& num_drum_subdivs, int& num_aa_samples,
+                                      Eigen::Vector3f& background_color )
 {
   // Attempt to parse the ball subdivision setting
   {
@@ -240,6 +241,26 @@ static bool loadGlobalRenderSettings( const rapidxml::xml_node<>& node, int& num
     if( !StringUtilities::extractFromString( attrib->value(), num_aa_samples ) )
     {
       std::cerr << "Failed to parse num_aa_samples attribute for global_render_settings." << std::endl;
+      return false;
+    }
+  }
+
+  // Attempt to parse the background color
+  {
+    const rapidxml::xml_attribute<>* attrib{ node.first_attribute( "background_color" ) };
+    if( attrib == nullptr )
+    {
+      std::cerr << "Failed to locate background_color attribute for global_render_settings node." << std::endl;
+      return false;
+    }
+    if( !StringUtilities::readScalarList( attrib->value(), 3, ' ', background_color ) )
+    {
+      std::cerr << "Failed to load background_color attribute for global_render_settings node, must provide 3 scalars." << std::endl;
+      return false;
+    }
+    if( ( background_color.array() < 0.0 ).any() || ( background_color.array() > 1.0 ).any() )
+    {
+      std::cerr << "Failed to load background_color attribute for global_render_settings node, must provide 3 scalars in [0, 1]." << std::endl;
       return false;
     }
   }
@@ -2091,7 +2112,9 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, SimSett
   // Attempt to load the optional global render settings
   if( root_node.first_node( "global_render_settings" ) != nullptr )
   {
-    if( !loadGlobalRenderSettings( *root_node.first_node( "global_render_settings" ), new_render_settings.num_ball_subdivs, new_render_settings.num_drum_subdivs, new_render_settings.num_aa_samples ) )
+    if( !loadGlobalRenderSettings( *root_node.first_node( "global_render_settings" ), new_render_settings.num_ball_subdivs,
+                                   new_render_settings.num_drum_subdivs, new_render_settings.num_aa_samples,
+                                   new_render_settings.background_color ) )
     {
       std::cerr << "Failed to parse global render settings: " << file_name << std::endl;
       return false;
