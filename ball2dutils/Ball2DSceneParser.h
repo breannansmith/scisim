@@ -1,18 +1,8 @@
 #ifndef BALL_2D_SCENE_PARSER_H
 #define BALL_2D_SCENE_PARSER_H
 
-#include "scisim/ConstrainedMaps/FrictionSolver.h"
-#include "scisim/ConstrainedMaps/ImpactFrictionMap.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/ImpactMap.h"
-#include "scisim/ConstrainedMaps/ImpactMaps/ImpactOperator.h"
-#include "scisim/Math/MathDefines.h"
-#include "scisim/UnconstrainedMaps/UnconstrainedMap.h"
-
 #include "ball2d/Ball2DState.h"
 #include "ball2d/Integrator.h"
-
-#include <iosfwd>
-#include <memory>
 
 struct PlaneRenderSettings final
 {
