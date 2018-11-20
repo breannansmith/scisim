@@ -63,7 +63,7 @@ public slots:
   void exportMovieInit();
 
   #ifdef USE_HDF5
-  void exportStateInit( const QString& dir_name );
+  void exportStateInit( QString dir_name );
   #endif
 
   void setOutputFPS( const bool lock_output_fps, const bool lock_render_fps, const int fps );
@@ -72,7 +72,7 @@ signals:
 
   void postStep( const bool was_reset, const bool render_frame, const bool save_screenshot, const int output_num );
 
-  void errorMessage( const QString& message );
+  void errorMessage( QString message );
 
 private:
 

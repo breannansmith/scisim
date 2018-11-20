@@ -378,7 +378,7 @@ void ContentWidget::copyStepResults( const bool was_reset, const bool render_fra
   }
 }
 
-void ContentWidget::workerErrorMessage( const QString& message )
+void ContentWidget::workerErrorMessage( QString message )
 {
   QMessageBox::warning( this, tr("SCISim 2D Ball Simulation"), message );
 }

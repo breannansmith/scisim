@@ -296,7 +296,7 @@ void SimWorker::saveStateToHDF5( const QString& dir_name, const int output_num )
   }
 }
 
-void SimWorker::exportStateInit( const QString& dir_name )
+void SimWorker::exportStateInit( QString dir_name )
 {
   if( m_iteration == 0 )
   {

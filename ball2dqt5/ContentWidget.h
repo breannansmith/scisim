@@ -94,7 +94,7 @@ public slots:
 
   void copyStepResults( const bool was_reset, const bool render_frame, const bool save_screenshot, const int output_num );
 
-  void workerErrorMessage( const QString& message );
+  void workerErrorMessage( QString message );
 
 signals:
 
@@ -108,7 +108,7 @@ signals:
   void outputFPSChanged( const bool lock_output_fps, const bool lock_render_fps, const int fps );
   void exportMovieEnabled();
   #ifdef USE_HDF5
-  void exportStateEnabled( const QString& dir_name );
+  void exportStateEnabled( QString dir_name );
   #endif
 
   void lockRenderFPSCheckboxEnabled( const bool enabled );
