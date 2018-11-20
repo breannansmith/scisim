@@ -75,7 +75,7 @@ int GLWidget::sampleCount() const
 }
 
 void GLWidget::initialize( const bool& render_on_load, const RenderSettings& render_settings, const int dt_display_precision,
-                           const Ball2DState& state, const VectorXs& body_colors, const std::vector<PlaneRenderSettings>& plane_settings,
+                           const Ball2DState& state, const Eigen::VectorXf& body_colors, const std::vector<PlaneRenderSettings>& plane_settings,
                            const std::vector<DrumRenderSettings>& drum_settings, const std::vector<PortalRenderSettings>& portal_settings,
                            const scalar& end_time, const bool empty, const Vector4s& bbox )
 {
@@ -128,7 +128,7 @@ void GLWidget::initialize( const bool& render_on_load, const RenderSettings& ren
   copyRenderState( state, body_colors, plane_settings, drum_settings, portal_settings, 0.0, end_time, 0.0, Vector2s::Zero(), 0.0 );
 }
 
-void GLWidget::copyRenderState( const Ball2DState& state, const VectorXs& body_colors, const std::vector<PlaneRenderSettings>& plane_settings,
+void GLWidget::copyRenderState( const Ball2DState& state, const Eigen::VectorXf& body_colors, const std::vector<PlaneRenderSettings>& plane_settings,
                                 const std::vector<DrumRenderSettings>& drum_settings, const std::vector<PortalRenderSettings>& portal_settings,
                                 const scalar& time, const scalar& end_time, const scalar& delta_H, const Vector2s& delta_p, const scalar& delta_L )
 {
@@ -169,7 +169,7 @@ void GLWidget::copyRenderState( const Ball2DState& state, const VectorXs& body_c
       // Center of mass, radius, and color
       cd.segment<2>( 6 * ball_idx ) = q.segment<2>( 2 * ball_idx ).cast<GLfloat>();
       cd( 6 * ball_idx + 2 ) = GLfloat( r( ball_idx ) );
-      cd.segment<3>( 6 * ball_idx + 3 ) = body_colors.segment<3>( 3 * ball_idx ).cast<GLfloat>();
+      cd.segment<3>( 6 * ball_idx + 3 ) = body_colors.segment<3>( 3 * ball_idx );
     }
 
     // Copy over the teleported balls
@@ -178,7 +178,7 @@ void GLWidget::copyRenderState( const Ball2DState& state, const VectorXs& body_c
       // Center of mass, radius, and color
       cd.segment<2>( 6 * state.nballs() + 6 * tlprtd_idx ) = teleported_centers[tlprtd_idx].cast<GLfloat>();
       cd( 6 * state.nballs() + 6 * tlprtd_idx + 2 ) = GLfloat( r( teleported_indices[tlprtd_idx] ) );
-      cd.segment<3>( 6 * state.nballs() + 6 * tlprtd_idx + 3 ) = body_colors.segment<3>( 3 * teleported_indices[tlprtd_idx] ).cast<GLfloat>();
+      cd.segment<3>( 6 * state.nballs() + 6 * tlprtd_idx + 3 ) = body_colors.segment<3>( 3 * teleported_indices[tlprtd_idx] );
     }
   }
 

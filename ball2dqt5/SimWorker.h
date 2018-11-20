@@ -40,7 +40,7 @@ public:
 
   const scalar& deltaL0() const;
 
-  const VectorXs& bodyColors() const;
+  const Eigen::VectorXf& bodyColors() const;
 
   const std::vector<PlaneRenderSettings>& planeRenderSettings() const;
 
@@ -68,7 +68,7 @@ signals:
 
 private:
 
-  Vector3s generateColor();
+  Eigen::Vector3f generateColor();
 
   // Initial and current state of the simulation
   Ball2DSim m_sim0;
@@ -97,19 +97,19 @@ private:
   scalar m_delta_L0;
 
   // Colors to render bodies in the scene
-  VectorXs m_body_colors;
+  Eigen::VectorXf m_body_colors;
   std::mt19937_64 m_rn_gen;
+  std::vector<Eigen::Vector3f> m_template_colors;
   std::uniform_int_distribution<int> m_color_selector;
-  std::vector<Vector3s> m_template_colors;
 
   // Static geometry render instances
-  std::vector<PlaneRenderSettings> m_plane_render_settings0;
-  std::vector<DrumRenderSettings> m_drum_render_settings0;
-  std::vector<PortalRenderSettings> m_portal_render_settings0;
-
   std::vector<PlaneRenderSettings> m_plane_render_settings;
   std::vector<DrumRenderSettings> m_drum_render_settings;
   std::vector<PortalRenderSettings> m_portal_render_settings;
+
+  std::vector<PlaneRenderSettings> m_plane_render_settings0;
+  std::vector<DrumRenderSettings> m_drum_render_settings0;
+  std::vector<PortalRenderSettings> m_portal_render_settings0;
 
   // Number of timesteps between outputs of various types
   int m_steps_per_output;

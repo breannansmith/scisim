@@ -36,7 +36,7 @@ public:
   int sampleCount() const;
 
   void initialize( const bool& render_on_load, const RenderSettings& render_settings, const int dt_display_precision,
-                   const Ball2DState& state, const VectorXs& body_colors, const std::vector<PlaneRenderSettings>& plane_settings,
+                   const Ball2DState& state, const Eigen::VectorXf& body_colors, const std::vector<PlaneRenderSettings>& plane_settings,
                    const std::vector<DrumRenderSettings>& drum_settings, const std::vector<PortalRenderSettings>& portal_settings,
                    const scalar& end_time, const bool empty, const Vector4s& bbox );
 
@@ -54,7 +54,7 @@ public:
 
   std::string exportCameraSettings( const int output_fps, const bool render_at_fps );
 
-  void copyRenderState( const Ball2DState& state, const VectorXs& body_colors, const std::vector<PlaneRenderSettings>& plane_settings,
+  void copyRenderState( const Ball2DState& state, const Eigen::VectorXf& body_colors, const std::vector<PlaneRenderSettings>& plane_settings,
                         const std::vector<DrumRenderSettings>& drum_settings, const std::vector<PortalRenderSettings>& portal_settings,
                         const scalar& time, const scalar& end_time, const scalar& delta_H, const Vector2s& delta_p, const scalar& delta_L );
 

@@ -284,7 +284,6 @@ static bool loadGlobalRenderSettings( const rapidxml::xml_node<>& node, int& num
       return false;
     }
   }
-  std::cout << "hud_text_color: " << hud_text_color.transpose() << std::endl;
 
   return true;
 }
@@ -1788,6 +1787,36 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, SimSett
   return true;
 }
 
+static bool loadBodyColorSettings( const rapidxml::xml_node<>& node, std::vector<Eigen::Vector3f>& random_body_colors )
+{
+  random_body_colors.clear();
+
+  for( rapidxml::xml_node<>* nd = node.first_node( "random_body_color" ); nd; nd = nd->next_sibling( "random_body_color" ) )
+  {
+    const rapidxml::xml_attribute<>* const attrib{ nd->first_attribute( "rgb_float" ) };
+    if( !attrib )
+    {
+      std::cerr << "Failed to locate rgb_float attribute for random_body_color." << std::endl;
+      return false;
+    }
+
+    Eigen::Vector3f random_body_color;
+    if( !StringUtilities::readScalarList( attrib->value(), 3, ' ', random_body_color ) )
+    {
+      std::cerr << "Failed to load rgb_float attribute for random_body_color node, must provide 3 scalars." << std::endl;
+      return false;
+    }
+    if( ( random_body_color.array() < 0.0 ).any() || ( random_body_color.array() > 1.0 ).any() )
+    {
+      std::cerr << "Failed to load rgb_float attribute for random_body_color node, must provide 3 scalars in [0, 1]." << std::endl;
+      return false;
+    }
+    random_body_colors.emplace_back( random_body_color );
+  }
+
+  return true;
+}
+
 static bool loadPlaneRendererSettings( const rapidxml::xml_node<>& node, const int plane_count, std::vector<PlaneRenderSettings>& plane_render_settings )
 {
   for( rapidxml::xml_node<>* nd = node.first_node( "static_plane_renderer" ); nd; nd = nd->next_sibling( "static_plane_renderer" ) )
@@ -2128,8 +2157,6 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, SimSett
     return false;
   }
 
-
-
   // Attempt to load the optional global render settings
   if( root_node.first_node( "global_render_settings" ) != nullptr )
   {
@@ -2138,6 +2165,15 @@ bool Ball2DSceneParser::parseXMLSceneFile( const std::string& file_name, SimSett
                                    new_render_settings.background_color, new_render_settings.hud_text_color ) )
     {
       std::cerr << "Failed to parse global render settings: " << file_name << std::endl;
+      return false;
+    }
+  }
+
+  // Attempt to load optional random body colors
+  if( root_node.first_node( "random_body_color" ) != nullptr )
+  {
+    if( !loadBodyColorSettings( root_node, new_render_settings.random_body_colors ) )
+    {
       return false;
     }
   }

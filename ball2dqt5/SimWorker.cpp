@@ -22,24 +22,19 @@ SimWorker::SimWorker()
 , m_delta_L0( 0.0 )
 , m_body_colors()
 , m_rn_gen( 1337 )
-, m_color_selector()
-, m_template_colors()
-, m_plane_render_settings0()
-, m_drum_render_settings0()
-, m_portal_render_settings0()
+, m_template_colors( std::vector<Eigen::Vector3f>{ Eigen::Vector3f::Ones() } )
+, m_color_selector( 0, int(m_template_colors.size()) - 1 )
 , m_plane_render_settings()
 , m_drum_render_settings()
 , m_portal_render_settings()
+, m_plane_render_settings0()
+, m_drum_render_settings0()
+, m_portal_render_settings0()
 , m_steps_per_output( 1 )
 , m_steps_per_render( 1 )
-{
-  m_template_colors.emplace_back( Vector3s(214.0, 70.0, 153.0) / 255.0 );
-  m_template_colors.emplace_back( Vector3s(249.0, 243.0, 156.0) / 255.0 );
-  m_template_colors.emplace_back( Vector3s(118.0, 206.0, 220.0) / 255.0 );
-  m_color_selector = std::uniform_int_distribution<int>( 0, int(m_template_colors.size()) - 1 );
-}
+{}
 
-Vector3s SimWorker::generateColor()
+Eigen::Vector3f SimWorker::generateColor()
 {
   const int idx = m_color_selector( m_rn_gen );
   return m_template_colors[idx];
@@ -99,7 +94,31 @@ static std::string xmlFilePath( const std::string& xml_file_name )
 }
 
 SimWorker::SimWorker( const QString& xml_scene_file_name, SimSettings& sim_settings, RenderSettings& render_settings )
-: SimWorker()
+: m_sim0()
+, m_sim()
+, m_integrator0()
+, m_integrator()
+, m_scripting()
+, m_iteration( 0 )
+, m_end_time( sim_settings.end_time )
+, m_H0( 0.0 )
+, m_p0( Vector2s::Zero() )
+, m_L0( 0.0 )
+, m_delta_H0( 0.0 )
+, m_delta_p0( Vector2s::Zero() )
+, m_delta_L0( 0.0 )
+, m_body_colors()
+, m_rn_gen( 1337 )
+, m_template_colors( std::move(render_settings.random_body_colors) )
+, m_color_selector( 0, int(m_template_colors.size()) - 1 )
+, m_plane_render_settings( std::move( render_settings.plane_render_settings ) )
+, m_drum_render_settings( std::move( render_settings.drum_render_settings ) )
+, m_portal_render_settings( std::move( render_settings.portal_render_settings ) )
+, m_plane_render_settings0( m_plane_render_settings )
+, m_drum_render_settings0( m_drum_render_settings )
+, m_portal_render_settings0( m_portal_render_settings )
+, m_steps_per_output( 1 )
+, m_steps_per_render( 1 )
 {
   // Push the initial state and cache it to allow resets
   m_sim.state() = std::move( sim_settings.state );
@@ -110,34 +129,17 @@ SimWorker::SimWorker( const QString& xml_scene_file_name, SimSettings& sim_setti
   m_integrator0 = sim_settings.integrator;
   m_integrator = m_integrator0;
 
-  // Save the time and iteration related quantities
-  m_iteration = 0;
-  m_end_time = sim_settings.end_time;
-  assert( m_end_time > 0.0 );
-
   // Compute the initial energy, momentum, and angular momentum
   m_H0 = m_sim.state().computeTotalEnergy();
   m_p0 = m_sim.state().computeMomentum();
   m_L0 = m_sim.state().computeAngularMomentum();
-  // Trivially there is no change in energy, momentum, and angular momentum until we take a timestep
-  m_delta_H0 = 0.0;
-  m_delta_p0 = Vector2s::Zero();
-  m_delta_L0 = 0.0;
 
   // Generate a random color for each ball
-  m_rn_gen = std::mt19937_64( 1337 );
   m_body_colors.resize( 3 * m_sim.state().nballs() );
   for( int i = 0; i < m_body_colors.size(); i += 3 )
   {
     m_body_colors.segment<3>( i ) = generateColor();
   }
-
-  m_plane_render_settings = std::move( render_settings.plane_render_settings );
-  m_plane_render_settings0 = m_plane_render_settings;
-  m_drum_render_settings = std::move( render_settings.drum_render_settings );
-  m_drum_render_settings0 = m_drum_render_settings;
-  m_portal_render_settings = std::move( render_settings.portal_render_settings );
-  m_portal_render_settings0 = m_portal_render_settings;
 
   // Initialize the scripting callback
   {
@@ -303,7 +305,7 @@ const scalar& SimWorker::deltaL0() const
   return m_delta_L0;
 }
 
-const VectorXs& SimWorker::bodyColors() const
+const Eigen::VectorXf& SimWorker::bodyColors() const
 {
   return m_body_colors;
 }
