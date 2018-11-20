@@ -438,8 +438,8 @@ void GLWidget::centerCamera( const bool update_gl, const bool empty, const Vecto
 void GLWidget::saveScreenshot( const QString& file_name )
 {
   std::stringstream ss;
-  ss << "Saving screenshot of time " << std::fixed << std::setprecision( m_display_precision )
-     << m_time << " to " << file_name.toStdString();
+  ss << "Saving a screenshot of time " << std::fixed << std::setprecision( m_display_precision )
+     << m_time << " to: " << file_name.toStdString();
   qInfo( "%s", ss.str().c_str() );
   const QImage frame_buffer{ grabFramebuffer() };
   frame_buffer.save( file_name );

@@ -19,6 +19,22 @@
 #include "SimWorker.h"
 #include "ValidatingSpinBox.h"
 
+static int computeTimestepDisplayPrecision( const Rational<std::intmax_t>& dt, const std::string& dt_string )
+{
+  if( dt_string.find( '.' ) != std::string::npos )
+  {
+    return int( StringUtilities::computeNumCharactersToRight( dt_string, '.' ) );
+  }
+  else
+  {
+    std::string converted_dt_string;
+    std::stringstream ss;
+    ss << std::fixed << scalar( dt );
+    ss >> converted_dt_string;
+    return int( StringUtilities::computeNumCharactersToRight( converted_dt_string, '.' ) );
+  }
+}
+
 ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settings, RenderSettings& render_settings, QWidget* parent )
 : QWidget( parent )
 , m_gl_widget( new GLWidget( this, QSurfaceFormat::defaultFormat() ) )
@@ -27,6 +43,9 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_lock_render_fps_checkbox( nullptr )
 , m_lock_camera_checkbox( nullptr )
 , m_export_movie_checkbox( nullptr )
+#ifdef USE_HDF5
+, m_export_state_checkbox( nullptr )
+#endif
 , m_lock_output_fps_checkbox( nullptr )
 , m_display_hud_checkbox( nullptr )
 , m_fps_spin_box( nullptr )
@@ -38,6 +57,9 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_lock_render_fps( false )
 , m_movie_dir_name()
 , m_movie_dir()
+#ifdef USE_HDF5
+, m_state_dir_name()
+#endif
 , m_lock_output_fps( true )
 , m_output_fps( 30 )
 , m_empty( true )
@@ -79,6 +101,14 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     m_export_movie_checkbox->setChecked( false );
     connect( m_export_movie_checkbox, &QCheckBox::toggled, this, &ContentWidget::exportMovieToggled );
 
+    #ifdef USE_HDF5
+    // Toggle for enabling/disabling state export
+    m_export_state_checkbox = new QCheckBox{ tr( "Save State..." ), this };
+    controls_layout->addWidget( m_export_state_checkbox );
+    m_export_state_checkbox->setChecked( false );
+    connect( m_export_state_checkbox, &QCheckBox::toggled, this, &ContentWidget::exportStateToggled );
+    #endif
+
     // Toggle for locking the data output FPS
     m_lock_output_fps_checkbox = new QCheckBox{ tr( "Lock Output FPS" ), this };
     controls_layout->addWidget( m_lock_output_fps_checkbox );
@@ -97,6 +127,11 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     // Button for taking a single time step
     m_step_button = new QPushButton{ tr( "Step Sim" ), this };
     controls_layout->addWidget( m_step_button );
+    #ifdef USE_HDF5
+    connect( m_step_button, &QPushButton::clicked, [this](){ emit stepSimulation( this->m_movie_dir_name, this->m_state_dir_name ); } );
+    #else
+    connect( m_step_button, &QPushButton::clicked, [this](){ emit stepSimulation( this->m_movie_dir_name ); } );
+    #endif
 
     // Toggle for running/pausing the simulation
     m_simulate_checkbox = new QCheckBox{ tr( "Run Sim" ), this };
@@ -163,7 +198,8 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 
   if( !scene_name.isEmpty() )
   {
-    m_sim_worker = new SimWorker( scene_name, sim_settings, render_settings );
+    const int dt_display_precision = computeTimestepDisplayPrecision( sim_settings.integrator.dt(), sim_settings.dt_string );
+    m_sim_worker = new SimWorker( scene_name, sim_settings, render_settings, dt_display_precision );
     initializeUIAndGL( scene_name, false, sim_settings, render_settings );
   }
   else
@@ -183,12 +219,21 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
   this->setFocus();
 }
 
-void ContentWidget::wireMovieAction( QAction* movie_action )
+void ContentWidget::wireSaveMovieAction( QAction* movie_action )
 {
   connect( m_export_movie_checkbox, &QAbstractButton::toggled,
       [movie_action, this](){movie_action->setChecked(this->m_export_movie_checkbox->isChecked());}
     );
 }
+
+#ifdef USE_HDF5
+void ContentWidget::wireSaveStateAction( QAction* state_action )
+{
+  connect( m_export_state_checkbox, &QAbstractButton::toggled,
+      [state_action, this](){state_action->setChecked(this->m_export_state_checkbox->isChecked());}
+    );
+}
+#endif
 
 void ContentWidget::wireToggleHUD( QAction* hud ) const
 {
@@ -246,12 +291,14 @@ void ContentWidget::wireSimWorker()
 {
   connect( &m_sim_thread, &QThread::finished, m_sim_worker, &QObject::deleteLater );
   connect( this, &ContentWidget::stepSimulation, m_sim_worker, &SimWorker::takeStep );
-  connect( m_step_button, &QPushButton::clicked, m_sim_worker, &SimWorker::takeStep );
   connect( this, &ContentWidget::resetSimulation, m_sim_worker, &SimWorker::reset );
   connect( m_reset_button, &QPushButton::clicked, m_sim_worker, &SimWorker::reset );
   connect( this, &ContentWidget::outputFPSChanged, m_sim_worker, &SimWorker::setOutputFPS );
   connect( m_sim_worker, &SimWorker::postStep, this, &ContentWidget::copyStepResults, Qt::BlockingQueuedConnection );
-  connect( this, &ContentWidget::exportEnabled, m_sim_worker, &SimWorker::exportMovieInit );
+  connect( this, &ContentWidget::exportMovieEnabled, m_sim_worker, &SimWorker::exportMovieInit );
+  #ifdef USE_HDF5
+  connect( this, &ContentWidget::exportStateEnabled, m_sim_worker, &SimWorker::exportStateInit );
+  #endif
   connect( m_sim_worker, &SimWorker::errorMessage, this, &ContentWidget::workerErrorMessage );
 }
 
@@ -277,6 +324,15 @@ void ContentWidget::disableMovieExport()
   setMovieDir( tr( "" ) );
 }
 
+#ifdef USE_HDF5
+void ContentWidget::disableStateExport()
+{
+  assert( m_export_state_checkbox != nullptr );
+  m_export_state_checkbox->setCheckState( Qt::Unchecked );
+  setStateDir( tr( "" ) );
+}
+#endif
+
 void ContentWidget::copyStepResults( const bool was_reset, const bool render_frame, const bool save_screenshot, const int output_num )
 {
   if( !was_reset )
@@ -291,15 +347,18 @@ void ContentWidget::copyStepResults( const bool was_reset, const bool render_fra
       m_gl_widget->update();
     }
 
-    if( !m_movie_dir_name.isEmpty() && save_screenshot )
+    if( save_screenshot )
     {
-      QString output_image_name{ QString{ tr( "frame%1.png" ) }.arg( output_num, 10, 10, QLatin1Char('0') ) };
+      QString output_image_name{ QString{ tr( "frame_%1.png" ) }.arg( output_num, 10, 10, QLatin1Char('0') ) };
       m_gl_widget->saveScreenshot( m_movie_dir.filePath( output_image_name ) );
     }
   }
   else
   {
     disableMovieExport();
+    #ifdef USE_HDF5
+    disableStateExport();
+    #endif
 
     m_sim_worker->computeCameraCenter( m_empty, m_bbox );
     m_gl_widget->copyRenderState( m_sim_worker->sim().state(), m_sim_worker->bodyColors(), m_sim_worker->planeRenderSettings(),
@@ -311,7 +370,11 @@ void ContentWidget::copyStepResults( const bool was_reset, const bool render_fra
 
   if( m_simulate_checkbox->isChecked() )
   {
-    emit stepSimulation();
+    #ifdef USE_HDF5
+    emit stepSimulation( m_movie_dir_name, m_state_dir_name );
+    #else
+    emit stepSimulation( m_movie_dir_name );
+    #endif
   }
 }
 
@@ -357,7 +420,8 @@ void ContentWidget::openScene( const QString& scene_file_name )
     // Schedule the old sim worker for deletion
     QMetaObject::invokeMethod( m_sim_worker, "deleteLater", Qt::QueuedConnection );
 
-    m_sim_worker = new SimWorker( scene_file_name, sim_settings, render_settings );
+    const int dt_display_precision = computeTimestepDisplayPrecision( sim_settings.integrator.dt(), sim_settings.dt_string );
+    m_sim_worker = new SimWorker( scene_file_name, sim_settings, render_settings, dt_display_precision );
     initializeUIAndGL( scene_file_name, true, sim_settings, render_settings );
     m_sim_worker->moveToThread( &m_sim_thread );
 
@@ -368,22 +432,6 @@ void ContentWidget::openScene( const QString& scene_file_name )
   else
   {
     QMessageBox::warning( this, tr("SCISim 2D Ball Simulation"), tr("Warning, requested file '") + scene_file_name + tr("' does not exist.") );
-  }
-}
-
-static int computeTimestepDisplayPrecision( const Rational<std::intmax_t>& dt, const std::string& dt_string )
-{
-  if( dt_string.find( '.' ) != std::string::npos )
-  {
-    return int( StringUtilities::computeNumCharactersToRight( dt_string, '.' ) );
-  }
-  else
-  {
-    std::string converted_dt_string;
-    std::stringstream ss;
-    ss << std::fixed << scalar( dt );
-    ss >> converted_dt_string;
-    return int( StringUtilities::computeNumCharactersToRight( converted_dt_string, '.' ) );
   }
 }
 
@@ -442,6 +490,9 @@ void ContentWidget::initializeUIAndGL( const QString& scene_file_name, const boo
   m_xml_file_name = scene_file_name;
 
   disableMovieExport();
+  #ifdef USE_HDF5
+  disableStateExport();
+  #endif
 }
 
 void ContentWidget::reloadScene()
@@ -456,7 +507,11 @@ void ContentWidget::simulateToggled( const bool state )
 {
   if( state )
   {
-    emit stepSimulation();
+    #ifdef USE_HDF5
+    emit stepSimulation( m_movie_dir_name, m_state_dir_name );
+    #else
+    emit stepSimulation( m_movie_dir_name );
+    #endif
   }
 }
 
@@ -484,7 +539,11 @@ void ContentWidget::lockRenderFPSToggled( const bool lock_render_fps )
   m_lock_render_fps = lock_render_fps;
 
   // 'Grey out' invalid options
-  if( m_movie_dir_name.isEmpty() )
+  if( m_movie_dir_name.isEmpty()
+#ifdef USE_HDF5
+      && m_state_dir_name.isEmpty()
+#endif
+    )
   {
     if( m_lock_output_fps_checkbox->isChecked() && m_lock_render_fps_checkbox->isChecked() )
     {
@@ -530,7 +589,7 @@ void ContentWidget::exportMovieToggled( const bool checked )
     setMovieDir( tr( "" ) );
   }
 
-  // 'Grey out' invalid options when movie exporting is enabled
+  // 'Grey out' invalid options when movie exporting is toggled
   if( m_export_movie_checkbox->isChecked() )
   {
     m_lock_output_fps_checkbox->setEnabled( false );
@@ -539,6 +598,12 @@ void ContentWidget::exportMovieToggled( const bool checked )
   }
   else
   {
+    #ifdef USE_HDF5
+    if( !m_state_dir_name.isEmpty() )
+    {
+      return;
+    }
+    #endif
     if( !m_lock_render_fps_checkbox->isChecked() )
     {
       m_lock_output_fps_checkbox->setEnabled( true );
@@ -547,6 +612,51 @@ void ContentWidget::exportMovieToggled( const bool checked )
     m_fps_spin_box->setEnabled( true );
   }
 }
+
+#ifdef USE_HDF5
+void ContentWidget::exportStateToggled( const bool checked )
+{
+  if( checked )
+  {
+    // Attempt to get a directory name
+    const QString dir_name{ getDirectoryNameFromUser( tr( "Please Specify a State Directory" ) ) };
+    if( !dir_name.isEmpty() )
+    {
+      setStateDir( dir_name );
+    }
+    else
+    {
+      assert( m_export_state_checkbox != nullptr );
+      m_export_state_checkbox->toggle();
+    }
+  }
+  else
+  {
+    setStateDir( tr( "" ) );
+  }
+
+  // 'Grey out' invalid options when state exporting is toggled
+  if( m_export_state_checkbox->isChecked() )
+  {
+    m_lock_output_fps_checkbox->setEnabled( false );
+    emit lockOutputFPSCheckboxEnabled( false );
+    m_fps_spin_box->setEnabled( false );
+  }
+  else
+  {
+    if( !m_movie_dir_name.isEmpty() )
+    {
+      return;
+    }
+    if( !m_lock_render_fps_checkbox->isChecked() )
+    {
+      m_lock_output_fps_checkbox->setEnabled( true );
+      emit lockOutputFPSCheckboxEnabled( true );
+    }
+    m_fps_spin_box->setEnabled( true );
+  }
+}
+#endif
 
 void ContentWidget::toggleHUD()
 {
@@ -617,7 +727,11 @@ void ContentWidget::callReset()
 
 void ContentWidget::callStep()
 {
-  emit stepSimulation();
+  #ifdef USE_HDF5
+  emit stepSimulation( m_movie_dir_name, m_state_dir_name );
+  #else
+  emit stepSimulation( m_movie_dir_name );
+  #endif
 }
 
 void ContentWidget::exportImage()
@@ -633,9 +747,30 @@ void ContentWidget::exportImage()
 void ContentWidget::exportMovie()
 {
   assert( m_export_movie_checkbox != nullptr );
-  m_export_movie_checkbox->setChecked( false );
-  m_export_movie_checkbox->setChecked( true );
+  if( m_export_movie_checkbox->isChecked() )
+  {
+    m_export_movie_checkbox->setChecked( false );
+  }
+  else
+  {
+    m_export_movie_checkbox->setChecked( true );
+  }
 }
+
+#ifdef USE_HDF5
+void ContentWidget::exportState()
+{
+  assert( m_export_state_checkbox != nullptr );
+  if( m_export_state_checkbox->isChecked() )
+  {
+    m_export_state_checkbox->setChecked( false );
+  }
+  else
+  {
+    m_export_state_checkbox->setChecked( true );
+  }
+}
+#endif
 
 void ContentWidget::exportCameraSettings()
 {
@@ -682,10 +817,22 @@ void ContentWidget::setMovieDir( const QString& dir_name )
   {
     m_movie_dir.setPath( m_movie_dir_name );
     assert( m_movie_dir.exists() );
-    emit exportEnabled();
+    emit exportMovieEnabled();
   }
   else
   {
     m_movie_dir = QDir{};
   }
 }
+
+#ifdef USE_HDF5
+void ContentWidget::setStateDir( const QString& dir_name )
+{
+  m_state_dir_name = dir_name;
+
+  if( !m_state_dir_name.isEmpty() )
+  {
+    emit exportStateEnabled( m_state_dir_name );
+  }
+}
+#endif

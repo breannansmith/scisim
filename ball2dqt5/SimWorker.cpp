@@ -5,6 +5,13 @@
 
 #include <QApplication>
 #include <QDebug>
+#include <QDir>
+
+#ifdef USE_HDF5
+#include <iomanip>
+#include "scisim/CompileDefinitions.h"
+#include "scisim/HDF5File.h"
+#endif
 
 SimWorker::SimWorker()
 : m_sim0()
@@ -32,6 +39,7 @@ SimWorker::SimWorker()
 , m_portal_render_settings0()
 , m_steps_per_output( 1 )
 , m_steps_per_render( 1 )
+, m_display_precision( 0 )
 {}
 
 Eigen::Vector3f SimWorker::generateColor()
@@ -93,7 +101,7 @@ static std::string xmlFilePath( const std::string& xml_file_name )
   return path;
 }
 
-SimWorker::SimWorker( const QString& xml_scene_file_name, SimSettings& sim_settings, RenderSettings& render_settings )
+SimWorker::SimWorker( const QString& xml_scene_file_name, SimSettings& sim_settings, RenderSettings& render_settings, const int dt_display_precision )
 : m_sim0()
 , m_sim()
 , m_integrator0()
@@ -119,6 +127,7 @@ SimWorker::SimWorker( const QString& xml_scene_file_name, SimSettings& sim_setti
 , m_portal_render_settings0( m_portal_render_settings )
 , m_steps_per_output( 1 )
 , m_steps_per_render( 1 )
+, m_display_precision( dt_display_precision )
 {
   // Push the initial state and cache it to allow resets
   m_sim.state() = std::move( sim_settings.state );
@@ -200,7 +209,11 @@ void SimWorker::reset()
   emit postStep( was_reset, render_frame, save_screenshot, output_num );
 }
 
-void SimWorker::takeStep()
+#ifdef USE_HDF5
+void SimWorker::takeStep( QString movie_dir_name, QString state_dir_name )
+#else
+void SimWorker::takeStep( QString movie_dir_name )
+#endif
 {
   if( m_iteration * scalar( m_integrator.dt() ) >= m_end_time )
   {
@@ -227,9 +240,17 @@ void SimWorker::takeStep()
     m_delta_L0 = std::max( m_delta_L0, fabs( m_L0 - state.computeAngularMomentum() ) );
   }
 
+  #ifdef USE_HDF5
+  const bool save_state = (m_iteration % m_steps_per_output == 0) && !state_dir_name.isEmpty();
+  if( save_state )
+  {
+    saveStateToHDF5( state_dir_name, m_iteration / m_steps_per_output );
+  }
+  #endif
+
   constexpr bool was_reset = false;
   const bool render_frame = m_iteration % m_steps_per_render == 0;
-  const bool save_screenshot = m_iteration % m_steps_per_output == 0;
+  const bool save_screenshot = (m_iteration % m_steps_per_output == 0) && !movie_dir_name.isEmpty();
   const int output_num = m_iteration / m_steps_per_output;
   emit postStep( was_reset, render_frame, save_screenshot, output_num );
 }
@@ -242,6 +263,47 @@ void SimWorker::exportMovieInit()
   const int output_num = 0;
   emit postStep( was_reset, render_frame, save_screenshot, output_num );
 }
+
+#ifdef USE_HDF5
+void SimWorker::saveStateToHDF5( const QString& dir_name, const int output_num )
+{
+  QString output_state_name{ QString{ tr( "config_%1.h5" ) }.arg( output_num, 10, 10, QLatin1Char('0') ) };
+  std::string output_file_name = QDir(dir_name).filePath( output_state_name ).toStdString();
+
+  const scalar time = scalar(m_integrator.dt()) * m_iteration;
+
+  std::stringstream ss;
+  ss << "Saving output state of time " << std::fixed << std::setprecision( m_display_precision )
+    << time << " to: " << output_file_name;
+  qInfo( "%s", ss.str().c_str() );
+
+  // Save the simulation state
+  try
+  {
+    HDF5File output_file{ output_file_name, HDF5AccessType::READ_WRITE };
+    // Save the iteration and time step and time
+    output_file.write( "timestep", scalar( m_integrator.dt() ) );
+    output_file.write( "iteration", m_iteration );
+    output_file.write( "time", time );
+    // Save out the git hash
+    output_file.write( "git_hash", CompileDefinitions::GitSHA1 );
+    // Write out the simulation data
+    m_sim.writeBinaryState( output_file );
+  }
+  catch( const std::string& error )
+  {
+    emit errorMessage( QString(error.c_str()) );
+  }
+}
+
+void SimWorker::exportStateInit( const QString& dir_name )
+{
+  if( m_iteration == 0 )
+  {
+    saveStateToHDF5( dir_name, 0 );
+  }
+}
+#endif
 
 void SimWorker::setOutputFPS( const bool lock_output_fps, const bool lock_render_fps, const int fps )
 {

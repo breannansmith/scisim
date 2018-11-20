@@ -23,9 +23,14 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
     file->addAction( tr( "Reload Sim" ), content_widget, &ContentWidget::reloadScene, Qt::CTRL + Qt::Key_R );
     file->addSeparator();
     file->addAction( tr( "Save Image..." ), content_widget, &ContentWidget::exportImage, Qt::CTRL + Qt::Key_I );
-    QAction* movie_action = file->addAction( tr( "Save Movie..." ), content_widget, &ContentWidget::exportMovie, Qt::CTRL + Qt::Key_M );
-    movie_action->setCheckable( true );
-    content_widget->wireMovieAction( movie_action );
+    QAction* save_movie_action = file->addAction( tr( "Save Movie..." ), content_widget, &ContentWidget::exportMovie, Qt::CTRL + Qt::Key_M );
+    save_movie_action->setCheckable( true );
+    content_widget->wireSaveMovieAction( save_movie_action );
+    #ifdef USE_HDF5
+    QAction* save_state_action = file->addAction( tr( "Save State..." ), content_widget, &ContentWidget::exportState, Qt::CTRL + Qt::Key_S );
+    save_state_action->setCheckable( true );
+    content_widget->wireSaveStateAction( save_state_action );
+    #endif
     file->addSeparator();
     QAction* toggle_output_lock = file->addAction( tr( "Lock Output FPS" ), content_widget, &ContentWidget::toggleOutputFPSLock, Qt::Key_O );
     toggle_output_lock->setCheckable( true );

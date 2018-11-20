@@ -31,7 +31,11 @@ public:
   ContentWidget& operator=( ContentWidget&& ) = delete;
 
   // TODO: This is kind of hacky, but it works for now. Needed because failing to load a directory can force a retoggle.
-  void wireMovieAction( QAction* movie_action );
+  void wireSaveMovieAction( QAction* movie_action );
+
+  #ifdef USE_HDF5
+  void wireSaveStateAction( QAction* state_action );
+  #endif
 
   void wireToggleHUD( QAction* hud ) const;
 
@@ -63,6 +67,10 @@ public slots:
 
   void exportMovieToggled( const bool checked );
 
+  #ifdef USE_HDF5
+  void exportStateToggled( const bool checked );
+  #endif
+
   void toggleHUD();
   void toggleHUDCheckbox();
   void toggleCameraLock();
@@ -77,6 +85,9 @@ public slots:
 
   void exportImage();
   void exportMovie();
+  #ifdef USE_HDF5
+  void exportState();
+  #endif
   void fpsChanged( const int fps );
 
   void exportCameraSettings();
@@ -88,10 +99,17 @@ public slots:
 signals:
 
   void resetSimulation();
-  void stepSimulation();
+  #ifdef USE_HDF5
+  void stepSimulation( QString movie_dir_name, QString state_dir_name );
+  #else
+  void stepSimulation( QString movie_dir_name );
+  #endif
 
   void outputFPSChanged( const bool lock_output_fps, const bool lock_render_fps, const int fps );
-  void exportEnabled();
+  void exportMovieEnabled();
+  #ifdef USE_HDF5
+  void exportStateEnabled( const QString& dir_name );
+  #endif
 
   void lockRenderFPSCheckboxEnabled( const bool enabled );
   void lockOutputFPSCheckboxEnabled( const bool enabled );
@@ -104,6 +122,10 @@ private:
 
   void disableMovieExport();
 
+  #ifdef USE_HDF5
+  void disableStateExport();
+  #endif
+
   void openScene( const QString& scene_file_name );
 
   void initializeUIAndGL( const QString& scene_file_name, const bool render_on_load,
@@ -114,6 +136,10 @@ private:
   QString getDirectoryNameFromUser( const QString& prompt );
 
   void setMovieDir( const QString& dir_name );
+
+  #ifdef USE_HDF5
+  void setStateDir( const QString& dir_name );
+  #endif
 
   // Qt state
 
@@ -128,6 +154,10 @@ private:
   QCheckBox* m_lock_camera_checkbox;
 
   QCheckBox* m_export_movie_checkbox;
+
+  #ifdef USE_HDF5
+  QCheckBox* m_export_state_checkbox;
+  #endif
 
   QCheckBox* m_lock_output_fps_checkbox;
 
@@ -154,6 +184,11 @@ private:
   // Directory to save periodic screenshots of the simulation into
   QString m_movie_dir_name;
   QDir m_movie_dir;
+
+  #ifdef USE_HDF5
+  // Directory to save periodic state snapshots of the simulation into
+  QString m_state_dir_name;
+  #endif
 
   // Rate at which to output movie frames
   bool m_lock_output_fps;

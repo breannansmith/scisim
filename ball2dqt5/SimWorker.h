@@ -19,7 +19,7 @@ class SimWorker : public QObject
 public:
 
   SimWorker();
-  SimWorker( const QString& xml_scene_file_name, SimSettings& sim_settings, RenderSettings& render_settings );
+  SimWorker( const QString& xml_scene_file_name, SimSettings& sim_settings, RenderSettings& render_settings, const int dt_display_precision );
   virtual ~SimWorker() override = default;
 
   void insertBallCallback( const int num_balls );
@@ -54,9 +54,17 @@ public slots:
 
   void reset();
 
-  void takeStep();
+  #ifdef USE_HDF5
+  void takeStep( QString movie_dir_name, QString state_dir_name );
+  #else
+  void takeStep( QString movie_dir_name );
+  #endif
 
   void exportMovieInit();
+
+  #ifdef USE_HDF5
+  void exportStateInit( const QString& dir_name );
+  #endif
 
   void setOutputFPS( const bool lock_output_fps, const bool lock_render_fps, const int fps );
 
@@ -67,6 +75,10 @@ signals:
   void errorMessage( const QString& message );
 
 private:
+
+  #ifdef USE_HDF5
+  void saveStateToHDF5( const QString& dir_name, const int output_num );
+  #endif
 
   Eigen::Vector3f generateColor();
 
@@ -115,6 +127,7 @@ private:
   int m_steps_per_output;
   int m_steps_per_render;
 
+  int m_display_precision;
 };
 
 #endif
