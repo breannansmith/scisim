@@ -128,6 +128,7 @@ private:
   int m_steps_per_render;
 
   int m_display_precision;
+
 };
 
 #endif

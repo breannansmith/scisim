@@ -4,7 +4,6 @@
 #include <array>
 
 #include <QApplication>
-#include <QDebug>
 #include <QDir>
 
 #ifdef USE_HDF5
@@ -130,9 +129,9 @@ SimWorker::SimWorker( const QString& xml_scene_file_name, SimSettings& sim_setti
 , m_display_precision( dt_display_precision )
 {
   // Push the initial state and cache it to allow resets
-  m_sim.state() = std::move( sim_settings.state );
-  m_sim.clearConstraintCache();
-  m_sim0 = m_sim;
+  m_sim0.state() = std::move( sim_settings.state );
+  m_sim0.clearConstraintCache();
+  m_sim = m_sim0;
 
   // Push the initial integrator state and cache it to allow resets
   m_integrator0 = sim_settings.integrator;

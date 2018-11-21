@@ -5,9 +5,9 @@
 #include <QThread>
 #include <QWidget>
 
-#include "scisim/Math/MathDefines.h"
-
 #include "ball2dutils/Ball2DSceneParser.h"
+
+#include "scisim/Math/MathDefines.h"
 
 class QCheckBox;
 class QPushButton;
@@ -63,23 +63,21 @@ public slots:
 
   void lockRenderFPSToggled( const bool lock_render_fps );
 
-  void lockCameraToggled( const bool lock_camera );
-
   void exportMovieToggled( const bool checked );
 
   #ifdef USE_HDF5
   void exportStateToggled( const bool checked );
   #endif
 
-  void toggleHUD();
   void toggleHUDCheckbox();
-  void toggleCameraLock();
+  void toggleCameraLockCheckbox();
+  void toggleRenderFPSLockCheckbox();
+  void toggleOutputFPSLockCheckbox();
+  void toggleSimulatingCheckbox();
+
   void centerCamera();
   void toggleControls();
-  void toggleFPSLock();
-  void toggleOutputFPSLock();
 
-  void toggleSimulating();
   void callReset();
   void callStep();
 
@@ -88,7 +86,6 @@ public slots:
   #ifdef USE_HDF5
   void exportState();
   #endif
-  void fpsChanged( const int fps );
 
   void exportCameraSettings();
 

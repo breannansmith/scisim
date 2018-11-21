@@ -1,14 +1,13 @@
 #include "ContentWidget.h"
 
 #include <QAction>
-#include <QApplication>
 #include <QCheckBox>
+#include <QCoreApplication>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QtGui>
 #include <QVBoxLayout>
 
 #include <cassert>
@@ -19,6 +18,7 @@
 #include "SimWorker.h"
 #include "ValidatingSpinBox.h"
 
+// TODO: Abstract this out later
 static int computeTimestepDisplayPrecision( const Rational<std::intmax_t>& dt, const std::string& dt_string )
 {
   if( dt_string.find( '.' ) != std::string::npos )
@@ -158,12 +158,13 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     m_display_hud_checkbox = new QCheckBox{ tr( "Show HUD" ), this };
     m_display_hud_checkbox->setChecked( true );
     controls_layout->addWidget( m_display_hud_checkbox );
-    connect( m_display_hud_checkbox, &QCheckBox::toggled, this, &ContentWidget::toggleHUD );
+    connect( m_display_hud_checkbox, &QCheckBox::toggled, [this](){ this->m_gl_widget->toggleHUD(); } );
 
     // Toggle for locking the camera controls
     m_lock_camera_checkbox = new QCheckBox{ tr( "Lock Camera" ), this };
     controls_layout->addWidget( m_lock_camera_checkbox );
-    connect( m_lock_camera_checkbox, &QCheckBox::toggled, this, &ContentWidget::lockCameraToggled );
+    connect( m_lock_camera_checkbox, &QCheckBox::toggled,
+             [this]( const bool lock ){ this->m_gl_widget->lockCamera( lock ); } );
 
     // Toggle for rendering at the specified FPS
     m_lock_render_fps_checkbox = new QCheckBox{ tr( "Lock Render FPS" ), this };
@@ -186,7 +187,9 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     m_fps_spin_box->setButtonSymbols( QAbstractSpinBox::NoButtons );
     m_fps_spin_box->setRange( 1, 1000 );
     m_fps_spin_box->setValue( 30 );
-    connect( m_fps_spin_box, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &ContentWidget::fpsChanged );
+    connect( m_fps_spin_box, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            [this]( const int fps ){ this->setFPS( fps ); } );
+
     connect( m_fps_spin_box, &QSpinBox::editingFinished, m_fps_spin_box, &ValidatingSpinBox::displayErrorMessage );
     connect( m_fps_spin_box, &QSpinBox::editingFinished, [this](){ this->setFocus(); } );
     fps_hbox->addWidget( m_fps_spin_box, 1 );
@@ -469,20 +472,17 @@ void ContentWidget::initializeUIAndGL( const QString& scene_file_name, const boo
 
   // Make sure the simulation is not running when we start
   assert( m_simulate_checkbox != nullptr );
-  if( m_simulate_checkbox->isChecked() )
-  {
-    m_simulate_checkbox->toggle();
-  }
+  m_simulate_checkbox->setChecked( false );
 
   // Update UI elements
   assert( m_fps_spin_box != nullptr );
   m_fps_spin_box->setValue( render_settings.fps );
   assert( m_lock_render_fps_checkbox != nullptr );
-  m_lock_render_fps_checkbox->setCheckState( render_settings.render_at_fps ? Qt::Checked : Qt::Unchecked );
+  m_lock_render_fps_checkbox->setChecked( render_settings.render_at_fps );
   assert( m_lock_camera_checkbox != nullptr );
-  m_lock_camera_checkbox->setCheckState( render_settings.lock_camera ? Qt::Checked : Qt::Unchecked );
+  m_lock_camera_checkbox->setChecked( render_settings.lock_camera );
   assert( m_lock_output_fps_checkbox != nullptr );
-  m_lock_output_fps_checkbox->setCheckState( render_settings.output_at_fps ? Qt::Checked : Qt::Unchecked );
+  m_lock_output_fps_checkbox->setChecked( render_settings.output_at_fps );
 
   // NB: This relies on the fact that timesteps are fixed per scene
   m_fps_spin_box->setTimestep( m_sim_worker->integrator().dt() );
@@ -558,12 +558,6 @@ void ContentWidget::lockRenderFPSToggled( const bool lock_render_fps )
   }
 
   setFPS( m_output_fps );
-}
-
-void ContentWidget::lockCameraToggled( const bool lock_camera )
-{
-  assert( m_gl_widget != nullptr );
-  m_gl_widget->lockCamera( lock_camera );
 }
 
 void ContentWidget::exportMovieToggled( const bool checked )
@@ -658,29 +652,34 @@ void ContentWidget::exportStateToggled( const bool checked )
 }
 #endif
 
-void ContentWidget::toggleHUD()
-{
-  assert( m_gl_widget != nullptr );
-  m_gl_widget->toggleHUD();
-}
-
 void ContentWidget::toggleHUDCheckbox()
 {
   assert( m_display_hud_checkbox != nullptr );
-  if( m_display_hud_checkbox->isChecked() )
-  {
-    m_display_hud_checkbox->setChecked( false );
-  }
-  else
-  {
-    m_display_hud_checkbox->setChecked( true );
-  }
+  m_display_hud_checkbox->toggle();
 }
 
-void ContentWidget::toggleCameraLock()
+void ContentWidget::toggleCameraLockCheckbox()
 {
   assert( m_lock_camera_checkbox != nullptr );
   m_lock_camera_checkbox->toggle();
+}
+
+void ContentWidget::toggleRenderFPSLockCheckbox()
+{
+  assert( m_lock_render_fps_checkbox != nullptr );
+  m_lock_render_fps_checkbox->toggle();
+}
+
+void ContentWidget::toggleOutputFPSLockCheckbox()
+{
+  assert( m_lock_output_fps_checkbox != nullptr );
+  m_lock_output_fps_checkbox->toggle();
+}
+
+void ContentWidget::toggleSimulatingCheckbox()
+{
+  assert( m_simulate_checkbox != nullptr );
+  m_simulate_checkbox->toggle();
 }
 
 void ContentWidget::centerCamera()
@@ -692,32 +691,7 @@ void ContentWidget::centerCamera()
 void ContentWidget::toggleControls()
 {
   assert( m_controls_widget != nullptr );
-  if( m_controls_widget->isVisible() )
-  {
-    m_controls_widget->hide();
-  }
-  else
-  {
-    m_controls_widget->show();
-  }
-}
-
-void ContentWidget::toggleFPSLock()
-{
-  assert( m_lock_render_fps_checkbox != nullptr );
-  m_lock_render_fps_checkbox->toggle();
-}
-
-void ContentWidget::toggleOutputFPSLock()
-{
-  assert( m_lock_output_fps_checkbox != nullptr );
-  m_lock_output_fps_checkbox->toggle();
-}
-
-void ContentWidget::toggleSimulating()
-{
-  assert( m_simulate_checkbox != nullptr );
-  m_simulate_checkbox->toggle();
+  m_controls_widget->setVisible( !m_controls_widget->isVisible() );
 }
 
 void ContentWidget::callReset()
@@ -747,28 +721,14 @@ void ContentWidget::exportImage()
 void ContentWidget::exportMovie()
 {
   assert( m_export_movie_checkbox != nullptr );
-  if( m_export_movie_checkbox->isChecked() )
-  {
-    m_export_movie_checkbox->setChecked( false );
-  }
-  else
-  {
-    m_export_movie_checkbox->setChecked( true );
-  }
+  m_export_movie_checkbox->toggle();
 }
 
 #ifdef USE_HDF5
 void ContentWidget::exportState()
 {
   assert( m_export_state_checkbox != nullptr );
-  if( m_export_state_checkbox->isChecked() )
-  {
-    m_export_state_checkbox->setChecked( false );
-  }
-  else
-  {
-    m_export_state_checkbox->setChecked( true );
-  }
+  m_export_state_checkbox->toggle();
 }
 #endif
 
@@ -780,25 +740,17 @@ void ContentWidget::exportCameraSettings()
 
 QString ContentWidget::getOpenFileNameFromUser( const QString& prompt )
 {
-  const QString file_name{ QFileDialog::getOpenFileName( this, prompt ) };
-  return file_name;
+  return QFileDialog::getOpenFileName( this, prompt );
 }
 
 QString ContentWidget::getSaveFileNameFromUser( const QString& prompt )
 {
-  const QString file_name{ QFileDialog::getSaveFileName( this, prompt ) };
-  return file_name;
+  return QFileDialog::getSaveFileName( this, prompt );
 }
 
 QString ContentWidget::getDirectoryNameFromUser( const QString& prompt )
 {
-  const QString file_name{ QFileDialog::getExistingDirectory( this, prompt ) };
-  return file_name;
-}
-
-void ContentWidget::fpsChanged( const int fps )
-{
-  setFPS( fps );
+  return QFileDialog::getExistingDirectory( this, prompt );
 }
 
 void ContentWidget::setFPS( const int fps )

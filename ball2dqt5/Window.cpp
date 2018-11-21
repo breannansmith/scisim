@@ -32,7 +32,7 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
     content_widget->wireSaveStateAction( save_state_action );
     #endif
     file->addSeparator();
-    QAction* toggle_output_lock = file->addAction( tr( "Lock Output FPS" ), content_widget, &ContentWidget::toggleOutputFPSLock, Qt::Key_O );
+    QAction* toggle_output_lock = file->addAction( tr( "Lock Output FPS" ), content_widget, &ContentWidget::toggleOutputFPSLockCheckbox, Qt::Key_O );
     toggle_output_lock->setCheckable( true );
     toggle_output_lock->setChecked( content_widget->isLockOutputFPSChecked() );
     toggle_output_lock->setEnabled( content_widget->isLockOutputFPSEnabled() );
@@ -52,12 +52,12 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
     content_widget->wireToggleHUD( toggle_hud );
     view->addSeparator();
     view->addAction( tr( "Center Camera" ), content_widget, &ContentWidget::centerCamera, Qt::Key_C );
-    QAction* toggle_camera_lock = view->addAction( tr( "Lock Camera" ), content_widget, &ContentWidget::toggleCameraLock, Qt::Key_L );
+    QAction* toggle_camera_lock = view->addAction( tr( "Lock Camera" ), content_widget, &ContentWidget::toggleCameraLockCheckbox, Qt::Key_L );
     toggle_camera_lock->setCheckable( true );
     toggle_camera_lock->setChecked( content_widget->isCameraLocked() );
     content_widget->wireCameraLocked( toggle_camera_lock );
     view->addSeparator();
-    QAction* toggle_fps_lock = view->addAction( tr( "Lock Render FPS" ), content_widget, &ContentWidget::toggleFPSLock, Qt::Key_F );
+    QAction* toggle_fps_lock = view->addAction( tr( "Lock Render FPS" ), content_widget, &ContentWidget::toggleRenderFPSLockCheckbox, Qt::Key_F );
     toggle_fps_lock->setCheckable( true );
     toggle_fps_lock->setChecked( content_widget->isLockRenderFPSChecked() );
     toggle_fps_lock->setEnabled( content_widget->isLockRenderFPSEnabled() );
@@ -70,7 +70,7 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
   {
     QMenu* sim{ menuBar()->addMenu( tr( "Simulation" ) ) };
     assert( sim != nullptr );
-    QAction* run = sim->addAction( tr( "Run Sim" ), content_widget, &ContentWidget::toggleSimulating, Qt::Key_Space );
+    QAction* run = sim->addAction( tr( "Run Sim" ), content_widget, &ContentWidget::toggleSimulatingCheckbox, Qt::Key_Space );
     run->setCheckable( true );
     content_widget->wireRunSim( run );
     sim->addAction( tr( "Reset Sim" ), content_widget, &ContentWidget::callReset, Qt::Key_R );
