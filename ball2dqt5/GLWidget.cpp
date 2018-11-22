@@ -185,16 +185,17 @@ void GLWidget::copyRenderState( const Ball2DState& state, const Eigen::VectorXf&
   // Planes
   {
     Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& plane_data{ m_plane_shader.planeData() };
-    plane_data.resize( 6 * plane_settings.size() );
+    plane_data.resize( 9 * plane_settings.size() );
     for( int renderer_num = 0; renderer_num < int(plane_settings.size()); renderer_num++ )
     {
       const int plane_idx = plane_settings[renderer_num].idx;
       const StaticPlane& plane = state.staticPlanes()[plane_idx];
 
-      plane_data.segment<2>( 6 * plane_idx ) = plane.x().cast<GLfloat>();
-      plane_data.segment<2>( 6 * plane_idx + 2 ) = plane.n().cast<GLfloat>();
-      plane_data( 6 * plane_idx + 4 ) = plane_settings[renderer_num].r(0);
-      plane_data( 6 * plane_idx + 5 ) = plane_settings[renderer_num].r(1);
+      plane_data.segment<2>( 9 * plane_idx ) = plane.x().cast<GLfloat>();
+      plane_data.segment<2>( 9 * plane_idx + 2 ) = plane.n().cast<GLfloat>();
+      plane_data( 9 * plane_idx + 4 ) = plane_settings[renderer_num].r(0);
+      plane_data( 9 * plane_idx + 5 ) = plane_settings[renderer_num].r(1);
+      plane_data.segment<3>( 9 * plane_idx + 6 ) = plane_settings[renderer_num].color;
     }
   }
 

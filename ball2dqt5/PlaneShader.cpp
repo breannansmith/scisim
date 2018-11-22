@@ -13,7 +13,9 @@ static const char* const vertex_shader_source = {
   "layout (location = 2) in vec2 n;\n"
   "layout (location = 3) in float width;\n"
   "layout (location = 4) in float depth;\n"
+  "layout (location = 5) in vec3 body_color;\n"
   "uniform mat4 projection_view;\n"
+  "out vec3 render_color;\n"
   "void main()\n"
   "{\n"
   "  float sx = width * position.x;\n"
@@ -21,15 +23,17 @@ static const char* const vertex_shader_source = {
   "  float rx = n.x * sx - n.y * sy;\n"
   "  float ry = n.y * sx + n.x * sy;\n"
   "  gl_Position = projection_view * vec4(rx + cm.x, ry + cm.y, 0.0f, 1.0f);\n"
+  "  render_color = body_color;\n"
   "}\n"
 };
 
 static const char* const fragment_shader_source = {
   "#version 330 core\n"
+  "in vec3 render_color;\n"
   "out vec4 color;\n"
   "void main()\n"
   "{\n"
-  "  color = vec4(0.0f, 0.0f, 0.0f, 1.0f);\n"
+  "  color = vec4(render_color.x, render_color.y, render_color.z, 1.0f);\n"
   "}\n"
 };
 
@@ -116,26 +120,32 @@ void PlaneShader::initialize( QOpenGLFunctions_3_3_Core* f )
     // The plane centers
     m_f->glEnableVertexAttribArray( 1 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
-    m_f->glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), static_cast<GLvoid*>(nullptr) );
+    m_f->glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), static_cast<GLvoid*>(nullptr) );
     m_f->glVertexAttribDivisor( 1, 1 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
     // The plane normals
     m_f->glEnableVertexAttribArray( 2 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
-    m_f->glVertexAttribPointer( 2, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)( 2 * sizeof(GLfloat) ) );
+    m_f->glVertexAttribPointer( 2, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), (GLvoid*)( 2 * sizeof(GLfloat) ) );
     m_f->glVertexAttribDivisor( 2, 1 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
     // The plane widths
     m_f->glEnableVertexAttribArray( 3 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
-    m_f->glVertexAttribPointer( 3, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)( 4 * sizeof(GLfloat) ) );
+    m_f->glVertexAttribPointer( 3, 1, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), (GLvoid*)( 4 * sizeof(GLfloat) ) );
     m_f->glVertexAttribDivisor( 3, 1 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
     // The plane depths
     m_f->glEnableVertexAttribArray( 4 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
-    m_f->glVertexAttribPointer( 4, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)( 5 * sizeof(GLfloat) ) );
+    m_f->glVertexAttribPointer( 4, 1, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), (GLvoid*)( 5 * sizeof(GLfloat) ) );
     m_f->glVertexAttribDivisor( 4, 1 );
+    m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
+    // The rectangle colors
+    m_f->glEnableVertexAttribArray( 5 );
+    m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
+    m_f->glVertexAttribPointer( 5, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), (GLvoid*)( 6 * sizeof(GLfloat) ) );
+    m_f->glVertexAttribDivisor( 5, 1 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
   m_f->glBindVertexArray( 0 );
 
@@ -175,14 +185,14 @@ void PlaneShader::draw()
   assert( m_program > 0 );
   assert( m_VAO > 0 );
 
-  assert( m_plane_data.size() % 6 == 0 );
-  const long num_planes{ m_plane_data.size() / 6 };
+  assert( m_plane_data.size() % 9 == 0 );
+  const long num_planes{ m_plane_data.size() / 9 };
 
   // Check that normals are unit length
   #ifndef NDEBUG
   for (long plane_idx = 0; plane_idx < num_planes; plane_idx++)
   {
-    const GLfloat norm = m_plane_data.segment<2>( 6 * plane_idx + 2 ).norm();
+    const GLfloat norm = m_plane_data.segment<2>( 9 * plane_idx + 2 ).norm();
     assert( std::fabs(norm - 1.0f) <= 1.0e-6f );
   }
   #endif
@@ -208,7 +218,7 @@ void PlaneShader::draw()
 
   m_f->glUseProgram( m_program );
   m_f->glBindVertexArray( m_VAO );
-  m_f->glDrawArraysInstanced( GL_TRIANGLES, 0, 6, GLsizei(num_planes) );
+  m_f->glDrawArraysInstanced( GL_TRIANGLES, 0, 9, GLsizei(num_planes) );
   m_f->glBindVertexArray( 0 );
 }
 
