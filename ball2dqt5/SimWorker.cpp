@@ -26,16 +26,16 @@ SimWorker::SimWorker()
 , m_delta_H0( 0.0 )
 , m_delta_p0( Vector2s::Zero() )
 , m_delta_L0( 0.0 )
-, m_body_colors()
 , m_rn_gen( 1337 )
 , m_template_colors( std::vector<Eigen::Vector3f>{ Eigen::Vector3f::Ones() } )
 , m_color_selector( 0, int(m_template_colors.size()) - 1 )
-, m_plane_render_settings()
-, m_drum_render_settings()
-, m_portal_render_settings()
+, m_body_colors()
 , m_plane_render_settings0()
 , m_drum_render_settings0()
 , m_portal_render_settings0()
+, m_plane_render_settings()
+, m_drum_render_settings()
+, m_portal_render_settings()
 , m_steps_per_output( 1 )
 , m_steps_per_render( 1 )
 , m_display_precision( 0 )
@@ -45,6 +45,16 @@ Eigen::Vector3f SimWorker::generateColor()
 {
   const int idx = m_color_selector( m_rn_gen );
   return m_template_colors[idx];
+}
+
+Eigen::VectorXf SimWorker::generateInitialBodyColors()
+{
+  Eigen::VectorXf body_colors( 3 * m_sim.state().nballs() );
+  for( int i = 0; i < body_colors.size(); i += 3 )
+  {
+    body_colors.segment<3>( i ) = generateColor();
+  }
+  return body_colors;
 }
 
 static void ballInsertCallback( void* context, int num_balls )
@@ -101,60 +111,33 @@ static std::string xmlFilePath( const std::string& xml_file_name )
 }
 
 SimWorker::SimWorker( const QString& xml_scene_file_name, SimSettings& sim_settings, RenderSettings& render_settings, const int dt_display_precision )
-: m_sim0()
-, m_sim()
-, m_integrator0()
-, m_integrator()
-, m_scripting()
+: m_sim0( std::move( sim_settings.state ) )
+, m_sim( m_sim0 )
+, m_integrator0( std::move( sim_settings.integrator ) )
+, m_integrator( m_integrator0 )
+, m_scripting( xmlFilePath( xml_scene_file_name.toStdString() ), sim_settings.scripting_callback_name )
 , m_iteration( 0 )
 , m_end_time( sim_settings.end_time )
-, m_H0( 0.0 )
-, m_p0( Vector2s::Zero() )
-, m_L0( 0.0 )
+, m_H0( m_sim.state().computeTotalEnergy() )
+, m_p0( m_sim.state().computeMomentum() )
+, m_L0( m_sim.state().computeAngularMomentum() )
 , m_delta_H0( 0.0 )
 , m_delta_p0( Vector2s::Zero() )
 , m_delta_L0( 0.0 )
-, m_body_colors()
 , m_rn_gen( 1337 )
 , m_template_colors( std::move(render_settings.random_body_colors) )
 , m_color_selector( 0, int(m_template_colors.size()) - 1 )
-, m_plane_render_settings( std::move( render_settings.plane_render_settings ) )
-, m_drum_render_settings( std::move( render_settings.drum_render_settings ) )
-, m_portal_render_settings( std::move( render_settings.portal_render_settings ) )
-, m_plane_render_settings0( m_plane_render_settings )
-, m_drum_render_settings0( m_drum_render_settings )
-, m_portal_render_settings0( m_portal_render_settings )
+, m_body_colors( generateInitialBodyColors() )
+, m_plane_render_settings0( std::move( render_settings.plane_render_settings ) )
+, m_drum_render_settings0( std::move( render_settings.drum_render_settings ) )
+, m_portal_render_settings0( std::move( render_settings.portal_render_settings ) )
+, m_plane_render_settings( m_plane_render_settings0 )
+, m_drum_render_settings( m_drum_render_settings0 )
+, m_portal_render_settings( m_portal_render_settings0 )
 , m_steps_per_output( 1 )
 , m_steps_per_render( 1 )
 , m_display_precision( dt_display_precision )
 {
-  // Push the initial state and cache it to allow resets
-  m_sim0.state() = std::move( sim_settings.state );
-  m_sim0.clearConstraintCache();
-  m_sim = m_sim0;
-
-  // Push the initial integrator state and cache it to allow resets
-  m_integrator0 = sim_settings.integrator;
-  m_integrator = m_integrator0;
-
-  // Compute the initial energy, momentum, and angular momentum
-  m_H0 = m_sim.state().computeTotalEnergy();
-  m_p0 = m_sim.state().computeMomentum();
-  m_L0 = m_sim.state().computeAngularMomentum();
-
-  // Generate a random color for each ball
-  m_body_colors.resize( 3 * m_sim.state().nballs() );
-  for( int i = 0; i < m_body_colors.size(); i += 3 )
-  {
-    m_body_colors.segment<3>( i ) = generateColor();
-  }
-
-  // Initialize the scripting callback
-  {
-    PythonScripting new_scripting{ xmlFilePath( xml_scene_file_name.toStdString() ), sim_settings.scripting_callback_name };
-    swap( m_scripting, new_scripting );
-  }
-
   // User-provided start of simulation python callback
   m_scripting.setState( m_sim.state() );
   m_scripting.startOfSimCallback();
@@ -182,11 +165,7 @@ void SimWorker::reset()
 
   // Reset ball colors, in case the number of balls changed
   m_rn_gen = std::mt19937_64( 1337 );
-  m_body_colors.resize( 3 * m_sim.state().nballs() );
-  for( int i = 0; i < m_body_colors.size(); i += 3 )
-  {
-    m_body_colors.segment<3>( i ) = generateColor();
-  }
+  m_body_colors = generateInitialBodyColors();
 
   m_plane_render_settings = m_plane_render_settings0;
   m_drum_render_settings = m_drum_render_settings0;

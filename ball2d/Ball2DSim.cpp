@@ -28,6 +28,11 @@
 
 #include <iostream>
 
+Ball2DSim::Ball2DSim( Ball2DState state )
+: m_state( std::move( state ) )
+, m_constraint_cache()
+{}
+
 Ball2DState& Ball2DSim::state()
 {
   return m_state;

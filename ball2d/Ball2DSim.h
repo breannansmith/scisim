@@ -35,6 +35,9 @@ public:
   Ball2DSim& operator=( Ball2DSim&& ) = default;
   virtual ~Ball2DSim() override = default;
 
+  Ball2DSim( Ball2DState state );
+
+  // TODO: Get rid of this?
   Ball2DState& state();
   const Ball2DState& state() const;
 
