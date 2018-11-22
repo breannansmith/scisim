@@ -202,15 +202,16 @@ void GLWidget::copyRenderState( const Ball2DState& state, const Eigen::VectorXf&
   // Annuli
   {
     Eigen::Matrix<GLfloat,Eigen::Dynamic,1>& annulus_data{ m_annulus_shader.annulusData() };
-    annulus_data.resize( 4 * state.staticDrums().size() );
+    annulus_data.resize( 7 * state.staticDrums().size() );
     for( int renderer_num = 0; renderer_num < int(drum_settings.size()); renderer_num++ )
     {
       const int drum_idx = drum_settings[renderer_num].idx;
       const StaticDrum& drum = state.staticDrums()[drum_idx];
 
-      annulus_data.segment<2>( 4 * drum_idx ) = drum.x().cast<GLfloat>();
-      annulus_data( 4 * drum_idx + 2 ) = GLfloat(drum.r());
-      annulus_data( 4 * drum_idx + 3 ) = GLfloat(drum.r()) + drum_settings[renderer_num].r;
+      annulus_data.segment<2>( 7 * drum_idx ) = drum.x().cast<GLfloat>();
+      annulus_data( 7 * drum_idx + 2 ) = GLfloat(drum.r());
+      annulus_data( 7 * drum_idx + 3 ) = GLfloat(drum.r()) + drum_settings[renderer_num].r;
+      annulus_data.segment<3>( 7 * drum_idx + 4 ) = drum_settings[renderer_num].color;
     }
   }
 

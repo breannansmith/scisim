@@ -14,21 +14,25 @@ static const char* const vertex_shader_source = {
   "layout (location = 1) in vec2 center_of_mass;\n"
   "layout (location = 2) in float radius0;\n"
   "layout (location = 3) in float radius1;\n"
+  "layout (location = 4) in vec3 body_color;\n"
   "uniform mat4 projection_view;\n"
+  "out vec3 render_color;\n"
   "void main()\n"
   "{\n"
   "  float xpos = (1 - mod(gl_VertexID, 2)) * radius0 * position.x + mod(gl_VertexID, 2) * radius1 * position.x + center_of_mass.x;\n"
   "  float ypos = (1 - mod(gl_VertexID, 2)) * radius0 * position.y + mod(gl_VertexID, 2) * radius1 * position.y + center_of_mass.y;\n"
   "  gl_Position = projection_view * vec4(xpos, ypos, 0.0, 1.0);\n"
+  "  render_color = body_color;\n"
   "}\n"
 };
 
 static const char* const fragment_shader_source = {
   "#version 330 core\n"
+  "in vec3 render_color;\n"
   "out vec4 color;\n"
   "void main()\n"
   "{\n"
-  "  color = vec4(0.0f, 0.0f, 0.0f, 1.0f);\n"
+  "  color = vec4(render_color.x, render_color.y, render_color.z, 1.0f);\n"
   "}\n"
 };
 
@@ -151,24 +155,30 @@ void AnnulusShader::initialize( const int num_subdivs, QOpenGLFunctions_3_3_Core
     // The circle centers of mass
     m_f->glEnableVertexAttribArray( 1 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
-    m_f->glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), static_cast<GLvoid*>(nullptr) );
+    m_f->glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), static_cast<GLvoid*>(nullptr) );
     m_f->glVertexAttribDivisor( 1, 1 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
 
     // The inner radius
     m_f->glEnableVertexAttribArray( 2 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
-    m_f->glVertexAttribPointer( 2, 1, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)( 2 * sizeof(GLfloat) ) );
+    m_f->glVertexAttribPointer( 2, 1, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (GLvoid*)( 2 * sizeof(GLfloat) ) );
     m_f->glVertexAttribDivisor( 2, 1 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
 
     // The outer radius
     m_f->glEnableVertexAttribArray( 3 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
-    m_f->glVertexAttribPointer( 3, 1, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)( 3 * sizeof(GLfloat) ) );
+    m_f->glVertexAttribPointer( 3, 1, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (GLvoid*)( 3 * sizeof(GLfloat) ) );
     m_f->glVertexAttribDivisor( 3, 1 );
     m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
-    m_f->glBindVertexArray( 0 );
+
+    // The annuli colors
+    m_f->glEnableVertexAttribArray( 4 );
+    m_f->glBindBuffer( GL_ARRAY_BUFFER, m_instance_VBO );
+    m_f->glVertexAttribPointer( 4, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (GLvoid*)( 4 * sizeof(GLfloat) ) );
+    m_f->glVertexAttribDivisor( 4, 1 );
+    m_f->glBindBuffer( GL_ARRAY_BUFFER, 0 );
 
     // NB: *don't* unbind
     // m_f->glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
@@ -220,8 +230,8 @@ void AnnulusShader::draw()
   assert( m_program > 0 );
   assert( m_VAO > 0 );
 
-  assert( m_annulus_data.size() % 4 == 0 );
-  const GLsizei num_annuli{ GLsizei(m_annulus_data.size() / 4) };
+  assert( m_annulus_data.size() % 7 == 0 );
+  const GLsizei num_annuli{ GLsizei(m_annulus_data.size() / 7) };
 
   if( !m_data_buffered )
   {
