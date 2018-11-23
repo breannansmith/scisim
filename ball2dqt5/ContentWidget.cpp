@@ -734,7 +734,7 @@ void ContentWidget::exportState()
 
 void ContentWidget::exportCameraSettings()
 {
-  const std::string camera_settings = m_gl_widget->exportCameraSettings( m_output_fps, m_lock_render_fps );
+  const std::string camera_settings = m_gl_widget->exportCameraSettings( m_output_fps, m_lock_render_fps, m_lock_output_fps );
   QMessageBox::information( this, tr("SCISim 2D Ball Simulation"), camera_settings.c_str() );
 }
 

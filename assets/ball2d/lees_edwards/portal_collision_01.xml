@@ -1,8 +1,11 @@
 <ball2d_scene>
 
-  <global_render_settings num_ball_subdivs="256" num_drum_subdivs="256" num_aa_samples="8"/>
+  <global_render_settings num_ball_subdivs="256" num_drum_subdivs="256" num_aa_samples="8" background_color="0.098 0.098 0.098" hud_text_color="0.9 0.9 0.9"/>
 
-  <camera cx="0.0" cy="0.0" scale_factor="3.80562" fps="50" render_at_fps="1" locked="0"/>
+  <camera cx="0.0" cy="0.0" scale_factor="3.80562" fps="50" output_at_fps="1" render_at_fps="1" locked="0"/>
+  <random_body_color rgb_float="0.988 0.105 0.588"/>
+  <random_body_color rgb_float="0.996 0.890 0.204"/>
+  <random_body_color rgb_float="0.192 0.780 0.988"/>
 
   <integrator type="verlet" dt="0.01"/>
 
@@ -17,8 +20,8 @@
   <lees_edwards_portal planeA="0" planeB="1" v="1.0" bounds="3.0"/>
   <planar_portal planeA="2" planeB="3"/>
 
-  <portal_renderer portal="0" thickness="0.1" width="4.0" indicator_width="0.5" color="0.5 0.5 0.5"/>
-  <portal_renderer portal="1" thickness="0.1" width="6.0" indicator_width="0.5" color="0.5 0.5 0.5"/>
+  <portal_renderer portal="0" thickness="0.1" width="4.0" indicator_width="0.5" color="0.824 0.824 0.824"/>
+  <portal_renderer portal="1" thickness="0.1" width="6.0" indicator_width="0.5" color="0.824 0.824 0.824"/>
 
   <ball x="1.4" y="0" vx="0" vy="0" m="0.1" r="0.5" fixed="0"/>
   <ball x="-1.9" y="2" vx="0" vy="0" m="0.1" r="0.5" fixed="0"/>

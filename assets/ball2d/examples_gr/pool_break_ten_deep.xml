@@ -4,9 +4,12 @@
 
 <ball2d_scene>
 
-  <global_render_settings num_ball_subdivs="256" num_drum_subdivs="256" num_aa_samples="8"/>
+  <global_render_settings num_ball_subdivs="256" num_drum_subdivs="256" num_aa_samples="8" background_color="0.098 0.098 0.098" hud_text_color="0.9 0.9 0.9"/>
+  <random_body_color rgb_float="0.988 0.105 0.588"/>
+  <random_body_color rgb_float="0.996 0.890 0.204"/>
+  <random_body_color rgb_float="0.192 0.780 0.988"/>
 
-  <camera cx="4.51228" cy="0.0" scale_factor="9.84532" fps="10" render_at_fps="0" locked="0"/>
+  <camera cx="4.51228" cy="0.0" scale_factor="9.84532" fps="10" output_at_fps="1" render_at_fps="1" locked="0"/>
 
   <integrator type="verlet" dt="0.1"/>
 

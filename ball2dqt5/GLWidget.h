@@ -52,7 +52,7 @@ public:
 
   void saveScreenshot( const QString& file_name );
 
-  std::string exportCameraSettings( const int output_fps, const bool render_at_fps );
+  std::string exportCameraSettings( const int output_fps, const bool render_at_fps, const bool output_at_fps );
 
   void copyRenderState( const Ball2DState& state, const Eigen::VectorXf& body_colors, const std::vector<PlaneRenderSettings>& plane_settings,
                         const std::vector<DrumRenderSettings>& drum_settings, const std::vector<PortalRenderSettings>& portal_settings,

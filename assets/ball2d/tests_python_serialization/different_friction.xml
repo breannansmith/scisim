@@ -4,9 +4,12 @@
 
 <ball2d_scene>
 
-  <global_render_settings num_ball_subdivs="256" num_drum_subdivs="256" num_aa_samples="8"/>
+  <global_render_settings num_ball_subdivs="256" num_drum_subdivs="256" num_aa_samples="8" background_color="0.098 0.098 0.098" hud_text_color="0.9 0.9 0.9"/>
 
-  <camera cx="6.22585" cy="10.32" scale_factor="11.68" fps="60" render_at_fps="1" locked="1"/>
+  <camera cx="6.22585" cy="10.32" scale_factor="11.68" fps="60" output_at_fps="1" render_at_fps="1" locked="1"/>
+  <random_body_color rgb_float="0.988 0.105 0.588"/>
+  <random_body_color rgb_float="0.996 0.890 0.204"/>
+  <random_body_color rgb_float="0.192 0.780 0.988"/>
 
   <scripting callback="different_friction"/>
 
@@ -22,8 +25,8 @@
 
   <planar_portal planeA="1" planeB="2"/>
 
-  <static_plane_renderer plane="0" r="0.1 12.4517" color="0 0 0"/>
-  <portal_renderer portal="0" thickness="0.1" width="30.0" indicator_width="1.0" color="0.5 0.5 0.5"/>
+  <static_plane_renderer plane="0" r="0.1 12.4517" color="0.824 0.824 0.824"/>
+  <portal_renderer portal="0" thickness="0.1" width="30.0" indicator_width="1.0" color="0.824 0.824 0.824"/>
 
   <ball x="3.42062618002508" y="19.6565473088693" vx="0" vy="0" m="0.0247564702349027" r="0.0558096327511647" fixed="0"/>
   <ball x="2.74711968448467" y="24.2609320799301" vx="0" vy="0" m="0.031015236677041" r="0.0624672450347074" fixed="0"/>

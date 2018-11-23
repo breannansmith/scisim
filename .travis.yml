@@ -59,7 +59,6 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then CTEST_EXEC=ctest ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update > /dev/null ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew outdated cmake || brew upgrade cmake ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew cask uninstall oclint ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew reinstall gcc ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew upgrade numpy ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install md5sha1sum ninja homebrew/core/hdf5 python@2 ; fi
