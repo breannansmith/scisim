@@ -312,7 +312,7 @@ ContentWidget::~ContentWidget()
   // If, in the vanishingly rare case that the worker posted an event after event processing ceased
   // but before disconnect, just flush the event queue
   QCoreApplication::removePostedEvents( this );
-  // The worker thread could have pending step events, which we no longer care about,
+  // The worker object could have pending step events, which we no longer care about,
   // so flush them
   QCoreApplication::removePostedEvents( m_sim_worker );
   // Tell the sim thread to exit and wait for all running tasks to complete
@@ -421,7 +421,7 @@ void ContentWidget::openScene( const QString& scene_file_name )
     // Clear any queued events on the worker we are deleting
     QCoreApplication::removePostedEvents( m_sim_worker );
     // Schedule the old sim worker for deletion
-    QMetaObject::invokeMethod( m_sim_worker, "deleteLater", Qt::QueuedConnection );
+    m_sim_worker->deleteLater();
 
     const int dt_display_precision = computeTimestepDisplayPrecision( sim_settings.integrator.dt(), sim_settings.dt_string );
     m_sim_worker = new SimWorker( scene_file_name, sim_settings, render_settings, dt_display_precision );
