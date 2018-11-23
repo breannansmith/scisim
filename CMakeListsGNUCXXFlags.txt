@@ -3,7 +3,6 @@ if( STRICT_BUILD )
   # Does not work with Sobogus: -Wsign-conversion -Weffc++ -Wold-style-cast
   # Does not work with Eigen: -Wvector-operation-performance -Wzero-as-null-pointer-constant -Wstrict-overflow=5
   # Does not work with SCISim: -Wfloat-equal -Wsuggest-final-types -Wsuggest-final-methods
-  # Does not work with Qt5: -Wuseless-cast
 
   # Enable as many warnings as possible
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -Wpedantic -Wcast-align -Wdisabled-optimization -Wformat=2 -Winit-self" )
@@ -11,6 +10,9 @@ if( STRICT_BUILD )
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wtrampolines -Wundef -Wconversion -Wctor-dtor-privacy -Wlogical-op -Wshadow" )
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wcast-qual -Wmissing-declarations -Wredundant-decls -Werror=double-promotion -Wlogical-op" )
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunsafe-loop-optimizations -Wnull-dereference" )
+  if( NOT USE_QT5 )
+    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wuseless-cast" )
+  endif()
 endif()
 
 # Disable run time type information

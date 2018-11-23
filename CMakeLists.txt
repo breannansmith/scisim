@@ -63,20 +63,6 @@ endif( CMAKE_CXX_FLAGS )
 # Allow the user to optionally enable compiler sanitizers
 set( SANITIZER "none" CACHE STRING "Enable compiler sanitizer modes, options are: none, address, undefined" )
 
-# Enable compiler specific flags
-if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
-  include( CMakeListsGNUCXXFlags.txt )
-elseif( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" )
-  include( CMakeListsIntelCXXFlags.txt )
-elseif( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
-  include( CMakeListsClangCXXFlags.txt )
-elseif( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" )
-  # For now, same options to Clang and AppleClang. May change in the future.
-  include( CMakeListsClangCXXFlags.txt )
-else()
-  message( FATAL_ERROR "Unsupported C++ compiler ${CMAKE_CXX_COMPILER_ID}. Please email the maintainer." )
-endif()
-
 
 ################################################################################
 ### Set paths, etc
@@ -104,6 +90,23 @@ option( USE_OPENMP "OpenMP-based parallelism" OFF )
 option( USE_HDF5 "Serialization support with HDF5" OFF )
 
 option( USE_PYTHON "Embedded Python language scripting" OFF )
+
+
+################################################################################
+### Enable compiler specific flags
+if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
+  include( CMakeListsGNUCXXFlags.txt )
+elseif( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" )
+  include( CMakeListsIntelCXXFlags.txt )
+elseif( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
+  include( CMakeListsClangCXXFlags.txt )
+elseif( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" )
+  # For now, same options to Clang and AppleClang. May change in the future.
+  include( CMakeListsClangCXXFlags.txt )
+else()
+  message( FATAL_ERROR "Unsupported C++ compiler ${CMAKE_CXX_COMPILER_ID}. Please email the maintainer." )
+endif()
+
 
 ###############################################################################
 ### Check for installed Python modules
