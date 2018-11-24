@@ -73,7 +73,7 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
     QAction* run = sim->addAction( tr( "Run Sim" ), content_widget, &ContentWidget::toggleSimulatingCheckbox, Qt::Key_Space );
     run->setCheckable( true );
     content_widget->wireRunSim( run );
-    sim->addAction( tr( "Reset Sim" ), content_widget, &ContentWidget::callReset, Qt::Key_R );
+    sim->addAction( content_widget->resetAction() );
     sim->addAction( tr( "Step Sim" ), content_widget, &ContentWidget::callStep, Qt::Key_S );
   }
 }

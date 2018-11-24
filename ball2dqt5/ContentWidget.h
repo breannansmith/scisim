@@ -30,6 +30,8 @@ public:
   ContentWidget& operator=( const ContentWidget& ) = delete;
   ContentWidget& operator=( ContentWidget&& ) = delete;
 
+  QAction* resetAction();
+
   // TODO: This is kind of hacky, but it works for now. Needed because failing to load a directory can force a retoggle.
   void wireSaveMovieAction( QAction* movie_action );
 
@@ -78,7 +80,6 @@ public slots:
   void centerCamera();
   void toggleControls();
 
-  void callReset();
   void callStep();
 
   void exportImage();
@@ -95,7 +96,6 @@ public slots:
 
 signals:
 
-  void resetSimulation();
   #ifdef USE_HDF5
   void stepSimulation( QString movie_dir_name, QString state_dir_name );
   #else
@@ -164,6 +164,7 @@ private:
 
   QPushButton* m_step_button;
 
+  QAction* m_reset_action;
   QPushButton* m_reset_button;
 
   // Threading state

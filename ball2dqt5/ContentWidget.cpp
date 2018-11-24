@@ -50,6 +50,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_display_hud_checkbox( nullptr )
 , m_fps_spin_box( nullptr )
 , m_step_button( nullptr )
+, m_reset_action( nullptr )
 , m_reset_button( nullptr )
 , m_sim_thread()
 , m_sim_worker( nullptr )
@@ -120,8 +121,13 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     line0->setFrameShadow( QFrame::Sunken );
     controls_layout->addWidget( line0 );
 
+    // Action for resetting the simulation
+    m_reset_action = new QAction{ tr("Reset Sim"), this };
+    m_reset_action->setShortcut( Qt::Key_R );
+
     // Button for resetting the simulation
-    m_reset_button = new QPushButton{ tr( "Reset Sim" ), this };
+    m_reset_button = new QPushButton{ m_reset_action->text(), this };
+    connect( m_reset_button, &QAbstractButton::pressed, m_reset_action, &QAction::trigger );
     controls_layout->addWidget( m_reset_button );
 
     // Button for taking a single time step
@@ -222,6 +228,11 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
   this->setFocus();
 }
 
+QAction* ContentWidget::resetAction()
+{
+  return m_reset_action;
+}
+
 void ContentWidget::wireSaveMovieAction( QAction* movie_action )
 {
   connect( m_export_movie_checkbox, &QAbstractButton::toggled,
@@ -294,8 +305,7 @@ void ContentWidget::wireSimWorker()
 {
   connect( &m_sim_thread, &QThread::finished, m_sim_worker, &QObject::deleteLater );
   connect( this, &ContentWidget::stepSimulation, m_sim_worker, &SimWorker::takeStep );
-  connect( this, &ContentWidget::resetSimulation, m_sim_worker, &SimWorker::reset );
-  connect( m_reset_button, &QPushButton::clicked, m_sim_worker, &SimWorker::reset );
+  connect( m_reset_action, &QAction::triggered, m_sim_worker, &SimWorker::reset );
   connect( this, &ContentWidget::outputFPSChanged, m_sim_worker, &SimWorker::setOutputFPS );
   connect( m_sim_worker, &SimWorker::postStep, this, &ContentWidget::copyStepResults, Qt::BlockingQueuedConnection );
   connect( this, &ContentWidget::exportMovieEnabled, m_sim_worker, &SimWorker::exportMovieInit );
@@ -692,11 +702,6 @@ void ContentWidget::toggleControls()
 {
   assert( m_controls_widget != nullptr );
   m_controls_widget->setVisible( !m_controls_widget->isVisible() );
-}
-
-void ContentWidget::callReset()
-{
-  emit resetSimulation();
 }
 
 void ContentWidget::callStep()
