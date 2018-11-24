@@ -34,6 +34,7 @@ public:
   QAction* stepAction();
   QAction* simulateAction();
   QAction* displayCameraAction();
+  QAction* centerCameraAction();
 
   // TODO: This is kind of hacky, but it works for now. Needed because failing to load a directory can force a retoggle.
   void wireSaveMovieAction( QAction* movie_action );
@@ -75,7 +76,6 @@ public slots:
   void toggleRenderFPSLockCheckbox();
   void toggleOutputFPSLockCheckbox();
 
-  void centerCamera();
   void toggleControls();
 
   void exportImage();
@@ -157,6 +157,8 @@ private:
   ValidatingSpinBox* m_fps_spin_box;
 
   QAction* m_display_camera_action;
+
+  QAction* m_center_camera_action;
 
   QAction* m_step_action;
 

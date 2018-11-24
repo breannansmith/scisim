@@ -50,6 +50,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_display_hud_checkbox( nullptr )
 , m_fps_spin_box( nullptr )
 , m_display_camera_action( nullptr )
+, m_center_camera_action( nullptr )
 , m_step_action( nullptr )
 , m_reset_action( nullptr )
 , m_sim_thread()
@@ -154,9 +155,9 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 
       QCheckBox* simulate_checkbox = new QCheckBox{ m_simulate_action->text(), this };
       connect( m_simulate_action, &QAction::toggled,
-        [this]( const bool checked )
+        [this, simulate_checkbox]( const bool checked )
           {
-            this->simulate_checkbox->setChecked( checked );
+            simulate_checkbox->setChecked( checked );
             // If going from paused to running, trigger the initial step
             if( checked )
             {
@@ -194,10 +195,21 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
       connect( display_camera_button, &QPushButton::clicked, m_display_camera_action, &QAction::trigger );
     }
 
-    // Button to center the camera
-    QPushButton* center_camera_button = new QPushButton{ tr( "Center Camera" ), this };
-    controls_layout->addWidget( center_camera_button );
-    connect( center_camera_button, &QPushButton::clicked, this, &ContentWidget::centerCamera );
+    // Controls to center the camera
+    {
+      m_center_camera_action = new QAction{ tr("Center Camera"), this };
+      m_center_camera_action->setShortcut( Qt::Key_C );
+      connect( m_center_camera_action, &QAction::triggered,
+        [this]()
+          {
+            this->m_gl_widget->centerCamera( true, this->m_empty, this->m_bbox );
+          }
+      );
+
+      QPushButton* center_camera_button = new QPushButton{ m_center_camera_action->text(), this };
+      controls_layout->addWidget( center_camera_button );
+      connect( center_camera_button, &QPushButton::clicked, m_center_camera_action, &QAction::trigger );
+    }
 
     // Toggle for displaying the OpenGL HUD
     m_display_hud_checkbox = new QCheckBox{ tr( "Show HUD" ), this };
@@ -285,6 +297,11 @@ QAction* ContentWidget::simulateAction()
 QAction* ContentWidget::displayCameraAction()
 {
   return m_display_camera_action;
+}
+
+QAction* ContentWidget::centerCameraAction()
+{
+  return m_center_camera_action;
 }
 
 void ContentWidget::wireSaveMovieAction( QAction* movie_action )
@@ -721,12 +738,6 @@ void ContentWidget::toggleOutputFPSLockCheckbox()
 {
   assert( m_lock_output_fps_checkbox != nullptr );
   m_lock_output_fps_checkbox->toggle();
-}
-
-void ContentWidget::centerCamera()
-{
-  assert( m_gl_widget != nullptr );
-  m_gl_widget->centerCamera( true, m_empty, m_bbox );
 }
 
 void ContentWidget::toggleControls()
