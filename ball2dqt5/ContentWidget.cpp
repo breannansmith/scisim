@@ -145,11 +145,30 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     connect( m_step_button, &QAbstractButton::pressed, m_step_action, &QAction::trigger );
     controls_layout->addWidget( m_step_button );
 
+    // Action for running the simulation
+    m_simulate_action = new QAction{ tr("Run Sim"), this };
+    m_simulate_action->setShortcut( Qt::Key_Space );
+    m_simulate_action->setCheckable( true );
+
     // Toggle for running/pausing the simulation
-    m_simulate_checkbox = new QCheckBox{ tr( "Run Sim" ), this };
+    m_simulate_checkbox = new QCheckBox{ m_simulate_action->text(), this };
+    connect( m_simulate_action, &QAction::toggled,
+      [this]( const bool checked )
+        {
+          this->m_simulate_checkbox->setChecked( checked );
+          // If going from paused to running, trigger the initial step
+          if( checked )
+          {
+            #ifdef USE_HDF5
+            emit stepSimulation( this->m_movie_dir_name, this->m_state_dir_name );
+            #else
+            emit stepSimulation( this->m_movie_dir_name );
+            #endif
+          }
+        }
+    );
+    connect( m_simulate_checkbox, &QCheckBox::toggled, m_simulate_action, &QAction::setChecked );
     controls_layout->addWidget( m_simulate_checkbox );
-    m_simulate_checkbox->setChecked( false );
-    connect( m_simulate_checkbox, &QCheckBox::toggled, this, &ContentWidget::simulateToggled );
 
     QFrame* line1 = new QFrame( this );
     line1->setFrameShape( QFrame::HLine );
@@ -244,6 +263,11 @@ QAction* ContentWidget::stepAction()
   return m_step_action;
 }
 
+QAction* ContentWidget::simulateAction()
+{
+  return m_simulate_action;
+}
+
 void ContentWidget::wireSaveMovieAction( QAction* movie_action )
 {
   connect( m_export_movie_checkbox, &QAbstractButton::toggled,
@@ -289,11 +313,6 @@ void ContentWidget::wireLockRenderFPS( QAction* locked ) const
 {
   connect( m_lock_render_fps_checkbox, &QAbstractButton::toggled, locked, &QAction::setChecked );
   connect( this, &ContentWidget::lockRenderFPSCheckboxEnabled, locked, &QAction::setEnabled );
-}
-
-void ContentWidget::wireRunSim( QAction* run ) const
-{
-  connect( m_simulate_checkbox, &QAbstractButton::toggled, run, &QAction::setChecked );
 }
 
 bool ContentWidget::isLockOutputFPSChecked() const
@@ -524,18 +543,6 @@ void ContentWidget::reloadScene()
   }
 }
 
-void ContentWidget::simulateToggled( const bool state )
-{
-  if( state )
-  {
-    #ifdef USE_HDF5
-    emit stepSimulation( m_movie_dir_name, m_state_dir_name );
-    #else
-    emit stepSimulation( m_movie_dir_name );
-    #endif
-  }
-}
-
 void ContentWidget::outputFPSToggled()
 {
   m_lock_output_fps = m_lock_output_fps_checkbox->isChecked();
@@ -695,12 +702,6 @@ void ContentWidget::toggleOutputFPSLockCheckbox()
 {
   assert( m_lock_output_fps_checkbox != nullptr );
   m_lock_output_fps_checkbox->toggle();
-}
-
-void ContentWidget::toggleSimulatingCheckbox()
-{
-  assert( m_simulate_checkbox != nullptr );
-  m_simulate_checkbox->toggle();
 }
 
 void ContentWidget::centerCamera()

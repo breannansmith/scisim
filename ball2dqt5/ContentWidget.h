@@ -32,6 +32,7 @@ public:
 
   QAction* resetAction();
   QAction* stepAction();
+  QAction* simulateAction();
 
   // TODO: This is kind of hacky, but it works for now. Needed because failing to load a directory can force a retoggle.
   void wireSaveMovieAction( QAction* movie_action );
@@ -49,8 +50,6 @@ public:
   bool isLockRenderFPSEnabled() const;
   void wireLockRenderFPS( QAction* locked ) const;
 
-  void wireRunSim( QAction* run ) const;
-
   bool isLockOutputFPSChecked() const;
   bool isLockOutputFPSEnabled() const;
   void wireLockOutputFPS( QAction* locked ) const;
@@ -59,8 +58,6 @@ public slots:
 
   void openUserScene();
   void reloadScene();
-
-  void simulateToggled( const bool state );
 
   void outputFPSToggled();
 
@@ -76,7 +73,6 @@ public slots:
   void toggleCameraLockCheckbox();
   void toggleRenderFPSLockCheckbox();
   void toggleOutputFPSLockCheckbox();
-  void toggleSimulatingCheckbox();
 
   void centerCamera();
   void toggleControls();
@@ -143,6 +139,7 @@ private:
 
   QWidget* m_controls_widget;
 
+  QAction* m_simulate_action;
   QCheckBox* m_simulate_checkbox;
 
   QCheckBox* m_lock_render_fps_checkbox;

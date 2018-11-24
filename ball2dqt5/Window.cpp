@@ -69,10 +69,7 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
   // Simulation menu actions
   {
     QMenu* sim{ menuBar()->addMenu( tr( "Simulation" ) ) };
-    assert( sim != nullptr );
-    QAction* run = sim->addAction( tr( "Run Sim" ), content_widget, &ContentWidget::toggleSimulatingCheckbox, Qt::Key_Space );
-    run->setCheckable( true );
-    content_widget->wireRunSim( run );
+    sim->addAction( content_widget->simulateAction() );
     sim->addAction( content_widget->resetAction() );
     sim->addAction( content_widget->stepAction() );
   }
