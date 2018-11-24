@@ -50,9 +50,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_display_hud_checkbox( nullptr )
 , m_fps_spin_box( nullptr )
 , m_step_action( nullptr )
-, m_step_button( nullptr )
 , m_reset_action( nullptr )
-, m_reset_button( nullptr )
 , m_sim_thread()
 , m_sim_worker( nullptr )
 , m_xml_file_name()
@@ -127,9 +125,9 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     m_reset_action->setShortcut( Qt::Key_R );
 
     // Button for resetting the simulation
-    m_reset_button = new QPushButton{ m_reset_action->text(), this };
-    connect( m_reset_button, &QAbstractButton::pressed, m_reset_action, &QAction::trigger );
-    controls_layout->addWidget( m_reset_button );
+    QPushButton* reset_button = new QPushButton{ m_reset_action->text(), this };
+    connect( reset_button, &QAbstractButton::pressed, m_reset_action, &QAction::trigger );
+    controls_layout->addWidget( reset_button );
 
     // Action for stepping the simulation
     m_step_action = new QAction{ tr("Step Sim"), this };
@@ -141,9 +139,9 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     #endif
 
     // Button for taking a single time step
-    m_step_button = new QPushButton{ m_step_action->text(), this };
-    connect( m_step_button, &QAbstractButton::pressed, m_step_action, &QAction::trigger );
-    controls_layout->addWidget( m_step_button );
+    QPushButton* step_button = new QPushButton{ m_step_action->text(), this };
+    connect( step_button, &QAbstractButton::pressed, m_step_action, &QAction::trigger );
+    controls_layout->addWidget( step_button );
 
     // Action for running the simulation
     m_simulate_action = new QAction{ tr("Run Sim"), this };

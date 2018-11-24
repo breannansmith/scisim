@@ -10,7 +10,7 @@
 #include "scisim/Math/MathDefines.h"
 
 class QCheckBox;
-class QPushButton;
+// class QPushButton;
 
 class GLWidget;
 class SimWorker;
@@ -159,10 +159,8 @@ private:
   ValidatingSpinBox* m_fps_spin_box;
 
   QAction* m_step_action;
-  QPushButton* m_step_button;
 
   QAction* m_reset_action;
-  QPushButton* m_reset_button;
 
   // Threading state
 
