@@ -31,6 +31,7 @@ public:
   ContentWidget& operator=( ContentWidget&& ) = delete;
 
   QAction* resetAction();
+  QAction* stepAction();
 
   // TODO: This is kind of hacky, but it works for now. Needed because failing to load a directory can force a retoggle.
   void wireSaveMovieAction( QAction* movie_action );
@@ -79,8 +80,6 @@ public slots:
 
   void centerCamera();
   void toggleControls();
-
-  void callStep();
 
   void exportImage();
   void exportMovie();
@@ -162,6 +161,7 @@ private:
 
   ValidatingSpinBox* m_fps_spin_box;
 
+  QAction* m_step_action;
   QPushButton* m_step_button;
 
   QAction* m_reset_action;

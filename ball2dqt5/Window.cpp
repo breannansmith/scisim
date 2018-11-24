@@ -74,6 +74,6 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
     run->setCheckable( true );
     content_widget->wireRunSim( run );
     sim->addAction( content_widget->resetAction() );
-    sim->addAction( tr( "Step Sim" ), content_widget, &ContentWidget::callStep, Qt::Key_S );
+    sim->addAction( content_widget->stepAction() );
   }
 }

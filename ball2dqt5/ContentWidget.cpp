@@ -49,6 +49,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_lock_output_fps_checkbox( nullptr )
 , m_display_hud_checkbox( nullptr )
 , m_fps_spin_box( nullptr )
+, m_step_action( nullptr )
 , m_step_button( nullptr )
 , m_reset_action( nullptr )
 , m_reset_button( nullptr )
@@ -130,14 +131,19 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     connect( m_reset_button, &QAbstractButton::pressed, m_reset_action, &QAction::trigger );
     controls_layout->addWidget( m_reset_button );
 
-    // Button for taking a single time step
-    m_step_button = new QPushButton{ tr( "Step Sim" ), this };
-    controls_layout->addWidget( m_step_button );
+    // Action for stepping the simulation
+    m_step_action = new QAction{ tr("Step Sim"), this };
+    m_step_action->setShortcut( Qt::Key_S );
     #ifdef USE_HDF5
-    connect( m_step_button, &QPushButton::clicked, [this](){ emit stepSimulation( this->m_movie_dir_name, this->m_state_dir_name ); } );
+    connect( m_step_action, &QAction::triggered, [this](){ emit stepSimulation( this->m_movie_dir_name, this->m_state_dir_name ); } );
     #else
-    connect( m_step_button, &QPushButton::clicked, [this](){ emit stepSimulation( this->m_movie_dir_name ); } );
+    connect( m_step_action, &QAction::triggered, [this](){ emit stepSimulation( this->m_movie_dir_name ); } );
     #endif
+
+    // Button for taking a single time step
+    m_step_button = new QPushButton{ m_step_action->text(), this };
+    connect( m_step_button, &QAbstractButton::pressed, m_step_action, &QAction::trigger );
+    controls_layout->addWidget( m_step_button );
 
     // Toggle for running/pausing the simulation
     m_simulate_checkbox = new QCheckBox{ tr( "Run Sim" ), this };
@@ -231,6 +237,11 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 QAction* ContentWidget::resetAction()
 {
   return m_reset_action;
+}
+
+QAction* ContentWidget::stepAction()
+{
+  return m_step_action;
 }
 
 void ContentWidget::wireSaveMovieAction( QAction* movie_action )
@@ -702,15 +713,6 @@ void ContentWidget::toggleControls()
 {
   assert( m_controls_widget != nullptr );
   m_controls_widget->setVisible( !m_controls_widget->isVisible() );
-}
-
-void ContentWidget::callStep()
-{
-  #ifdef USE_HDF5
-  emit stepSimulation( m_movie_dir_name, m_state_dir_name );
-  #else
-  emit stepSimulation( m_movie_dir_name );
-  #endif
 }
 
 void ContentWidget::exportImage()
