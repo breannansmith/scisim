@@ -33,6 +33,7 @@ public:
   QAction* resetAction();
   QAction* stepAction();
   QAction* simulateAction();
+  QAction* displayCameraAction();
 
   // TODO: This is kind of hacky, but it works for now. Needed because failing to load a directory can force a retoggle.
   void wireSaveMovieAction( QAction* movie_action );
@@ -82,8 +83,6 @@ public slots:
   #ifdef USE_HDF5
   void exportState();
   #endif
-
-  void exportCameraSettings();
 
   void copyStepResults( const bool was_reset, const bool render_frame, const bool save_screenshot, const int output_num );
 
@@ -140,7 +139,6 @@ private:
   QWidget* m_controls_widget;
 
   QAction* m_simulate_action;
-  QCheckBox* m_simulate_checkbox;
 
   QCheckBox* m_lock_render_fps_checkbox;
 
@@ -157,6 +155,8 @@ private:
   QCheckBox* m_display_hud_checkbox;
 
   ValidatingSpinBox* m_fps_spin_box;
+
+  QAction* m_display_camera_action;
 
   QAction* m_step_action;
 

@@ -39,7 +39,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 : QWidget( parent )
 , m_gl_widget( new GLWidget( this, QSurfaceFormat::defaultFormat() ) )
 , m_controls_widget( nullptr )
-, m_simulate_checkbox( nullptr )
+, m_simulate_action( nullptr )
 , m_lock_render_fps_checkbox( nullptr )
 , m_lock_camera_checkbox( nullptr )
 , m_export_movie_checkbox( nullptr )
@@ -49,6 +49,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_lock_output_fps_checkbox( nullptr )
 , m_display_hud_checkbox( nullptr )
 , m_fps_spin_box( nullptr )
+, m_display_camera_action( nullptr )
 , m_step_action( nullptr )
 , m_reset_action( nullptr )
 , m_sim_thread()
@@ -120,63 +121,78 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     line0->setFrameShadow( QFrame::Sunken );
     controls_layout->addWidget( line0 );
 
-    // Action for resetting the simulation
-    m_reset_action = new QAction{ tr("Reset Sim"), this };
-    m_reset_action->setShortcut( Qt::Key_R );
+    // Controls for resetting the simulation
+    {
+      m_reset_action = new QAction{ tr("Reset Sim"), this };
+      m_reset_action->setShortcut( Qt::Key_R );
 
-    // Button for resetting the simulation
-    QPushButton* reset_button = new QPushButton{ m_reset_action->text(), this };
-    connect( reset_button, &QAbstractButton::pressed, m_reset_action, &QAction::trigger );
-    controls_layout->addWidget( reset_button );
+      QPushButton* reset_button = new QPushButton{ m_reset_action->text(), this };
+      connect( reset_button, &QAbstractButton::clicked, m_reset_action, &QAction::trigger );
+      controls_layout->addWidget( reset_button );
+    }
 
-    // Action for stepping the simulation
-    m_step_action = new QAction{ tr("Step Sim"), this };
-    m_step_action->setShortcut( Qt::Key_S );
-    #ifdef USE_HDF5
-    connect( m_step_action, &QAction::triggered, [this](){ emit stepSimulation( this->m_movie_dir_name, this->m_state_dir_name ); } );
-    #else
-    connect( m_step_action, &QAction::triggered, [this](){ emit stepSimulation( this->m_movie_dir_name ); } );
-    #endif
+    // Controls for stepping the simulation
+    {
+      m_step_action = new QAction{ tr("Step Sim"), this };
+      m_step_action->setShortcut( Qt::Key_S );
+      #ifdef USE_HDF5
+      connect( m_step_action, &QAction::triggered, [this](){ emit stepSimulation( this->m_movie_dir_name, this->m_state_dir_name ); } );
+      #else
+      connect( m_step_action, &QAction::triggered, [this](){ emit stepSimulation( this->m_movie_dir_name ); } );
+      #endif
 
-    // Button for taking a single time step
-    QPushButton* step_button = new QPushButton{ m_step_action->text(), this };
-    connect( step_button, &QAbstractButton::pressed, m_step_action, &QAction::trigger );
-    controls_layout->addWidget( step_button );
+      QPushButton* step_button = new QPushButton{ m_step_action->text(), this };
+      connect( step_button, &QAbstractButton::clicked, m_step_action, &QAction::trigger );
+      controls_layout->addWidget( step_button );
+    }
 
-    // Action for running the simulation
-    m_simulate_action = new QAction{ tr("Run Sim"), this };
-    m_simulate_action->setShortcut( Qt::Key_Space );
-    m_simulate_action->setCheckable( true );
+    // Controls for running and pausing the simulation
+    {
+      m_simulate_action = new QAction{ tr("Run Sim"), this };
+      m_simulate_action->setShortcut( Qt::Key_Space );
+      m_simulate_action->setCheckable( true );
 
-    // Toggle for running/pausing the simulation
-    m_simulate_checkbox = new QCheckBox{ m_simulate_action->text(), this };
-    connect( m_simulate_action, &QAction::toggled,
-      [this]( const bool checked )
-        {
-          this->m_simulate_checkbox->setChecked( checked );
-          // If going from paused to running, trigger the initial step
-          if( checked )
+      QCheckBox* simulate_checkbox = new QCheckBox{ m_simulate_action->text(), this };
+      connect( m_simulate_action, &QAction::toggled,
+        [this]( const bool checked )
           {
-            #ifdef USE_HDF5
-            emit stepSimulation( this->m_movie_dir_name, this->m_state_dir_name );
-            #else
-            emit stepSimulation( this->m_movie_dir_name );
-            #endif
+            this->simulate_checkbox->setChecked( checked );
+            // If going from paused to running, trigger the initial step
+            if( checked )
+            {
+              #ifdef USE_HDF5
+              emit stepSimulation( this->m_movie_dir_name, this->m_state_dir_name );
+              #else
+              emit stepSimulation( this->m_movie_dir_name );
+              #endif
+            }
           }
-        }
-    );
-    connect( m_simulate_checkbox, &QCheckBox::toggled, m_simulate_action, &QAction::setChecked );
-    controls_layout->addWidget( m_simulate_checkbox );
+      );
+      connect( simulate_checkbox, &QCheckBox::toggled, m_simulate_action, &QAction::setChecked );
+      controls_layout->addWidget( simulate_checkbox );
+    }
 
     QFrame* line1 = new QFrame( this );
     line1->setFrameShape( QFrame::HLine );
     line1->setFrameShadow( QFrame::Sunken );
     controls_layout->addWidget( line1 );
 
-    // Button to print camera settings
-    QPushButton* print_camera_button = new QPushButton{ tr( "Display Camera" ), this };
-    controls_layout->addWidget( print_camera_button );
-    connect( print_camera_button, &QPushButton::clicked, this, &ContentWidget::exportCameraSettings );
+    // Controls for displaying camera settings
+    {
+      m_display_camera_action = new QAction{ tr("Display Camera"), this };
+      m_display_camera_action->setShortcut( Qt::Key_D );
+      connect( m_display_camera_action, &QAction::triggered,
+        [this]()
+          {
+            const std::string csttngs = this->m_gl_widget->exportCameraSettings( this->m_output_fps, this->m_lock_render_fps, this->m_lock_output_fps );
+            QMessageBox::information( this, tr("SCISim 2D Ball Simulation"), csttngs.c_str() );
+          }
+      );
+
+      QPushButton* display_camera_button = new QPushButton{ m_display_camera_action->text(), this };
+      controls_layout->addWidget( display_camera_button );
+      connect( display_camera_button, &QPushButton::clicked, m_display_camera_action, &QAction::trigger );
+    }
 
     // Button to center the camera
     QPushButton* center_camera_button = new QPushButton{ tr( "Center Camera" ), this };
@@ -264,6 +280,11 @@ QAction* ContentWidget::stepAction()
 QAction* ContentWidget::simulateAction()
 {
   return m_simulate_action;
+}
+
+QAction* ContentWidget::displayCameraAction()
+{
+  return m_display_camera_action;
 }
 
 void ContentWidget::wireSaveMovieAction( QAction* movie_action )
@@ -409,7 +430,7 @@ void ContentWidget::copyStepResults( const bool was_reset, const bool render_fra
     m_gl_widget->update();
   }
 
-  if( m_simulate_checkbox->isChecked() )
+  if( m_simulate_action->isChecked() )
   {
     #ifdef USE_HDF5
     emit stepSimulation( m_movie_dir_name, m_state_dir_name );
@@ -509,8 +530,8 @@ void ContentWidget::initializeUIAndGL( const QString& scene_file_name, const boo
                            m_sim_worker->endTime(), m_empty, m_bbox );
 
   // Make sure the simulation is not running when we start
-  assert( m_simulate_checkbox != nullptr );
-  m_simulate_checkbox->setChecked( false );
+  assert( m_simulate_action != nullptr );
+  m_simulate_action->setChecked( false );
 
   // Update UI elements
   assert( m_fps_spin_box != nullptr );
@@ -737,12 +758,6 @@ void ContentWidget::exportState()
   m_export_state_checkbox->toggle();
 }
 #endif
-
-void ContentWidget::exportCameraSettings()
-{
-  const std::string camera_settings = m_gl_widget->exportCameraSettings( m_output_fps, m_lock_render_fps, m_lock_output_fps );
-  QMessageBox::information( this, tr("SCISim 2D Ball Simulation"), camera_settings.c_str() );
-}
 
 QString ContentWidget::getOpenFileNameFromUser( const QString& prompt )
 {

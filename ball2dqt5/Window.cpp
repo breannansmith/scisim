@@ -63,7 +63,7 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
     toggle_fps_lock->setEnabled( content_widget->isLockRenderFPSEnabled() );
     content_widget->wireLockRenderFPS( toggle_fps_lock );
     view->addSeparator();
-    view->addAction( tr( "Display Camera" ), content_widget, &ContentWidget::exportCameraSettings, Qt::Key_D );
+    view->addAction( content_widget->displayCameraAction() );
   }
 
   // Simulation menu actions
