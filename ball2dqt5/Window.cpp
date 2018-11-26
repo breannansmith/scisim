@@ -20,9 +20,7 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
     file->addAction( content_widget->saveImageAction() );
     file->addAction( content_widget->saveMovieAction() );
     #ifdef USE_HDF5
-    QAction* save_state_action = file->addAction( tr( "Save State..." ), content_widget, &ContentWidget::exportState, Qt::CTRL + Qt::Key_S );
-    save_state_action->setCheckable( true );
-    content_widget->wireSaveStateAction( save_state_action );
+    file->addAction( content_widget->saveStateAction() );
     #endif
     file->addSeparator();
     file->addAction( content_widget->lockOutputFPSAction() );

@@ -44,7 +44,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_lock_camera_action( nullptr )
 , m_save_movie_action( nullptr )
 #ifdef USE_HDF5
-, m_export_state_checkbox( nullptr )
+, m_save_state_action( nullptr )
 #endif
 , m_lock_output_fps_action( nullptr )
 , m_display_hud_action( nullptr )
@@ -166,10 +166,18 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 
     #ifdef USE_HDF5
     // Toggle for enabling/disabling state export
-    m_export_state_checkbox = new QCheckBox{ tr( "Save State..." ), this };
-    controls_layout->addWidget( m_export_state_checkbox );
-    m_export_state_checkbox->setChecked( false );
-    connect( m_export_state_checkbox, &QCheckBox::toggled, this, &ContentWidget::exportStateToggled );
+    {
+      m_save_state_action = new QAction{ tr( "Save State..." ), this };
+      m_save_state_action->setShortcut( Qt::CTRL + Qt::Key_S );
+      m_save_state_action->setCheckable( true );
+
+      QCheckBox* export_state_checkbox = new QCheckBox{ m_save_state_action->text(), this };
+      controls_layout->addWidget( export_state_checkbox );
+
+      connect( export_state_checkbox, &QCheckBox::toggled, m_save_state_action, &QAction::setChecked );
+      connect( m_save_state_action, &QAction::toggled, export_state_checkbox, &QCheckBox::setChecked );
+      connect( m_save_state_action, &QAction::toggled, this, &ContentWidget::exportStateToggled );
+    }
     #endif
 
     // Toggle for locking the data output FPS
@@ -445,11 +453,9 @@ QAction* ContentWidget::saveMovieAction()
 }
 
 #ifdef USE_HDF5
-void ContentWidget::wireSaveStateAction( QAction* state_action )
+QAction* ContentWidget::saveStateAction()
 {
-  connect( m_export_state_checkbox, &QAbstractButton::toggled,
-      [state_action, this](){state_action->setChecked(this->m_export_state_checkbox->isChecked());}
-    );
+  return m_save_state_action;
 }
 #endif
 
@@ -491,8 +497,7 @@ void ContentWidget::disableMovieExport()
 #ifdef USE_HDF5
 void ContentWidget::disableStateExport()
 {
-  assert( m_export_state_checkbox != nullptr );
-  m_export_state_checkbox->setCheckState( Qt::Unchecked );
+  m_save_state_action->setChecked( false );
   setStateDir( tr( "" ) );
 }
 #endif
@@ -770,8 +775,7 @@ void ContentWidget::exportStateToggled( const bool checked )
     }
     else
     {
-      assert( m_export_state_checkbox != nullptr );
-      m_export_state_checkbox->toggle();
+      m_save_state_action->setChecked( false );
     }
   }
   else
@@ -780,7 +784,7 @@ void ContentWidget::exportStateToggled( const bool checked )
   }
 
   // 'Grey out' invalid options when state exporting is toggled
-  if( m_export_state_checkbox->isChecked() )
+  if( m_save_state_action->isChecked() )
   {
     m_lock_output_fps_action->setEnabled( false );
     emit lockOutputFPSEnabled( false );
@@ -807,14 +811,6 @@ void ContentWidget::toggleControls()
   assert( m_controls_widget != nullptr );
   m_controls_widget->setVisible( !m_controls_widget->isVisible() );
 }
-
-#ifdef USE_HDF5
-void ContentWidget::exportState()
-{
-  assert( m_export_state_checkbox != nullptr );
-  m_export_state_checkbox->toggle();
-}
-#endif
 
 QString ContentWidget::getOpenFileNameFromUser( const QString& prompt )
 {

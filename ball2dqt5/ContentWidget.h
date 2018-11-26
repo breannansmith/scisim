@@ -9,8 +9,6 @@
 
 #include "scisim/Math/MathDefines.h"
 
-class QCheckBox;
-
 class GLWidget;
 class SimWorker;
 class ValidatingSpinBox;
@@ -42,9 +40,8 @@ public:
   QAction* openAction();
   QAction* saveImageAction();
   QAction* saveMovieAction();
-
   #ifdef USE_HDF5
-  void wireSaveStateAction( QAction* state_action );
+  QAction* saveStateAction();
   #endif
 
 public slots:
@@ -60,10 +57,6 @@ public slots:
   #endif
 
   void toggleControls();
-
-  #ifdef USE_HDF5
-  void exportState();
-  #endif
 
   void copyStepResults( const bool was_reset, const bool render_frame, const bool save_screenshot, const int output_num );
 
@@ -128,7 +121,7 @@ private:
   QAction* m_save_movie_action;
 
   #ifdef USE_HDF5
-  QCheckBox* m_export_state_checkbox;
+  QAction* m_save_state_action;
   #endif
 
   QAction* m_lock_output_fps_action;
