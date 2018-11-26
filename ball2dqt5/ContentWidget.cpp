@@ -46,7 +46,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 #ifdef USE_HDF5
 , m_export_state_checkbox( nullptr )
 #endif
-, m_lock_output_fps_checkbox( nullptr )
+, m_lock_output_fps_action( nullptr )
 , m_display_hud_action( nullptr )
 , m_fps_spin_box( nullptr )
 , m_display_camera_action( nullptr )
@@ -112,10 +112,21 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     #endif
 
     // Toggle for locking the data output FPS
-    m_lock_output_fps_checkbox = new QCheckBox{ tr( "Lock Output FPS" ), this };
-    controls_layout->addWidget( m_lock_output_fps_checkbox );
-    m_lock_output_fps_checkbox->setChecked( true );
-    connect( m_lock_output_fps_checkbox, &QCheckBox::toggled, this, &ContentWidget::outputFPSToggled );
+    {
+      m_lock_output_fps_action = new QAction{ tr( "Lock Output FPS" ), this };
+      m_lock_output_fps_action->setShortcut( Qt::Key_O );
+      m_lock_output_fps_action->setCheckable( true );
+      m_lock_output_fps_action->setChecked( true );
+
+      QCheckBox* lock_output_fps_checkbox = new QCheckBox{ m_lock_output_fps_action->text(), this };
+      lock_output_fps_checkbox->setChecked( m_lock_output_fps_action->isChecked() );
+      controls_layout->addWidget( lock_output_fps_checkbox );
+
+      connect( lock_output_fps_checkbox, &QCheckBox::toggled, m_lock_output_fps_action, &QAction::setChecked );
+      connect( m_lock_output_fps_action, &QAction::toggled, lock_output_fps_checkbox, &QCheckBox::setChecked );
+      connect( m_lock_output_fps_action, &QAction::toggled, this, &ContentWidget::lockOutputFPSToggled );
+      connect( this, &ContentWidget::lockOutputFPSEnabled, lock_output_fps_checkbox, &QCheckBox::setEnabled );
+    }
 
     QFrame* line0 = new QFrame( this );
     line0->setFrameShape( QFrame::HLine );
@@ -347,6 +358,11 @@ QAction* ContentWidget::lockRenderFPSAction()
   return m_lock_render_fps_action;
 }
 
+QAction* ContentWidget::lockOutputFPSAction()
+{
+  return m_lock_output_fps_action;
+}
+
 void ContentWidget::wireSaveMovieAction( QAction* movie_action )
 {
   connect( m_export_movie_checkbox, &QAbstractButton::toggled,
@@ -362,22 +378,6 @@ void ContentWidget::wireSaveStateAction( QAction* state_action )
     );
 }
 #endif
-
-bool ContentWidget::isLockOutputFPSChecked() const
-{
-  return m_lock_output_fps_checkbox->isChecked();
-}
-
-bool ContentWidget::isLockOutputFPSEnabled() const
-{
-  return m_lock_output_fps_checkbox->isEnabled();
-}
-
-void ContentWidget::wireLockOutputFPS( QAction* locked ) const
-{
-  connect( m_lock_output_fps_checkbox, &QAbstractButton::toggled, locked, &QAction::setChecked );
-  connect( this, &ContentWidget::lockOutputFPSCheckboxEnabled, locked, &QAction::setEnabled );
-}
 
 void ContentWidget::wireSimWorker()
 {
@@ -569,8 +569,30 @@ void ContentWidget::initializeUIAndGL( const QString& scene_file_name, const boo
   m_lock_render_fps_action->setChecked( render_settings.render_at_fps );
   assert( m_lock_camera_action != nullptr );
   m_lock_camera_action->setChecked( render_settings.lock_camera );
-  assert( m_lock_output_fps_checkbox != nullptr );
-  m_lock_output_fps_checkbox->setChecked( render_settings.output_at_fps );
+  assert( m_lock_output_fps_action != nullptr );
+  m_lock_output_fps_action->setChecked( render_settings.output_at_fps );
+
+  if( m_lock_output_fps_action->isChecked() && m_lock_render_fps_action->isChecked() )
+  {
+    m_lock_output_fps_action->setEnabled( false );
+    emit lockOutputFPSEnabled( false );
+    m_lock_render_fps_action->setEnabled( true );
+    emit lockRenderFPSEnabled( true );
+  }
+  else if( !m_lock_output_fps_action->isChecked() && !m_lock_render_fps_action->isChecked() )
+  {
+    m_lock_output_fps_action->setEnabled( true );
+    emit lockOutputFPSEnabled( true );
+    m_lock_render_fps_action->setEnabled( false );
+    emit lockRenderFPSEnabled( false );
+  }
+  else
+  {
+    m_lock_output_fps_action->setEnabled( true );
+    emit lockOutputFPSEnabled( true );
+    m_lock_render_fps_action->setEnabled( true );
+    emit lockRenderFPSEnabled( true );
+  }
 
   // NB: This relies on the fact that timesteps are fixed per scene
   m_fps_spin_box->setTimestep( m_sim_worker->integrator().dt() );
@@ -591,12 +613,12 @@ void ContentWidget::reloadScene()
   }
 }
 
-void ContentWidget::outputFPSToggled()
+void ContentWidget::lockOutputFPSToggled()
 {
-  m_lock_output_fps = m_lock_output_fps_checkbox->isChecked();
+  m_lock_output_fps = m_lock_output_fps_action->isChecked();
 
   // 'Grey out' invalid options
-  if( !m_lock_output_fps_checkbox->isChecked() )
+  if( !m_lock_output_fps_action->isChecked() )
   {
     m_lock_render_fps_action->setEnabled( false );
     emit lockRenderFPSEnabled( false );
@@ -621,15 +643,15 @@ void ContentWidget::lockRenderFPSToggled( const bool lock_render_fps )
 #endif
     )
   {
-    if( m_lock_output_fps_checkbox->isChecked() && m_lock_render_fps_action->isChecked() )
+    if( m_lock_output_fps_action->isChecked() && m_lock_render_fps_action->isChecked() )
     {
-      m_lock_output_fps_checkbox->setEnabled( false );
-      emit lockOutputFPSCheckboxEnabled( false );
+      m_lock_output_fps_action->setEnabled( false );
+      emit lockOutputFPSEnabled( false );
     }
     else
     {
-      m_lock_output_fps_checkbox->setEnabled( true );
-      emit lockOutputFPSCheckboxEnabled( true );
+      m_lock_output_fps_action->setEnabled( true );
+      emit lockOutputFPSEnabled( true );
     }
   }
 
@@ -662,8 +684,8 @@ void ContentWidget::exportMovieToggled( const bool checked )
   // 'Grey out' invalid options when movie exporting is toggled
   if( m_export_movie_checkbox->isChecked() )
   {
-    m_lock_output_fps_checkbox->setEnabled( false );
-    emit lockOutputFPSCheckboxEnabled( false );
+    m_lock_output_fps_action->setEnabled( false );
+    emit lockOutputFPSEnabled( false );
     m_fps_spin_box->setEnabled( false );
   }
   else
@@ -676,8 +698,8 @@ void ContentWidget::exportMovieToggled( const bool checked )
     #endif
     if( !m_lock_render_fps_action->isChecked() )
     {
-      m_lock_output_fps_checkbox->setEnabled( true );
-      emit lockOutputFPSCheckboxEnabled( true );
+      m_lock_output_fps_action->setEnabled( true );
+      emit lockOutputFPSEnabled( true );
     }
     m_fps_spin_box->setEnabled( true );
   }
@@ -708,8 +730,8 @@ void ContentWidget::exportStateToggled( const bool checked )
   // 'Grey out' invalid options when state exporting is toggled
   if( m_export_state_checkbox->isChecked() )
   {
-    m_lock_output_fps_checkbox->setEnabled( false );
-    emit lockOutputFPSCheckboxEnabled( false );
+    m_lock_output_fps_action->setEnabled( false );
+    emit lockOutputFPSEnabled( false );
     m_fps_spin_box->setEnabled( false );
   }
   else
@@ -720,19 +742,13 @@ void ContentWidget::exportStateToggled( const bool checked )
     }
     if( !m_lock_render_fps_action->isChecked() )
     {
-      m_lock_output_fps_checkbox->setEnabled( true );
-      emit lockOutputFPSCheckboxEnabled( true );
+      m_lock_output_fps_action->setEnabled( true );
+      emit lockOutputFPSEnabled( true );
     }
     m_fps_spin_box->setEnabled( true );
   }
 }
 #endif
-
-void ContentWidget::toggleOutputFPSLockCheckbox()
-{
-  assert( m_lock_output_fps_checkbox != nullptr );
-  m_lock_output_fps_checkbox->toggle();
-}
 
 void ContentWidget::toggleControls()
 {

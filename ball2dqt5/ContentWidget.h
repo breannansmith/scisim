@@ -10,7 +10,6 @@
 #include "scisim/Math/MathDefines.h"
 
 class QCheckBox;
-// class QPushButton;
 
 class GLWidget;
 class SimWorker;
@@ -38,6 +37,7 @@ public:
   QAction* displayHUDAction();
   QAction* lockCameraAction();
   QAction* lockRenderFPSAction();
+  QAction* lockOutputFPSAction();
 
   // TODO: This is kind of hacky, but it works for now. Needed because failing to load a directory can force a retoggle.
   void wireSaveMovieAction( QAction* movie_action );
@@ -46,16 +46,12 @@ public:
   void wireSaveStateAction( QAction* state_action );
   #endif
 
-  bool isLockOutputFPSChecked() const;
-  bool isLockOutputFPSEnabled() const;
-  void wireLockOutputFPS( QAction* locked ) const;
-
 public slots:
 
   void openUserScene();
   void reloadScene();
 
-  void outputFPSToggled();
+  void lockOutputFPSToggled();
 
   void lockRenderFPSToggled( const bool lock_render_fps );
 
@@ -64,8 +60,6 @@ public slots:
   #ifdef USE_HDF5
   void exportStateToggled( const bool checked );
   #endif
-
-  void toggleOutputFPSLockCheckbox();
 
   void toggleControls();
 
@@ -94,7 +88,7 @@ signals:
   #endif
 
   void lockRenderFPSEnabled( const bool enabled );
-  void lockOutputFPSCheckboxEnabled( const bool enabled );
+  void lockOutputFPSEnabled( const bool enabled );
 
 private:
 
@@ -141,7 +135,7 @@ private:
   QCheckBox* m_export_state_checkbox;
   #endif
 
-  QCheckBox* m_lock_output_fps_checkbox;
+  QAction* m_lock_output_fps_action;
 
   QAction* m_display_hud_action;
 

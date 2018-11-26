@@ -29,11 +29,7 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
     content_widget->wireSaveStateAction( save_state_action );
     #endif
     file->addSeparator();
-    QAction* toggle_output_lock = file->addAction( tr( "Lock Output FPS" ), content_widget, &ContentWidget::toggleOutputFPSLockCheckbox, Qt::Key_O );
-    toggle_output_lock->setCheckable( true );
-    toggle_output_lock->setChecked( content_widget->isLockOutputFPSChecked() );
-    toggle_output_lock->setEnabled( content_widget->isLockOutputFPSEnabled() );
-    content_widget->wireLockOutputFPS( toggle_output_lock );
+    file->addAction( content_widget->lockOutputFPSAction() );
   }
 
   // View menu actions
