@@ -47,7 +47,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_export_state_checkbox( nullptr )
 #endif
 , m_lock_output_fps_checkbox( nullptr )
-, m_display_hud_checkbox( nullptr )
+, m_display_hud_action( nullptr )
 , m_fps_spin_box( nullptr )
 , m_display_camera_action( nullptr )
 , m_center_camera_action( nullptr )
@@ -212,10 +212,20 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     }
 
     // Toggle for displaying the OpenGL HUD
-    m_display_hud_checkbox = new QCheckBox{ tr( "Show HUD" ), this };
-    m_display_hud_checkbox->setChecked( true );
-    controls_layout->addWidget( m_display_hud_checkbox );
-    connect( m_display_hud_checkbox, &QCheckBox::toggled, [this](){ this->m_gl_widget->toggleHUD(); } );
+    {
+      m_display_hud_action = new QAction{ tr( "Show HUD" ), this };
+      m_display_hud_action->setShortcut( Qt::Key_H );
+      m_display_hud_action->setCheckable( true );
+      m_display_hud_action->setChecked( true );
+
+      QCheckBox* display_hud_checkbox = new QCheckBox{ m_display_hud_action->text(), this };
+      display_hud_checkbox->setChecked( true );
+      controls_layout->addWidget( display_hud_checkbox );
+
+      connect( display_hud_checkbox, &QCheckBox::toggled, m_display_hud_action, &QAction::setChecked );
+      connect( m_display_hud_action, &QAction::toggled, display_hud_checkbox, &QCheckBox::setChecked );
+      connect( m_display_hud_action, &QAction::toggled, [this](){ this->m_gl_widget->toggleHUD(); } );
+    }
 
     // Toggle for locking the camera controls
     m_lock_camera_checkbox = new QCheckBox{ tr( "Lock Camera" ), this };
@@ -304,6 +314,11 @@ QAction* ContentWidget::centerCameraAction()
   return m_center_camera_action;
 }
 
+QAction* ContentWidget::displayHUDAction()
+{
+  return m_display_hud_action;
+}
+
 void ContentWidget::wireSaveMovieAction( QAction* movie_action )
 {
   connect( m_export_movie_checkbox, &QAbstractButton::toggled,
@@ -319,11 +334,6 @@ void ContentWidget::wireSaveStateAction( QAction* state_action )
     );
 }
 #endif
-
-void ContentWidget::wireToggleHUD( QAction* hud ) const
-{
-  connect( m_display_hud_checkbox, &QAbstractButton::toggled, hud, &QAction::setChecked );
-}
 
 bool ContentWidget::isCameraLocked() const
 {
@@ -715,12 +725,6 @@ void ContentWidget::exportStateToggled( const bool checked )
   }
 }
 #endif
-
-void ContentWidget::toggleHUDCheckbox()
-{
-  assert( m_display_hud_checkbox != nullptr );
-  m_display_hud_checkbox->toggle();
-}
 
 void ContentWidget::toggleCameraLockCheckbox()
 {

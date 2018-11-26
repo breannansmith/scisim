@@ -46,10 +46,7 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
     QAction* toggle_controls = view->addAction( tr( "Show Controls" ), content_widget, &ContentWidget::toggleControls, Qt::Key_U );
     toggle_controls->setCheckable( true );
     toggle_controls->setChecked( true );
-    QAction* toggle_hud = view->addAction( tr( "Show HUD" ), content_widget, &ContentWidget::toggleHUDCheckbox, Qt::Key_H );
-    toggle_hud->setCheckable( true );
-    toggle_hud->setChecked( true );
-    content_widget->wireToggleHUD( toggle_hud );
+    view->addAction( content_widget->displayHUDAction() );
     view->addSeparator();
     view->addAction( content_widget->centerCameraAction() );
     QAction* toggle_camera_lock = view->addAction( tr( "Lock Camera" ), content_widget, &ContentWidget::toggleCameraLockCheckbox, Qt::Key_L );
