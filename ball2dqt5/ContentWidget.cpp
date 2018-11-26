@@ -197,10 +197,13 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
       connect( this, &ContentWidget::lockOutputFPSEnabled, lock_output_fps_checkbox, &QCheckBox::setEnabled );
     }
 
-    QFrame* line0 = new QFrame( this );
-    line0->setFrameShape( QFrame::HLine );
-    line0->setFrameShadow( QFrame::Sunken );
-    controls_layout->addWidget( line0 );
+    // Visual separator
+    {
+      QFrame* line = new QFrame( this );
+      line->setFrameShape( QFrame::HLine );
+      line->setFrameShadow( QFrame::Sunken );
+      controls_layout->addWidget( line );
+    }
 
     // Controls for resetting the simulation
     {
@@ -253,10 +256,13 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
       controls_layout->addWidget( simulate_checkbox );
     }
 
-    QFrame* line1 = new QFrame( this );
-    line1->setFrameShape( QFrame::HLine );
-    line1->setFrameShadow( QFrame::Sunken );
-    controls_layout->addWidget( line1 );
+    // Visual separator
+    {
+      QFrame* line = new QFrame( this );
+      line->setFrameShape( QFrame::HLine );
+      line->setFrameShadow( QFrame::Sunken );
+      controls_layout->addWidget( line );
+    }
 
     // Controls for displaying camera settings
     {
@@ -337,31 +343,34 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
       connect( this, &ContentWidget::lockRenderFPSEnabled, lock_render_fps_checkbox, &QCheckBox::setEnabled );
     }
 
-    // HBox for the FPS label and spin box
-    QHBoxLayout* fps_hbox{ new QHBoxLayout };
+    // FPS spinbox
+    {
+      // HBox for the FPS label and spin box
+      QHBoxLayout* fps_hbox{ new QHBoxLayout };
 
-    // Label for movie output FPS
-    QLabel* fps_label{ new QLabel{ this } };
-    // fps_label->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
-    fps_label->setText( tr( "FPS:" ) );
-    fps_hbox->addWidget( fps_label, 0 );
+      // Label for movie output FPS
+      QLabel* fps_label{ new QLabel{ this } };
+      // fps_label->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
+      fps_label->setText( tr( "FPS:" ) );
+      fps_hbox->addWidget( fps_label, 0 );
 
-    // Input for movie output FPS
-    m_fps_spin_box = new ValidatingSpinBox{ this };
-    m_fps_spin_box->setKeyboardTracking( false );
-    m_fps_spin_box->setButtonSymbols( QAbstractSpinBox::NoButtons );
-    m_fps_spin_box->setRange( 1, 1000 );
-    m_fps_spin_box->setValue( 30 );
-    connect( m_fps_spin_box, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
-            [this]( const int fps ){ this->setFPS( fps ); } );
+      // Input for movie output FPS
+      m_fps_spin_box = new ValidatingSpinBox{ this };
+      m_fps_spin_box->setKeyboardTracking( false );
+      m_fps_spin_box->setButtonSymbols( QAbstractSpinBox::NoButtons );
+      m_fps_spin_box->setRange( 1, 1000 );
+      m_fps_spin_box->setValue( 30 );
+      connect( m_fps_spin_box, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+              [this]( const int fps ){ this->setFPS( fps ); } );
 
-    connect( m_fps_spin_box, &QSpinBox::editingFinished, m_fps_spin_box, &ValidatingSpinBox::displayErrorMessage );
-    connect( m_fps_spin_box, &QSpinBox::editingFinished, [this](){ this->setFocus(); } );
-    fps_hbox->addWidget( m_fps_spin_box, 1 );
+      connect( m_fps_spin_box, &QSpinBox::editingFinished, m_fps_spin_box, &ValidatingSpinBox::displayErrorMessage );
+      connect( m_fps_spin_box, &QSpinBox::editingFinished, [this](){ this->setFocus(); } );
+      fps_hbox->addWidget( m_fps_spin_box, 1 );
 
-    controls_layout->addLayout( fps_hbox );
+      controls_layout->addLayout( fps_hbox );
 
-    controls_layout->addStretch();
+      controls_layout->addStretch();
+    }
   }
 
   if( !scene_name.isEmpty() )
@@ -808,7 +817,6 @@ void ContentWidget::exportStateToggled( const bool checked )
 
 void ContentWidget::toggleControls()
 {
-  assert( m_controls_widget != nullptr );
   m_controls_widget->setVisible( !m_controls_widget->isVisible() );
 }
 

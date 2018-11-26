@@ -76,6 +76,7 @@ signals:
   void exportStateEnabled( QString dir_name );
   #endif
 
+  // TODO: Refactor so we don't need these
   void lockRenderFPSEnabled( const bool enabled );
   void lockOutputFPSEnabled( const bool enabled );
 
