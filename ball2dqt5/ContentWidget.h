@@ -36,6 +36,7 @@ public:
   QAction* displayCameraAction();
   QAction* centerCameraAction();
   QAction* displayHUDAction();
+  QAction* lockCameraAction();
 
   // TODO: This is kind of hacky, but it works for now. Needed because failing to load a directory can force a retoggle.
   void wireSaveMovieAction( QAction* movie_action );
@@ -43,9 +44,6 @@ public:
   #ifdef USE_HDF5
   void wireSaveStateAction( QAction* state_action );
   #endif
-
-  bool isCameraLocked() const;
-  void wireCameraLocked( QAction* locked ) const;
 
   bool isLockRenderFPSChecked() const;
   bool isLockRenderFPSEnabled() const;
@@ -70,7 +68,6 @@ public slots:
   void exportStateToggled( const bool checked );
   #endif
 
-  void toggleCameraLockCheckbox();
   void toggleRenderFPSLockCheckbox();
   void toggleOutputFPSLockCheckbox();
 
@@ -140,7 +137,7 @@ private:
 
   QCheckBox* m_lock_render_fps_checkbox;
 
-  QCheckBox* m_lock_camera_checkbox;
+  QAction* m_lock_camera_action;
 
   QCheckBox* m_export_movie_checkbox;
 

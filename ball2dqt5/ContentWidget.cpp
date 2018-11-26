@@ -41,7 +41,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_controls_widget( nullptr )
 , m_simulate_action( nullptr )
 , m_lock_render_fps_checkbox( nullptr )
-, m_lock_camera_checkbox( nullptr )
+, m_lock_camera_action( nullptr )
 , m_export_movie_checkbox( nullptr )
 #ifdef USE_HDF5
 , m_export_state_checkbox( nullptr )
@@ -228,10 +228,19 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     }
 
     // Toggle for locking the camera controls
-    m_lock_camera_checkbox = new QCheckBox{ tr( "Lock Camera" ), this };
-    controls_layout->addWidget( m_lock_camera_checkbox );
-    connect( m_lock_camera_checkbox, &QCheckBox::toggled,
-             [this]( const bool lock ){ this->m_gl_widget->lockCamera( lock ); } );
+    {
+      m_lock_camera_action = new QAction{ tr( "Lock Camera" ), this };
+      m_lock_camera_action->setShortcut( Qt::Key_L );
+      m_lock_camera_action->setCheckable( true );
+
+      QCheckBox* lock_camera_checkbox = new QCheckBox{ m_lock_camera_action->text(), this };
+      controls_layout->addWidget( lock_camera_checkbox );
+
+      connect( lock_camera_checkbox, &QCheckBox::toggled, m_lock_camera_action, &QAction::setChecked );
+      connect( m_lock_camera_action, &QAction::toggled, lock_camera_checkbox, &QCheckBox::setChecked );
+      connect( m_lock_camera_action, &QAction::toggled,
+               [this]( const bool lock ){ this->m_gl_widget->lockCamera( lock ); } );
+    }
 
     // Toggle for rendering at the specified FPS
     m_lock_render_fps_checkbox = new QCheckBox{ tr( "Lock Render FPS" ), this };
@@ -319,6 +328,11 @@ QAction* ContentWidget::displayHUDAction()
   return m_display_hud_action;
 }
 
+QAction* ContentWidget::lockCameraAction()
+{
+  return m_lock_camera_action;
+}
+
 void ContentWidget::wireSaveMovieAction( QAction* movie_action )
 {
   connect( m_export_movie_checkbox, &QAbstractButton::toggled,
@@ -334,16 +348,6 @@ void ContentWidget::wireSaveStateAction( QAction* state_action )
     );
 }
 #endif
-
-bool ContentWidget::isCameraLocked() const
-{
-  return m_lock_camera_checkbox->isChecked();
-}
-
-void ContentWidget::wireCameraLocked( QAction* locked ) const
-{
-  connect( m_lock_camera_checkbox, &QAbstractButton::toggled, locked, &QAction::setChecked );
-}
 
 bool ContentWidget::isLockRenderFPSChecked() const
 {
@@ -565,8 +569,8 @@ void ContentWidget::initializeUIAndGL( const QString& scene_file_name, const boo
   m_fps_spin_box->setValue( render_settings.fps );
   assert( m_lock_render_fps_checkbox != nullptr );
   m_lock_render_fps_checkbox->setChecked( render_settings.render_at_fps );
-  assert( m_lock_camera_checkbox != nullptr );
-  m_lock_camera_checkbox->setChecked( render_settings.lock_camera );
+  assert( m_lock_camera_action != nullptr );
+  m_lock_camera_action->setChecked( render_settings.lock_camera );
   assert( m_lock_output_fps_checkbox != nullptr );
   m_lock_output_fps_checkbox->setChecked( render_settings.output_at_fps );
 
@@ -725,12 +729,6 @@ void ContentWidget::exportStateToggled( const bool checked )
   }
 }
 #endif
-
-void ContentWidget::toggleCameraLockCheckbox()
-{
-  assert( m_lock_camera_checkbox != nullptr );
-  m_lock_camera_checkbox->toggle();
-}
 
 void ContentWidget::toggleRenderFPSLockCheckbox()
 {

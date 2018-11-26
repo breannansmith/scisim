@@ -49,10 +49,7 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
     view->addAction( content_widget->displayHUDAction() );
     view->addSeparator();
     view->addAction( content_widget->centerCameraAction() );
-    QAction* toggle_camera_lock = view->addAction( tr( "Lock Camera" ), content_widget, &ContentWidget::toggleCameraLockCheckbox, Qt::Key_L );
-    toggle_camera_lock->setCheckable( true );
-    toggle_camera_lock->setChecked( content_widget->isCameraLocked() );
-    content_widget->wireCameraLocked( toggle_camera_lock );
+    view->addAction( content_widget->lockCameraAction() );
     view->addSeparator();
     QAction* toggle_fps_lock = view->addAction( tr( "Lock Render FPS" ), content_widget, &ContentWidget::toggleRenderFPSLockCheckbox, Qt::Key_F );
     toggle_fps_lock->setCheckable( true );
