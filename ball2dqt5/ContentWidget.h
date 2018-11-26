@@ -41,9 +41,7 @@ public:
   QAction* reloadAction();
   QAction* openAction();
   QAction* saveImageAction();
-
-  // TODO: This is kind of hacky, but it works for now. Needed because failing to load a directory can force a retoggle.
-  void wireSaveMovieAction( QAction* movie_action );
+  QAction* saveMovieAction();
 
   #ifdef USE_HDF5
   void wireSaveStateAction( QAction* state_action );
@@ -63,7 +61,6 @@ public slots:
 
   void toggleControls();
 
-  void exportMovie();
   #ifdef USE_HDF5
   void exportState();
   #endif
@@ -128,7 +125,7 @@ private:
 
   QAction* m_lock_camera_action;
 
-  QCheckBox* m_export_movie_checkbox;
+  QAction* m_save_movie_action;
 
   #ifdef USE_HDF5
   QCheckBox* m_export_state_checkbox;

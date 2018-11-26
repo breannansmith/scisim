@@ -42,7 +42,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_simulate_action( nullptr )
 , m_lock_render_fps_action( nullptr )
 , m_lock_camera_action( nullptr )
-, m_export_movie_checkbox( nullptr )
+, m_save_movie_action( nullptr )
 #ifdef USE_HDF5
 , m_export_state_checkbox( nullptr )
 #endif
@@ -151,10 +151,18 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     }
 
     // Toggle for enabling/disabling movie export
-    m_export_movie_checkbox = new QCheckBox{ tr( "Save Movie..." ), this };
-    controls_layout->addWidget( m_export_movie_checkbox );
-    m_export_movie_checkbox->setChecked( false );
-    connect( m_export_movie_checkbox, &QCheckBox::toggled, this, &ContentWidget::exportMovieToggled );
+    {
+      m_save_movie_action = new QAction{ tr( "Save Movie..." ), this };
+      m_save_movie_action->setShortcut( Qt::CTRL + Qt::Key_M );
+      m_save_movie_action->setCheckable( true );
+
+      QCheckBox* export_movie_checkbox = new QCheckBox{ m_save_movie_action->text(), this };
+      controls_layout->addWidget( export_movie_checkbox );
+
+      connect( export_movie_checkbox, &QCheckBox::toggled, m_save_movie_action, &QAction::setChecked );
+      connect( m_save_movie_action, &QAction::toggled, export_movie_checkbox, &QCheckBox::setChecked );
+      connect( m_save_movie_action, &QAction::toggled, this, &ContentWidget::exportMovieToggled );
+    }
 
     #ifdef USE_HDF5
     // Toggle for enabling/disabling state export
@@ -431,11 +439,9 @@ QAction* ContentWidget::saveImageAction()
   return m_save_image_action;
 }
 
-void ContentWidget::wireSaveMovieAction( QAction* movie_action )
+QAction* ContentWidget::saveMovieAction()
 {
-  connect( m_export_movie_checkbox, &QAbstractButton::toggled,
-      [movie_action, this](){movie_action->setChecked(this->m_export_movie_checkbox->isChecked());}
-    );
+  return m_save_movie_action;
 }
 
 #ifdef USE_HDF5
@@ -478,8 +484,7 @@ ContentWidget::~ContentWidget()
 
 void ContentWidget::disableMovieExport()
 {
-  assert( m_export_movie_checkbox != nullptr );
-  m_export_movie_checkbox->setCheckState( Qt::Unchecked );
+  m_save_movie_action->setChecked( false );
   setMovieDir( tr( "" ) );
 }
 
@@ -720,8 +725,7 @@ void ContentWidget::exportMovieToggled( const bool checked )
     }
     else
     {
-      assert( m_export_movie_checkbox != nullptr );
-      m_export_movie_checkbox->toggle();
+      m_save_movie_action->setChecked( false );
     }
   }
   else
@@ -730,7 +734,7 @@ void ContentWidget::exportMovieToggled( const bool checked )
   }
 
   // 'Grey out' invalid options when movie exporting is toggled
-  if( m_export_movie_checkbox->isChecked() )
+  if( m_save_movie_action->isChecked() )
   {
     m_lock_output_fps_action->setEnabled( false );
     emit lockOutputFPSEnabled( false );
@@ -802,12 +806,6 @@ void ContentWidget::toggleControls()
 {
   assert( m_controls_widget != nullptr );
   m_controls_widget->setVisible( !m_controls_widget->isVisible() );
-}
-
-void ContentWidget::exportMovie()
-{
-  assert( m_export_movie_checkbox != nullptr );
-  m_export_movie_checkbox->toggle();
 }
 
 #ifdef USE_HDF5

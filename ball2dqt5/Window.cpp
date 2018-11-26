@@ -11,8 +11,6 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
   ContentWidget* content_widget{ new ContentWidget{ scene_name, sim_settings, render_settings, this } };
   setCentralWidget( content_widget );
 
-  // TODO: Instead of manual wiring, add actions to the content widget's buttons instead? Manual works fine for now though.
-
   // File menu actions
   {
     QMenu* file{ menuBar()->addMenu( tr( "File" ) ) };
@@ -20,9 +18,7 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
     file->addAction( content_widget->reloadAction() );
     file->addSeparator();
     file->addAction( content_widget->saveImageAction() );
-    QAction* save_movie_action = file->addAction( tr( "Save Movie..." ), content_widget, &ContentWidget::exportMovie, Qt::CTRL + Qt::Key_M );
-    save_movie_action->setCheckable( true );
-    content_widget->wireSaveMovieAction( save_movie_action );
+    file->addAction( content_widget->saveMovieAction() );
     #ifdef USE_HDF5
     QAction* save_state_action = file->addAction( tr( "Save State..." ), content_widget, &ContentWidget::exportState, Qt::CTRL + Qt::Key_S );
     save_state_action->setCheckable( true );
