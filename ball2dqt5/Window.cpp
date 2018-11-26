@@ -16,7 +16,7 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
   // File menu actions
   {
     QMenu* file{ menuBar()->addMenu( tr( "File" ) ) };
-    file->addAction( tr( "Open Sim..." ), content_widget, &ContentWidget::openUserScene, Qt::CTRL + Qt::Key_O );
+    file->addAction( content_widget->openAction() );
     file->addAction( content_widget->reloadAction() );
     file->addSeparator();
     file->addAction( tr( "Save Image..." ), content_widget, &ContentWidget::exportImage, Qt::CTRL + Qt::Key_I );
