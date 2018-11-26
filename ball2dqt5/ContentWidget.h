@@ -38,6 +38,7 @@ public:
   QAction* lockCameraAction();
   QAction* lockRenderFPSAction();
   QAction* lockOutputFPSAction();
+  QAction* reloadAction();
 
   // TODO: This is kind of hacky, but it works for now. Needed because failing to load a directory can force a retoggle.
   void wireSaveMovieAction( QAction* movie_action );
@@ -49,7 +50,6 @@ public:
 public slots:
 
   void openUserScene();
-  void reloadScene();
 
   void lockOutputFPSToggled();
 
@@ -148,6 +148,8 @@ private:
   QAction* m_step_action;
 
   QAction* m_reset_action;
+
+  QAction* m_reload_action;
 
   // Threading state
 

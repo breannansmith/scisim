@@ -53,6 +53,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_center_camera_action( nullptr )
 , m_step_action( nullptr )
 , m_reset_action( nullptr )
+, m_reload_action( nullptr )
 , m_sim_thread()
 , m_sim_worker( nullptr )
 , m_xml_file_name()
@@ -88,9 +89,25 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     connect( open_button, &QPushButton::clicked, this, &ContentWidget::openUserScene );
 
     // Button for reloading the simulation
-    QPushButton* reload_button = new QPushButton{ tr( "Reload Sim" ), this };
-    controls_layout->addWidget( reload_button );
-    connect( reload_button, &QPushButton::clicked, this, &ContentWidget::reloadScene );
+    {
+      m_reload_action = new QAction{ tr("Reload Sim"), this };
+      m_reload_action->setShortcut( Qt::CTRL + Qt::Key_R );
+
+      connect( m_reload_action, &QAction::triggered,
+        [this]()
+        {
+          if( !this->m_xml_file_name.isEmpty() )
+          {
+            this->openScene( m_xml_file_name );
+          }
+        }
+      );
+
+      QPushButton* reload_button = new QPushButton{ m_reload_action->text(), this };
+      controls_layout->addWidget( reload_button );
+
+      connect( reload_button, &QPushButton::clicked, m_reload_action, &QAction::trigger );
+    }
 
     // Button to export screenshot
     QPushButton* save_image_button = new QPushButton{ tr( "Save Image..." ), this };
@@ -363,6 +380,11 @@ QAction* ContentWidget::lockOutputFPSAction()
   return m_lock_output_fps_action;
 }
 
+QAction* ContentWidget::reloadAction()
+{
+  return m_reload_action;
+}
+
 void ContentWidget::wireSaveMovieAction( QAction* movie_action )
 {
   connect( m_export_movie_checkbox, &QAbstractButton::toggled,
@@ -603,14 +625,6 @@ void ContentWidget::initializeUIAndGL( const QString& scene_file_name, const boo
   #ifdef USE_HDF5
   disableStateExport();
   #endif
-}
-
-void ContentWidget::reloadScene()
-{
-  if( !m_xml_file_name.isEmpty() )
-  {
-    openScene( m_xml_file_name );
-  }
 }
 
 void ContentWidget::lockOutputFPSToggled()
