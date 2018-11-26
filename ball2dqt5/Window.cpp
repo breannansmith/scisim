@@ -1,7 +1,5 @@
 #include "Window.h"
 
-#include <cassert>
-
 #include <QMenu>
 #include <QMenuBar>
 
@@ -18,7 +16,6 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
   // File menu actions
   {
     QMenu* file{ menuBar()->addMenu( tr( "File" ) ) };
-    assert( file != nullptr );
     file->addAction( tr( "Open Sim..." ), content_widget, &ContentWidget::openUserScene, Qt::CTRL + Qt::Key_O );
     file->addAction( tr( "Reload Sim" ), content_widget, &ContentWidget::reloadScene, Qt::CTRL + Qt::Key_R );
     file->addSeparator();
@@ -42,7 +39,6 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
   // View menu actions
   {
     QMenu* view{ menuBar()->addMenu( tr( "View" ) ) };
-    assert( view != nullptr );
     QAction* toggle_controls = view->addAction( tr( "Show Controls" ), content_widget, &ContentWidget::toggleControls, Qt::Key_U );
     toggle_controls->setCheckable( true );
     toggle_controls->setChecked( true );
@@ -51,11 +47,7 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
     view->addAction( content_widget->centerCameraAction() );
     view->addAction( content_widget->lockCameraAction() );
     view->addSeparator();
-    QAction* toggle_fps_lock = view->addAction( tr( "Lock Render FPS" ), content_widget, &ContentWidget::toggleRenderFPSLockCheckbox, Qt::Key_F );
-    toggle_fps_lock->setCheckable( true );
-    toggle_fps_lock->setChecked( content_widget->isLockRenderFPSChecked() );
-    toggle_fps_lock->setEnabled( content_widget->isLockRenderFPSEnabled() );
-    content_widget->wireLockRenderFPS( toggle_fps_lock );
+    view->addAction( content_widget->lockRenderFPSAction() );
     view->addSeparator();
     view->addAction( content_widget->displayCameraAction() );
   }
