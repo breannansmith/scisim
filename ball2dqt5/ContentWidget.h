@@ -40,6 +40,7 @@ public:
   QAction* lockOutputFPSAction();
   QAction* reloadAction();
   QAction* openAction();
+  QAction* saveImageAction();
 
   // TODO: This is kind of hacky, but it works for now. Needed because failing to load a directory can force a retoggle.
   void wireSaveMovieAction( QAction* movie_action );
@@ -62,7 +63,6 @@ public slots:
 
   void toggleControls();
 
-  void exportImage();
   void exportMovie();
   #ifdef USE_HDF5
   void exportState();
@@ -151,6 +151,8 @@ private:
   QAction* m_reload_action;
 
   QAction* m_open_action;
+
+  QAction* m_save_image_action;
 
   // Threading state
 

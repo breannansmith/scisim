@@ -19,7 +19,7 @@ Window::Window( const QString& scene_name, SimSettings& sim_settings, RenderSett
     file->addAction( content_widget->openAction() );
     file->addAction( content_widget->reloadAction() );
     file->addSeparator();
-    file->addAction( tr( "Save Image..." ), content_widget, &ContentWidget::exportImage, Qt::CTRL + Qt::Key_I );
+    file->addAction( content_widget->saveImageAction() );
     QAction* save_movie_action = file->addAction( tr( "Save Movie..." ), content_widget, &ContentWidget::exportMovie, Qt::CTRL + Qt::Key_M );
     save_movie_action->setCheckable( true );
     content_widget->wireSaveMovieAction( save_movie_action );

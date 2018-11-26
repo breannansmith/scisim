@@ -55,6 +55,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_reset_action( nullptr )
 , m_reload_action( nullptr )
 , m_open_action( nullptr )
+, m_save_image_action( nullptr )
 , m_sim_thread()
 , m_sim_worker( nullptr )
 , m_xml_file_name()
@@ -128,9 +129,26 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     }
 
     // Button to export screenshot
-    QPushButton* save_image_button = new QPushButton{ tr( "Save Image..." ), this };
-    controls_layout->addWidget( save_image_button );
-    connect( save_image_button, &QPushButton::clicked, this, &ContentWidget::exportImage );
+    {
+      m_save_image_action = new QAction{ tr("Save Image..."), this };
+      m_save_image_action->setShortcut( Qt::CTRL + Qt::Key_I );
+
+      connect( m_save_image_action, &QAction::triggered,
+        [this]()
+        {
+          const QString file_name{ getSaveFileNameFromUser( tr( "Please Specify an Image Name" ) ) };
+          if( !file_name.isEmpty() )
+          {
+            this->m_gl_widget->saveScreenshot( file_name );
+          }
+        }
+      );
+
+      QPushButton* save_image_button = new QPushButton{ m_save_image_action->text(), this };
+      controls_layout->addWidget( save_image_button );
+
+      connect( save_image_button, &QPushButton::clicked, m_save_image_action, &QAction::trigger );
+    }
 
     // Toggle for enabling/disabling movie export
     m_export_movie_checkbox = new QCheckBox{ tr( "Save Movie..." ), this };
@@ -406,6 +424,11 @@ QAction* ContentWidget::reloadAction()
 QAction* ContentWidget::openAction()
 {
   return m_open_action;
+}
+
+QAction* ContentWidget::saveImageAction()
+{
+  return m_save_image_action;
 }
 
 void ContentWidget::wireSaveMovieAction( QAction* movie_action )
@@ -779,16 +802,6 @@ void ContentWidget::toggleControls()
 {
   assert( m_controls_widget != nullptr );
   m_controls_widget->setVisible( !m_controls_widget->isVisible() );
-}
-
-void ContentWidget::exportImage()
-{
-  assert( m_gl_widget != nullptr );
-  const QString file_name{ getSaveFileNameFromUser( tr( "Please Specify an Image Name" ) ) };
-  if( !file_name.isEmpty() )
-  {
-    m_gl_widget->saveScreenshot( file_name );
-  }
 }
 
 void ContentWidget::exportMovie()
