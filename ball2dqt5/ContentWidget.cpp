@@ -54,6 +54,7 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
 , m_step_action( nullptr )
 , m_reset_action( nullptr )
 , m_reload_action( nullptr )
+, m_open_action( nullptr )
 , m_sim_thread()
 , m_sim_worker( nullptr )
 , m_xml_file_name()
@@ -84,9 +85,26 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
     controls_layout->setMargin(0);
 
     // Button for opening a simulation
-    QPushButton* open_button = new QPushButton{ tr( "Open Sim..." ), this };
-    controls_layout->addWidget( open_button );
-    connect( open_button, &QPushButton::clicked, this, &ContentWidget::openUserScene );
+    {
+      m_open_action = new QAction{ tr("Open Sim..."), this };
+      m_open_action->setShortcut( Qt::CTRL + Qt::Key_O );
+
+      connect( m_open_action, &QAction::triggered,
+        [this]()
+        {
+          const QString file{ this->getOpenFileNameFromUser( tr( "Please Select a Scene File" ) ) };
+          if( !file.isEmpty() )
+          {
+            this->openScene( file );
+          }
+        }
+      );
+
+      QPushButton* open_button = new QPushButton{ m_open_action->text(), this };
+      controls_layout->addWidget( open_button );
+
+      connect( open_button, &QPushButton::clicked, m_open_action, &QAction::trigger );
+    }
 
     // Button for reloading the simulation
     {
@@ -385,6 +403,11 @@ QAction* ContentWidget::reloadAction()
   return m_reload_action;
 }
 
+QAction* ContentWidget::openAction()
+{
+  return m_open_action;
+}
+
 void ContentWidget::wireSaveMovieAction( QAction* movie_action )
 {
   connect( m_export_movie_checkbox, &QAbstractButton::toggled,
@@ -494,18 +517,6 @@ void ContentWidget::copyStepResults( const bool was_reset, const bool render_fra
 void ContentWidget::workerErrorMessage( QString message )
 {
   QMessageBox::warning( this, tr("SCISim 2D Ball Simulation"), message );
-}
-
-void ContentWidget::openUserScene()
-{
-  // Obtain a file name from the user
-  const QString xml_scene_file_name{ getOpenFileNameFromUser( tr( "Please Select a Scene File" ) ) };
-
-  // Try to load the file
-  if( !xml_scene_file_name.isEmpty() )
-  {
-    openScene( xml_scene_file_name );
-  }
 }
 
 void ContentWidget::openScene( const QString& scene_file_name )
