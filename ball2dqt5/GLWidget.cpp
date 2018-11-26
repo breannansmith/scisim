@@ -7,7 +7,6 @@
 #include <QWheelEvent>
 
 #include <cassert>
-#include <iomanip>
 
 #include "ball2d/Ball2DState.h"
 
@@ -439,21 +438,20 @@ void GLWidget::centerCamera( const bool update_gl, const bool empty, const Vecto
 
 void GLWidget::saveScreenshot( const QString& file_name )
 {
-  std::stringstream ss;
-  ss << "Saving a screenshot of time " << std::fixed << std::setprecision( m_display_precision )
-     << m_time << " to: " << file_name.toStdString();
-  qInfo( "%s", ss.str().c_str() );
+  // std::stringstream ss;
+  // ss << "Saving a screenshot of time " << std::fixed << std::setprecision( m_display_precision )
+  //    << m_time << " to: " << file_name.toStdString();
+  // qInfo( "%s", ss.str().c_str() );
   const QImage frame_buffer{ grabFramebuffer() };
   frame_buffer.save( file_name );
 }
 
-std::string GLWidget::exportCameraSettings( const int output_fps, const bool render_at_fps, const bool output_at_fps )
+QString GLWidget::exportCameraSettings( const int output_fps, const bool render_at_fps, const bool output_at_fps ) const
 {
-  std::stringstream ss;
-  ss << "<camera cx=\"" << m_center_x << "\" cy=\"" << m_center_y << "\" scale_factor=\"" << m_display_scale
-     << "\" fps=\"" << output_fps << "\" output_at_fps=\"" << output_at_fps << "\" render_at_fps=\"" << render_at_fps
-     << "\" locked=\"" << m_lock_camera << "\"/>";
-  return ss.str();
+  return QString("<camera cx=\"%1\" cy=\"%2\" scale_factor=\"%3\" fps=\"%4\" output_at_fps=\"%5\" render_at_fps=\"%6\" locked=\"%7\"/>")
+           .arg(QString::number(double(m_center_x)), QString::number(double(m_center_y)), QString::number(double(m_display_scale)),
+                QString::number(output_fps), QString::number(output_at_fps), QString::number(render_at_fps),
+                QString::number(m_lock_camera));
 }
 
 static QString generateTimeString( const scalar& time, const int display_precision, const scalar& end_time )

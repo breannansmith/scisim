@@ -199,7 +199,7 @@ void SimWorker::takeStep( QString movie_dir_name )
     m_scripting.setState( m_sim.state() );
     m_scripting.endOfSimCallback();
     m_scripting.forgetState();
-    qInfo( "Simulation complete. Exiting." );
+    // qInfo( "Simulation complete. Exiting." );
     QApplication::quit();
   }
 
@@ -250,10 +250,10 @@ void SimWorker::saveStateToHDF5( const QString& dir_name, const int output_num )
 
   const scalar time = scalar(m_integrator.dt()) * m_iteration;
 
-  std::stringstream ss;
-  ss << "Saving output state of time " << std::fixed << std::setprecision( m_display_precision )
-    << time << " to: " << output_file_name;
-  qInfo( "%s", ss.str().c_str() );
+  // std::stringstream ss;
+  // ss << "Saving output state of time " << std::fixed << std::setprecision( m_display_precision )
+  //   << time << " to: " << output_file_name;
+  // qInfo( "%s", ss.str().c_str() );
 
   // Save the simulation state
   try

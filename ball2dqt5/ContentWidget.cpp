@@ -271,8 +271,8 @@ ContentWidget::ContentWidget( const QString& scene_name, SimSettings& sim_settin
       connect( m_display_camera_action, &QAction::triggered,
         [this]()
           {
-            const std::string csttngs = this->m_gl_widget->exportCameraSettings( this->m_output_fps, this->m_lock_render_fps, this->m_lock_output_fps );
-            QMessageBox::information( this, tr("SCISim 2D Ball Simulation"), csttngs.c_str() );
+            QString csttngs = this->m_gl_widget->exportCameraSettings( this->m_output_fps, this->m_lock_render_fps, this->m_lock_output_fps );
+            QMessageBox::information( this, tr("SCISim 2D Ball Simulation"), csttngs );
           }
       );
 
