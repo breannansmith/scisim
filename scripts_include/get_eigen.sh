@@ -1,10 +1,10 @@
 #!/bin/bash
 
-actual_eigen_tar_md5="a7aab9f758249b86c93221ad417fbe18"
-eigen_url="http://bitbucket.org/eigen/eigen/get/3.3.4.tar.bz2"
+actual_eigen_tar_md5="6e74a04aeab3417120f1bdef6f3b4881"
+eigen_url="https://gitlab.com/libeigen/eigen/-/archive/3.3.4/eigen-3.3.4.tar.bz2"
 eigen_file_name="3.3.4.tar.bz2"
 
-extracted_eigen_name="eigen-eigen-5a0156e40feb"
+extracted_eigen_name="eigen-3.3.4"
 # md5 on installed Eigen source files
 actual_installed_eigen_md5="1829213ea6385ea2a942258d91bf7877"
 
